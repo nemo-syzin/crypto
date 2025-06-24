@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAllRates } from '@/lib/hooks/rates';
-import { TrendingUp, RefreshCw, Crown, AlertTriangle, Clock, Database, Settings } from 'lucide-react';
+import { TrendingUp, RefreshCw, Crown, AlertTriangle, Clock, Database, Settings, Info } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
@@ -32,17 +32,18 @@ export default function RatesComparison() {
     }
   };
 
+  // Логика для определения лучших курсов (только KenigSwap и BestChange)
   const getBestSellRate = () => {
     if (!rates) return null;
     const sellRates = [
       { source: 'KenigSwap', rate: rates.kenig.sell },
       { source: 'BestChange', rate: rates.bestchange.sell },
-      { source: 'EnergoTransBank', rate: rates.energo.sell },
     ].filter(item => item.rate !== null && !isNaN(item.rate!)) as { source: string; rate: number }[];
     
     if (sellRates.length === 0) return null;
+    // Лучший курс продажи = самый НИЗКИЙ (выгоднее для клиента)
     return sellRates.reduce((best, current) => 
-      current.rate > best.rate ? current : best
+      current.rate < best.rate ? current : best
     );
   };
 
@@ -51,10 +52,10 @@ export default function RatesComparison() {
     const buyRates = [
       { source: 'KenigSwap', rate: rates.kenig.buy },
       { source: 'BestChange', rate: rates.bestchange.buy },
-      { source: 'EnergoTransBank', rate: rates.energo.buy },
     ].filter(item => item.rate !== null && !isNaN(item.rate!)) as { source: string; rate: number }[];
     
     if (buyRates.length === 0) return null;
+    // Лучший курс покупки = самый ВЫСОКИЙ (выгоднее для клиента)
     return buyRates.reduce((best, current) => 
       current.rate > best.rate ? current : best
     );
@@ -71,7 +72,8 @@ export default function RatesComparison() {
       updatedAt: rates.kenig.updated_at,
       color: 'blue',
       available: rates.kenig.sell !== null && !isNaN(rates.kenig.sell!),
-      description: 'Основной обменник'
+      description: 'Основной обменник',
+      isCompetitive: true
     },
     {
       name: 'BestChange',
@@ -80,7 +82,8 @@ export default function RatesComparison() {
       updatedAt: rates.bestchange.updated_at,
       color: 'green',
       available: rates.bestchange.sell !== null && !isNaN(rates.bestchange.sell!),
-      description: 'Агрегатор обменников'
+      description: 'Агрегатор обменников',
+      isCompetitive: true
     },
     {
       name: 'EnergoTransBank',
@@ -89,7 +92,8 @@ export default function RatesComparison() {
       updatedAt: rates.energo.updated_at,
       color: 'purple',
       available: rates.energo.sell !== null && !isNaN(rates.energo.sell!),
-      description: 'Банковские курсы'
+      description: 'Справочно: курсы доллара',
+      isCompetitive: false
     },
   ] : [];
 
@@ -177,10 +181,23 @@ export default function RatesComparison() {
             </div>
           ) : rates ? (
             <div className="space-y-8">
+              {/* Explanation */}
+              <Alert className="bg-blue-50 border-blue-200">
+                <Info className="h-4 w-4 text-blue-600" />
+                <AlertDescription className="text-blue-800">
+                  <strong>Логика сравнения:</strong> Лучший курс продажи = самый низкий (выгоднее для клиента), 
+                  лучший курс покупки = самый высокий (выгоднее для клиента). 
+                  Сравниваем только KenigSwap и BestChange. EnergoTransBank показан справочно.
+                </AlertDescription>
+              </Alert>
+
               {/* Sell Rates Section */}
               <div>
                 <h3 className="text-lg font-semibold text-[#001D8D] mb-4">
                   Продажа USDT → RUB
+                  <span className="text-sm font-normal text-[#001D8D]/70 ml-2">
+                    (лучший = самый низкий курс)
+                  </span>
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {exchangeData.map((exchange) => (
@@ -189,6 +206,8 @@ export default function RatesComparison() {
                       className={`p-4 rounded-lg border-2 transition-all duration-300 ${
                         !exchange.available
                           ? 'border-gray-100 bg-gray-25 opacity-60'
+                          : !exchange.isCompetitive
+                          ? 'border-purple-200 bg-purple-50'
                           : bestSell?.source === exchange.name
                           ? 'border-green-500 bg-green-50 shadow-lg'
                           : 'border-gray-200 bg-white hover:border-[#001D8D]/30'
@@ -206,10 +225,15 @@ export default function RatesComparison() {
                           <p className="text-xs text-gray-500">{exchange.description}</p>
                         </div>
                         <div className="flex flex-col items-end gap-1">
-                          {bestSell?.source === exchange.name && exchange.available && (
+                          {bestSell?.source === exchange.name && exchange.available && exchange.isCompetitive && (
                             <Badge className="bg-green-500 text-white">
                               <Crown className="h-3 w-3 mr-1" />
                               Лучший
+                            </Badge>
+                          )}
+                          {!exchange.isCompetitive && (
+                            <Badge variant="outline" className="text-xs text-purple-600 border-purple-300">
+                              Справочно
                             </Badge>
                           )}
                           {!exchange.available && (
@@ -236,6 +260,9 @@ export default function RatesComparison() {
               <div>
                 <h3 className="text-lg font-semibold text-[#001D8D] mb-4">
                   Покупка USDT ← RUB
+                  <span className="text-sm font-normal text-[#001D8D]/70 ml-2">
+                    (лучший = самый высокий курс)
+                  </span>
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {exchangeData.map((exchange) => (
@@ -244,6 +271,8 @@ export default function RatesComparison() {
                       className={`p-4 rounded-lg border-2 transition-all duration-300 ${
                         !exchange.available
                           ? 'border-gray-100 bg-gray-25 opacity-60'
+                          : !exchange.isCompetitive
+                          ? 'border-purple-200 bg-purple-50'
                           : bestBuy?.source === exchange.name
                           ? 'border-green-500 bg-green-50 shadow-lg'
                           : 'border-gray-200 bg-white hover:border-[#001D8D]/30'
@@ -261,10 +290,15 @@ export default function RatesComparison() {
                           <p className="text-xs text-gray-500">{exchange.description}</p>
                         </div>
                         <div className="flex flex-col items-end gap-1">
-                          {bestBuy?.source === exchange.name && exchange.available && (
+                          {bestBuy?.source === exchange.name && exchange.available && exchange.isCompetitive && (
                             <Badge className="bg-green-500 text-white">
                               <Crown className="h-3 w-3 mr-1" />
                               Лучший
+                            </Badge>
+                          )}
+                          {!exchange.isCompetitive && (
+                            <Badge variant="outline" className="text-xs text-purple-600 border-purple-300">
+                              Справочно
                             </Badge>
                           )}
                           {!exchange.available && (
@@ -287,25 +321,28 @@ export default function RatesComparison() {
                 </div>
               </div>
 
-              {/* Summary */}
+              {/* Summary - только для KenigSwap и BestChange */}
               {(bestSell || bestBuy) && (
                 <div className="bg-[#001D8D]/5 rounded-lg p-4">
                   <h4 className="font-semibold text-[#001D8D] mb-2">
-                    Лучшие курсы сейчас
+                    Лучшие курсы сейчас (KenigSwap vs BestChange)
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                     <div>
-                      <span className="text-[#001D8D]/70">Лучшая продажа USDT:</span>
+                      <span className="text-[#001D8D]/70">Лучшая продажа USDT (самый низкий):</span>
                       <div className="font-medium text-[#001D8D]">
                         {bestSell ? `${formatRate(bestSell.rate)} (${bestSell.source})` : '—'}
                       </div>
                     </div>
                     <div>
-                      <span className="text-[#001D8D]/70">Лучшая покупка USDT:</span>
+                      <span className="text-[#001D8D]/70">Лучшая покупка USDT (самый высокий):</span>
                       <div className="font-medium text-[#001D8D]">
                         {bestBuy ? `${formatRate(bestBuy.rate)} (${bestBuy.source})` : '—'}
                       </div>
                     </div>
+                  </div>
+                  <div className="mt-3 text-xs text-[#001D8D]/60">
+                    * EnergoTransBank показан справочно и не участвует в сравнении
                   </div>
                 </div>
               )}
