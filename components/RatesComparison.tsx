@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAllRates } from '@/lib/hooks/rates';
-import { TrendingUp, RefreshCw, Crown, AlertTriangle, Clock, Database, Settings, Info } from 'lucide-react';
+import { TrendingUp, RefreshCw, Crown, AlertTriangle, Clock, Settings } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
@@ -132,18 +132,6 @@ export default function RatesComparison() {
         </Alert>
       )}
 
-      {/* Success Alert */}
-      {rates && rates.isFromDatabase && (
-        <Alert className="bg-green-50 border-green-200">
-          <Database className="h-4 w-4 text-green-600" />
-          <AlertDescription className="text-green-800">
-            <strong>Данные загружены из Supabase</strong>
-            <br />
-            Курсы обновляются автоматически каждые 30 секунд
-          </AlertDescription>
-        </Alert>
-      )}
-
       {/* Main Comparison Card */}
       <Card className="bg-white/90 backdrop-blur-sm shadow-lg border border-[#001D8D]/10">
         <CardHeader>
@@ -181,23 +169,10 @@ export default function RatesComparison() {
             </div>
           ) : rates ? (
             <div className="space-y-8">
-              {/* Explanation */}
-              <Alert className="bg-blue-50 border-blue-200">
-                <Info className="h-4 w-4 text-blue-600" />
-                <AlertDescription className="text-blue-800">
-                  <strong>Логика сравнения:</strong> Лучший курс продажи = самый низкий (выгоднее для клиента), 
-                  лучший курс покупки = самый высокий (выгоднее для клиента). 
-                  Сравниваем только KenigSwap и BestChange. EnergoTransBank показан справочно.
-                </AlertDescription>
-              </Alert>
-
               {/* Sell Rates Section */}
               <div>
                 <h3 className="text-lg font-semibold text-[#001D8D] mb-4">
                   Продажа USDT → RUB
-                  <span className="text-sm font-normal text-[#001D8D]/70 ml-2">
-                    (лучший = самый низкий курс)
-                  </span>
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {exchangeData.map((exchange) => (
@@ -260,9 +235,6 @@ export default function RatesComparison() {
               <div>
                 <h3 className="text-lg font-semibold text-[#001D8D] mb-4">
                   Покупка USDT ← RUB
-                  <span className="text-sm font-normal text-[#001D8D]/70 ml-2">
-                    (лучший = самый высокий курс)
-                  </span>
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {exchangeData.map((exchange) => (
@@ -325,17 +297,17 @@ export default function RatesComparison() {
               {(bestSell || bestBuy) && (
                 <div className="bg-[#001D8D]/5 rounded-lg p-4">
                   <h4 className="font-semibold text-[#001D8D] mb-2">
-                    Лучшие курсы сейчас (KenigSwap vs BestChange)
+                    Лучшие курсы сейчас
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                     <div>
-                      <span className="text-[#001D8D]/70">Лучшая продажа USDT (самый низкий):</span>
+                      <span className="text-[#001D8D]/70">Лучшая продажа USDT:</span>
                       <div className="font-medium text-[#001D8D]">
                         {bestSell ? `${formatRate(bestSell.rate)} (${bestSell.source})` : '—'}
                       </div>
                     </div>
                     <div>
-                      <span className="text-[#001D8D]/70">Лучшая покупка USDT (самый высокий):</span>
+                      <span className="text-[#001D8D]/70">Лучшая покупка USDT:</span>
                       <div className="font-medium text-[#001D8D]">
                         {bestBuy ? `${formatRate(bestBuy.rate)} (${bestBuy.source})` : '—'}
                       </div>
