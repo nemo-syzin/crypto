@@ -203,7 +203,7 @@ export function safeParseRate(value: any, defaultValue: number = 0): number {
 }
 
 /**
- * Fetches and validates exchange rates from the database
+ * Fetches and validates exchange rates from the database with improved error handling
  * @returns Promise with validation results and formatted rates
  */
 export async function getValidatedKenigRates(): Promise<RateValidationResult> {
@@ -246,29 +246,52 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
         .order('created_at', { ascending: false });
 
       if (exchangeError) {
-        console.log('⚠️ exchange_rates table not found, trying kenig_rates...');
-        throw exchangeError;
+        console.log('⚠️ exchange_rates table query failed:', exchangeError.message);
+        
+        // Check if it's a column issue and try with updated_at
+        if (exchangeError.code === '42703' && exchangeError.message.includes('updated_at')) {
+          console.log('🔄 Retrying with updated_at column...');
+          const { data: retryData, error: retryError } = await supabase
+            .from('exchange_rates')
+            .select('*')
+            .order('updated_at', { ascending: false });
+          
+          if (retryError) {
+            throw exchangeError; // Use original error
+          }
+          
+          data = retryData || [];
+          tableName = 'exchange_rates';
+          console.log(`✅ Found ${data.length} records in exchange_rates table (using updated_at)`);
+        } else {
+          throw exchangeError;
+        }
+      } else {
+        data = exchangeData || [];
+        tableName = 'exchange_rates';
+        console.log(`✅ Found ${data.length} records in exchange_rates table (using created_at)`);
       }
-
-      data = exchangeData || [];
-      tableName = 'exchange_rates';
-      console.log(`✅ Found ${data.length} records in exchange_rates table`);
-    } catch (exchangeError) {
+    } catch (exchangeError: any) {
       // Try kenig_rates table as fallback
-      console.log('🔄 Trying kenig_rates table...');
-      const { data: kenigData, error: kenigError } = await supabase
-        .from('kenig_rates')
-        .select('*')
-        .order('updated_at', { ascending: false });
+      console.log('🔄 Trying kenig_rates table as fallback...');
+      try {
+        const { data: kenigData, error: kenigError } = await supabase
+          .from('kenig_rates')
+          .select('*')
+          .order('updated_at', { ascending: false });
 
-      if (kenigError) {
-        console.error('❌ Both tables failed:', { exchangeError, kenigError });
-        throw new Error(`Neither exchange_rates nor kenig_rates table found. Please run the database migration.`);
+        if (kenigError) {
+          console.error('❌ Both tables failed:', { exchangeError, kenigError });
+          throw new Error(`Neither exchange_rates nor kenig_rates table accessible. Exchange error: ${exchangeError.message}, Kenig error: ${kenigError.message}`);
+        }
+
+        data = kenigData || [];
+        tableName = 'kenig_rates';
+        console.log(`✅ Found ${data.length} records in kenig_rates table`);
+      } catch (kenigError) {
+        console.error('❌ All table access attempts failed:', { exchangeError, kenigError });
+        throw new Error(`No accessible tables found. Please check database setup and migrations.`);
       }
-
-      data = kenigData || [];
-      tableName = 'kenig_rates';
-      console.log(`✅ Found ${data.length} records in kenig_rates table`);
     }
 
     if (data.length === 0) {
@@ -281,7 +304,7 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
         invalidRatesCount: 0,
         lastUpdated: new Date(),
         isFromDatabase: true,
-        error: `No exchange rate data found in ${tableName} table`
+        error: `No exchange rate data found in ${tableName} table. Please run the data insertion migration.`
       };
     }
 
