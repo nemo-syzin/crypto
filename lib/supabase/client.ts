@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 // Check if environment variables are set
 const hasValidEnvVars = !!(supabaseUrl && supabaseAnonKey && 
@@ -16,10 +16,10 @@ if (!hasValidEnvVars) {
   console.warn('Get these values from: https://supabase.com/dashboard/project/YOUR_PROJECT/settings/api');
 }
 
-// Create Supabase client
+// Create Supabase client with fallback values to prevent initialization errors
 export const supabase = createClient(
-  supabaseUrl,
-  supabaseAnonKey
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseAnonKey || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsYWNlaG9sZGVyIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NDk3NzEyMDAuImV4cCI6MTk2NTM0NzIwMH0.placeholder'
 );
 
 // Helper function to check if Supabase is properly configured
@@ -31,7 +31,7 @@ export const checkSupabaseConnection = async () => {
     }
 
     const { data, error } = await supabase
-      .from('kenig_rates')
+      .from('exchange_rates')
       .select('count')
       .limit(1);
     
@@ -44,8 +44,8 @@ export const checkSupabaseConnection = async () => {
         console.error('Get the correct key from: https://supabase.com/dashboard/project/YOUR_PROJECT/settings/api');
       }
       
-      if (error.message.includes('relation "kenig_rates" does not exist') || error.code === '42P01') {
-        console.error('❌ Table "kenig_rates" does not exist. Please run the migration to create it.');
+      if (error.message.includes('relation "exchange_rates" does not exist') || error.code === '42P01') {
+        console.error('❌ Table "exchange_rates" does not exist. Please run the migration to create it.');
       }
       
       return false;
