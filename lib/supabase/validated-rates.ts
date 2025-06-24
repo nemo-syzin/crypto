@@ -132,14 +132,15 @@ function validateRateRecord(rate: any): ValidatedKenigRate {
     isValid = false;
   }
 
-  // Validate updated_at
-  if (!rate.updated_at) {
-    validationErrors.push('Updated timestamp is missing');
+  // Validate timestamp - check for both updated_at and created_at
+  const timestamp = rate.updated_at || rate.created_at;
+  if (!timestamp) {
+    validationErrors.push('Timestamp is missing (neither updated_at nor created_at found)');
     isValid = false;
   } else {
-    const updateDate = new Date(rate.updated_at);
+    const updateDate = new Date(timestamp);
     if (isNaN(updateDate.getTime())) {
-      validationErrors.push('Updated timestamp is invalid');
+      validationErrors.push('Timestamp is invalid');
       isValid = false;
     } else {
       // Check if data is not too old (more than 24 hours)
@@ -156,7 +157,7 @@ function validateRateRecord(rate: any): ValidatedKenigRate {
     source: rate.source || 'unknown',
     sell: sellValidation.isValid ? parseFloat(rate[sellField]) : 0,
     buy: buyValidation.isValid ? parseFloat(rate[buyField]) : 0,
-    updated_at: rate.updated_at || new Date().toISOString(),
+    updated_at: timestamp || new Date().toISOString(),
     isValid,
     validationErrors
   };
@@ -242,7 +243,7 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
       const { data: exchangeData, error: exchangeError } = await supabase
         .from('exchange_rates')
         .select('*')
-        .order('updated_at', { ascending: false });
+        .order('created_at', { ascending: false });
 
       if (exchangeError) {
         console.log('⚠️ exchange_rates table not found, trying kenig_rates...');
