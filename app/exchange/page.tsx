@@ -19,8 +19,7 @@ import {
   ArrowRight,
   Star,
   Users,
-  Award,
-  BarChart3
+  Award
 } from 'lucide-react';
 import { UnifiedVantaBackground } from '@/components/shared/UnifiedVantaBackground';
 import ExchangeCalculator from '@/components/ExchangeCalculator';
