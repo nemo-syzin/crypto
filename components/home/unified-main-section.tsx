@@ -434,9 +434,9 @@ const UnifiedMainSection = () => {
             </motion.div>
 
             <div className="relative mb-12">
-              {/* Gradient overlays for smooth edges */}
-              <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-white via-white/80 to-transparent z-10 pointer-events-none" />
-              <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-white via-white/80 to-transparent z-10 pointer-events-none" />
+              {/* Gradient overlays for smooth edges - изменено на темно-синий */}
+              <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-[#001D8D] via-[#001D8D]/80 to-transparent z-10 pointer-events-none" />
+              <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-[#001D8D] via-[#001D8D]/80 to-transparent z-10 pointer-events-none" />
 
               {/* Main marquee - left to right */}
               <div className="mb-8">
