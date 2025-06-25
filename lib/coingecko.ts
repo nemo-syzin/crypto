@@ -69,43 +69,73 @@ const fetcher = async (url: string) => {
 
 // Raw data fetching functions for direct use
 export async function getTopCoins(limit: number = 10): Promise<CoinMarketData[]> {
-  const params = new URLSearchParams({
-    vs_currency: 'usd',
-    order: 'market_cap_desc',
-    per_page: limit.toString(),
-    page: '1',
-    sparkline: 'false',
-    price_change_percentage: '1h,24h,7d',
-    locale: 'en'
-  });
+  try {
+    const params = new URLSearchParams({
+      vs_currency: 'usd',
+      order: 'market_cap_desc',
+      per_page: limit.toString(),
+      page: '1',
+      sparkline: 'false',
+      price_change_percentage: '1h,24h,7d',
+      locale: 'en'
+    });
 
-  const response = await fetch(`/api/coingecko?endpoint=/coins/markets&params=${params.toString()}`);
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+    const response = await fetch(`/api/coingecko?endpoint=/coins/markets&params=${params.toString()}`);
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error('CoinGecko API error:', errorData);
+      
+      // Return empty array instead of throwing
+      return [];
+    }
+    
+    const data = await response.json();
+    return Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.error('Error fetching top coins:', error);
+    return [];
   }
-  return response.json();
 }
 
-export async function getGlobalMarketData(): Promise<GlobalMarketData> {
-  const response = await fetch('/api/coingecko?endpoint=/global');
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+export async function getGlobalMarketData(): Promise<GlobalMarketData | null> {
+  try {
+    const response = await fetch('/api/coingecko?endpoint=/global');
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error('CoinGecko Global API error:', errorData);
+      return null;
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching global market data:', error);
+    return null;
   }
-  return response.json();
 }
 
-export async function getCoinHistory(coinId: string, days: number = 1): Promise<CoinPriceHistory> {
-  const params = new URLSearchParams({
-    vs_currency: 'usd',
-    days: days.toString(),
-    interval: days === 1 ? 'hourly' : 'daily'
-  });
+export async function getCoinHistory(coinId: string, days: number = 1): Promise<CoinPriceHistory | null> {
+  try {
+    const params = new URLSearchParams({
+      vs_currency: 'usd',
+      days: days.toString(),
+      interval: days === 1 ? 'hourly' : 'daily'
+    });
 
-  const response = await fetch(`/api/coingecko?endpoint=/coins/${coinId}/market_chart&params=${params.toString()}`);
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+    const response = await fetch(`/api/coingecko?endpoint=/coins/${coinId}/market_chart&params=${params.toString()}`);
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error('CoinGecko History API error:', errorData);
+      return null;
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching coin history:', error);
+    return null;
   }
-  return response.json();
 }
 
 // Hook for market data (top coins) - 5 minute refresh
@@ -118,6 +148,9 @@ export function useMarket(limit: number = 10) {
       revalidateOnFocus: true,
       revalidateOnReconnect: true,
       dedupingInterval: 2 * 60 * 1000, // 2 minutes
+      onError: (error) => {
+        console.error('Market data hook error:', error);
+      },
     }
   );
 
@@ -139,6 +172,9 @@ export function useGlobal() {
       revalidateOnFocus: false,
       revalidateOnReconnect: true,
       dedupingInterval: 5 * 60 * 1000, // 5 minutes
+      onError: (error) => {
+        console.error('Global market data hook error:', error);
+      },
     }
   );
 
@@ -159,6 +195,9 @@ export function useCoinHistory(coinId: string, days: number = 1) {
       refreshInterval: 5 * 60 * 1000, // 5 minutes
       revalidateOnFocus: false,
       dedupingInterval: 2 * 60 * 1000, // 2 minutes
+      onError: (error) => {
+        console.error('Coin history hook error:', error);
+      },
     }
   );
 

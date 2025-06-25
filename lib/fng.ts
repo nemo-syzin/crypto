@@ -47,6 +47,9 @@ export function useFearGreed() {
       revalidateOnFocus: false,
       revalidateOnReconnect: true,
       dedupingInterval: 5 * 60 * 1000, // 5 minutes
+      onError: (error) => {
+        console.error('Fear & Greed Index hook error:', error);
+      },
     }
   );
 
