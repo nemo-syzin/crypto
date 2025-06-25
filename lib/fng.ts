@@ -7,13 +7,13 @@ export interface FearGreedData {
   time_until_update?: string;
 }
 
-export interface FearGreedResponse {
+interface FearGreedResponse {
   name: string;
   data: FearGreedData[];
 }
 
 // Raw data fetching function for direct use
-export async function getFearGreedIndex(): Promise<FearGreedData> {
+async function getFearGreedIndex(): Promise<FearGreedData> {
   try {
     const response = await fetch('https://api.alternative.me/fng/?limit=1');
     if (!response.ok) {
@@ -77,7 +77,7 @@ export function getFearGreedBgColor(value: number): string {
   return 'bg-blue-100';
 }
 
-export function getFearGreedDescription(value: number): string {
+function getFearGreedDescription(value: number): string {
   if (value <= 25) return 'Extreme Fear';
   if (value <= 45) return 'Fear';
   if (value <= 55) return 'Neutral';

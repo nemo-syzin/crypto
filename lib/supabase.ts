@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 
-export type Database = {
+type Database = {
   public: {
     Tables: {
       profiles: {
@@ -128,7 +128,7 @@ if (!hasValidEnvVars) {
 }
 
 // Create Supabase client with fallback values to prevent errors
-export const supabase = createClient<Database>(
+const supabase = createClient<Database>(
   supabaseUrl || 'https://placeholder.supabase.co', 
   supabaseAnonKey || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsYWNlaG9sZGVyIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NDk3NzEyMDAuImV4cCI6MTk2NTM0NzIwMH0.placeholder'
 );
@@ -162,7 +162,7 @@ export const checkSupabaseConnection = async () => {
 };
 
 // Helper function to get environment status
-export const getSupabaseEnvStatus = () => {
+const getSupabaseEnvStatus = () => {
   return {
     url: {
       value: supabaseUrl,
@@ -179,4 +179,4 @@ export const getSupabaseEnvStatus = () => {
 };
 
 // Helper function to check if Supabase is available
-export const isSupabaseAvailable = () => hasValidEnvVars;
+const isSupabaseAvailable = () => hasValidEnvVars;

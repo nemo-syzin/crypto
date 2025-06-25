@@ -1,13 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getValidatedKenigRates, type RateValidationResult } from '@/lib/supabase/validated-rates';
 
-export interface KenigRate {
+interface KenigRate {
   sell: number;
   buy: number;
   updated_at: string;
 }
 
-export interface AllRates {
+interface AllRates {
   kenig: { sell: number | null; buy: number | null; updated_at?: string };
   bestchange: { sell: number | null; buy: number | null; updated_at?: string };
   energo: { sell: number | null; buy: number | null; updated_at?: string };

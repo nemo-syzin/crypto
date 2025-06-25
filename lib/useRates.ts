@@ -2,14 +2,14 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { useMarket, useGlobal, type CoinMarketData, type GlobalMarketData } from '@/lib/coingecko';
 import { useFearGreed, type FearGreedData } from '@/lib/fng';
 
-export interface RatesData {
+interface RatesData {
   coins: CoinMarketData[];
   global: GlobalMarketData | null;
   fearGreed: FearGreedData | null;
   lastUpdated: Date;
 }
 
-export interface CoinSnapshot {
+interface CoinSnapshot {
   coinId: string;
   price: number;
   timestamp: Date;

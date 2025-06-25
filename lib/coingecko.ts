@@ -52,7 +52,7 @@ export interface GlobalMarketData {
   };
 }
 
-export interface CoinPriceHistory {
+interface CoinPriceHistory {
   prices: [number, number][];
   market_caps: [number, number][];
   total_volumes: [number, number][];
@@ -68,7 +68,7 @@ const fetcher = async (url: string) => {
 };
 
 // Raw data fetching functions for direct use
-export async function getTopCoins(limit: number = 10): Promise<CoinMarketData[]> {
+async function getTopCoins(limit: number = 10): Promise<CoinMarketData[]> {
   try {
     const params = new URLSearchParams({
       vs_currency: 'usd',
@@ -98,7 +98,7 @@ export async function getTopCoins(limit: number = 10): Promise<CoinMarketData[]>
   }
 }
 
-export async function getGlobalMarketData(): Promise<GlobalMarketData | null> {
+async function getGlobalMarketData(): Promise<GlobalMarketData | null> {
   try {
     const response = await fetch('/api/coingecko?endpoint=/global');
     
@@ -115,7 +115,7 @@ export async function getGlobalMarketData(): Promise<GlobalMarketData | null> {
   }
 }
 
-export async function getCoinHistory(coinId: string, days: number = 1): Promise<CoinPriceHistory | null> {
+async function getCoinHistory(coinId: string, days: number = 1): Promise<CoinPriceHistory | null> {
   try {
     const params = new URLSearchParams({
       vs_currency: 'usd',
@@ -187,7 +187,7 @@ export function useGlobal() {
 }
 
 // Hook for coin history
-export function useCoinHistory(coinId: string, days: number = 1) {
+function useCoinHistory(coinId: string, days: number = 1) {
   const { data, error, isLoading } = useSWR<CoinPriceHistory>(
     coinId ? `coin-history-${coinId}-${days}` : null,
     () => getCoinHistory(coinId, days),

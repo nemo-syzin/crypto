@@ -1,6 +1,6 @@
 import { supabase, isSupabaseAvailable, getSupabaseStatus } from './client';
 
-export interface KenigRate {
+interface KenigRate {
   id: number;
   usdt_sell_rate: number;
   usdt_buy_rate: number;
@@ -8,7 +8,7 @@ export interface KenigRate {
   source: string;
 }
 
-export interface AllRates {
+interface AllRates {
   kenig: { sell: number | null; buy: number | null; updated_at?: string };
   bestchange: { sell: number | null; buy: number | null; updated_at?: string };
   energo: { sell: number | null; buy: number | null; updated_at?: string };

@@ -1,2 +1,83 @@
-components/ui/*
-hooks/use-toast.ts
+# Документация и README файлы
+*.md
+README*
+CHANGELOG*
+CONTRIBUTING*
+LICENSE*
+
+# Изображения и медиа
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.ico
+*.webp
+
+# Отчеты и логи
+knip-report.txt
+*.log
+coverage/
+.nyc_output/
+
+# Конфигурационные файлы для CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+.circleci/
+azure-pipelines.yml
+
+# Документация проекта
+docs/
+documentation/
+DEPLOYMENT.md
+OPTIMIZATION_REPORT.md
+
+# Тестовые и отладочные страницы
+app/debug-*/
+app/test-*/
+app/**/debug*
+app/**/test*
+
+# Конфигурационные файлы деплоя
+vercel.json
+netlify.toml
+railway.json
+docker-compose.yml
+Dockerfile*
+
+# Файлы IDE и редакторов
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Временные файлы
+.tmp/
+temp/
+tmp/
+
+# Файлы сборки (кроме критичных)
+.next/
+dist/
+build/
+out/
+
+# Файлы пакетных менеджеров
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Файлы типов (автогенерируемые)
+next-env.d.ts
+
+# Конфигурации линтеров
+.eslintrc*
+.prettierrc*
+.stylelintrc*
+
+# Конфигурации для разработки
+tsconfig.json
+postcss.config.js
+tailwind.config.ts
