@@ -33,6 +33,14 @@
   --radius: 0.5rem;
 }
 
+/* Голубое тонирование для неактивных лого */
+.tint-blue {
+  /* Стандартный приём: сначала делаем картинку ч/б, затем
+     переносим её в голубой тон через hue-rotate. */
+  filter: grayscale(1) brightness(.8) sepia(1)
+          hue-rotate(190deg) saturate(600%);
+}
+
 @layer base {
   * {
     font-family: 'Gilroy', sans-serif;

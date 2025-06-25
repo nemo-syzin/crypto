@@ -451,14 +451,14 @@ const UnifiedMainSection = () => {
                       key={`main-${index}`}
                       whileHover={{ scale: 1.1, y: -2 }}
                       transition={{ duration: 0.3 }}
-                      className="flex items-center justify-center mx-12 p-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-[#001D8D]/10 hover:border-[#001D8D]/30 hover:shadow-xl transition-all duration-300"
+                      className="flex items-center justify-center mx-12 p-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-[#001D8D]/10 hover:border-[#001D8D]/30 hover:shadow-xl transition-all duration-300 group"
                     >
                       <Image
                         src={partner.logo}
                         alt={`${partner.name} - Криптовалютная биржа`}
                         width={partner.width}
                         height={partner.height}
-                        className="object-contain filter grayscale hover:grayscale-0 transition-all duration-300"
+                        className="object-contain tint-blue group-hover:filter-none transition-all duration-300"
                         priority={index < 3}
                         unoptimized
                       />
@@ -481,14 +481,14 @@ const UnifiedMainSection = () => {
                       key={`secondary-${index}`}
                       whileHover={{ scale: 1.1, y: -2 }}
                       transition={{ duration: 0.3 }}
-                      className="flex items-center justify-center mx-12 p-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-[#001D8D]/10 hover:border-[#001D8D]/30 hover:shadow-xl transition-all duration-300"
+                      className="flex items-center justify-center mx-12 p-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-[#001D8D]/10 hover:border-[#001D8D]/30 hover:shadow-xl transition-all duration-300 group"
                     >
                       <Image
                         src={partner.logo}
                         alt={`${partner.name} - Криптовалютная биржа`}
                         width={partner.width}
                         height={partner.height}
-                        className="object-contain filter grayscale hover:grayscale-0 transition-all duration-300"
+                        className="object-contain tint-blue group-hover:filter-none transition-all duration-300"
                         unoptimized
                       />
                     </motion.div>
