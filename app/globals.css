@@ -33,21 +33,6 @@
   --radius: 0.5rem;
 }
 
-/* Тёмный индиго-тон для пассивных лого */
-.tint-indigo {
-  /* сначала ч/б, затем тонируем в глубокий индиго */
-  filter: grayscale(1) brightness(.8) sepia(1)
-          hue-rotate(220deg) saturate(400%);
-  transition: filter .3s, transform .3s;
-}
-
-/* Активное состояние */
-.card-hover:hover .tint-indigo,
-.card-hover:focus-visible .tint-indigo {
-  filter: none;          /* убираем тонирование */
-  transform: translateY(-4px);
-}
-
 @layer base {
   * {
     font-family: 'Gilroy', sans-serif;
@@ -125,6 +110,25 @@
       rgba(59, 130, 246, 0.2) 100%
     );
     animation: backgroundFlow 20s ease-in-out infinite;
+  }
+
+  /* Interactive indigo tint effect for partner logos */
+  .tint-indigo {
+    filter:
+      grayscale(1)
+      brightness(.85)
+      sepia(1)
+      hue-rotate(210deg)
+      saturate(250%);
+    opacity: 0.75;
+    transition: filter .3s, opacity .3s, transform .3s;
+  }
+
+  .card-hover:hover .tint-indigo,
+  .card-hover:focus-visible .tint-indigo {
+    filter: none;
+    opacity: 1;
+    transform: translateY(-4px);
   }
 }
 

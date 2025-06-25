@@ -135,55 +135,55 @@ const faqs = [
 
 const partners = [
   {
-    name: "Binance",
+    name: "Bitcoin",
     logo: "https://res.coinpaper.com/coinpaper/bitcoin_btc_logo_e68b8dbb0c.svg",
     width: 120,
     height: 40
   },
   {
-    name: "BTC",
+    name: "USDC",
     logo: "https://res.coinpaper.com/coinpaper/usd_coin_usdc_logo_33584e28ac.svg",
     width: 120,
     height: 40
   },
   {
-    name: "Ripple",
+    name: "USDT",
     logo: "https://res.coinpaper.com/coinpaper/tether_usdt_logo_1c069eb107.svg",
     width: 120,
     height: 40
   },
   {
-    name: "eth",
+    name: "BNB",
     logo: "https://res.coinpaper.com/coinpaper/bnb_bnb_logo_c9840ff036.svg",
     width: 120,
     height: 40
   },
   {
-    name: "coin",
+    name: "XRP",
     logo: "https://res.coinpaper.com/coinpaper/xrp_xrp_logo_4693101055.svg",
     width: 120,
     height: 40
   },
   {
-    name: "coi",
+    name: "Cardano",
     logo: "https://res.coinpaper.com/coinpaper/cardano_ada_logo_12715cd3e9.svg",
     width: 120,
     height: 40
   },
-    {
-    name: "co",
+  {
+    name: "Polkadot",
     logo: "https://res.coinpaper.com/coinpaper/Polkadot_Token_Polkadot_Token_Pink_6531f20385.svg",
     width: 120,
     height: 40
   },
-     {
-    name: "co",
+  {
+    name: "Optimism",
     logo: "https://res.coinpaper.com/coinpaper/optimism_logo_d197e3b2f3.svg",
     width: 120,
     height: 40
   },
   {
-    name: "okx",
+    name: "Dogecoin",
     logo: "https://res.coinpaper.com/coinpaper/dogecoin_doge_logo_477144b3df.svg",
     width: 120,
     height: 40
@@ -225,7 +225,7 @@ const UnifiedMainSection = () => {
   };
 
   return (
-    <section className="relative py-20 bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-950 overflow-hidden">
+    <section className="relative py-20 bg-gradient-to-b from-white via-blue-50/10 to-blue-100/20 overflow-hidden">
       {/*  ДВУХЦВЕТНЫЙ ФОН - ОРАНЖЕВЫЙ + СИНИЙ */}
       <div className="absolute inset-0 opacity-15">
         <UnifiedVantaBackground 
@@ -447,22 +447,17 @@ const UnifiedMainSection = () => {
                   className="py-6"
                 >
                   {partners.map((partner, index) => (
-                    <motion.div
+                    <div
                       key={`main-${index}`}
-                      whileHover={{ scale: 1.1, y: -2 }}
-                      transition={{ duration: 0.3 }}
-                      className="card-hover flex items-center justify-center mx-12 p-4 bg-white/90 backdrop-blur-sm rounded-xl shadow-lg shadow-slate-200/40 ring-1 ring-inset ring-slate-200/30 dark:shadow-none dark:ring-slate-700/60 border border-[#001D8D]/10 hover:border-[#001D8D]/30 hover:shadow-xl transition-all duration-300 opacity-50"
+                      className="card-hover w-28 md:w-24 sm:w-20 p-4 mx-6 rounded-xl bg-white shadow-sm hover:shadow-lg transition-all duration-300"
                     >
-                      <Image
+                      <img
                         src={partner.logo}
                         alt={`${partner.name} - Криптовалютная биржа`}
-                        width={partner.width}
-                        height={partner.height}
-                        className="object-contain tint-indigo transition-all duration-300"
-                        priority={index < 3}
-                        unoptimized
+                        className="tint-indigo w-full h-auto object-contain"
+                        loading={index < 3 ? "eager" : "lazy"}
                       />
-                    </motion.div>
+                    </div>
                   ))}
                 </Marquee>
               </div>
@@ -477,21 +472,17 @@ const UnifiedMainSection = () => {
                   className="py-6"
                 >
                   {partners.slice().reverse().map((partner, index) => (
-                    <motion.div
+                    <div
                       key={`secondary-${index}`}
-                      whileHover={{ scale: 1.1, y: -2 }}
-                      transition={{ duration: 0.3 }}
-                      className="card-hover flex items-center justify-center mx-12 p-4 bg-white/90 backdrop-blur-sm rounded-xl shadow-lg shadow-slate-200/40 ring-1 ring-inset ring-slate-200/30 dark:shadow-none dark:ring-slate-700/60 border border-[#001D8D]/10 hover:border-[#001D8D]/30 hover:shadow-xl transition-all duration-300 opacity-50"
+                      className="card-hover w-28 md:w-24 sm:w-20 p-4 mx-6 rounded-xl bg-white shadow-sm hover:shadow-lg transition-all duration-300"
                     >
-                      <Image
+                      <img
                         src={partner.logo}
                         alt={`${partner.name} - Криптовалютная биржа`}
-                        width={partner.width}
-                        height={partner.height}
-                        className="object-contain tint-indigo transition-all duration-300"
-                        unoptimized
+                        className="tint-indigo w-full h-auto object-contain"
+                        loading="lazy"
                       />
-                    </motion.div>
+                    </div>
                   ))}
                 </Marquee>
               </div>
