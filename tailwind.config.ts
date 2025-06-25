@@ -8,7 +8,7 @@ const config: Config = {
     "./app/**/*.{ts,tsx}",
     "./src/**/*.{ts,tsx}",
   ],
-  safelist: ["tint-blue"],
+  safelist: ["tint-indigo", "card-hover"],
   prefix: "",
   theme: {
     container: {
@@ -53,8 +53,7 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        'crypto-bg': '#0B1426',
-        'crypto-accent': '#1E40AF',
+        'crypto-bg': '#001D8D',
       },
       borderRadius: {
         lg: "var(--radius)",

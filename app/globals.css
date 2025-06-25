@@ -33,12 +33,19 @@
   --radius: 0.5rem;
 }
 
-/* Голубое тонирование для неактивных лого */
-.tint-blue {
-  /* Стандартный приём: сначала делаем картинку ч/б, затем
-     переносим её в голубой тон через hue-rotate. */
+/* Тёмный индиго-тон для пассивных лого */
+.tint-indigo {
+  /* сначала ч/б, затем тонируем в глубокий индиго */
   filter: grayscale(1) brightness(.8) sepia(1)
-          hue-rotate(190deg) saturate(600%);
+          hue-rotate(220deg) saturate(400%);
+  transition: filter .3s, transform .3s;
+}
+
+/* Активное состояние */
+.card-hover:hover .tint-indigo,
+.card-hover:focus-visible .tint-indigo {
+  filter: none;          /* убираем тонирование */
+  transform: translateY(-4px);
 }
 
 @layer base {

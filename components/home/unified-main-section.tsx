@@ -225,7 +225,7 @@ const UnifiedMainSection = () => {
   };
 
   return (
-    <section className="relative py-20 bg-gradient-to-b from-white via-blue-50/10 to-blue-100/20 overflow-hidden">
+    <section className="relative py-20 bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-950 overflow-hidden">
       {/*  ДВУХЦВЕТНЫЙ ФОН - ОРАНЖЕВЫЙ + СИНИЙ */}
       <div className="absolute inset-0 opacity-15">
         <UnifiedVantaBackground 
@@ -451,14 +451,14 @@ const UnifiedMainSection = () => {
                       key={`main-${index}`}
                       whileHover={{ scale: 1.1, y: -2 }}
                       transition={{ duration: 0.3 }}
-                      className="flex items-center justify-center mx-12 p-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-[#001D8D]/10 hover:border-[#001D8D]/30 hover:shadow-xl transition-all duration-300 group"
+                      className="card-hover flex items-center justify-center mx-12 p-4 bg-white/90 backdrop-blur-sm rounded-xl shadow-lg shadow-slate-200/40 ring-1 ring-inset ring-slate-200/30 dark:shadow-none dark:ring-slate-700/60 border border-[#001D8D]/10 hover:border-[#001D8D]/30 hover:shadow-xl transition-all duration-300 opacity-50"
                     >
                       <Image
                         src={partner.logo}
                         alt={`${partner.name} - Криптовалютная биржа`}
                         width={partner.width}
                         height={partner.height}
-                        className="object-contain tint-blue group-hover:filter-none transition-all duration-300"
+                        className="object-contain tint-indigo transition-all duration-300"
                         priority={index < 3}
                         unoptimized
                       />
@@ -481,14 +481,14 @@ const UnifiedMainSection = () => {
                       key={`secondary-${index}`}
                       whileHover={{ scale: 1.1, y: -2 }}
                       transition={{ duration: 0.3 }}
-                      className="flex items-center justify-center mx-12 p-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-[#001D8D]/10 hover:border-[#001D8D]/30 hover:shadow-xl transition-all duration-300 group"
+                      className="card-hover flex items-center justify-center mx-12 p-4 bg-white/90 backdrop-blur-sm rounded-xl shadow-lg shadow-slate-200/40 ring-1 ring-inset ring-slate-200/30 dark:shadow-none dark:ring-slate-700/60 border border-[#001D8D]/10 hover:border-[#001D8D]/30 hover:shadow-xl transition-all duration-300 opacity-50"
                     >
                       <Image
                         src={partner.logo}
                         alt={`${partner.name} - Криптовалютная биржа`}
                         width={partner.width}
                         height={partner.height}
-                        className="object-contain tint-blue group-hover:filter-none transition-all duration-300"
+                        className="object-contain tint-indigo transition-all duration-300"
                         unoptimized
                       />
                     </motion.div>
