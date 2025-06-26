@@ -10,6 +10,7 @@ import {
   CardTitle 
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { 
   Target,
   Eye,
@@ -260,7 +261,7 @@ export function AboutPageClient() {
                 </div>
               </div>
 
-              {/* Новое видео справа */}
+              {/* Новое видео справа с выравниванием по центру и низу */}
               <div className="order-1 lg:order-2">
                 <div className="relative mx-auto" style={{ 
                   width: '480px', 
@@ -280,7 +281,7 @@ export function AboutPageClient() {
                       width: '100%',
                       height: '100%',
                       objectFit: 'cover',
-                      objectPosition: 'center',
+                      objectPosition: 'center bottom', // 🎯 Выравнивание по центру и низу
                       border: 'none',
                       outline: 'none',
                       borderRadius: '8px'
