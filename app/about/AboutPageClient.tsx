@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { FlipCard } from "@/components/ui/flip-card";
 import { 
   Target,
   Eye,
@@ -76,7 +77,11 @@ export function AboutPageClient() {
     {
       icon: Users,
       title: "Клиентоориентированность",
-      description: "Мы зарабатываем тогда, когда зарабатывают наши клиенты. Стремимся глубоко понимать потребности каждого клиента, предлагая персонализированные решения.",
+      slogan: "Клиент — наш приоритет",
+      keyPoints: [
+        "Мы зарабатываем тогда, когда зарабатывают наши клиенты",
+        "Персонализированный подход к каждому клиенту"
+      ],
       color: "from-blue-500 to-blue-600",
       bgColor: "bg-blue-50",
       borderColor: "border-blue-200"
@@ -84,7 +89,11 @@ export function AboutPageClient() {
     {
       icon: Shield,
       title: "Надежность и прозрачность",
-      description: "Мы строго соблюдаем требования AML и KYC и руководствуемся высокими стандартами безопасности. С осторожностью относимся к сверхприбыльным предложениям, обеспечивая полную прозрачность операций.",
+      slogan: "Безопасность превыше всего",
+      keyPoints: [
+        "Строгое соблюдение требований AML и KYC",
+        "Полная прозрачность всех операций"
+      ],
       color: "from-green-500 to-green-600",
       bgColor: "bg-green-50",
       borderColor: "border-green-200"
@@ -92,7 +101,11 @@ export function AboutPageClient() {
     {
       icon: Zap,
       title: "Гибкость и адаптивность",
-      description: "В условиях быстро меняющейся внешней среды и новых экономических вызовов мы оперативно адаптируемся и находим нестандартные решения для каждого клиента. Индивидуальный подход к сложным задачам является нашим конкурентным преимуществом.",
+      slogan: "Быстро адаптируемся к изменениям",
+      keyPoints: [
+        "Оперативная адаптация к новым вызовам",
+        "Нестандартные решения для сложных задач"
+      ],
       color: "from-orange-500 to-orange-600",
       bgColor: "bg-orange-50",
       borderColor: "border-orange-200"
@@ -100,7 +113,11 @@ export function AboutPageClient() {
     {
       icon: Award,
       title: "Профессионализм",
-      description: "Наши специалисты четко понимают специфику своей работы и постоянно держат руку на пульсе событий, гарантируя высокое качество предоставляемых услуг.",
+      slogan: "Экспертиза в каждом решении",
+      keyPoints: [
+        "Глубокое понимание специфики работы",
+        "Постоянное отслеживание событий в отрасли"
+      ],
       color: "from-purple-500 to-purple-600",
       bgColor: "bg-purple-50",
       borderColor: "border-purple-200"
@@ -108,15 +125,23 @@ export function AboutPageClient() {
     {
       icon: Lightbulb,
       title: "Инновационность",
-      description: "Мы внимательно следим за инновациями и интегрируем новейшие технологии, чтобы всегда оставаться впереди конкурентов и предоставлять клиентам передовые решения.",
+      slogan: "Технологии будущего сегодня",
+      keyPoints: [
+        "Интеграция новейших технологий",
+        "Опережение конкурентов в инновациях"
+      ],
       color: "from-yellow-500 to-yellow-600",
       bgColor: "bg-yellow-50",
       borderColor: "border-yellow-200"
     },
     {
       icon: Handshake,
-      title: "Долгосрочность и взаимовыгодное партнерство",
-      description: "Наш подход к сотрудничеству основан на честности и взаимном доверии. Мы рассматриваем клиентов как партнёров, вместе с которыми достигаем долгосрочного успеха и развития.",
+      title: "Долгосрочность и партнерство",
+      slogan: "Строим отношения на годы",
+      keyPoints: [
+        "Честность и взаимное доверие",
+        "Совместное достижение долгосрочного успеха"
+      ],
       color: "from-indigo-500 to-indigo-600",
       bgColor: "bg-indigo-50",
       borderColor: "border-indigo-200"
@@ -465,7 +490,7 @@ export function AboutPageClient() {
               <CrystalVisualization />
             </motion.div>
 
-            {/* Values Section */}
+            {/* Values Section with Flip Cards */}
             <motion.div
               ref={ref}
               variants={containerVariants}
@@ -481,8 +506,11 @@ export function AboutPageClient() {
                 <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-4">
                   Принципы, которыми мы руководствуемся
                 </h2>
-                <p className="text-xl text-[#001D8D]/70 max-w-3xl mx-auto">
+                <p className="text-xl text-[#001D8D]/70 max-w-3xl mx-auto mb-4">
                   Наши ценности формируют культуру компании и определяют подход к работе с каждым клиентом
+                </p>
+                <p className="text-sm text-[#001D8D]/60">
+                  Наведите курсор на карту, чтобы узнать подробнее
                 </p>
               </div>
 
@@ -491,21 +519,45 @@ export function AboutPageClient() {
                   <motion.div
                     key={index}
                     variants={itemVariants}
-                    className="group"
+                    className="h-80"
                   >
-                    <Card className={`h-full ${value.bgColor} border-2 ${value.borderColor} hover:border-[#001D8D]/40 transition-all duration-300 hover:shadow-2xl hover:scale-105 transform`}>
-                      <CardContent className="p-8">
-                        <div className="text-center mb-6">
-                          <div className={`inline-flex p-4 rounded-full bg-gradient-to-br ${value.color} shadow-lg mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                            <value.icon className="h-8 w-8 text-white" />
+                    <FlipCard
+                      className="h-full"
+                      cardClassName="h-full"
+                      frontContent={
+                        <div className="h-full flex flex-col items-center justify-center p-8 text-center">
+                          <div className={`inline-flex p-6 rounded-full bg-gradient-to-br ${value.color} shadow-lg mb-6`}>
+                            <value.icon className="h-12 w-12 text-white" />
                           </div>
-                          <h3 className="text-xl font-bold text-[#001D8D] mb-4">{value.title}</h3>
+                          <h3 className="text-xl font-bold text-[#001D8D] mb-4">
+                            {value.title}
+                          </h3>
+                          <p className="text-lg font-medium text-[#001D8D]/80">
+                            {value.slogan}
+                          </p>
                         </div>
-                        <p className="text-[#001D8D]/70 leading-relaxed text-center">
-                          {value.description}
-                        </p>
-                      </CardContent>
-                    </Card>
+                      }
+                      backContent={
+                        <div className="h-full flex flex-col justify-center p-8 text-center">
+                          <div className="mb-6">
+                            <value.icon className="h-8 w-8 text-white mx-auto mb-4" />
+                            <h3 className="text-xl font-bold text-white mb-4">
+                              {value.title}
+                            </h3>
+                          </div>
+                          <div className="space-y-4">
+                            {value.keyPoints.map((point, pointIndex) => (
+                              <div key={pointIndex} className="flex items-start gap-3">
+                                <div className="w-2 h-2 bg-white rounded-full mt-2 flex-shrink-0" />
+                                <p className="text-white/90 text-sm leading-relaxed text-left">
+                                  {point}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      }
+                    />
                   </motion.div>
                 ))}
               </div>
