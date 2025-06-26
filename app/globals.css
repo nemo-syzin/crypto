@@ -139,7 +139,7 @@
     
     .flip-card-front,
     .flip-card-back {
-      @apply transition-opacity duration-600;
+      @apply transition-opacity duration-500;
     }
     
     .flip-card-back {
