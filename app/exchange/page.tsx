@@ -184,13 +184,12 @@ export default function ExchangePage() {
                   height: '560px',
                   maxWidth: '100%'
                 }}>
-                  {/* Компактное видео с обрезкой сверху */}
+                  {/* Компактное видео с обрезкой сверху - БЕЗ ЗАЦИКЛИВАНИЯ */}
                   <video
                     src="https://assets.revolut.com/published-assets-v3/b1f70228-8ed2-4e1d-a51d-10751333535f/007cc12b-da09-4a4d-bd11-608e4e6d9c21.mp4"
                     className="w-full h-full object-cover rounded-lg shadow-lg"
                     autoPlay
                     muted
-                    loop
                     playsInline
                     preload="metadata"
                     aria-label="Secure crypto exchange interface demonstration"
@@ -208,6 +207,54 @@ export default function ExchangePage() {
               </div>
               
               <div className="order-1 lg:order-2 space-y-6">
+                <div className="inline-flex items-center gap-2 bg-orange-100 text-orange-700 px-4 py-2 rounded-full text-sm font-medium">
+                  <Zap className="h-4 w-4" />
+                  Мгновенные операции
+                </div>
+                
+                <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D]">
+                  Обмен за считанные минуты
+                </h2>
+                
+                <p className="text-lg text-[#001D8D]/70 leading-relaxed">
+                  Автоматизированная система обработки транзакций обеспечивает максимальную скорость. 
+                  Большинство операций завершается менее чем за 15 минут с момента подтверждения.
+                </p>
+                
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="text-center p-4 bg-white/80 rounded-xl border border-[#001D8D]/10">
+                    <div className="text-2xl font-bold text-[#001D8D] mb-1">{"< 5 мин"}</div>
+                    <div className="text-sm text-[#001D8D]/70">Верификация</div>
+                  </div>
+                  
+                  <div className="text-center p-4 bg-white/80 rounded-xl border border-[#001D8D]/10">
+                    <div className="text-2xl font-bold text-[#001D8D] mb-1">{"< 15 мин"}</div>
+                    <div className="text-sm text-[#001D8D]/70">Полный обмен</div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2 text-sm text-[#001D8D]/70">
+                    <Globe className="h-4 w-4" />
+                    <span>Работаем 24/7</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-[#001D8D]/70">
+                    <Users className="h-4 w-4" />
+                    <span>10,000+ довольных клиентов</span>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Second Image Section - Speed & Efficiency */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              viewport={{ once: true }}
+              className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
+            >
+              <div className="space-y-6">
                 <div className="inline-flex items-center gap-2 bg-[#001D8D]/10 text-[#001D8D] px-4 py-2 rounded-full text-sm font-medium">
                   <Shield className="h-4 w-4" />
                   Банковский уровень безопасности
@@ -255,54 +302,6 @@ export default function ExchangePage() {
                   </div>
                 </div>
               </div>
-            </motion.div>
-
-            {/* Second Image Section - Speed & Efficiency */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              viewport={{ once: true }}
-              className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
-            >
-              <div className="space-y-6">
-                <div className="inline-flex items-center gap-2 bg-orange-100 text-orange-700 px-4 py-2 rounded-full text-sm font-medium">
-                  <Zap className="h-4 w-4" />
-                  Мгновенные операции
-                </div>
-                
-                <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D]">
-                  Обмен за считанные минуты
-                </h2>
-                
-                <p className="text-lg text-[#001D8D]/70 leading-relaxed">
-                  Автоматизированная система обработки транзакций обеспечивает максимальную скорость. 
-                  Большинство операций завершается менее чем за 15 минут с момента подтверждения.
-                </p>
-                
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="text-center p-4 bg-white/80 rounded-xl border border-[#001D8D]/10">
-                    <div className="text-2xl font-bold text-[#001D8D] mb-1">{"< 5 мин"}</div>
-                    <div className="text-sm text-[#001D8D]/70">Верификация</div>
-                  </div>
-                  
-                  <div className="text-center p-4 bg-white/80 rounded-xl border border-[#001D8D]/10">
-                    <div className="text-2xl font-bold text-[#001D8D] mb-1">{"< 15 мин"}</div>
-                    <div className="text-sm text-[#001D8D]/70">Полный обмен</div>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2 text-sm text-[#001D8D]/70">
-                    <Globe className="h-4 w-4" />
-                    <span>Работаем 24/7</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-[#001D8D]/70">
-                    <Users className="h-4 w-4" />
-                    <span>10,000+ довольных клиентов</span>
-                  </div>
-                </div>
-              </div>
               
               <div className="relative">
                 <Image
@@ -314,14 +313,6 @@ export default function ExchangePage() {
                   priority
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-orange-500/20 to-transparent rounded-2xl" />
-                
-                {/* Floating stats */}
-                <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-lg">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    <span className="text-sm font-medium text-[#001D8D]">Онлайн</span>
-                  </div>
-                </div>
               </div>
             </motion.div>
 
