@@ -16,6 +16,14 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "coex.global",
+      },
+      {
+        protocol: "https",
+        hostname: "assets.revolut.com",
+      },
+      {
+        protocol: "https",
+        hostname: "www.revolut.com",
       }
     ],
   },
