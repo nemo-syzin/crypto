@@ -308,14 +308,20 @@ export function AboutPageClient() {
                 viewport={{ once: true }}
                 className="flex items-center justify-center"
               >
+                {/* 🎯 КОНТЕЙНЕР БЕЗ РАМОК И ГРАНИЦ */}
                 <div className="relative w-full max-w-lg aspect-square">
                   <Image
                     src="https://assets.revolut.com/published-assets-v3/73aa49ec-f611-485f-9cc6-b57e3801240f/6a85f8bd-2664-4414-aeec-4d05e476f61b.png"
                     alt="Our Mission - Professional crypto service"
                     fill
-                    className="object-contain rounded-2xl shadow-2xl"
+                    className="object-contain"
                     priority
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    style={{
+                      border: 'none',
+                      outline: 'none',
+                      boxShadow: 'none'
+                    }}
                   />
                 </div>
               </motion.div>
@@ -455,14 +461,20 @@ export function AboutPageClient() {
                 viewport={{ once: true }}
                 className="flex items-center justify-center order-1 lg:order-2"
               >
+                {/* 🎯 КОНТЕЙНЕР БЕЗ РАМОК И ГРАНИЦ */}
                 <div className="relative w-full max-w-lg aspect-square">
                   <Image
                     src="https://assets.revolut.com/published-assets-v3/42d87aec-29bc-40a5-8584-ff44105687b1/f205cf30-e3e8-4106-9167-2fc2c606d648.png"
                     alt="Our Vision - Global financial transformation"
                     fill
-                    className="object-contain rounded-2xl shadow-2xl"
+                    className="object-contain"
                     priority
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    style={{
+                      border: 'none',
+                      outline: 'none',
+                      boxShadow: 'none'
+                    }}
                   />
                 </div>
               </motion.div>
