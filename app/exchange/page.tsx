@@ -71,20 +71,8 @@ export default function ExchangePage() {
 
   return (
     <div className="min-h-screen bg-white relative overflow-hidden">
-      {/* Hero Section with Video Background */}
-      <section className="relative w-full h-[60vh] lg:h-[75vh] overflow-hidden">
-        {/* Video Background */}
-        <video
-          src="https://assets.revolut.com/published-assets-v3/b1f70228-8ed2-4e1d-a51d-10751333535f/007cc12b-da09-4a4d-bd11-608e4e6d9c21.mp4"
-          className="absolute inset-0 w-full h-full object-cover"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          aria-hidden="true"
-        />
-        
+      {/* Hero Section with gradient background */}
+      <section className="relative w-full h-[60vh] lg:h-[75vh] overflow-hidden bg-gradient-to-br from-[#001D8D] via-blue-700 to-blue-800">
         {/* Gradient Overlay */}
         <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-[#001D8D]/70 via-[#001D8D]/30 to-transparent" />
         
@@ -185,7 +173,7 @@ export default function ExchangePage() {
               </motion.div>
             </div>
 
-            {/* Revolut-style Visual Section */}
+            {/* Secure Crypto Exchange Interface Section with Video */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -193,18 +181,73 @@ export default function ExchangePage() {
               viewport={{ once: true }}
               className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
             >
-              {/* First Image Section - Security & Trust */}
+              {/* Video Container - Secure Interface */}
               <div className="order-2 lg:order-1">
-                <div className="relative">
-                  <Image
-                    src="https://www.revolut.com/_next/image-asset/w:3840/q:90/https%3A%2F%2Fassets.revolut.com%2Fpublished-assets-v3%2F73aa49ec-f611-485f-9cc6-b57e3801240f%2F6a85f8bd-2664-4414-aeec-4d05e476f61b.png@webp"
-                    alt="Secure crypto exchange interface"
-                    width={600}
-                    height={400}
-                    className="rounded-2xl shadow-2xl w-full h-auto"
-                    priority
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#001D8D]/20 to-transparent rounded-2xl" />
+                <div className="relative bg-white rounded-2xl shadow-2xl border-2 border-[#001D8D]/20 overflow-hidden">
+                  {/* Interface Header */}
+                  <div className="bg-gradient-to-r from-[#001D8D] to-blue-700 text-white p-4">
+                    <div className="flex items-center gap-3">
+                      <Shield className="h-6 w-6" />
+                      <div>
+                        <h3 className="font-bold text-lg">Secure Exchange Interface</h3>
+                        <p className="text-white/90 text-sm">Bank-level security & encryption</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Video Content */}
+                  <div className="relative aspect-video bg-gray-100">
+                    <video
+                      src="https://assets.revolut.com/published-assets-v3/b1f70228-8ed2-4e1d-a51d-10751333535f/007cc12b-da09-4a4d-bd11-608e4e6d9c21.mp4"
+                      className="w-full h-full object-cover"
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      preload="metadata"
+                      aria-label="Secure crypto exchange interface demonstration"
+                    />
+                    
+                    {/* Video Overlay with Status Indicators */}
+                    <div className="absolute top-4 right-4 flex gap-2">
+                      <div className="bg-green-500 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                        <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                        <span>Live</span>
+                      </div>
+                      <div className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                        <Shield className="h-3 w-3" />
+                        <span>Secure</span>
+                      </div>
+                    </div>
+                    
+                    {/* Bottom Status Bar */}
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
+                      <div className="flex items-center justify-between text-white text-sm">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                          <span>Real-time exchange rates</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Zap className="h-4 w-4" />
+                          <span>Instant processing</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Interface Footer */}
+                  <div className="p-4 bg-gray-50 border-t">
+                    <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-2 text-gray-600">
+                        <CheckCircle className="h-4 w-4 text-green-500" />
+                        <span>256-bit SSL encryption</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-gray-600">
+                        <Award className="h-4 w-4 text-blue-500" />
+                        <span>Licensed & regulated</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
               
