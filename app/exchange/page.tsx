@@ -169,7 +169,7 @@ export default function ExchangePage() {
               </motion.div>
             </div>
 
-            {/* Компактное видео с фиксированными габаритами */}
+            {/* Компактное видео с обрезкой сверху */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -177,14 +177,14 @@ export default function ExchangePage() {
               viewport={{ once: true }}
               className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
             >
-              {/* Видео контейнер с фиксированными размерами */}
+              {/* Видео контейнер с обрезкой сверху */}
               <div className="order-2 lg:order-1">
                 <div className="relative mx-auto" style={{ 
-                  width: '640px', 
-                  height: '960px',
+                  width: '480px', 
+                  height: '320px',
                   maxWidth: '100%'
                 }}>
-                  {/* Компактное видео в фиксированном контейнере */}
+                  {/* Компактное видео с обрезкой сверху */}
                   <video
                     src="https://assets.revolut.com/published-assets-v3/b1f70228-8ed2-4e1d-a51d-10751333535f/007cc12b-da09-4a4d-bd11-608e4e6d9c21.mp4"
                     className="w-full h-full object-cover rounded-lg shadow-lg"
@@ -198,7 +198,7 @@ export default function ExchangePage() {
                       width: '100%',
                       height: '100%',
                       objectFit: 'cover',
-                      objectPosition: 'center',
+                      objectPosition: 'center bottom', // Обрезка сверху - показываем нижнюю часть видео
                       border: 'none',
                       outline: 'none',
                       borderRadius: '8px'
