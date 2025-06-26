@@ -90,6 +90,15 @@
     content: '';
     @apply absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent to-white z-10 pointer-events-none;
   }
+
+  /* Helper class for video without cropping */
+  .no-crop-video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;     /* главное – без кропа */
+    object-position: center;
+    background: #000;        /* чтобы в letter-box зонах был тёмный фон */
+  }
 }
 
 @layer utilities {
