@@ -80,7 +80,7 @@ const goals: Goal[] = [
   }
 ];
 
-// Strategic Crystal component with improved materials and lighting
+// Strategic Crystal component with larger size and improved materials
 function StrategicCrystal({ onFaceClick, hoveredFace, setHoveredFace }: {
   onFaceClick: (goalId: number) => void;
   hoveredFace: number | null;
@@ -104,8 +104,8 @@ function StrategicCrystal({ onFaceClick, hoveredFace, setHoveredFace }: {
     }
   });
 
-  // Create dodecahedron geometry for real crystal faces
-  const geometry = new THREE.DodecahedronGeometry(1.1, 0);
+  // Create larger dodecahedron geometry - 25% bigger (1.1 * 1.25 = 1.375)
+  const geometry = new THREE.DodecahedronGeometry(1.375, 0);
   
   // Handle mouse interactions
   useFrame(() => {
@@ -149,7 +149,7 @@ function StrategicCrystal({ onFaceClick, hoveredFace, setHoveredFace }: {
       <spotLight intensity={1.2} position={[5, 8, 5]} angle={0.3} penumbra={1} />
       <directionalLight intensity={0.6} position={[-5, -4, -5]} />
       
-      {/* Main crystal */}
+      {/* Main crystal - larger size */}
       <mesh
         ref={meshRef}
         geometry={geometry}
@@ -173,10 +173,10 @@ function StrategicCrystal({ onFaceClick, hoveredFace, setHoveredFace }: {
         />
       </mesh>
       
-      {/* Goal labels with Html components */}
+      {/* Goal labels with Html components - adjusted for larger crystal */}
       {goals.map((goal, index) => {
         const angle = (index / goals.length) * Math.PI * 2;
-        const radius = 2.5;
+        const radius = 3.2; // Increased from 2.5 to accommodate larger crystal
         const x = Math.cos(angle) * radius;
         const z = Math.sin(angle) * radius;
         const isActive = hoveredFace === goal.id;
@@ -220,9 +220,9 @@ function StrategicCrystal({ onFaceClick, hoveredFace, setHoveredFace }: {
         );
       })}
       
-      {/* Ambient halo effect */}
+      {/* Ambient halo effect - adjusted for larger crystal */}
       <mesh position={[0, 0, 0]}>
-        <sphereGeometry args={[3.5, 32, 32]} />
+        <sphereGeometry args={[4.2, 32, 32]} />
         <meshBasicMaterial
           color="#4f80ff"
           transparent
@@ -234,7 +234,7 @@ function StrategicCrystal({ onFaceClick, hoveredFace, setHoveredFace }: {
   );
 }
 
-// Fallback SVG crystal for low-end devices
+// Fallback SVG crystal for low-end devices - larger size
 function FallbackCrystal({ onFaceClick, className }: {
   onFaceClick: (goalId: number) => void;
   className?: string;
@@ -248,12 +248,12 @@ function FallbackCrystal({ onFaceClick, className }: {
         className="w-full h-full"
         style={{ filter: 'drop-shadow(0 10px 20px rgba(79, 128, 255, 0.3))' }}
       >
-        {/* Crystal faces */}
+        {/* Crystal faces - larger radius */}
         {goals.map((goal, index) => {
           const angle = (index / goals.length) * Math.PI * 2;
           const centerX = 200;
           const centerY = 200;
-          const radius = 80;
+          const radius = 100; // Increased from 80 to make crystal 25% larger
           
           const x1 = centerX + Math.cos(angle) * radius;
           const y1 = centerY + Math.sin(angle) * radius;
@@ -277,7 +277,7 @@ function FallbackCrystal({ onFaceClick, className }: {
                 y={centerY + Math.sin(angle + Math.PI / 4) * radius * 0.6}
                 textAnchor="middle"
                 dominantBaseline="middle"
-                className="text-xs font-semibold fill-current pointer-events-none"
+                className="text-sm font-semibold fill-current pointer-events-none"
                 style={{ color: goal.color }}
               >
                 {goal.metric}
@@ -286,11 +286,11 @@ function FallbackCrystal({ onFaceClick, className }: {
           );
         })}
         
-        {/* Center circle */}
+        {/* Center circle - slightly larger */}
         <circle
           cx="200"
           cy="200"
-          r="30"
+          r="35"
           fill="rgba(79, 128, 255, 0.2)"
           stroke="#4f80ff"
           strokeWidth="2"
@@ -420,7 +420,7 @@ function GoalModal({ goal, isOpen, onClose }: {
   );
 }
 
-// Main component
+// Main component with reduced container height
 export function CrystalVisualization() {
   const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -466,7 +466,7 @@ export function CrystalVisualization() {
 
   if (!isClient) {
     return (
-      <div className="w-full min-h-[500px] flex items-center justify-center">
+      <div className="w-full min-h-[350px] flex items-center justify-center">
         <div className="animate-pulse text-[#001D8D]">
           Загрузка 3D визуализации...
         </div>
@@ -476,21 +476,21 @@ export function CrystalVisualization() {
 
   return (
     <div className="relative w-full">
-      <div className="text-center mb-8">
-        <Badge className="bg-gradient-to-r from-[#001D8D] to-blue-600 text-white px-6 py-2 text-lg mb-6">
+      <div className="text-center mb-6">
+        <Badge className="bg-gradient-to-r from-[#001D8D] to-blue-600 text-white px-6 py-2 text-lg mb-4">
           <Rocket className="h-5 w-5 mr-2" />
           Интерактивные стратегические цели
         </Badge>
-        <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-4">
+        <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-3">
           Наши цели до 2026 года
         </h2>
-        <p className="text-sm text-[#001d8d]/60 mb-4">
+        <p className="text-sm text-[#001d8d]/60 mb-2">
           Наведите курсор на грань кристалла, чтобы узнать подробнее
         </p>
       </div>
 
-      {/* Crystal visualization container */}
-      <div className="relative w-full min-h-[500px] md:h-[650px] lg:h-[750px] mb-8">
+      {/* Crystal visualization container - reduced height by 30% */}
+      <div className="relative w-full min-h-[350px] md:h-[455px] lg:h-[525px] mb-6">
         {/* Background halo */}
         <div className="crystal-bg" />
         
@@ -502,7 +502,7 @@ export function CrystalVisualization() {
           }>
             <Canvas
               className="w-full h-full"
-              camera={{ position: [0, 0, 8], fov: 50 }}
+              camera={{ position: [0, 0, 6.5], fov: 50 }} // Moved camera closer for larger crystal
               style={{ background: 'transparent' }}
             >
               <StrategicCrystal
@@ -523,17 +523,17 @@ export function CrystalVisualization() {
             </Canvas>
           </Suspense>
         ) : (
-          <div className="w-full h-full flex items-center justify-center p-8">
+          <div className="w-full h-full flex items-center justify-center p-6">
             <FallbackCrystal
               onFaceClick={handleFaceClick}
-              className="w-full max-w-sm h-full"
+              className="w-full max-w-md h-full"
             />
           </div>
         )}
       </div>
 
-      {/* Goal cards preview */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-10">
+      {/* Goal cards preview - reduced top padding */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-6">
         {goals.map((goal) => {
           const IconComponent = goal.icon;
           return (
