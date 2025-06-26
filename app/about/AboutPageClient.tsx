@@ -260,7 +260,7 @@ export function AboutPageClient() {
                 </div>
               </div>
 
-              {/* Видео справа с убранным фоном */}
+              {/* Видео справа с убранным черным фоном */}
               <div className="order-1 lg:order-2">
                 <div className="relative mx-auto" style={{ 
                   width: '480px', 
@@ -284,13 +284,24 @@ export function AboutPageClient() {
                       border: 'none',
                       outline: 'none',
                       borderRadius: '8px',
-                      // 🎯 CSS-фильтры для удаления фона
-                      filter: 'contrast(1.2) brightness(1.1) saturate(0.8) hue-rotate(10deg)',
-                      // Создаем эффект прозрачности фона
-                      mixBlendMode: 'multiply',
+                      // 🎯 АГРЕССИВНЫЕ CSS-ФИЛЬТРЫ ДЛЯ УДАЛЕНИЯ ЧЕРНОГО ФОНА
+                      filter: `
+                        contrast(2.5) 
+                        brightness(1.8) 
+                        saturate(0.3) 
+                        hue-rotate(15deg) 
+                        invert(0.1)
+                        sepia(0.2)
+                        grayscale(0.3)
+                      `,
+                      // Создаем эффект "screen" для удаления темных областей
+                      mixBlendMode: 'screen',
                       // Дополнительные эффекты
                       backdropFilter: 'blur(0px)',
-                      WebkitBackdropFilter: 'blur(0px)'
+                      WebkitBackdropFilter: 'blur(0px)',
+                      // Маска для создания прозрачности
+                      WebkitMask: 'radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,255,255,0.9) 70%, rgba(255,255,255,0.7) 100%)',
+                      mask: 'radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,255,255,0.9) 70%, rgba(255,255,255,0.7) 100%)'
                     }}
                   />
                   
@@ -298,8 +309,33 @@ export function AboutPageClient() {
                   <div 
                     className="absolute inset-0 rounded-lg pointer-events-none"
                     style={{
-                      background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(0,29,141,0.05) 50%, rgba(255,255,255,0.1) 100%)',
+                      background: `
+                        linear-gradient(135deg, 
+                          rgba(255,255,255,0.4) 0%, 
+                          rgba(0,29,141,0.1) 25%, 
+                          rgba(255,255,255,0.3) 50%,
+                          rgba(0,29,141,0.05) 75%,
+                          rgba(255,255,255,0.4) 100%
+                        )
+                      `,
                       mixBlendMode: 'overlay',
+                      borderRadius: '8px'
+                    }}
+                  />
+                  
+                  {/* Третий слой для усиления эффекта удаления черного фона */}
+                  <div 
+                    className="absolute inset-0 rounded-lg pointer-events-none"
+                    style={{
+                      background: `
+                        radial-gradient(ellipse at center, 
+                          rgba(255,255,255,0.2) 0%, 
+                          rgba(255,255,255,0.1) 40%,
+                          rgba(255,255,255,0.05) 70%,
+                          transparent 100%
+                        )
+                      `,
+                      mixBlendMode: 'lighten',
                       borderRadius: '8px'
                     }}
                   />
