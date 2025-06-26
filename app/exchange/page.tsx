@@ -305,22 +305,21 @@ export default function ExchangePage() {
               </div>
               
               <div className="relative">
-                <Image
-                  src="https://assets.revolut.com/published-assets-v3/245e191d-9293-4ae8-b3f0-460d94bf1801/88405c02-8743-48ef-94a8-ba5910176157.png"
-                  alt="Fast crypto exchange dashboard"
-                  width={600}
-                  height={400}
-                  className="rounded-2xl shadow-2xl w-full h-auto"
-                  priority
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-orange-500/20 to-transparent rounded-2xl" />
-                
-                {/* Floating stats */}
-                <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-lg">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    <span className="text-sm font-medium text-[#001D8D]">Онлайн</span>
-                  </div>
+                {/* 🎯 ЗДЕСЬ МОЖНО РЕГУЛИРОВАТЬ РАЗМЕРЫ КОНТЕЙНЕРА ИЗОБРАЖЕНИЯ */}
+                <div className="relative" style={{ 
+                  width: '600px',      // 📏 ШИРИНА КОНТЕЙНЕРА
+                  height: '400px',     // 📏 ВЫСОТА КОНТЕЙНЕРА
+                  maxWidth: '100%'     // 📱 Адаптивность для мобильных
+                }}>
+                  <Image
+                    src="https://assets.revolut.com/published-assets-v3/245e191d-9293-4ae8-b3f0-460d94bf1801/88405c02-8743-48ef-94a8-ba5910176157.png"
+                    alt="Fast crypto exchange dashboard"
+                    width={600}
+                    height={400}
+                    className="rounded-2xl shadow-2xl w-full h-full object-cover"
+                    priority
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-orange-500/20 to-transparent rounded-2xl" />
                 </div>
               </div>
             </motion.div>
