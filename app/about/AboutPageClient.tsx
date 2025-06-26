@@ -526,13 +526,10 @@ export function AboutPageClient() {
                       cardClassName="h-full"
                       frontContent={
                         <div className="h-full flex flex-col items-center justify-center p-8 text-center">
-                          <div className={`inline-flex p-6 rounded-full bg-gradient-to-br ${value.color} shadow-lg mb-6`}>
-                            <value.icon className="h-12 w-12 text-white" />
-                          </div>
-                          <h3 className="text-xl font-bold text-[#001D8D] mb-4">
+                          <h3 className="text-2xl font-bold text-[#001D8D] mb-6">
                             {value.title}
                           </h3>
-                          <p className="text-lg font-medium text-[#001D8D]/80">
+                          <p className="text-xl font-medium text-[#001D8D]/80 leading-relaxed">
                             {value.slogan}
                           </p>
                         </div>
