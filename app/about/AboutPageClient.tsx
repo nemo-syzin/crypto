@@ -31,6 +31,7 @@ import {
   Diamond
 } from 'lucide-react';
 import { UnifiedVantaBackground } from '@/components/shared/UnifiedVantaBackground';
+import Image from 'next/image';
 
 export function AboutPageClient() {
   const [isMounted, setIsMounted] = useState(false);
@@ -299,6 +300,7 @@ export function AboutPageClient() {
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5 }}
                 viewport={{ once: true }}
+                className="space-y-6"
               >
                 <Card className="h-full bg-white/95 backdrop-blur-sm shadow-xl border-2 border-[#001D8D]/20 hover:border-[#001D8D]/40 transition-all duration-300 hover:shadow-2xl">
                   <CardHeader className="bg-gradient-to-br from-blue-600 to-blue-700 text-white">
@@ -316,6 +318,25 @@ export function AboutPageClient() {
                     </p>
                   </CardContent>
                 </Card>
+
+                {/* Изображение под текстом миссии */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                  viewport={{ once: true }}
+                  className="relative"
+                >
+                  <Image
+                    src="https://www.revolut.com/_next/image-asset/w:3840/q:90/https%3A%2F%2Fassets.revolut.com%2Fpublished-assets-v3%2F73aa49ec-f611-485f-9cc6-b57e3801240f%2F6a85f8bd-2664-4414-aeec-4d05e476f61b.png@webp"
+                    alt="Professional financial services illustration"
+                    width={600}
+                    height={400}
+                    className="rounded-2xl shadow-2xl w-full h-auto"
+                    priority
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#001D8D]/10 to-transparent rounded-2xl" />
+                </motion.div>
               </motion.div>
 
               {/* Vision */}
