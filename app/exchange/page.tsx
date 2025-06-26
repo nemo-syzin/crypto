@@ -169,7 +169,7 @@ export default function ExchangePage() {
               </motion.div>
             </div>
 
-            {/* Clean Video Section - Only Video without any wrapper */}
+            {/* Security & Trust Section with Video */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -177,22 +177,31 @@ export default function ExchangePage() {
               viewport={{ once: true }}
               className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
             >
-              {/* Clean Video Container - No Card, No Headers, No Badges */}
+              {/* Video Section - Left Column on Desktop, Top on Mobile */}
               <div className="order-2 lg:order-1">
-                <div className="relative rounded-2xl overflow-hidden w-full h-full">
+                <div className="relative rounded-2xl overflow-hidden shadow-2xl w-full h-full">
                   <video
-                    src="https://assets.revolut.com/published-assets-v3/b1f70228-8ed2-4e1d-a51d-10751333535f/007cc12b-da09-4a4d-bd11-608e4e6d9c21.mp4"
+                    src="/media/exchange-security.mp4"
                     className="absolute inset-0 w-full h-full object-contain bg-transparent"
                     autoPlay
                     muted
                     loop
                     playsInline
                     preload="metadata"
-                    aria-label="Crypto exchange interface demonstration"
+                    aria-hidden="true"
                   />
+                  
+                  {/* Floating stats overlay */}
+                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-lg">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                      <span className="text-sm font-medium text-[#001D8D]">Онлайн</span>
+                    </div>
+                  </div>
                 </div>
               </div>
               
+              {/* Text Content - Right Column on Desktop, Bottom on Mobile */}
               <div className="order-1 lg:order-2 space-y-6">
                 <div className="inline-flex items-center gap-2 bg-[#001D8D]/10 text-[#001D8D] px-4 py-2 rounded-full text-sm font-medium">
                   <Shield className="h-4 w-4" />
