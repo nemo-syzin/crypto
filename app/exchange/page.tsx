@@ -169,7 +169,7 @@ export default function ExchangePage() {
               </motion.div>
             </div>
 
-            {/* Secure Crypto Exchange Interface Section with Video */}
+            {/* Clean Video Section - Only Video without any wrapper */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -177,77 +177,19 @@ export default function ExchangePage() {
               viewport={{ once: true }}
               className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
             >
-              {/* Video Container - Secure Interface */}
+              {/* Clean Video Container - No Card, No Headers, No Badges */}
               <div className="order-2 lg:order-1">
-                <div className="relative bg-white rounded-2xl shadow-2xl border-2 border-[#001D8D]/20 overflow-hidden">
-                  {/* Interface Header */}
-                  <div className="bg-gradient-to-r from-[#001D8D] to-blue-700 text-white p-4">
-                    <div className="flex items-center gap-3">
-                      <Shield className="h-6 w-6" />
-                      <div>
-                        <h3 className="font-bold text-lg">Secure Exchange Interface</h3>
-                        <p className="text-white/90 text-sm">Bank-level security & encryption</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Video Content - Fixed to show full video without cropping */}
-                  <div className="relative bg-black">
-                    <video
-                      src="https://assets.revolut.com/published-assets-v3/b1f70228-8ed2-4e1d-a51d-10751333535f/007cc12b-da09-4a4d-bd11-608e4e6d9c21.mp4"
-                      className="w-full h-auto object-contain max-h-[400px]"
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      preload="metadata"
-                      aria-label="Secure crypto exchange interface demonstration"
-                      style={{
-                        aspectRatio: 'auto',
-                        display: 'block'
-                      }}
-                    />
-                    
-                    {/* Video Overlay with Status Indicators */}
-                    <div className="absolute top-4 right-4 flex gap-2">
-                      <div className="bg-green-500 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
-                        <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-                        <span>Live</span>
-                      </div>
-                      <div className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
-                        <Shield className="h-3 w-3" />
-                        <span>Secure</span>
-                      </div>
-                    </div>
-                    
-                    {/* Bottom Status Bar */}
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
-                      <div className="flex items-center justify-between text-white text-sm">
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                          <span>Real-time exchange rates</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Zap className="h-4 w-4" />
-                          <span>Instant processing</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Interface Footer */}
-                  <div className="p-4 bg-gray-50 border-t">
-                    <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <CheckCircle className="h-4 w-4 text-green-500" />
-                        <span>256-bit SSL encryption</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <Award className="h-4 w-4 text-blue-500" />
-                        <span>Licensed & regulated</span>
-                      </div>
-                    </div>
-                  </div>
+                <div className="relative rounded-2xl overflow-hidden w-full h-full">
+                  <video
+                    src="https://assets.revolut.com/published-assets-v3/b1f70228-8ed2-4e1d-a51d-10751333535f/007cc12b-da09-4a4d-bd11-608e4e6d9c21.mp4"
+                    className="absolute inset-0 w-full h-full object-contain bg-transparent"
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    preload="metadata"
+                    aria-label="Crypto exchange interface demonstration"
+                  />
                 </div>
               </div>
               
