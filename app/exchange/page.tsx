@@ -180,8 +180,8 @@ export default function ExchangePage() {
               {/* Видео контейнер с фиксированными размерами */}
               <div className="order-2 lg:order-1">
                 <div className="relative mx-auto" style={{ 
-                  width: '480px', 
-                  height: '640px',
+                  width: '560px', 
+                  height: '960px',
                   maxWidth: '100%'
                 }}>
                   {/* Компактное видео в фиксированном контейнере */}
