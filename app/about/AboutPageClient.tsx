@@ -260,7 +260,7 @@ export function AboutPageClient() {
                 </div>
               </div>
 
-              {/* Видео справа */}
+              {/* Видео справа с убранным фоном */}
               <div className="order-1 lg:order-2">
                 <div className="relative mx-auto" style={{ 
                   width: '480px', 
@@ -283,6 +283,23 @@ export function AboutPageClient() {
                       objectPosition: 'center',
                       border: 'none',
                       outline: 'none',
+                      borderRadius: '8px',
+                      // 🎯 CSS-фильтры для удаления фона
+                      filter: 'contrast(1.2) brightness(1.1) saturate(0.8) hue-rotate(10deg)',
+                      // Создаем эффект прозрачности фона
+                      mixBlendMode: 'multiply',
+                      // Дополнительные эффекты
+                      backdropFilter: 'blur(0px)',
+                      WebkitBackdropFilter: 'blur(0px)'
+                    }}
+                  />
+                  
+                  {/* Дополнительный слой для создания эффекта прозрачного фона */}
+                  <div 
+                    className="absolute inset-0 rounded-lg pointer-events-none"
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(0,29,141,0.05) 50%, rgba(255,255,255,0.1) 100%)',
+                      mixBlendMode: 'overlay',
                       borderRadius: '8px'
                     }}
                   />
