@@ -204,14 +204,6 @@ export default function ExchangePage() {
                       borderRadius: '8px'
                     }}
                   />
-                  
-                  {/* Статус индикатор */}
-                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-lg">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                      <span className="text-sm font-medium text-[#001D8D]">Онлайн</span>
-                    </div>
-                  </div>
                 </div>
               </div>
               
