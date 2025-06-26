@@ -71,64 +71,8 @@ export default function ExchangePage() {
 
   return (
     <div className="min-h-screen bg-white relative overflow-hidden">
-      {/* Hero Section with gradient background */}
-      <section className="relative w-full h-[60vh] lg:h-[75vh] overflow-hidden bg-gradient-to-br from-[#001D8D] via-blue-700 to-blue-800">
-        {/* Gradient Overlay */}
-        <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-[#001D8D]/70 via-[#001D8D]/30 to-transparent" />
-        
-        {/* Hero Content */}
-        <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="max-w-4xl mx-auto"
-          >
-            <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold mb-6 text-white">
-              Профессиональный обмен криптовалют
-            </h1>
-            <p className="text-xl md:text-2xl text-white/90 max-w-3xl mx-auto mb-8">
-              Получите лучшие курсы обмена с полной прозрачностью и гарантией безопасности. 
-              Мы предлагаем конкурентные цены и надежный сервис для всех ваших потребностей в обмене криптовалют.
-            </p>
-            
-            {/* Trust indicators */}
-            <div className="flex flex-wrap justify-center items-center gap-8 text-sm text-white/80 mb-8">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-5 w-5 text-green-400" />
-                <span>Лицензированный обменник</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-5 w-5 text-blue-400" />
-                <span>Полная безопасность</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Clock className="h-5 w-5 text-purple-400" />
-                <span>Обмен за 15 минут</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-orange-400" />
-                <span>Лучшие курсы на рынке</span>
-              </div>
-            </div>
-
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="bg-white text-[#001D8D] hover:bg-gray-100 px-8 py-4 rounded-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
-                <TrendingUp className="h-5 w-5 mr-2 inline" />
-                Начать обмен сейчас
-              </button>
-              <button className="border-2 border-white/30 text-white hover:bg-white/10 px-8 py-4 rounded-lg font-semibold transition-all duration-300">
-                <ArrowRight className="h-5 w-5 mr-2 inline" />
-                Узнать больше о сервисе
-              </button>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Main Content Section */}
-      <section className="relative py-20 overflow-hidden">
+      {/* Main Content Section with unified background */}
+      <section className="relative py-20 bg-gradient-to-b from-white via-blue-50/10 to-blue-100/20 overflow-hidden">
         {/* Background */}
         <div className="absolute inset-0 opacity-15">
           <UnifiedVantaBackground 
@@ -147,9 +91,61 @@ export default function ExchangePage() {
           />
         </div>
 
+        {/* Gradient transitions */}
+        <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-white to-transparent z-5" />
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent to-blue-100/20 z-5" />
+
         <div className="container mx-auto px-4 relative z-10">
           <div className="space-y-24">
             
+            {/* Hero Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="text-center mb-16"
+            >
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-[#001D8D]">
+                Профессиональный обмен криптовалют
+              </h1>
+              <p className="text-xl md:text-2xl text-[#001D8D]/80 max-w-4xl mx-auto leading-relaxed mb-8">
+                Получите лучшие курсы обмена с полной прозрачностью и гарантией безопасности. 
+                Мы предлагаем конкурентные цены и надежный сервис для всех ваших потребностей в обмене криптовалют.
+              </p>
+              
+              {/* Trust indicators */}
+              <div className="flex flex-wrap justify-center items-center gap-8 text-sm text-[#001D8D]/70 mb-8">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-5 w-5 text-green-600" />
+                  <span>Лицензированный обменник</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-5 w-5 text-blue-600" />
+                  <span>Полная безопасность</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="h-5 w-5 text-purple-600" />
+                  <span>Обмен за 15 минут</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5 text-orange-600" />
+                  <span>Лучшие курсы на рынке</span>
+                </div>
+              </div>
+
+              {/* CTA Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <button className="bg-[#001D8D] text-white hover:bg-[#001D8D]/90 px-8 py-4 rounded-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+                  <TrendingUp className="h-5 w-5 mr-2 inline" />
+                  Начать обмен сейчас
+                </button>
+                <button className="border-2 border-[#001D8D]/30 text-[#001D8D] hover:bg-[#001D8D]/10 px-8 py-4 rounded-lg font-semibold transition-all duration-300">
+                  <ArrowRight className="h-5 w-5 mr-2 inline" />
+                  Узнать больше о сервисе
+                </button>
+              </div>
+            </motion.div>
+
             {/* Main Exchange Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Left Column - Exchange Calculator */}
