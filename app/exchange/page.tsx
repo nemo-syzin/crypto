@@ -305,11 +305,11 @@ export default function ExchangePage() {
               </div>
               
               <div className="relative">
-                {/* 🎯 ЗДЕСЬ МОЖНО РЕГУЛИРОВАТЬ РАЗМЕРЫ КОНТЕЙНЕРА ИЗОБРАЖЕНИЯ */}
+
                 <div className="relative" style={{ 
-                  width: '600px',      // 📏 ШИРИНА КОНТЕЙНЕРА
-                  height: '400px',     // 📏 ВЫСОТА КОНТЕЙНЕРА
-                  maxWidth: '100%'     // 📱 Адаптивность для мобильных
+                  width: '680px',     
+                  height: '680px',   
+                  maxWidth: '100%'     
                 }}>
                   <Image
                     src="https://assets.revolut.com/published-assets-v3/245e191d-9293-4ae8-b3f0-460d94bf1801/88405c02-8743-48ef-94a8-ba5910176157.png"
