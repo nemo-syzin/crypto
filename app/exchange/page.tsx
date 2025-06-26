@@ -181,7 +181,7 @@ export default function ExchangePage() {
               <div className="order-2 lg:order-1">
                 <div className="relative mx-auto" style={{ 
                   width: '560px', 
-                  height: '960px',
+                  height: '560px',
                   maxWidth: '100%'
                 }}>
                   {/* Компактное видео в фиксированном контейнере */}
