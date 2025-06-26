@@ -201,30 +201,93 @@ export function AboutPageClient() {
               </p>
             </motion.div>
 
-            {/* About Us Section */}
+            {/* About Us Section с видео */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
               viewport={{ once: true }}
-              className="max-w-5xl mx-auto"
+              className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
             >
-              <Card className="bg-white/95 backdrop-blur-sm shadow-2xl border-2 border-[#001D8D]/20 hover:border-[#001D8D]/40 transition-all duration-300">
-                <CardHeader className="bg-gradient-to-r from-[#001D8D] to-blue-700 text-white rounded-t-lg">
-                  <CardTitle className="text-2xl md:text-3xl font-bold flex items-center gap-3">
-                    <Users className="h-8 w-8" />
-                    О нас
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-8 md:p-12">
-                  <p className="text-lg md:text-xl text-[#001D8D]/80 leading-relaxed">
-                    Мы – профессиональный криптосервис, предоставляющий эффективные, безопасные и прозрачные решения 
-                    для финансовых операций с криптовалютами и фиатными средствами. Наша команда объединяет экспертов 
-                    в области финансов, технологий и криптоиндустрии, чтобы помочь вашему бизнесу и личным финансам 
-                    успешно преодолевать любые экономические барьеры и оперативно адаптироваться к новым вызовам.
-                  </p>
-                </CardContent>
-              </Card>
+              {/* Текст слева */}
+              <div className="space-y-6">
+                <div className="inline-flex items-center gap-2 bg-[#001D8D]/10 text-[#001D8D] px-4 py-2 rounded-full text-sm font-medium">
+                  <Users className="h-4 w-4" />
+                  О нас
+                </div>
+                
+                <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D]">
+                  Профессиональный криптосервис
+                </h2>
+                
+                <p className="text-lg text-[#001D8D]/80 leading-relaxed">
+                  Мы – профессиональный криптосервис, предоставляющий эффективные, безопасные и прозрачные решения 
+                  для финансовых операций с криптовалютами и фиатными средствами. Наша команда объединяет экспертов 
+                  в области финансов, технологий и криптоиндустрии, чтобы помочь вашему бизнесу и личным финансам 
+                  успешно преодолевать любые экономические барьеры и оперативно адаптироваться к новым вызовам.
+                </p>
+                
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3">
+                    <div className="bg-blue-100 p-2 rounded-lg">
+                      <Shield className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-[#001D8D]">Безопасность и надежность</h4>
+                      <p className="text-sm text-[#001D8D]/70">Соблюдение международных стандартов AML/KYC</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-3">
+                    <div className="bg-green-100 p-2 rounded-lg">
+                      <Zap className="h-5 w-5 text-green-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-[#001D8D]">Инновационные технологии</h4>
+                      <p className="text-sm text-[#001D8D]/70">Передовые решения для криптовалютных операций</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-3">
+                    <div className="bg-purple-100 p-2 rounded-lg">
+                      <Award className="h-5 w-5 text-purple-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-[#001D8D]">Профессиональная команда</h4>
+                      <p className="text-sm text-[#001D8D]/70">Эксперты в области финансов и технологий</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Видео справа */}
+              <div className="order-1 lg:order-2">
+                <div className="relative mx-auto" style={{ 
+                  width: '480px', 
+                  height: '560px',
+                  maxWidth: '100%'
+                }}>
+                  <video
+                    src="https://assets.revolut.com/published-assets-v3/df417868-6851-4f3f-8a9d-38e629bf06c3/d4ddab3d-f075-4e11-a535-a06b8d49c30e.mp4"
+                    className="w-full h-full object-cover rounded-lg shadow-2xl"
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    preload="metadata"
+                    aria-label="Professional crypto service demonstration"
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      objectPosition: 'center',
+                      border: 'none',
+                      outline: 'none',
+                      borderRadius: '8px'
+                    }}
+                  />
+                </div>
+              </div>
             </motion.div>
 
             {/* Mission & Vision */}
