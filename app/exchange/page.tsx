@@ -29,6 +29,10 @@ import Image from 'next/image';
 
 export default function ExchangePage() {
   const [isMounted, setIsMounted] = useState(false);
+  const [imageContainerSize, setImageContainerSize] = useState({
+    width: 600,
+    height: 400
+  });
   const controls = useAnimation();
   const [ref, inView] = useInView({
     threshold: 0.1,
@@ -257,7 +261,7 @@ export default function ExchangePage() {
               </div>
             </motion.div>
 
-            {/* Second Image Section - Speed & Efficiency */}
+            {/* Second Image Section - Speed & Efficiency with Size Controls */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -266,7 +270,7 @@ export default function ExchangePage() {
               className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
             >
               <div className="space-y-6">
-                <div className="inline-flex items-center gap-2 bg-orange-100 text-orange-700 px-4 py-2 rounded-full text-sm font-medium">
+                <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium">
                   <Zap className="h-4 w-4" />
                   Мгновенные операции
                 </div>
@@ -302,25 +306,54 @@ export default function ExchangePage() {
                     <span>10,000+ довольных клиентов</span>
                   </div>
                 </div>
+
+                {/* Size Controls for Image Container */}
+                <div className="bg-white/90 backdrop-blur-sm p-4 rounded-lg border border-[#001D8D]/20">
+                  <h4 className="font-semibold text-[#001D8D] mb-3">Настройки размера изображения</h4>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-sm text-[#001D8D]/70 block mb-1">Ширина: {imageContainerSize.width}px</label>
+                      <input
+                        type="range"
+                        min="300"
+                        max="800"
+                        value={imageContainerSize.width}
+                        onChange={(e) => setImageContainerSize(prev => ({ ...prev, width: parseInt(e.target.value) }))}
+                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm text-[#001D8D]/70 block mb-1">Высота: {imageContainerSize.height}px</label>
+                      <input
+                        type="range"
+                        min="200"
+                        max="600"
+                        value={imageContainerSize.height}
+                        onChange={(e) => setImageContainerSize(prev => ({ ...prev, height: parseInt(e.target.value) }))}
+                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
               
+              {/* Customizable Image Container */}
               <div className="relative">
-                <Image
-                  src="https://assets.revolut.com/published-assets-v3/245e191d-9293-4ae8-b3f0-460d94bf1801/88405c02-8743-48ef-94a8-ba5910176157.png"
-                  alt="Fast crypto exchange dashboard"
-                  width={600}
-                  height={400}
-                  className="rounded-2xl shadow-2xl w-full h-auto"
-                  priority
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-orange-500/20 to-transparent rounded-2xl" />
-                
-                {/* Floating stats */}
-                <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-lg">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    <span className="text-sm font-medium text-[#001D8D]">Онлайн</span>
-                  </div>
+                <div 
+                  className="relative rounded-2xl shadow-2xl overflow-hidden bg-white border border-gray-200"
+                  style={{ 
+                    width: `${imageContainerSize.width}px`, 
+                    height: `${imageContainerSize.height}px`,
+                    maxWidth: '100%'
+                  }}
+                >
+                  <Image
+                    src="https://assets.revolut.com/published-assets-v3/245e191d-9293-4ae8-b3f0-460d94bf1801/88405c02-8743-48ef-94a8-ba5910176157.png"
+                    alt="Fast crypto exchange dashboard"
+                    fill
+                    className="object-cover"
+                    priority
+                  />
                 </div>
               </div>
             </motion.div>
