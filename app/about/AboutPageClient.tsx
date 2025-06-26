@@ -292,7 +292,7 @@ export function AboutPageClient() {
               </div>
             </motion.div>
 
-            {/* Mission Section - Two Equal Columns (ИСПРАВЛЕННЫЙ КОНТЕЙНЕР ИЗОБРАЖЕНИЯ) */}
+            {/* Mission Section - Two Equal Columns */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -300,7 +300,7 @@ export function AboutPageClient() {
               viewport={{ once: true }}
               className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
             >
-              {/* Left Column - Image (ИСПРАВЛЕННЫЙ КОНТЕЙНЕР) */}
+              {/* Left Column - Image */}
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 whileInView={{ opacity: 1, x: 0 }}
@@ -308,7 +308,6 @@ export function AboutPageClient() {
                 viewport={{ once: true }}
                 className="flex items-center justify-center"
               >
-                {/* 🎯 ИСПРАВЛЕННЫЙ КОНТЕЙНЕР ИЗОБРАЖЕНИЯ */}
                 <div className="relative w-full max-w-lg aspect-square">
                   <Image
                     src="https://assets.revolut.com/published-assets-v3/73aa49ec-f611-485f-9cc6-b57e3801240f/6a85f8bd-2664-4414-aeec-4d05e476f61b.png"
@@ -321,7 +320,7 @@ export function AboutPageClient() {
                 </div>
               </motion.div>
 
-              {/* Right Column - Mission Text (Updated Format) */}
+              {/* Right Column - Mission Text */}
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 whileInView={{ opacity: 1, x: 0 }}
@@ -381,32 +380,92 @@ export function AboutPageClient() {
               </motion.div>
             </motion.div>
 
-            {/* Vision Section */}
+            {/* Vision Section - Two Equal Columns (НОВЫЙ РАЗДЕЛ) */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
               viewport={{ once: true }}
-              className="max-w-5xl mx-auto"
+              className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
             >
-              <Card className="bg-white/95 backdrop-blur-sm shadow-xl border-2 border-[#001D8D]/20 hover:border-[#001D8D]/40 transition-all duration-300 hover:shadow-2xl">
-                <CardHeader className="bg-gradient-to-br from-purple-600 to-purple-700 text-white">
-                  <CardTitle className="text-2xl font-bold flex items-center gap-3">
-                    <Eye className="h-7 w-7" />
+              {/* Left Column - Vision Text */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5 }}
+                viewport={{ once: true }}
+                className="flex items-center"
+              >
+                <div className="space-y-6">
+                  <div className="inline-flex items-center gap-2 bg-purple-100 text-purple-700 px-4 py-2 rounded-full text-sm font-medium">
+                    <Eye className="h-4 w-4" />
                     Наше видение
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-8">
-                  <p className="text-[#001D8D]/80 leading-relaxed text-lg">
+                  </div>
+                  
+                  <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D]">
+                    Наше видение
+                  </h2>
+                  
+                  <p className="text-lg text-[#001D8D]/80 leading-relaxed">
                     Мы видим будущее, в котором финансовая среда становится единым глобальным пространством без 
                     искусственных барьеров. Каждый предприниматель и частное лицо, независимо от географии, имеет 
                     доступ к передовым цифровым инструментам и может безопасно, выгодно и прозрачно вести деятельность. 
-                    Наша цель — стать ключевым участником инновационной трансформации глобальной финансовой системы, 
-                    совершенствуя технологии расчётов и криптоиндустрии, ускоряя экономическое развитие и раскрывая 
-                    инновационный потенциал бизнеса во всём мире.
+                    Наша цель — стать ключевым участником инновационной трансформации глобальной финансовой системы.
                   </p>
-                </CardContent>
-              </Card>
+                  
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-3">
+                      <div className="bg-purple-100 p-2 rounded-lg">
+                        <Globe className="h-5 w-5 text-purple-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-[#001D8D]">Глобальное пространство</h4>
+                        <p className="text-sm text-[#001D8D]/70">Единая финансовая среда без барьеров</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start gap-3">
+                      <div className="bg-blue-100 p-2 rounded-lg">
+                        <Lightbulb className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-[#001D8D]">Цифровые инструменты</h4>
+                        <p className="text-sm text-[#001D8D]/70">Передовые технологии для всех</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start gap-3">
+                      <div className="bg-green-100 p-2 rounded-lg">
+                        <Rocket className="h-5 w-5 text-green-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-[#001D8D]">Инновационная трансформация</h4>
+                        <p className="text-sm text-[#001D8D]/70">Ключевая роль в развитии финансовой системы</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Right Column - Vision Image */}
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5 }}
+                viewport={{ once: true }}
+                className="flex items-center justify-center order-1 lg:order-2"
+              >
+                <div className="relative w-full max-w-lg aspect-square">
+                  <Image
+                    src="https://assets.revolut.com/published-assets-v3/42d87aec-29bc-40a5-8584-ff44105687b1/f205cf30-e3e8-4106-9167-2fc2c606d648.png"
+                    alt="Our Vision - Global financial transformation"
+                    fill
+                    className="object-contain rounded-2xl shadow-2xl"
+                    priority
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  />
+                </div>
+              </motion.div>
             </motion.div>
 
             {/* Goals 2026 */}
