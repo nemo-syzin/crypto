@@ -112,14 +112,14 @@
     animation: backgroundFlow 20s ease-in-out infinite;
   }
 
-  /* Interactive indigo tint effect for partner logos */
+  /* Темно-синий тинт для логотипов партнеров */
   .tint-indigo {
     filter:
       grayscale(1)
       brightness(.85)
       sepia(1)
-      hue-rotate(210deg)
-      saturate(250%);
+      hue-rotate(240deg)
+      saturate(300%);
     opacity: 0.75;
     transition: filter .3s, opacity .3s, transform .3s;
   }
