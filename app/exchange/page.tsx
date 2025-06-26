@@ -169,7 +169,7 @@ export default function ExchangePage() {
               </motion.div>
             </div>
 
-            {/* Secure Crypto Exchange Interface Section with Video - Simplified */}
+            {/* Borderless Video Section - Optimized for seamless display */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -177,13 +177,13 @@ export default function ExchangePage() {
               viewport={{ once: true }}
               className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
             >
-              {/* Video Container - Clean and Simple */}
+              {/* Borderless Video Container - No frames, no margins */}
               <div className="order-2 lg:order-1">
-                <div className="relative bg-black rounded-2xl shadow-2xl overflow-hidden">
-                  {/* Video Content - Clean without any overlays */}
+                <div className="relative w-full overflow-hidden">
+                  {/* Borderless Video - Perfectly fitted to content */}
                   <video
                     src="https://assets.revolut.com/published-assets-v3/b1f70228-8ed2-4e1d-a51d-10751333535f/007cc12b-da09-4a4d-bd11-608e4e6d9c21.mp4"
-                    className="w-full h-auto object-contain max-h-[400px]"
+                    className="w-full h-auto block"
                     autoPlay
                     muted
                     loop
@@ -192,7 +192,16 @@ export default function ExchangePage() {
                     aria-label="Secure crypto exchange interface demonstration"
                     style={{
                       aspectRatio: 'auto',
-                      display: 'block'
+                      objectFit: 'contain',
+                      objectPosition: 'center',
+                      backgroundColor: 'transparent',
+                      border: 'none',
+                      outline: 'none',
+                      margin: '0',
+                      padding: '0',
+                      display: 'block',
+                      maxWidth: '100%',
+                      height: 'auto'
                     }}
                   />
                 </div>
