@@ -169,7 +169,7 @@ export default function ExchangePage() {
               </motion.div>
             </div>
 
-            {/* Borderless Video Section - Optimized for seamless display */}
+            {/* Optimized Video Section - Compact and responsive */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -177,13 +177,13 @@ export default function ExchangePage() {
               viewport={{ once: true }}
               className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
             >
-              {/* Borderless Video Container - No frames, no margins */}
+              {/* Optimized Video Container - Reduced size for better performance */}
               <div className="order-2 lg:order-1">
-                <div className="relative w-full overflow-hidden">
-                  {/* Borderless Video - Perfectly fitted to content */}
+                <div className="relative w-full max-w-lg mx-auto lg:mx-0">
+                  {/* Optimized Video - Reduced dimensions for faster loading */}
                   <video
                     src="https://assets.revolut.com/published-assets-v3/b1f70228-8ed2-4e1d-a51d-10751333535f/007cc12b-da09-4a4d-bd11-608e4e6d9c21.mp4"
-                    className="w-full h-auto block"
+                    className="w-full h-auto rounded-xl shadow-lg"
                     autoPlay
                     muted
                     loop
@@ -191,19 +191,37 @@ export default function ExchangePage() {
                     preload="metadata"
                     aria-label="Secure crypto exchange interface demonstration"
                     style={{
-                      aspectRatio: 'auto',
-                      objectFit: 'contain',
-                      objectPosition: 'center',
+                      // Оптимизированные размеры для лучшей производительности
+                      maxWidth: '480px', // Ограничиваем максимальную ширину до 480px
+                      maxHeight: '320px', // Ограничиваем максимальную высоту до 320px
+                      aspectRatio: '16/10', // Устанавливаем оптимальное соотношение сторон
+                      objectFit: 'cover', // Обрезаем лишние поля по краям
+                      objectPosition: 'center center', // Центрируем содержимое
                       backgroundColor: 'transparent',
                       border: 'none',
                       outline: 'none',
-                      margin: '0',
-                      padding: '0',
-                      display: 'block',
-                      maxWidth: '100%',
-                      height: 'auto'
+                      borderRadius: '12px', // Добавляем скругленные углы
+                      boxShadow: '0 10px 25px rgba(0, 29, 141, 0.1)', // Тень для глубины
+                      // Оптимизация для мобильных устройств
+                      width: '100%',
+                      height: 'auto',
+                      minHeight: '200px', // Минимальная высота для мобильных
                     }}
+                    // Дополнительные атрибуты для оптимизации
+                    poster="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgwIiBoZWlnaHQ9IjMyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PC9zdmc+"
+                    loading="lazy"
                   />
+                  
+                  {/* Индикатор качества видео */}
+                  <div className="absolute top-3 right-3 bg-black/70 text-white text-xs px-2 py-1 rounded-md backdrop-blur-sm">
+                    HD
+                  </div>
+                  
+                  {/* Индикатор воспроизведения */}
+                  <div className="absolute bottom-3 left-3 bg-green-500/90 text-white text-xs px-2 py-1 rounded-md flex items-center gap-1">
+                    <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                    Live Demo
+                  </div>
                 </div>
               </div>
               
