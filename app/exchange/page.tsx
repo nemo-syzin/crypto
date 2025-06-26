@@ -19,7 +19,8 @@ import {
   ArrowRight,
   Star,
   Users,
-  Award
+  Award,
+  BarChart3
 } from 'lucide-react';
 import { UnifiedVantaBackground } from '@/components/shared/UnifiedVantaBackground';
 import ExchangeCalculator from '@/components/ExchangeCalculator';
@@ -468,6 +469,5 @@ export default function ExchangePage() {
         </div>
       </section>
     </div>
-  )
   );
 }
