@@ -201,7 +201,7 @@ export function AboutPageClient() {
               </p>
             </motion.div>
 
-            {/* About Us Section с видео и улучшенными эффектами */}
+            {/* About Us Section с видео */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -260,55 +260,32 @@ export function AboutPageClient() {
                 </div>
               </div>
 
-              {/* Видео справа с улучшенными эффектами */}
+              {/* Видео справа */}
               <div className="order-1 lg:order-2">
-                <div className="relative mx-auto group" style={{ 
+                <div className="relative mx-auto" style={{ 
                   width: '480px', 
                   height: '560px',
                   maxWidth: '100%'
                 }}>
-                  {/* Декоративные элементы вокруг видео */}
-                  <div className="absolute -inset-4 bg-gradient-to-r from-[#001D8D]/20 to-blue-600/20 rounded-2xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity duration-500"></div>
-                  
-                  {/* Основной контейнер видео */}
-                  <div className="relative bg-white rounded-2xl p-2 shadow-2xl">
-                    <video
-                      src="https://assets.revolut.com/published-assets-v3/df417868-6851-4f3f-8a9d-38e629bf06c3/d4ddab3d-f075-4e11-a535-a06b8d49c30e.mp4"
-                      className="w-full h-full object-cover rounded-xl shadow-lg"
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      preload="metadata"
-                      aria-label="Professional crypto service demonstration"
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                        objectPosition: 'center',
-                        border: 'none',
-                        outline: 'none',
-                        borderRadius: '12px'
-                      }}
-                    />
-                    
-                    {/* Overlay с брендингом */}
-                    <div className="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg p-3">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                        <span className="text-sm font-medium text-[#001D8D]">KenigSwap Professional</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Floating элементы */}
-                  <div className="absolute -top-6 -right-6 bg-blue-500 text-white p-3 rounded-full shadow-lg animate-bounce">
-                    <Shield className="h-6 w-6" />
-                  </div>
-                  
-                  <div className="absolute -bottom-6 -left-6 bg-green-500 text-white p-3 rounded-full shadow-lg animate-pulse">
-                    <Zap className="h-6 w-6" />
-                  </div>
+                  <video
+                    src="https://assets.revolut.com/published-assets-v3/df417868-6851-4f3f-8a9d-38e629bf06c3/d4ddab3d-f075-4e11-a535-a06b8d49c30e.mp4"
+                    className="w-full h-full object-cover rounded-lg shadow-2xl"
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    preload="metadata"
+                    aria-label="Professional crypto service demonstration"
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      objectPosition: 'center',
+                      border: 'none',
+                      outline: 'none',
+                      borderRadius: '8px'
+                    }}
+                  />
                 </div>
               </div>
             </motion.div>
