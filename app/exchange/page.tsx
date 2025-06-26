@@ -469,5 +469,6 @@ export default function ExchangePage() {
         </div>
       </section>
     </div>
+  )
   );
 }
