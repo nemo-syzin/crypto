@@ -305,7 +305,7 @@ export default function ExchangePage() {
               </div>
               
               <div className="relative">
-
+                {/* 🎯 КОНТЕЙНЕР БЕЗ ОРАНЖЕВОЙ ЗАЛИВКИ */}
                 <div className="relative" style={{ 
                   width: '560px',     
                   height: '560px',   
@@ -319,7 +319,7 @@ export default function ExchangePage() {
                     className="rounded-2xl shadow-2xl w-full h-full object-cover"
                     priority
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-orange-500/20 to-transparent rounded-2xl" />
+                  {/* ❌ УБРАНА ОРАНЖЕВАЯ ЗАЛИВКА */}
                 </div>
               </div>
             </motion.div>
