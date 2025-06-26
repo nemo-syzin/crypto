@@ -12,7 +12,7 @@ const footerLinks = [
 
 const Footer = () => {
   return (
-    <footer className="bg-crypto-bg/50 border-t border-white/5 py-12 mt-24">
+    <footer className="bg-gray-50 border-t border-gray-200 py-12 mt-24">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Logo and Description */}
@@ -26,7 +26,7 @@ const Footer = () => {
                 className="h-8 w-auto"
               />
             </Link>
-            <p className="mt-4 text-sm text-[#001D8D]/70">
+            <p className="mt-4 text-sm text-gray-600">
               Современная криптовалютная платформа, специализирующаяся
             на обмене USDT на рубли по выгодному курсу и с максимальной
             безопасностью.
@@ -36,7 +36,7 @@ const Footer = () => {
                 <a 
                   key={social} 
                   href="#" 
-                  className="text-[#001D8D]/60 hover:text-[#1E40AF] transition-colors duration-200"
+                  className="text-gray-500 hover:text-[#001D8D] transition-colors duration-200"
                   aria-label={social}
                 >
                   {social === 'Facebook' && <Facebook size={20} />}
@@ -50,13 +50,13 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div>
-            <h3 className="font-bold text-lg mb-4 text-[#001D8D]">Services</h3>
-            <ul className="flex flex-col gap-14 items-center">
+            <h3 className="font-bold text-lg mb-4 text-gray-900">Services</h3>
+            <ul className="space-y-2">
               {footerLinks.map((link) => (
                 <li key={link.href}>
                   <Link 
                     href={link.href} 
-                    className="text-[#001D8D]/70 hover:text-[#1E40AF] transition-colors duration-200"
+                    className="text-gray-600 hover:text-[#001D8D] transition-colors duration-200"
                   >
                     {link.label}
                   </Link>
@@ -67,25 +67,25 @@ const Footer = () => {
 
           {/* Company Info */}
           <div>
-            <h3 className="font-bold text-lg mb-4 text-[#001D8D]">Company</h3>
+            <h3 className="font-bold text-lg mb-4 text-gray-900">Company</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/about" className="text-[#001D8D]/70 hover:text-[#1E40AF] transition-colors duration-200">
+                <Link href="/about" className="text-gray-600 hover:text-[#001D8D] transition-colors duration-200">
                   About Us
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-[#001D8D]/70 hover:text-[#1E40AF] transition-colors duration-200">
+                <Link href="#" className="text-gray-600 hover:text-[#001D8D] transition-colors duration-200">
                   Careers
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-[#001D8D]/70 hover:text-[#1E40AF] transition-colors duration-200">
+                <Link href="#" className="text-gray-600 hover:text-[#001D8D] transition-colors duration-200">
                   Blog
                 </Link>
               </li>
               <li>
-                <Link href="/support" className="text-[#001D8D]/70 hover:text-[#1E40AF] transition-colors duration-200">
+                <Link href="/support" className="text-gray-600 hover:text-[#001D8D] transition-colors duration-200">
                   Contact Support
                 </Link>
               </li>
@@ -94,25 +94,25 @@ const Footer = () => {
 
           {/* Legal */}
           <div>
-            <h3 className="font-bold text-lg mb-4 text-[#001D8D]">Legal</h3>
+            <h3 className="font-bold text-lg mb-4 text-gray-900">Legal</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="#" className="text-[#001D8D]/70 hover:text-[#1E40AF] transition-colors duration-200">
+                <Link href="#" className="text-gray-600 hover:text-[#001D8D] transition-colors duration-200">
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-[#001D8D]/70 hover:text-[#1E40AF] transition-colors duration-200">
+                <Link href="#" className="text-gray-600 hover:text-[#001D8D] transition-colors duration-200">
                   Terms of Service
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-[#001D8D]/70 hover:text-[#1E40AF] transition-colors duration-200">
+                <Link href="#" className="text-gray-600 hover:text-[#001D8D] transition-colors duration-200">
                   Compliance
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-[#001D8D]/70 hover:text-[#1E40AF] transition-colors duration-200">
+                <Link href="#" className="text-gray-600 hover:text-[#001D8D] transition-colors duration-200">
                   KYC/AML Policy
                 </Link>
               </li>
@@ -120,25 +120,25 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="mt-12 pt-6 border-t border-white/5">
+        <div className="mt-12 pt-6 border-t border-gray-200">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-sm text-[#001D8D]/60">
+            <p className="text-sm text-gray-500">
               © {new Date().getFullYear()} Kenigswap. All rights reserved.
             </p>
             <div className="mt-4 md:mt-0">
               <ul className="flex space-x-6">
                 <li>
-                  <Link href="#" className="text-sm text-[#001D8D]/60 hover:text-[#1E40AF] transition-colors duration-200">
+                  <Link href="#" className="text-sm text-gray-500 hover:text-[#001D8D] transition-colors duration-200">
                     Privacy
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="text-sm text-[#001D8D]/60 hover:text-[#1E40AF] transition-colors duration-200">
+                  <Link href="#" className="text-sm text-gray-500 hover:text-[#001D8D] transition-colors duration-200">
                     Terms
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="text-sm text-[#001D8D]/60 hover:text-[#1E40AF] transition-colors duration-200">
+                  <Link href="#" className="text-sm text-gray-500 hover:text-[#001D8D] transition-colors duration-200">
                     Cookies
                   </Link>
                 </li>
