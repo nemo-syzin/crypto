@@ -292,8 +292,14 @@ export function AboutPageClient() {
               </div>
             </motion.div>
 
-            {/* Mission & Vision - Two Equal Columns */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Mission Section - Two Equal Columns (Updated Format) */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+              className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
+            >
               {/* Left Column - Image */}
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
@@ -304,7 +310,7 @@ export function AboutPageClient() {
               >
                 <div className="w-full h-full min-h-[400px] lg:min-h-[500px] relative">
                   <Image
-                    src="https://www.revolut.com/_next/image-asset/w:3840/q:90/https%3A%2F%2Fassets.revolut.com%2Fpublished-assets-v3%2F73aa49ec-f611-485f-9cc6-b57e3801240f%2F6a85f8bd-2664-4414-aeec-4d05e476f61b.png@webp"
+                    src="https://assets.revolut.com/published-assets-v3/73aa49ec-f611-485f-9cc6-b57e3801240f/6a85f8bd-2664-4414-aeec-4d05e476f61b.png"
                     alt="Our Mission - Professional crypto service"
                     fill
                     className="object-cover rounded-2xl shadow-2xl"
@@ -313,7 +319,7 @@ export function AboutPageClient() {
                 </div>
               </motion.div>
 
-              {/* Right Column - Mission Text */}
+              {/* Right Column - Mission Text (Updated Format) */}
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 whileInView={{ opacity: 1, x: 0 }}
@@ -321,24 +327,57 @@ export function AboutPageClient() {
                 viewport={{ once: true }}
                 className="flex items-center"
               >
-                <Card className="h-full bg-white/95 backdrop-blur-sm shadow-xl border-2 border-[#001D8D]/20 hover:border-[#001D8D]/40 transition-all duration-300 hover:shadow-2xl w-full">
-                  <CardHeader className="bg-gradient-to-br from-blue-600 to-blue-700 text-white">
-                    <CardTitle className="text-2xl font-bold flex items-center gap-3">
-                      <Target className="h-7 w-7" />
-                      Наша миссия
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-8 flex items-center">
-                    <p className="text-[#001D8D]/80 leading-relaxed text-lg">
-                      Мы помогаем бизнесу и частным клиентам безопасно и эффективно совершать финансовые операции 
-                      любой сложности, снижая издержки и способствуя преодолению экономических и операционных барьеров. 
-                      Мы стремимся участвовать в инновационной трансформации глобальной финансовой системы, предоставляя 
-                      возможность каждому сосредоточиться на своих целях, оставив финансовую логистику профессионалам.
-                    </p>
-                  </CardContent>
-                </Card>
+                <div className="space-y-6">
+                  <div className="inline-flex items-center gap-2 bg-[#001D8D]/10 text-[#001D8D] px-4 py-2 rounded-full text-sm font-medium">
+                    <Target className="h-4 w-4" />
+                    Наша миссия
+                  </div>
+                  
+                  <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D]">
+                    Наша миссия
+                  </h2>
+                  
+                  <p className="text-lg text-[#001D8D]/80 leading-relaxed">
+                    Мы помогаем бизнесу и частным клиентам безопасно и эффективно совершать финансовые операции 
+                    любой сложности, снижая издержки и способствуя преодолению экономических и операционных барьеров. 
+                    Мы стремимся участвовать в инновационной трансформации глобальной финансовой системы, предоставляя 
+                    возможность каждому сосредоточиться на своих целях, оставив финансовую логистику профессионалам.
+                  </p>
+                  
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-3">
+                      <div className="bg-blue-100 p-2 rounded-lg">
+                        <Shield className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-[#001D8D]">Безопасные операции</h4>
+                        <p className="text-sm text-[#001D8D]/70">Снижение рисков и обеспечение безопасности</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start gap-3">
+                      <div className="bg-green-100 p-2 rounded-lg">
+                        <TrendingUp className="h-5 w-5 text-green-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-[#001D8D]">Снижение издержек</h4>
+                        <p className="text-sm text-[#001D8D]/70">Оптимизация финансовых процессов</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start gap-3">
+                      <div className="bg-purple-100 p-2 rounded-lg">
+                        <Globe className="h-5 w-5 text-purple-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-[#001D8D]">Глобальная трансформация</h4>
+                        <p className="text-sm text-[#001D8D]/70">Участие в инновационном развитии финансовой системы</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </motion.div>
-            </div>
+            </motion.div>
 
             {/* Vision Section */}
             <motion.div
