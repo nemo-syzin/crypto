@@ -140,7 +140,7 @@ export default function ExchangePage() {
       </section>
 
       {/* Main Content Section */}
-      <section className="relative py-20 bg-gradient-to-b from-white via-blue-50/10 to-blue-100/20 overflow-hidden">
+      <section className="relative py-20 overflow-hidden">
         {/* Background */}
         <div className="absolute inset-0 opacity-15">
           <UnifiedVantaBackground 
@@ -158,10 +158,6 @@ export default function ExchangePage() {
             forceAnimate={true}
           />
         </div>
-
-        {/* Gradient transitions */}
-        <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-white to-transparent z-5" />
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent to-blue-100/20 z-5" />
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="space-y-24">
