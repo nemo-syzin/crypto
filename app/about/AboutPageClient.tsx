@@ -292,7 +292,7 @@ export function AboutPageClient() {
               </div>
             </motion.div>
 
-            {/* Mission Section - Two Equal Columns (Updated Format) */}
+            {/* Mission Section - Two Equal Columns (ИСПРАВЛЕННЫЙ КОНТЕЙНЕР ИЗОБРАЖЕНИЯ) */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -300,21 +300,23 @@ export function AboutPageClient() {
               viewport={{ once: true }}
               className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
             >
-              {/* Left Column - Image */}
+              {/* Left Column - Image (ИСПРАВЛЕННЫЙ КОНТЕЙНЕР) */}
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5 }}
                 viewport={{ once: true }}
-                className="flex items-center"
+                className="flex items-center justify-center"
               >
-                <div className="w-full h-full min-h-[400px] lg:min-h-[500px] relative">
+                {/* 🎯 ИСПРАВЛЕННЫЙ КОНТЕЙНЕР ИЗОБРАЖЕНИЯ */}
+                <div className="relative w-full max-w-lg aspect-square">
                   <Image
                     src="https://assets.revolut.com/published-assets-v3/73aa49ec-f611-485f-9cc6-b57e3801240f/6a85f8bd-2664-4414-aeec-4d05e476f61b.png"
                     alt="Our Mission - Professional crypto service"
                     fill
-                    className="object-cover rounded-2xl shadow-2xl"
+                    className="object-contain rounded-2xl shadow-2xl"
                     priority
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
                 </div>
               </motion.div>
