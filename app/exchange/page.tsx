@@ -191,17 +191,21 @@ export default function ExchangePage() {
                     </div>
                   </div>
                   
-                  {/* Video Content */}
-                  <div className="relative aspect-video bg-gray-100">
+                  {/* Video Content - Fixed to show full video without cropping */}
+                  <div className="relative bg-black">
                     <video
                       src="https://assets.revolut.com/published-assets-v3/b1f70228-8ed2-4e1d-a51d-10751333535f/007cc12b-da09-4a4d-bd11-608e4e6d9c21.mp4"
-                      className="w-full h-full object-cover"
+                      className="w-full h-auto object-contain max-h-[400px]"
                       autoPlay
                       muted
                       loop
                       playsInline
                       preload="metadata"
                       aria-label="Secure crypto exchange interface demonstration"
+                      style={{
+                        aspectRatio: 'auto',
+                        display: 'block'
+                      }}
                     />
                     
                     {/* Video Overlay with Status Indicators */}
