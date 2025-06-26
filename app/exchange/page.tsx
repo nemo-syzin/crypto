@@ -307,8 +307,8 @@ export default function ExchangePage() {
               <div className="relative">
 
                 <div className="relative" style={{ 
-                  width: '680px',     
-                  height: '680px',   
+                  width: '560px',     
+                  height: '560px',   
                   maxWidth: '100%'     
                 }}>
                   <Image
