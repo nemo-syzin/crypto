@@ -169,7 +169,7 @@ export default function ExchangePage() {
               </motion.div>
             </div>
 
-            {/* Borderless Video Section - Optimized for seamless display */}
+            {/* Компактное видео с фиксированными габаритами */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -177,13 +177,17 @@ export default function ExchangePage() {
               viewport={{ once: true }}
               className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
             >
-              {/* Borderless Video Container - No frames, no margins */}
+              {/* Видео контейнер с фиксированными размерами */}
               <div className="order-2 lg:order-1">
-                <div className="relative w-full overflow-hidden">
-                  {/* Borderless Video - Perfectly fitted to content */}
+                <div className="relative mx-auto" style={{ 
+                  width: '480px', 
+                  height: '320px',
+                  maxWidth: '100%'
+                }}>
+                  {/* Компактное видео в фиксированном контейнере */}
                   <video
                     src="https://assets.revolut.com/published-assets-v3/b1f70228-8ed2-4e1d-a51d-10751333535f/007cc12b-da09-4a4d-bd11-608e4e6d9c21.mp4"
-                    className="w-full h-auto block"
+                    className="w-full h-full object-cover rounded-lg shadow-lg"
                     autoPlay
                     muted
                     loop
@@ -191,19 +195,23 @@ export default function ExchangePage() {
                     preload="metadata"
                     aria-label="Secure crypto exchange interface demonstration"
                     style={{
-                      aspectRatio: 'auto',
-                      objectFit: 'contain',
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
                       objectPosition: 'center',
-                      backgroundColor: 'transparent',
                       border: 'none',
                       outline: 'none',
-                      margin: '0',
-                      padding: '0',
-                      display: 'block',
-                      maxWidth: '100%',
-                      height: 'auto'
+                      borderRadius: '8px'
                     }}
                   />
+                  
+                  {/* Статус индикатор */}
+                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-lg">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                      <span className="text-sm font-medium text-[#001D8D]">Онлайн</span>
+                    </div>
+                  </div>
                 </div>
               </div>
               
