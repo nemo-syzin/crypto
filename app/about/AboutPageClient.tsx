@@ -31,7 +31,6 @@ import {
   Diamond
 } from 'lucide-react';
 import { UnifiedVantaBackground } from '@/components/shared/UnifiedVantaBackground';
-import { ParallaxRoad } from '@/components/parallax/ParallaxRoad';
 import Image from 'next/image';
 
 export function AboutPageClient() {
@@ -120,6 +119,33 @@ export function AboutPageClient() {
       color: "from-indigo-500 to-indigo-600",
       bgColor: "bg-indigo-50",
       borderColor: "border-indigo-200"
+    }
+  ];
+
+  const goals2026 = [
+    {
+      icon: Heart,
+      title: "Доверительные отношения",
+      description: "Создавать и поддерживать доверительные, долгосрочные отношения с нашими клиентами.",
+      progress: 85
+    },
+    {
+      icon: TrendingUp,
+      title: "Повышение квалификации",
+      description: "Непрерывно повышать уровень квалификации наших специалистов.",
+      progress: 70
+    },
+    {
+      icon: Globe,
+      title: "Регистрация на BestChange",
+      description: "Зарегистрироваться и активно работать на платформе BestChange.",
+      progress: 45
+    },
+    {
+      icon: Rocket,
+      title: "Технологическое развитие",
+      description: "Расширить технологические возможности и ассортимент предоставляемых услуг, приступив к разработке собственной инфраструктуры.",
+      progress: 60
     }
   ];
 
@@ -454,6 +480,71 @@ export function AboutPageClient() {
               </motion.div>
             </motion.div>
 
+            {/* Goals 2026 */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+              className="max-w-6xl mx-auto"
+            >
+              <div className="text-center mb-12">
+                <Badge className="bg-gradient-to-r from-[#001D8D] to-blue-600 text-white px-6 py-2 text-lg mb-6">
+                  <Clock className="h-5 w-5 mr-2" />
+                  Цели до 2026 года
+                </Badge>
+                <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-4">
+                  Наши стратегические цели
+                </h2>
+                <p className="text-xl text-[#001D8D]/70 max-w-3xl mx-auto">
+                  К 2026 году мы планируем достичь амбициозных целей, которые укрепят наши позиции на рынке
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {goals2026.map((goal, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    viewport={{ once: true }}
+                  >
+                    <Card className="bg-white/95 backdrop-blur-sm shadow-xl border-2 border-[#001D8D]/20 hover:border-[#001D8D]/40 transition-all duration-300 hover:shadow-2xl h-full">
+                      <CardContent className="p-6">
+                        <div className="flex items-start gap-4 mb-4">
+                          <div className="bg-gradient-to-br from-[#001D8D] to-blue-600 p-3 rounded-lg">
+                            <goal.icon className="h-6 w-6 text-white" />
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="text-xl font-bold text-[#001D8D] mb-2">{goal.title}</h3>
+                            <p className="text-[#001D8D]/70 leading-relaxed">{goal.description}</p>
+                          </div>
+                        </div>
+                        
+                        {/* Progress Bar */}
+                        <div className="mt-4">
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="text-sm font-medium text-[#001D8D]/70">Прогресс</span>
+                            <span className="text-sm font-bold text-[#001D8D]">{goal.progress}%</span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-2">
+                            <motion.div 
+                              className="bg-gradient-to-r from-[#001D8D] to-blue-600 h-2 rounded-full"
+                              initial={{ width: 0 }}
+                              whileInView={{ width: `${goal.progress}%` }}
+                              transition={{ duration: 1, delay: 0.5 }}
+                              viewport={{ once: true }}
+                            />
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+
             {/* Values Section */}
             <motion.div
               ref={ref}
@@ -563,9 +654,6 @@ export function AboutPageClient() {
           </div>
         </div>
       </section>
-
-      {/* Parallax Road Section */}
-      <ParallaxRoad />
     </div>
   );
 }
