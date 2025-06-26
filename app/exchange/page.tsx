@@ -75,7 +75,7 @@ export default function ExchangePage() {
       <section className="relative w-full h-[60vh] lg:h-[75vh] overflow-hidden">
         {/* Video Background */}
         <video
-          src="/media/exchange-hero.mp4"
+          src="https://assets.revolut.com/published-assets-v3/b1f70228-8ed2-4e1d-a51d-10751333535f/007cc12b-da09-4a4d-bd11-608e4e6d9c21.mp4"
           className="absolute inset-0 w-full h-full object-cover"
           autoPlay
           muted
