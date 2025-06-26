@@ -306,7 +306,7 @@ export default function ExchangePage() {
               
               <div className="relative">
                 <Image
-                  src="https://www.revolut.com/_next/image-asset/w:3840/q:90/https%3A%2F%2Fassets.revolut.com%2Fpublished-assets-v3%2F42d87aec-29bc-40a5-8584-ff44105687b1%2Ff205cf30-e3e8-4106-9167-2fc2c606d648.png@webp"
+                  src="https://assets.revolut.com/published-assets-v3/245e191d-9293-4ae8-b3f0-460d94bf1801/88405c02-8743-48ef-94a8-ba5910176157.png"
                   alt="Fast crypto exchange dashboard"
                   width={600}
                   height={400}
