@@ -31,6 +31,7 @@ import {
   Diamond
 } from 'lucide-react';
 import { UnifiedVantaBackground } from '@/components/shared/UnifiedVantaBackground';
+import Image from 'next/image';
 
 export function AboutPageClient() {
   const [isMounted, setIsMounted] = useState(false);
@@ -291,23 +292,43 @@ export function AboutPageClient() {
               </div>
             </motion.div>
 
-            {/* Mission & Vision */}
+            {/* Mission & Vision - Two Equal Columns */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Mission */}
+              {/* Left Column - Image */}
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5 }}
                 viewport={{ once: true }}
+                className="flex items-center"
               >
-                <Card className="h-full bg-white/95 backdrop-blur-sm shadow-xl border-2 border-[#001D8D]/20 hover:border-[#001D8D]/40 transition-all duration-300 hover:shadow-2xl">
+                <div className="w-full h-full min-h-[400px] lg:min-h-[500px] relative">
+                  <Image
+                    src="https://www.revolut.com/_next/image-asset/w:3840/q:90/https%3A%2F%2Fassets.revolut.com%2Fpublished-assets-v3%2F73aa49ec-f611-485f-9cc6-b57e3801240f%2F6a85f8bd-2664-4414-aeec-4d05e476f61b.png@webp"
+                    alt="Our Mission - Professional crypto service"
+                    fill
+                    className="object-cover rounded-2xl shadow-2xl"
+                    priority
+                  />
+                </div>
+              </motion.div>
+
+              {/* Right Column - Mission Text */}
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5 }}
+                viewport={{ once: true }}
+                className="flex items-center"
+              >
+                <Card className="h-full bg-white/95 backdrop-blur-sm shadow-xl border-2 border-[#001D8D]/20 hover:border-[#001D8D]/40 transition-all duration-300 hover:shadow-2xl w-full">
                   <CardHeader className="bg-gradient-to-br from-blue-600 to-blue-700 text-white">
                     <CardTitle className="text-2xl font-bold flex items-center gap-3">
                       <Target className="h-7 w-7" />
                       Наша миссия
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="p-8">
+                  <CardContent className="p-8 flex items-center">
                     <p className="text-[#001D8D]/80 leading-relaxed text-lg">
                       Мы помогаем бизнесу и частным клиентам безопасно и эффективно совершать финансовые операции 
                       любой сложности, снижая издержки и способствуя преодолению экономических и операционных барьеров. 
@@ -317,34 +338,35 @@ export function AboutPageClient() {
                   </CardContent>
                 </Card>
               </motion.div>
-
-              {/* Vision */}
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5 }}
-                viewport={{ once: true }}
-              >
-                <Card className="h-full bg-white/95 backdrop-blur-sm shadow-xl border-2 border-[#001D8D]/20 hover:border-[#001D8D]/40 transition-all duration-300 hover:shadow-2xl">
-                  <CardHeader className="bg-gradient-to-br from-purple-600 to-purple-700 text-white">
-                    <CardTitle className="text-2xl font-bold flex items-center gap-3">
-                      <Eye className="h-7 w-7" />
-                      Наше видение
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-8">
-                    <p className="text-[#001D8D]/80 leading-relaxed text-lg">
-                      Мы видим будущее, в котором финансовая среда становится единым глобальным пространством без 
-                      искусственных барьеров. Каждый предприниматель и частное лицо, независимо от географии, имеет 
-                      доступ к передовым цифровым инструментам и может безопасно, выгодно и прозрачно вести деятельность. 
-                      Наша цель — стать ключевым участником инновационной трансформации глобальной финансовой системы, 
-                      совершенствуя технологии расчётов и криптоиндустрии, ускоряя экономическое развитие и раскрывая 
-                      инновационный потенциал бизнеса во всём мире.
-                    </p>
-                  </CardContent>
-                </Card>
-              </motion.div>
             </div>
+
+            {/* Vision Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+              className="max-w-5xl mx-auto"
+            >
+              <Card className="bg-white/95 backdrop-blur-sm shadow-xl border-2 border-[#001D8D]/20 hover:border-[#001D8D]/40 transition-all duration-300 hover:shadow-2xl">
+                <CardHeader className="bg-gradient-to-br from-purple-600 to-purple-700 text-white">
+                  <CardTitle className="text-2xl font-bold flex items-center gap-3">
+                    <Eye className="h-7 w-7" />
+                    Наше видение
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-8">
+                  <p className="text-[#001D8D]/80 leading-relaxed text-lg">
+                    Мы видим будущее, в котором финансовая среда становится единым глобальным пространством без 
+                    искусственных барьеров. Каждый предприниматель и частное лицо, независимо от географии, имеет 
+                    доступ к передовым цифровым инструментам и может безопасно, выгодно и прозрачно вести деятельность. 
+                    Наша цель — стать ключевым участником инновационной трансформации глобальной финансовой системы, 
+                    совершенствуя технологии расчётов и криптоиндустрии, ускоряя экономическое развитие и раскрывая 
+                    инновационный потенциал бизнеса во всём мире.
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
 
             {/* Goals 2026 */}
             <motion.div
