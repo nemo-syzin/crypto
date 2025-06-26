@@ -58,6 +58,10 @@
     @apply bg-white/20 backdrop-blur-md border border-[#001D8D]/10 rounded-2xl;
   }
 
+  .glass {
+    @apply bg-white/80 backdrop-blur-md border border-white/20;
+  }
+
   .text-gradient {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-[#001D8D] to-[#001D8D];
   }
@@ -89,6 +93,14 @@
   .section-transition::after {
     content: '';
     @apply absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent to-white z-10 pointer-events-none;
+  }
+
+  /* Crystal background helper */
+  .crystal-bg {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(79, 128, 255, 0.25) 0%, transparent 70%);
+    pointer-events: none;
   }
 }
 

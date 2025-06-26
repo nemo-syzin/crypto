@@ -2,10 +2,10 @@
 
 import { Suspense, useState, useRef, useEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { OrbitControls, Text, Html } from '@react-three/drei';
+import { OrbitControls, Html, Environment } from '@react-three/drei';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as THREE from 'three';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { X, Heart, TrendingUp, Globe, Rocket } from 'lucide-react';
@@ -34,7 +34,7 @@ const goals: Goal[] = [
       "Развитие программы лояльности",
       "Персонализированный подход к каждому клиенту"
     ],
-    color: "#ef4444"
+    color: "#e11d48"
   },
   {
     id: 1,
@@ -48,7 +48,7 @@ const goals: Goal[] = [
       "Изучение новых технологий",
       "Обмен опытом с международными экспертами"
     ],
-    color: "#10b981"
+    color: "#22c55e"
   },
   {
     id: 2,
@@ -62,7 +62,7 @@ const goals: Goal[] = [
       "Соответствие требованиям платформы",
       "Интеграция с системами BestChange"
     ],
-    color: "#3b82f6"
+    color: "#2563eb"
   },
   {
     id: 3,
@@ -76,12 +76,12 @@ const goals: Goal[] = [
       "Внедрение новых технологий",
       "Автоматизация процессов"
     ],
-    color: "#8b5cf6"
+    color: "#7c3aed"
   }
 ];
 
-// Crystal geometry component
-function Crystal({ onFaceClick, hoveredFace, setHoveredFace }: {
+// Strategic Crystal component with improved materials and lighting
+function StrategicCrystal({ onFaceClick, hoveredFace, setHoveredFace }: {
   onFaceClick: (goalId: number) => void;
   hoveredFace: number | null;
   setHoveredFace: (id: number | null) => void;
@@ -89,16 +89,23 @@ function Crystal({ onFaceClick, hoveredFace, setHoveredFace }: {
   const meshRef = useRef<THREE.Mesh>(null);
   const groupRef = useRef<THREE.Group>(null);
   const { camera, raycaster, pointer } = useThree();
+  const [isHovered, setIsHovered] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const autoRotateRef = useRef(true);
   
-  // Auto-rotation
-  useFrame((state) => {
-    if (groupRef.current) {
-      groupRef.current.rotation.y += 0.005; // 0.1 radians per second at 60fps
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+  }, []);
+
+  // Auto-rotation with smooth lerp
+  useFrame((state, delta) => {
+    if (groupRef.current && autoRotateRef.current) {
+      groupRef.current.rotation.y += 0.002; // Slower, more elegant rotation
     }
   });
 
-  // Create crystal geometry (octahedron)
-  const geometry = new THREE.OctahedronGeometry(2, 0);
+  // Create dodecahedron geometry for real crystal faces
+  const geometry = new THREE.DodecahedronGeometry(1.1, 0);
   
   // Handle mouse interactions
   useFrame(() => {
@@ -108,11 +115,13 @@ function Crystal({ onFaceClick, hoveredFace, setHoveredFace }: {
     const intersects = raycaster.intersectObject(meshRef.current);
     
     if (intersects.length > 0) {
-      const faceIndex = Math.floor(intersects[0].faceIndex! / 2); // Each face has 2 triangles
+      const faceIndex = Math.floor(intersects[0].faceIndex! / 3); // Each face has multiple triangles
       const goalId = faceIndex % 4; // Map to our 4 goals
       setHoveredFace(goalId);
+      setIsHovered(true);
     } else {
       setHoveredFace(null);
+      setIsHovered(false);
     }
   });
 
@@ -122,58 +131,102 @@ function Crystal({ onFaceClick, hoveredFace, setHoveredFace }: {
     }
   };
 
+  const handlePointerDown = () => {
+    autoRotateRef.current = false;
+  };
+
+  const handlePointerUp = () => {
+    // Resume auto-rotation after interaction
+    setTimeout(() => {
+      autoRotateRef.current = true;
+    }, 2000);
+  };
+
   return (
     <group ref={groupRef}>
+      {/* Environment lighting */}
+      <Environment preset="city" />
+      <spotLight intensity={1.2} position={[5, 8, 5]} angle={0.3} penumbra={1} />
+      <directionalLight intensity={0.6} position={[-5, -4, -5]} />
+      
+      {/* Main crystal */}
       <mesh
         ref={meshRef}
         geometry={geometry}
         onClick={handleClick}
+        onPointerDown={handlePointerDown}
+        onPointerUp={handlePointerUp}
         onPointerOver={() => document.body.style.cursor = 'pointer'}
         onPointerOut={() => document.body.style.cursor = 'default'}
+        scale={isHovered ? 1.08 : 1}
       >
         <meshPhysicalMaterial
-          color={hoveredFace !== null ? "#007bff" : "#ffffff"}
-          transparent
-          opacity={0.7}
-          roughness={0.1}
-          metalness={0.1}
-          clearcoat={1}
-          clearcoatRoughness={0.1}
+          color="#4f80ff"
+          roughness={0.05}
           transmission={0.9}
-          emissive={hoveredFace !== null ? "#007bff" : "#000000"}
-          emissiveIntensity={hoveredFace !== null ? 0.2 : 0}
+          ior={1.3}
+          thickness={1.5}
+          emissive="#2040ff"
+          emissiveIntensity={isHovered ? 0.6 : 0.0}
+          transparent
+          opacity={0.8}
         />
       </mesh>
       
-      {/* Goal labels */}
+      {/* Goal labels with Html components */}
       {goals.map((goal, index) => {
         const angle = (index / goals.length) * Math.PI * 2;
-        const radius = 3;
+        const radius = 2.5;
         const x = Math.cos(angle) * radius;
         const z = Math.sin(angle) * radius;
+        const isActive = hoveredFace === goal.id;
         
         return (
-          <Text
+          <Html
             key={goal.id}
             position={[x, 0, z]}
-            fontSize={0.3}
-            color={goal.color}
-            anchorX="center"
-            anchorY="middle"
-            rotation={[0, -angle, 0]}
+            center
+            distanceFactor={6}
+            style={{
+              opacity: isActive ? 1 : 0,
+              transform: `scale(${isActive ? 1 : 0.9})`,
+              transition: 'all 0.3s ease-in-out',
+              pointerEvents: 'none'
+            }}
           >
-            {goal.title}
-          </Text>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ 
+                opacity: isActive ? 1 : 0, 
+                scale: isActive ? 1 : 0.9 
+              }}
+              transition={{ duration: 0.3 }}
+            >
+              <Card className="glass border-none shadow-lg min-w-[200px]">
+                <CardContent className="p-4 text-center">
+                  <div 
+                    className="text-2xl font-bold mb-1"
+                    style={{ color: goal.color }}
+                  >
+                    {goal.metric}
+                  </div>
+                  <div className="text-sm font-medium text-[#001D8D]">
+                    {goal.title}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </Html>
         );
       })}
       
-      {/* Halo effect */}
+      {/* Ambient halo effect */}
       <mesh position={[0, 0, 0]}>
         <sphereGeometry args={[3.5, 32, 32]} />
         <meshBasicMaterial
-          color="#94bdff"
+          color="#4f80ff"
           transparent
-          opacity={0.1}
+          opacity={0.05}
           side={THREE.BackSide}
         />
       </mesh>
@@ -181,7 +234,7 @@ function Crystal({ onFaceClick, hoveredFace, setHoveredFace }: {
   );
 }
 
-// Fallback SVG crystal
+// Fallback SVG crystal for low-end devices
 function FallbackCrystal({ onFaceClick, className }: {
   onFaceClick: (goalId: number) => void;
   className?: string;
@@ -193,7 +246,7 @@ function FallbackCrystal({ onFaceClick, className }: {
       <svg
         viewBox="0 0 400 400"
         className="w-full h-full"
-        style={{ filter: 'drop-shadow(0 10px 20px rgba(0, 0, 0, 0.1))' }}
+        style={{ filter: 'drop-shadow(0 10px 20px rgba(79, 128, 255, 0.3))' }}
       >
         {/* Crystal faces */}
         {goals.map((goal, index) => {
@@ -211,7 +264,7 @@ function FallbackCrystal({ onFaceClick, className }: {
             <g key={goal.id}>
               <polygon
                 points={`${centerX},${centerY} ${x1},${y1} ${x2},${y2}`}
-                fill={hoveredFace === goal.id ? goal.color : "rgba(255, 255, 255, 0.7)"}
+                fill={hoveredFace === goal.id ? goal.color : "rgba(79, 128, 255, 0.3)"}
                 stroke={goal.color}
                 strokeWidth="2"
                 className="cursor-pointer transition-all duration-300"
@@ -224,10 +277,10 @@ function FallbackCrystal({ onFaceClick, className }: {
                 y={centerY + Math.sin(angle + Math.PI / 4) * radius * 0.6}
                 textAnchor="middle"
                 dominantBaseline="middle"
-                className="text-xs font-semibold fill-current"
+                className="text-xs font-semibold fill-current pointer-events-none"
                 style={{ color: goal.color }}
               >
-                {goal.title.split(' ')[0]}
+                {goal.metric}
               </text>
             </g>
           );
@@ -238,8 +291,8 @@ function FallbackCrystal({ onFaceClick, className }: {
           cx="200"
           cy="200"
           r="30"
-          fill="rgba(148, 189, 255, 0.3)"
-          stroke="#94bdff"
+          fill="rgba(79, 128, 255, 0.2)"
+          stroke="#4f80ff"
           strokeWidth="2"
         />
       </svg>
@@ -276,8 +329,8 @@ function GoalModal({ goal, isOpen, onClose }: {
             onClick={(e) => e.stopPropagation()}
           >
             <Card className="border-none shadow-none">
-              <CardHeader className="pb-4">
-                <div className="flex items-center justify-between">
+              <CardContent className="p-8">
+                <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
                     <div 
                       className="p-3 rounded-lg"
@@ -289,9 +342,9 @@ function GoalModal({ goal, isOpen, onClose }: {
                       />
                     </div>
                     <div>
-                      <CardTitle className="text-xl text-[#001D8D]">
+                      <h3 className="text-xl font-bold text-[#001D8D]">
                         {goal.title}
-                      </CardTitle>
+                      </h3>
                       <Badge 
                         className="mt-1"
                         style={{ 
@@ -313,15 +366,13 @@ function GoalModal({ goal, isOpen, onClose }: {
                     <X className="h-4 w-4" />
                   </Button>
                 </div>
-              </CardHeader>
-              
-              <CardContent className="space-y-6">
-                <p className="text-[#001D8D]/70 leading-relaxed">
+                
+                <p className="text-[#001D8D]/70 leading-relaxed mb-6">
                   {goal.description}
                 </p>
                 
                 {/* Progress bar */}
-                <div>
+                <div className="mb-6">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-sm font-medium text-[#001D8D]/70">
                       Прогресс выполнения
@@ -380,7 +431,7 @@ export function CrystalVisualization() {
   useEffect(() => {
     setIsClient(true);
     
-    // Check for low-end devices
+    // GPU capability detection
     const canvas = document.createElement('canvas');
     const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
     
@@ -415,7 +466,7 @@ export function CrystalVisualization() {
 
   if (!isClient) {
     return (
-      <div className="w-full h-96 flex items-center justify-center">
+      <div className="w-full min-h-[500px] flex items-center justify-center">
         <div className="animate-pulse text-[#001D8D]">
           Загрузка 3D визуализации...
         </div>
@@ -433,15 +484,16 @@ export function CrystalVisualization() {
         <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-4">
           Наши цели до 2026 года
         </h2>
-        <p className="text-xl text-[#001D8D]/70 max-w-3xl mx-auto mb-4">
-          Нажмите на грани кристалла, чтобы узнать подробности о каждой цели
-        </p>
-        <p className="text-sm text-[#001D8D]/50">
-          {use3D ? '3D режим активен' : 'Упрощенный режим для лучшей производительности'}
+        <p className="text-sm text-[#001d8d]/60 mb-4">
+          Наведите курсор на грань кристалла, чтобы узнать подробнее
         </p>
       </div>
 
-      <div className="relative w-full h-96 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl overflow-hidden">
+      {/* Crystal visualization container */}
+      <div className="relative w-full min-h-[500px] md:h-[650px] lg:h-[750px] mb-8">
+        {/* Background halo */}
+        <div className="crystal-bg" />
+        
         {use3D ? (
           <Suspense fallback={
             <div className="w-full h-full flex items-center justify-center">
@@ -449,14 +501,11 @@ export function CrystalVisualization() {
             </div>
           }>
             <Canvas
+              className="w-full h-full"
               camera={{ position: [0, 0, 8], fov: 50 }}
               style={{ background: 'transparent' }}
             >
-              <ambientLight intensity={0.6} />
-              <pointLight position={[10, 10, 10]} intensity={0.8} />
-              <pointLight position={[-10, -10, -10]} intensity={0.4} />
-              
-              <Crystal
+              <StrategicCrystal
                 onFaceClick={handleFaceClick}
                 hoveredFace={hoveredFace}
                 setHoveredFace={setHoveredFace}
@@ -468,6 +517,8 @@ export function CrystalVisualization() {
                 autoRotate={false}
                 maxPolarAngle={Math.PI / 1.5}
                 minPolarAngle={Math.PI / 3}
+                enableDamping
+                dampingFactor={0.05}
               />
             </Canvas>
           </Suspense>
@@ -479,28 +530,19 @@ export function CrystalVisualization() {
             />
           </div>
         )}
-        
-        {/* Interaction hint */}
-        <div className="absolute bottom-4 left-4 right-4">
-          <div className="bg-white/90 backdrop-blur-sm rounded-lg p-3 text-center">
-            <p className="text-sm text-[#001D8D]/70">
-              {use3D ? 'Наведите курсор и нажмите на грани кристалла' : 'Нажмите на секции для подробностей'}
-            </p>
-          </div>
-        </div>
       </div>
 
       {/* Goal cards preview */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-10">
         {goals.map((goal) => {
           const IconComponent = goal.icon;
           return (
             <motion.div
               key={goal.id}
-              className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-300 ${
+              className={`p-6 rounded-xl border border-[#001d8d]/10 cursor-pointer transition-all duration-300 ${
                 hoveredFace === goal.id 
                   ? 'border-current shadow-lg scale-105' 
-                  : 'border-gray-200 hover:border-gray-300'
+                  : 'hover:border-gray-300'
               }`}
               style={{ 
                 borderColor: hoveredFace === goal.id ? goal.color : undefined,
@@ -510,23 +552,34 @@ export function CrystalVisualization() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              <div className="flex items-center gap-2 mb-2">
-                <IconComponent 
-                  className="h-4 w-4" 
-                  style={{ color: goal.color }}
-                />
-                <span className="text-sm font-semibold text-[#001D8D]">
+              <div className="flex items-center gap-3 mb-4">
+                <div 
+                  className="p-2 rounded-lg"
+                  style={{ backgroundColor: `${goal.color}20` }}
+                >
+                  <IconComponent 
+                    className="h-5 w-5" 
+                    style={{ color: goal.color }}
+                  />
+                </div>
+                <span className="font-semibold text-[#001D8D]">
                   {goal.title}
                 </span>
               </div>
-              <div className="text-xs text-[#001D8D]/70 mb-2">
-                {goal.description.substring(0, 50)}...
+              
+              <div className="text-sm text-[#001D8D]/70 mb-4">
+                {goal.description.substring(0, 80)}...
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold" style={{ color: goal.color }}>
-                  {goal.metric}
-                </span>
-                <div className="w-8 h-1 bg-gray-200 rounded-full overflow-hidden">
+              
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-lg font-bold" style={{ color: goal.color }}>
+                    {goal.metric}
+                  </span>
+                  <span className="text-xs text-[#001D8D]/50">завершено</span>
+                </div>
+                
+                <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
                   <div 
                     className="h-full rounded-full transition-all duration-500"
                     style={{ 
