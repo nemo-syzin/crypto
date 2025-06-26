@@ -201,7 +201,7 @@ export function AboutPageClient() {
               </p>
             </motion.div>
 
-            {/* About Us Section с видео */}
+            {/* About Us Section с новым видео */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -260,7 +260,7 @@ export function AboutPageClient() {
                 </div>
               </div>
 
-              {/* Видео справа с убранным фоном */}
+              {/* Новое видео справа */}
               <div className="order-1 lg:order-2">
                 <div className="relative mx-auto" style={{ 
                   width: '480px', 
@@ -268,7 +268,7 @@ export function AboutPageClient() {
                   maxWidth: '100%'
                 }}>
                   <video
-                    src="https://assets.revolut.com/published-assets-v3/df417868-6851-4f3f-8a9d-38e629bf06c3/d4ddab3d-f075-4e11-a535-a06b8d49c30e.mp4"
+                    src="https://assets.revolut.com/published-assets-v3/a1cbc33c-6662-4f29-ab7b-2c4e1b4e781f/7989b735-2247-485a-b3c4-67680b1974f2.mp4"
                     className="w-full h-full object-cover rounded-lg shadow-2xl"
                     autoPlay
                     muted
@@ -283,23 +283,6 @@ export function AboutPageClient() {
                       objectPosition: 'center',
                       border: 'none',
                       outline: 'none',
-                      borderRadius: '8px',
-                      // 🎯 CSS-фильтры для удаления фона
-                      filter: 'contrast(1.2) brightness(1.1) saturate(0.8) hue-rotate(10deg)',
-                      // Создаем эффект прозрачности фона
-                      mixBlendMode: 'multiply',
-                      // Дополнительные эффекты
-                      backdropFilter: 'blur(0px)',
-                      WebkitBackdropFilter: 'blur(0px)'
-                    }}
-                  />
-                  
-                  {/* Дополнительный слой для создания эффекта прозрачного фона */}
-                  <div 
-                    className="absolute inset-0 rounded-lg pointer-events-none"
-                    style={{
-                      background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(0,29,141,0.05) 50%, rgba(255,255,255,0.1) 100%)',
-                      mixBlendMode: 'overlay',
                       borderRadius: '8px'
                     }}
                   />
