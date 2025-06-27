@@ -6,12 +6,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { SolidTrustButton } from '@/components/ui/solid-trust-button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import { 
   ArrowRight, 
   Wallet, 
@@ -118,25 +112,6 @@ const onlineSteps = [
   }
 ];
 
-const faqs = [
-  {
-    question: "Сколько времени занимает обмен?",
-    answer: "В офисе полный процесс обмена занимает 10-15 минут. Онлайн-обмен обычно завершается за 20-30 минут при условии быстрого прохождения верификации и своевременного перевода средств."
-  },
-  {
-    question: "Какая минимальная сумма обмена?",
-    answer: "Минимальная сумма онлайн-обмена составляет 100 USDT. Такая сумма позволяет нам предоставить максимально удобные и выгодные условия для клиентов.\n\nМинимальная сумма для обмена с наличными в офисе составляет 100 000 рублей. Это необходимо для обеспечения выгодного курса и оперативности сделки."
-  },
-  {
-    question: "Какие комиссии взимаются за обмен?",
-    answer: "Мы не взимаем никаких скрытых комиссий. Все уже вложено в актуальные курсы обмена которые вы видите на нашем сайте."
-  },
-  {
-    question: "Какие документы нужны для верификации?",
-    answer: "Для базовой верификации требуется паспорт и селфи с паспортом. Процесс обычно занимает не более 5 минут. Для повышенных лимитов может потребоваться подтверждение адреса проживания."
-  }
-];
-
 const partners = [
   {
     name: "Bitcoin",
@@ -195,7 +170,6 @@ const partners = [
 ];
 
 const UnifiedMainSection = () => {
-  const [openFaq, setOpenFaq] = useState<string>("item-0");
   const controls = useAnimation();
   const [ref, inView] = useInView({
     threshold: 0.1,
@@ -518,46 +492,6 @@ const UnifiedMainSection = () => {
                 </TabsContent>
               </Tabs>
             </div>
-
-            {/* FAQ Section - Calculator Style */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              viewport={{ once: true }}
-              className="calculator-container"
-            >
-              <div className="text-center mb-8">
-                <h2 className="text-3xl md:text-4xl font-semibold text-[#001D8D] mb-4">
-                  Частые вопросы
-                </h2>
-                <p className="text-[#001D8D]/70">
-                  Ответы на самые популярные вопросы о нашем сервисе
-                </p>
-              </div>
-              <Accordion
-                type="single"
-                collapsible
-                value={openFaq}
-                onValueChange={setOpenFaq}
-                className="space-y-4"
-              >
-                {faqs.map((faq, index) => (
-                  <AccordionItem
-                    key={index}
-                    value={`item-${index}`}
-                    className="glass-tile px-6 py-2 hover:shadow-md transition-all duration-300"
-                  >
-                    <AccordionTrigger className="text-[#001D8D] hover:text-[#001D8D]/80 text-left font-medium">
-                      {faq.question}
-                    </AccordionTrigger>
-                    <AccordionContent className="text-[#001D8D]/70 leading-relaxed">
-                      {faq.answer}
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-            </motion.div>
           </div>
 
           {/* 3. Partners Section - Calculator Style */}
