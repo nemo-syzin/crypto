@@ -13,9 +13,7 @@ import {
   AlertTriangle, 
   Settings, 
   ArrowRightLeft, 
-  Info,
-  ChevronDown,
-  ChevronUp
+  ChevronDown
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ru } from 'date-fns/locale';
@@ -34,11 +32,11 @@ export default function RatesComparison() {
       const diff = Math.floor((now.getTime() - lastUpdated.getTime()) / 1000);
       
       if (diff < 60) {
-        setCountdown(`${diff} с назад`);
+        setCountdown(`${diff}с`);
       } else if (diff < 3600) {
-        setCountdown(`${Math.floor(diff / 60)} мин назад`);
+        setCountdown(`${Math.floor(diff / 60)}м`);
       } else {
-        setCountdown(`${Math.floor(diff / 3600)} ч назад`);
+        setCountdown(`${Math.floor(diff / 3600)}ч`);
       }
     };
 
@@ -55,16 +53,6 @@ export default function RatesComparison() {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(rate);
-  };
-
-  const formatRelativeTime = (dateString?: string): string => {
-    if (!dateString) return 'недавно';
-    try {
-      const date = new Date(dateString);
-      return formatDistanceToNow(date, { addSuffix: true, locale: ru });
-    } catch {
-      return 'недавно';
-    }
   };
 
   // Calculate delta vs KenigSwap
@@ -84,12 +72,12 @@ export default function RatesComparison() {
     return { delta: Math.abs(delta), isPositive, color };
   };
 
-  // Mock sparkline data (в реальном приложении это будут исторические данные)
+  // Mock sparkline data
   const generateSparklineData = (baseRate: number | null): number[] => {
     if (!baseRate) return [];
     const data = [];
-    for (let i = 0; i < 8; i++) {
-      const variation = (Math.random() - 0.5) * 0.02; // ±1% variation
+    for (let i = 0; i < 6; i++) {
+      const variation = (Math.random() - 0.5) * 0.015;
       data.push(baseRate * (1 + variation));
     }
     return data;
@@ -132,7 +120,7 @@ export default function RatesComparison() {
       buyRate: rates.kenig.buy,
       updatedAt: rates.kenig.updated_at,
       available: rates.kenig.sell !== null && !isNaN(rates.kenig.sell!),
-      description: 'Основной обменник',
+      description: 'Основной',
       priority: 1
     },
     {
@@ -141,7 +129,7 @@ export default function RatesComparison() {
       buyRate: rates.bestchange.buy,
       updatedAt: rates.bestchange.updated_at,
       available: rates.bestchange.sell !== null && !isNaN(rates.bestchange.sell!),
-      description: 'Агрегатор обменников',
+      description: 'Агрегатор',
       priority: 2
     }
   ] : [];
@@ -158,7 +146,7 @@ export default function RatesComparison() {
     (bestSell?.source === ex.name || bestBuy?.source === ex.name) && ex.available
   ) || exchangeData[0];
 
-  const renderRateCard = (exchange: any, type: 'sell' | 'buy', isBest: boolean) => {
+  const renderCompactRateCard = (exchange: any, type: 'sell' | 'buy', isBest: boolean) => {
     const rate = type === 'sell' ? exchange.sellRate : exchange.buyRate;
     const kenigRate = type === 'sell' ? rates?.kenig.sell : rates?.kenig.buy;
     const delta = calculateDelta(rate, kenigRate);
@@ -168,7 +156,7 @@ export default function RatesComparison() {
     return (
       <div
         key={`${type}-${exchange.name}`}
-        className={`glass-tile p-6 transition-all duration-200 ${
+        className={`glass-tile p-4 transition-all duration-200 ${
           !exchange.available
             ? 'opacity-60'
             : isBest
@@ -176,75 +164,62 @@ export default function RatesComparison() {
             : ''
         }`}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4">
+        {/* Compact Header */}
+        <div className="flex items-center justify-between mb-3">
           <div>
-            <h4 className="text-lg font-semibold text-[#001D8D]">
+            <h4 className="text-base font-semibold text-[#001D8D]">
               {exchange.name}
             </h4>
-            <p className="text-xs text-muted/70">
+            <p className="text-xs text-muted/60">
               {exchange.description}
             </p>
           </div>
-          <div className="flex flex-col items-end gap-1">
+          <div className="flex items-center gap-2">
             {isBest && exchange.available && (
-              <span className="badge-outline badge-success">
+              <span className="badge-outline badge-success text-xs">
                 Лучший
               </span>
             )}
-            {!exchange.available && (
-              <span className="badge-outline badge-neutral">
-                Недоступно
-              </span>
+            {sparklineData.length > 0 && (
+              <TinySparkline 
+                data={sparklineData} 
+                color={sparklineColor}
+                width={24}
+                height={6}
+              />
             )}
           </div>
         </div>
 
-        {/* Rate and Sparkline */}
-        <div className="flex items-center justify-between mb-3">
-          <div className="text-3xl font-bold text-[#001D8D]">
+        {/* Rate and Delta */}
+        <div className="flex items-baseline justify-between">
+          <div className="text-2xl font-bold text-[#001D8D]">
             {formatRate(rate)}
           </div>
-          {sparklineData.length > 0 && (
-            <TinySparkline 
-              data={sparklineData} 
-              color={sparklineColor}
-              width={30}
-              height={8}
-            />
-          )}
-        </div>
-
-        {/* Delta indicator */}
-        {exchange.name !== 'KenigSwap' && (
-          <div className={`text-xs mb-2 ${delta.color}`}>
-            {delta.isPositive ? '+' : '−'}{delta.delta.toFixed(2)}%
+          <div className="text-right">
+            {exchange.name !== 'KenigSwap' ? (
+              <div className={`text-xs ${delta.color}`}>
+                {delta.isPositive ? '+' : '−'}{delta.delta.toFixed(2)}%
+              </div>
+            ) : (
+              <div className="text-xs text-gray-400">
+                базовый
+              </div>
+            )}
           </div>
-        )}
-        {exchange.name === 'KenigSwap' && (
-          <div className="text-xs mb-2 text-gray-400">
-            базовый курс
-          </div>
-        )}
-
-        {/* Updated time */}
-        <div className="text-xs text-muted/70">
-          обновлено {formatRelativeTime(exchange.updatedAt)}
         </div>
       </div>
     );
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Configuration Error Alert */}
       {isConfigurationError && (
         <Alert className="bg-orange-50 border-orange-200">
           <Settings className="h-4 w-4 text-orange-600" />
           <AlertDescription className="text-orange-800">
-            <strong>Требуется настройка:</strong>
-            <br />
-            {error}
+            <strong>Требуется настройка:</strong> {error}
           </AlertDescription>
         </Alert>
       )}
@@ -254,79 +229,74 @@ export default function RatesComparison() {
         <Alert className="bg-red-50 border-red-200">
           <AlertTriangle className="h-4 w-4 text-red-600" />
           <AlertDescription className="text-red-800">
-            <strong>Ошибка загрузки курсов:</strong> {error}
+            <strong>Ошибка:</strong> {error}
           </AlertDescription>
         </Alert>
       )}
 
-      {/* Main Comparison Card */}
+      {/* Main Comparison Card - Compact */}
       <Card className="glass-tile border-none shadow-lg">
-        <CardHeader className="pb-6">
+        <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-[#001D8D] flex items-center gap-2">
-              <TrendingUp className="h-5 w-5" />
-              Сравнение курсов обмена
+            <CardTitle className="text-[#001D8D] flex items-center gap-2 text-lg">
+              <TrendingUp className="h-4 w-4" />
+              Сравнение курсов
             </CardTitle>
             
-            {/* Refresh button with countdown */}
-            <div className="flex items-center gap-3">
-              <div className="countdown-timer">
-                Обновлено {countdown}
+            {/* Compact refresh section */}
+            <div className="flex items-center gap-2">
+              <div className="countdown-timer text-xs">
+                {countdown}
               </div>
               <button
                 onClick={refetch}
                 disabled={loading}
-                className="w-8 h-8 flex items-center justify-center rounded-full bg-[#001D8D]/10 hover:bg-[#001D8D]/20 transition-colors"
+                className="w-7 h-7 flex items-center justify-center rounded-full bg-[#001D8D]/10 hover:bg-[#001D8D]/20 transition-colors"
               >
-                <RefreshCw className={`h-4 w-4 text-[#001D8D] ${loading ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`h-3 w-3 text-[#001D8D] ${loading ? 'animate-spin' : ''}`} />
               </button>
             </div>
           </div>
         </CardHeader>
 
-        <CardContent>
+        <CardContent className="space-y-6">
           {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="flex items-center gap-3 text-[#001D8D]">
-                <RefreshCw className="h-5 w-5 animate-spin" />
-                <span className="font-medium">Загрузка курсов...</span>
+            <div className="flex items-center justify-center py-8">
+              <div className="flex items-center gap-2 text-[#001D8D]">
+                <RefreshCw className="h-4 w-4 animate-spin" />
+                <span className="text-sm">Загрузка...</span>
               </div>
             </div>
           ) : rates ? (
-            <div className="space-y-8">
-              {/* Sell Rates Section */}
+            <div className="space-y-6">
+              {/* Sell Rates Section - Compact */}
               <div>
-                <h3 className="flex items-center gap-2 text-lg font-semibold mb-2">
+                <div className="flex items-center gap-2 mb-3">
                   <ArrowRightLeft className="h-4 w-4 text-red-500" />
-                  Продажа USDT → RUB
-                </h3>
-                <p className="text-xs text-muted/70 mb-6">
-                  (лучший курс = самый низкий)
-                  <button className="ml-2 text-[#001D8D]/50 hover:text-[#001D8D]">
-                    <Info className="h-3 w-3 inline" />
-                  </button>
-                </p>
+                  <h3 className="text-base font-semibold">Продажа USDT → RUB</h3>
+                  <span className="text-xs text-muted/60">(лучший = низкий)</span>
+                </div>
 
-                {/* Desktop view */}
-                <div className="hidden sm:grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Desktop view - Compact grid */}
+                <div className="hidden sm:grid grid-cols-2 gap-4">
                   {exchangeData.map((exchange) => 
-                    renderRateCard(exchange, 'sell', bestSell?.source === exchange.name)
+                    renderCompactRateCard(exchange, 'sell', bestSell?.source === exchange.name)
                   )}
                 </div>
 
-                {/* Mobile view */}
+                {/* Mobile view - Simplified */}
                 <div className="sm:hidden">
-                  {mobileLeader && renderRateCard(mobileLeader, 'sell', bestSell?.source === mobileLeader.name)}
+                  {mobileLeader && renderCompactRateCard(mobileLeader, 'sell', bestSell?.source === mobileLeader.name)}
                   
                   {exchangeData.length > 1 && (
-                    <details className="mt-4">
+                    <details className="mt-3">
                       <summary className="flex items-center gap-2 cursor-pointer text-sm text-[#001D8D] hover:text-[#001D8D]/80">
-                        <span>Показать ещё {exchangeData.length - 1} источников</span>
-                        <ChevronDown className="h-4 w-4" />
+                        <span>Ещё {exchangeData.length - 1}</span>
+                        <ChevronDown className="h-3 w-3" />
                       </summary>
-                      <div className="mt-4 space-y-4">
+                      <div className="mt-3 space-y-3">
                         {exchangeData.filter(ex => ex.name !== mobileLeader.name).map((exchange) => 
-                          renderRateCard(exchange, 'sell', bestSell?.source === exchange.name)
+                          renderCompactRateCard(exchange, 'sell', bestSell?.source === exchange.name)
                         )}
                       </div>
                     </details>
@@ -334,39 +304,34 @@ export default function RatesComparison() {
                 </div>
               </div>
 
-              {/* Buy Rates Section */}
+              {/* Buy Rates Section - Compact */}
               <div>
-                <h3 className="flex items-center gap-2 text-lg font-semibold mb-2">
+                <div className="flex items-center gap-2 mb-3">
                   <ArrowRightLeft className="h-4 w-4 text-blue-500" />
-                  Покупка USDT ← RUB
-                </h3>
-                <p className="text-xs text-muted/70 mb-6">
-                  (лучший курс = самый высокий)
-                  <button className="ml-2 text-[#001D8D]/50 hover:text-[#001D8D]">
-                    <Info className="h-3 w-3 inline" />
-                  </button>
-                </p>
+                  <h3 className="text-base font-semibold">Покупка USDT ← RUB</h3>
+                  <span className="text-xs text-muted/60">(лучший = высокий)</span>
+                </div>
 
-                {/* Desktop view */}
-                <div className="hidden sm:grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Desktop view - Compact grid */}
+                <div className="hidden sm:grid grid-cols-2 gap-4">
                   {exchangeData.map((exchange) => 
-                    renderRateCard(exchange, 'buy', bestBuy?.source === exchange.name)
+                    renderCompactRateCard(exchange, 'buy', bestBuy?.source === exchange.name)
                   )}
                 </div>
 
-                {/* Mobile view */}
+                {/* Mobile view - Simplified */}
                 <div className="sm:hidden">
-                  {mobileLeader && renderRateCard(mobileLeader, 'buy', bestBuy?.source === mobileLeader.name)}
+                  {mobileLeader && renderCompactRateCard(mobileLeader, 'buy', bestBuy?.source === mobileLeader.name)}
                   
                   {exchangeData.length > 1 && (
-                    <details className="mt-4">
+                    <details className="mt-3">
                       <summary className="flex items-center gap-2 cursor-pointer text-sm text-[#001D8D] hover:text-[#001D8D]/80">
-                        <span>Показать ещё {exchangeData.length - 1} источников</span>
-                        <ChevronDown className="h-4 w-4" />
+                        <span>Ещё {exchangeData.length - 1}</span>
+                        <ChevronDown className="h-3 w-3" />
                       </summary>
-                      <div className="mt-4 space-y-4">
+                      <div className="mt-3 space-y-3">
                         {exchangeData.filter(ex => ex.name !== mobileLeader.name).map((exchange) => 
-                          renderRateCard(exchange, 'buy', bestBuy?.source === exchange.name)
+                          renderCompactRateCard(exchange, 'buy', bestBuy?.source === exchange.name)
                         )}
                       </div>
                     </details>
@@ -375,10 +340,9 @@ export default function RatesComparison() {
               </div>
             </div>
           ) : (
-            <div className="text-center py-12 text-[#001D8D]/70">
-              <div className="text-4xl mb-4">📊</div>
-              <p className="text-lg font-medium">Нет данных для отображения</p>
-              <p className="text-sm mt-2">Проверьте подключение к базе данных</p>
+            <div className="text-center py-8 text-[#001D8D]/70">
+              <div className="text-2xl mb-2">📊</div>
+              <p className="text-sm">Нет данных</p>
             </div>
           )}
         </CardContent>
