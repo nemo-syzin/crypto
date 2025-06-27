@@ -228,6 +228,11 @@ const UnifiedMainSection = () => {
     },
   };
 
+  // Функция для форматирования номера шага в стиле манифеста
+  const formatStepNumber = (index: number): string => {
+    return (index + 1).toString().padStart(2, '0');
+  };
+
   return (
     <section className="relative py-20 bg-gradient-to-b from-white via-blue-50/10 to-blue-100/20 overflow-hidden">
       {/*  ДВУХЦВЕТНЫЙ ФОН - ОРАНЖЕВЫЙ + СИНИЙ */}
@@ -342,8 +347,11 @@ const UnifiedMainSection = () => {
                       className="glass-tile p-6 hover:shadow-lg transition-all duration-300"
                     >
                       <div className="flex items-start gap-4">
-                        <div className="flex-shrink-0 w-12 h-12 rounded-full bg-[#001D8D]/10 flex items-center justify-center">
-                          <span className="text-[#001D8D] font-bold">{index + 1}</span>
+                        {/* Номер в стиле манифеста */}
+                        <div className="flex-shrink-0">
+                          <div className="manifesto-number text-3xl font-bold text-[#001D8D] tracking-wider">
+                            {formatStepNumber(index)}
+                          </div>
                         </div>
                         <div className="flex-1">
                           <div className="flex justify-between items-start">
@@ -375,8 +383,11 @@ const UnifiedMainSection = () => {
                       className="glass-tile p-6 hover:shadow-lg transition-all duration-300"
                     >
                       <div className="flex items-start gap-4">
-                        <div className="flex-shrink-0 w-12 h-12 rounded-full bg-[#001D8D]/10 flex items-center justify-center">
-                          <span className="text-[#001D8D] font-bold">{index + 1}</span>
+                        {/* Номер в стиле манифеста */}
+                        <div className="flex-shrink-0">
+                          <div className="manifesto-number text-3xl font-bold text-[#001D8D] tracking-wider">
+                            {formatStepNumber(index)}
+                          </div>
                         </div>
                         <div className="flex-1">
                           <div className="flex justify-between items-start">
