@@ -64,6 +64,7 @@ export default function RatesComparison() {
   const bestSell = getBestSellRate();
   const bestBuy = getBestBuyRate();
 
+  // Убираем EnergoTransBank из данных обмена
   const exchangeData = rates ? [
     {
       name: 'KenigSwap',
@@ -86,18 +87,7 @@ export default function RatesComparison() {
       description: 'Агрегатор обменников',
       isCompetitive: true,
       priority: 2
-    },
-    {
-      name: 'EnergoTransBank',
-      sellRate: rates.energo.sell,
-      buyRate: rates.energo.buy,
-      updatedAt: rates.energo.updated_at,
-      color: '#8b5cf6',
-      available: rates.energo.sell !== null && !isNaN(rates.energo.sell!),
-      description: 'Справочно: курсы доллара',
-      isCompetitive: false,
-      priority: 3
-    },
+    }
   ] : [];
 
   // Check if error is configuration related
@@ -179,22 +169,20 @@ export default function RatesComparison() {
                     (лучший курс = самый низкий)
                   </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {exchangeData.map((exchange) => (
                     <div
                       key={`sell-${exchange.name}`}
                       className={`relative p-6 rounded-xl transition-all duration-300 ${
                         !exchange.available
                           ? 'bg-gray-50 border border-gray-200 opacity-60'
-                          : !exchange.isCompetitive
-                          ? 'bg-purple-50 border border-purple-200'
                           : bestSell?.source === exchange.name
                           ? 'bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-400 shadow-lg scale-105'
                           : 'bg-white border border-gray-200 hover:border-blue-300 hover:shadow-md'
                       }`}
                     >
                       {/* Best Rate Crown */}
-                      {bestSell?.source === exchange.name && exchange.available && exchange.isCompetitive && (
+                      {bestSell?.source === exchange.name && exchange.available && (
                         <div className="absolute -top-3 -right-3">
                           <div className="bg-green-500 text-white p-2 rounded-full shadow-lg">
                             <Crown className="h-4 w-4" />
@@ -210,15 +198,10 @@ export default function RatesComparison() {
                           <p className="text-sm text-[#001D8D]/60">{exchange.description}</p>
                         </div>
                         <div className="flex flex-col items-end gap-1">
-                          {bestSell?.source === exchange.name && exchange.available && exchange.isCompetitive && (
+                          {bestSell?.source === exchange.name && exchange.available && (
                             <Badge className="bg-green-500 text-white border-0 text-xs">
                               <Crown className="h-3 w-3 mr-1" />
                               Лучший
-                            </Badge>
-                          )}
-                          {!exchange.isCompetitive && (
-                            <Badge variant="outline" className="text-xs text-purple-600 border-purple-300">
-                              Справочно
                             </Badge>
                           )}
                           {!exchange.available && (
@@ -240,7 +223,7 @@ export default function RatesComparison() {
                       {/* Priority indicator */}
                       <div className="absolute bottom-2 left-2">
                         <div className="flex gap-1">
-                          {Array.from({ length: 4 - exchange.priority }, (_, i) => (
+                          {Array.from({ length: 3 - exchange.priority }, (_, i) => (
                             <div 
                               key={i} 
                               className="w-1 h-1 rounded-full"
@@ -265,22 +248,20 @@ export default function RatesComparison() {
                     (лучший курс = самый высокий)
                   </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {exchangeData.map((exchange) => (
                     <div
                       key={`buy-${exchange.name}`}
                       className={`relative p-6 rounded-xl transition-all duration-300 ${
                         !exchange.available
                           ? 'bg-gray-50 border border-gray-200 opacity-60'
-                          : !exchange.isCompetitive
-                          ? 'bg-purple-50 border border-purple-200'
                           : bestBuy?.source === exchange.name
                           ? 'bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-400 shadow-lg scale-105'
                           : 'bg-white border border-gray-200 hover:border-blue-300 hover:shadow-md'
                       }`}
                     >
                       {/* Best Rate Crown */}
-                      {bestBuy?.source === exchange.name && exchange.available && exchange.isCompetitive && (
+                      {bestBuy?.source === exchange.name && exchange.available && (
                         <div className="absolute -top-3 -right-3">
                           <div className="bg-green-500 text-white p-2 rounded-full shadow-lg">
                             <Crown className="h-4 w-4" />
@@ -296,15 +277,10 @@ export default function RatesComparison() {
                           <p className="text-sm text-[#001D8D]/60">{exchange.description}</p>
                         </div>
                         <div className="flex flex-col items-end gap-1">
-                          {bestBuy?.source === exchange.name && exchange.available && exchange.isCompetitive && (
+                          {bestBuy?.source === exchange.name && exchange.available && (
                             <Badge className="bg-green-500 text-white border-0 text-xs">
                               <Crown className="h-3 w-3 mr-1" />
                               Лучший
-                            </Badge>
-                          )}
-                          {!exchange.isCompetitive && (
-                            <Badge variant="outline" className="text-xs text-purple-600 border-purple-300">
-                              Справочно
                             </Badge>
                           )}
                           {!exchange.available && (
@@ -326,7 +302,7 @@ export default function RatesComparison() {
                       {/* Priority indicator */}
                       <div className="absolute bottom-2 left-2">
                         <div className="flex gap-1">
-                          {Array.from({ length: 4 - exchange.priority }, (_, i) => (
+                          {Array.from({ length: 3 - exchange.priority }, (_, i) => (
                             <div 
                               key={i} 
                               className="w-1 h-1 rounded-full"
@@ -368,9 +344,6 @@ export default function RatesComparison() {
                         {bestBuy ? `${formatRate(bestBuy.rate)} (${bestBuy.source})` : '—'}
                       </div>
                     </div>
-                  </div>
-                  <div className="hint-text mt-4 text-center">
-                    * EnergoTransBank показан справочно и не участвует в сравнении
                   </div>
                 </div>
               )}
