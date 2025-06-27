@@ -12,32 +12,48 @@ interface FearGreedResponse {
   data: FearGreedData[];
 }
 
-// Raw data fetching function for direct use
+// Enhanced data fetching function with better error handling
 async function getFearGreedIndex(): Promise<FearGreedData> {
   try {
-    const response = await fetch('https://api.alternative.me/fng/?limit=1');
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+    
+    const response = await fetch('https://api.alternative.me/fng/?limit=1', {
+      signal: controller.signal,
+    });
+    
+    clearTimeout(timeoutId);
+    
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
+    
     const data: FearGreedResponse = await response.json();
     return data.data[0];
   } catch (error) {
-    console.error('Error fetching Fear & Greed Index:', error);
-    // Return fallback data
-    return {
-      value: '50',
-      value_classification: 'Neutral',
-      timestamp: Date.now().toString(),
-    };
+    console.warn('⚠️ Error fetching Fear & Greed Index, using fallback data:', error);
+    
+    // Return fallback data instead of throwing
+    return getFallbackFearGreedData();
   }
 }
 
-// Fetcher function for Fear & Greed Index
+// Fallback data function
+function getFallbackFearGreedData(): FearGreedData {
+  return {
+    value: '50',
+    value_classification: 'Neutral',
+    timestamp: Date.now().toString(),
+    time_until_update: '24 hours'
+  };
+}
+
+// Enhanced fetcher function for Fear & Greed Index
 const fngFetcher = async (): Promise<FearGreedData> => {
   return getFearGreedIndex();
 };
 
-// Hook for Fear & Greed Index - 10 minute refresh
+// Enhanced hook with better error handling and fallback data
 export function useFearGreed() {
   const { data, error, isLoading, mutate } = useSWR<FearGreedData>(
     'fear-greed-index',
@@ -47,14 +63,22 @@ export function useFearGreed() {
       revalidateOnFocus: false,
       revalidateOnReconnect: true,
       dedupingInterval: 5 * 60 * 1000, // 5 minutes
+      fallbackData: getFallbackFearGreedData(), // Provide fallback data
       onError: (error) => {
-        console.error('Fear & Greed Index hook error:', error);
+        console.warn('⚠️ Fear & Greed Index hook error, using fallback data:', error);
+      },
+      onErrorRetry: (error, key, config, revalidate, { retryCount }) => {
+        // Only retry up to 3 times
+        if (retryCount >= 3) return;
+        
+        // Retry after 10 seconds
+        setTimeout(() => revalidate({ retryCount }), 10000);
       },
     }
   );
 
   return {
-    data: data || null,
+    data: data || getFallbackFearGreedData(),
     error: error?.message || null,
     isLoading,
     refetch: mutate,
