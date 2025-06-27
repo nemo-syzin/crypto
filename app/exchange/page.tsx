@@ -25,6 +25,7 @@ import {
 import { UnifiedVantaBackground } from '@/components/shared/UnifiedVantaBackground';
 import ExchangeCalculator from '@/components/ExchangeCalculator';
 import RatesComparison from '@/components/RatesComparison';
+import { MarketRatesDisplay } from '@/components/exchange/MarketRatesDisplay';
 import Image from 'next/image';
 
 export default function ExchangePage() {
@@ -144,6 +145,15 @@ export default function ExchangePage() {
                   Узнать больше о сервисе
                 </button>
               </div>
+            </motion.div>
+
+            {/* Market Rates Display - New Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
+              <MarketRatesDisplay />
             </motion.div>
 
             {/* Main Exchange Section */}
