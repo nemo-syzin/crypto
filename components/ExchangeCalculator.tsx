@@ -62,6 +62,17 @@ export default function ExchangeCalculator() {
     }
   };
 
+  // Function to format rate for display
+  const formatRate = (rateValue: number | null): string => {
+    if (!rateValue || isNaN(rateValue)) return '—';
+    return new Intl.NumberFormat('ru-RU', {
+      style: 'currency',
+      currency: 'RUB',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(rateValue);
+  };
+
   // Handle amount change
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -104,6 +115,22 @@ export default function ExchangeCalculator() {
     const toAmount = formatCurrency(result, toCurrency);
     
     return `Обменять ${fromAmount} → ${toAmount}`;
+  };
+
+  // Function to get hint text with current rate
+  const getHintText = (): string => {
+    if (!hasValidRates) {
+      return direction === 'usdt-to-rub' 
+        ? 'Введите количество USDT для обмена на рубли' 
+        : 'Введите количество рублей для покупки USDT';
+    }
+
+    const currentRate = direction === 'usdt-to-rub' ? rate.sell : rate.buy;
+    const formattedRate = formatRate(currentRate);
+    
+    return direction === 'usdt-to-rub' 
+      ? `Введите количество USDT для обмена на рубли по курсу (${formattedRate})`
+      : `Введите количество рублей для покупки USDT по курсу (${formattedRate})`;
   };
 
   // Check if error is configuration related
@@ -202,10 +229,7 @@ export default function ExchangeCalculator() {
               className={`input-field ${error ? 'border-red-300' : ''}`}
             />
             <div className="hint-text">
-              {direction === 'usdt-to-rub' 
-                ? 'Введите количество USDT для обмена на рубли' 
-                : 'Введите количество рублей для покупки USDT'
-              }
+              {getHintText()}
             </div>
           </div>
 
