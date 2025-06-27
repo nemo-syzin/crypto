@@ -343,14 +343,14 @@ export default function RatesComparison() {
           )}
         </CardContent>
 
-        {/* Transparency Note */}
+        {/* Updated Transparency Note */}
         <div className="border-t border-gray-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 px-6 py-4">
           <div className="flex items-start gap-3">
             <div className="flex-shrink-0 mt-0.5">
               <Info className="h-4 w-4 text-[#001D8D]/70" />
             </div>
             <div className="text-sm text-[#001D8D]/80 leading-relaxed">
-              <strong className="text-[#001D8D]">Прозрачность и честность:</strong> В этом блоке вы мгновенно сравниваете курсы KenigSwap с предложениями конкурентов — прозрачность и честность нашего сервиса перед вами в реальном времени.
+              <strong className="text-[#001D8D]">Мы не скрываем цифры:</strong> здесь наши цены и предложения других сервисов side-by-side, чтобы подтвердить нашу честность.
             </div>
           </div>
         </div>
