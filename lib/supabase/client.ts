@@ -23,7 +23,7 @@ export const supabase = createClient(
 );
 
 // Helper function to check if Supabase is properly configured
-export const checkSupabaseConnection = async () => {
+const checkSupabaseConnection = async () => {
   try {
     if (!hasValidEnvVars) {
       console.warn('⚠️ Supabase environment variables not properly set');

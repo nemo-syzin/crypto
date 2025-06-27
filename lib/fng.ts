@@ -86,4 +86,4 @@ function getFearGreedDescription(value: number): string {
 }
 
 // Export function for direct use
-export { getFearGreedIndex };
+;

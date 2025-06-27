@@ -52,12 +52,6 @@ export interface GlobalMarketData {
   };
 }
 
-interface CoinPriceHistory {
-  prices: [number, number][];
-  market_caps: [number, number][];
-  total_volumes: [number, number][];
-}
-
 export interface FearGreedData {
   value: string;
   value_classification: string;
@@ -65,7 +59,12 @@ export interface FearGreedData {
   time_until_update?: string;
 }
 
-// Fetcher function for our proxy API
+interface CoinPriceHistory {
+  prices: [number, number][];
+  market_caps: [number, number][];
+  total_volumes: [number, number][];
+}
+
 const fetcher = async (url: string) => {
   const response = await fetch(url);
   if (!response.ok) {
@@ -74,7 +73,6 @@ const fetcher = async (url: string) => {
   return response.json();
 };
 
-// Raw data fetching functions for direct use
 async function getTopCoins(limit: number = 10): Promise<CoinMarketData[]> {
   try {
     const params = new URLSearchParams({
@@ -90,10 +88,7 @@ async function getTopCoins(limit: number = 10): Promise<CoinMarketData[]> {
     const response = await fetch(`/api/coingecko?endpoint=/coins/markets&params=${params.toString()}`);
     
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('CoinGecko API error:', errorData);
-      
-      // Return empty array instead of throwing
+      console.error('CoinGecko API error:', await response.json().catch(() => ({})));
       return [];
     }
     
@@ -110,8 +105,7 @@ async function getGlobalMarketData(): Promise<GlobalMarketData | null> {
     const response = await fetch('/api/coingecko?endpoint=/global');
     
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('CoinGecko Global API error:', errorData);
+      console.error('CoinGecko Global API error:', await response.json().catch(() => ({})));
       return null;
     }
     
@@ -133,8 +127,7 @@ async function getCoinHistory(coinId: string, days: number = 1): Promise<CoinPri
     const response = await fetch(`/api/coingecko?endpoint=/coins/${coinId}/market_chart&params=${params.toString()}`);
     
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('CoinGecko History API error:', errorData);
+      console.error('CoinGecko History API error:', await response.json().catch(() => ({})));
       return null;
     }
     
@@ -145,19 +138,16 @@ async function getCoinHistory(coinId: string, days: number = 1): Promise<CoinPri
   }
 }
 
-// Hook for market data (top coins) - 5 minute refresh
 export function useMarket(limit: number = 10) {
   const { data, error, isLoading, mutate } = useSWR<CoinMarketData[]>(
     `market-data-${limit}`,
     () => getTopCoins(limit),
     {
-      refreshInterval: 5 * 60 * 1000, // 5 minutes
+      refreshInterval: 5 * 60 * 1000,
       revalidateOnFocus: true,
       revalidateOnReconnect: true,
-      dedupingInterval: 2 * 60 * 1000, // 2 minutes
-      onError: (error) => {
-        console.error('Market data hook error:', error);
-      },
+      dedupingInterval: 2 * 60 * 1000,
+      onError: (error) => console.error('Market data hook error:', error),
     }
   );
 
@@ -169,19 +159,16 @@ export function useMarket(limit: number = 10) {
   };
 }
 
-// Hook for global market data - 10 minute refresh
 export function useGlobal() {
   const { data, error, isLoading, mutate } = useSWR<GlobalMarketData>(
     'global-market-data',
     getGlobalMarketData,
     {
-      refreshInterval: 10 * 60 * 1000, // 10 minutes
+      refreshInterval: 10 * 60 * 1000,
       revalidateOnFocus: false,
       revalidateOnReconnect: true,
-      dedupingInterval: 5 * 60 * 1000, // 5 minutes
-      onError: (error) => {
-        console.error('Global market data hook error:', error);
-      },
+      dedupingInterval: 5 * 60 * 1000,
+      onError: (error) => console.error('Global market data hook error:', error),
     }
   );
 
@@ -193,27 +180,4 @@ export function useGlobal() {
   };
 }
 
-// Hook for coin history
-function useCoinHistory(coinId: string, days: number = 1) {
-  const { data, error, isLoading } = useSWR<CoinPriceHistory>(
-    coinId ? `coin-history-${coinId}-${days}` : null,
-    () => getCoinHistory(coinId, days),
-    {
-      refreshInterval: 5 * 60 * 1000, // 5 minutes
-      revalidateOnFocus: false,
-      dedupingInterval: 2 * 60 * 1000, // 2 minutes
-      onError: (error) => {
-        console.error('Coin history hook error:', error);
-      },
-    }
-  );
-
-  return {
-    data: data || null,
-    error: error?.message || null,
-    isLoading,
-  };
-}
-
-// Export functions for direct use
 export { getTopCoins, getGlobalMarketData, getCoinHistory };
