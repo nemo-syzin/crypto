@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { PrincipleCard } from "@/components/ui/principle-card";
+import { ManifestoStrip } from "@/components/ui/manifesto-strip";
 import { 
   Target,
   Eye,
@@ -73,42 +73,55 @@ export function AboutPageClient() {
     },
   };
 
-  const values = [
+  // Данные для полосы-манифеста
+  const manifestoValues = [
     {
-      icon: <Users className="h-7 w-7" />,
-      title: "Клиентоориентированность",
-      description: "Мы зарабатываем тогда, когда зарабатывают наши клиенты. Стремимся глубоко понимать потребности каждого клиента, предлагая персонализированные решения.",
-      iconColor: "#3b82f6"
+      id: 'client-focus',
+      number: '01',
+      title: 'Клиентоориентированность',
+      description: 'Мы зарабатываем тогда, когда зарабатывают наши клиенты. Стремимся глубоко понимать потребности каждого клиента, предлагая персонализированные решения. Наш успех измеряется успехом наших партнеров.',
+      priority: 1, // Самый высокий приоритет
+      color: '#3b82f6'
     },
     {
-      icon: <Shield className="h-7 w-7" />,
-      title: "Надежность и прозрачность",
-      description: "Мы строго соблюдаем требования AML и KYC и руководствуемся высокими стандартами безопасности. С осторожностью относимся к сверхприбыльным предложениям, обеспечивая полную прозрачность операций.",
-      iconColor: "#10b981"
+      id: 'reliability',
+      number: '02',
+      title: 'Надежность и прозрачность',
+      description: 'Мы строго соблюдаем требования AML и KYC и руководствуемся высокими стандартами безопасности. С осторожностью относимся к сверхприбыльным предложениям, обеспечивая полную прозрачность операций и честность во всех взаимодействиях.',
+      priority: 2,
+      color: '#10b981'
     },
     {
-      icon: <Zap className="h-7 w-7" />,
-      title: "Гибкость и адаптивность",
-      description: "В условиях быстро меняющейся внешней среды и новых экономических вызовов мы оперативно адаптируемся и находим нестандартные решения для каждого клиента. Индивидуальный подход к сложным задачам является нашим конкурентным преимуществом.",
-      iconColor: "#f97316"
+      id: 'flexibility',
+      number: '03',
+      title: 'Гибкость и адаптивность',
+      description: 'В условиях быстро меняющейся внешней среды и новых экономических вызовов мы оперативно адаптируемся и находим нестандартные решения для каждого клиента. Индивидуальный подход к сложным задачам является нашим конкурентным преимуществом.',
+      priority: 3,
+      color: '#f97316'
     },
     {
-      icon: <Award className="h-7 w-7" />,
-      title: "Профессионализм",
-      description: "Наши специалисты четко понимают специфику своей работы и постоянно держат руку на пульсе событий, гарантируя высокое качество предоставляемых услуг.",
-      iconColor: "#8b5cf6"
+      id: 'professionalism',
+      number: '04',
+      title: 'Профессионализм',
+      description: 'Наши специалисты четко понимают специфику своей работы и постоянно держат руку на пульсе событий, гарантируя высокое качество предоставляемых услуг. Мы инвестируем в развитие команды и поддержание экспертизы на высочайшем уровне.',
+      priority: 4,
+      color: '#8b5cf6'
     },
     {
-      icon: <Lightbulb className="h-7 w-7" />,
-      title: "Инновационность",
-      description: "Мы внимательно следим за инновациями и интегрируем новейшие технологии, чтобы всегда оставаться впереди конкурентов и предоставлять клиентам передовые решения.",
-      iconColor: "#6366f1"
+      id: 'innovation',
+      number: '05',
+      title: 'Инновационность',
+      description: 'Мы внимательно следим за инновациями и интегрируем новейшие технологии, чтобы всегда оставаться впереди конкурентов и предоставлять клиентам передовые решения. Технологическое лидерство — основа нашего конкурентного преимущества.',
+      priority: 5,
+      color: '#6366f1'
     },
     {
-      icon: <Handshake className="h-7 w-7" />,
-      title: "Долгосрочность и партнерство",
-      description: "Наш подход к сотрудничеству основан на честности и взаимном доверии. Мы рассматриваем клиентов как партнёров, вместе с которыми достигаем долгосрочного успеха и развития.",
-      iconColor: "#0ea5e9"
+      id: 'partnership',
+      number: '06',
+      title: 'Долгосрочное партнерство',
+      description: 'Наш подход к сотрудничеству основан на честности и взаимном доверии. Мы рассматриваем клиентов как партнёров, вместе с которыми достигаем долгосрочного успеха и развития. Строим отношения на годы, а не на разовые сделки.',
+      priority: 6,
+      color: '#0ea5e9'
     }
   ];
 
@@ -454,7 +467,7 @@ export function AboutPageClient() {
               <CrystalVisualization />
             </motion.div>
 
-            {/* Values Section - Modern Geometric Design */}
+            {/* Values Section - Manifesto Strip */}
             <motion.div
               ref={ref}
               variants={containerVariants}
@@ -465,46 +478,19 @@ export function AboutPageClient() {
               <div className="text-center mb-16">
                 <div className="inline-flex items-center gap-2 bg-[#001D8D]/10 text-[#001D8D] px-6 py-3 text-lg mb-8 font-medium">
                   <Diamond className="h-6 w-6" />
-                  Принципы, которыми мы руководствуемся
+                  Манифест наших ценностей
                 </div>
                 <h2 className="text-4xl md:text-5xl font-bold text-[#001D8D] mb-6 tracking-tight">
-                  Наши ценности
+                  Принципы, которыми мы руководствуемся
                 </h2>
                 <p className="text-xl text-[#001D8D]/70 max-w-4xl mx-auto leading-relaxed">
-                  Наши принципы формируют культуру компании и определяют профессиональный подход к работе с каждым клиентом
+                  Наши ценности формируют культуру компании и определяют профессиональный подход к работе с каждым клиентом. 
+                  Каждый принцип отражает наше стремление к совершенству и долгосрочному партнерству.
                 </p>
               </div>
 
-              {/* Modern Geometric Grid */}
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8 }}
-                viewport={{ once: true }}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-              >
-                {values.map((value, index) => (
-                  <PrincipleCard
-                    key={index}
-                    icon={value.icon}
-                    title={value.title}
-                    text={value.description}
-                    iconColor={value.iconColor}
-                    className="h-full"
-                  />
-                ))}
-              </motion.div>
-
-              {/* Geometric separator */}
-              <div className="flex justify-center mt-16">
-                <div className="flex items-center gap-4">
-                  <div className="w-8 h-0.5 bg-gradient-to-r from-transparent to-[#94bfff]" />
-                  <div className="w-3 h-3 bg-[#94bfff] transform rotate-45" />
-                  <div className="w-16 h-0.5 bg-gradient-to-r from-[#94bfff] to-[#d1e5ff]" />
-                  <div className="w-3 h-3 bg-[#d1e5ff] transform rotate-45" />
-                  <div className="w-8 h-0.5 bg-gradient-to-r from-[#d1e5ff] to-transparent" />
-                </div>
-              </div>
+              {/* Manifesto Strip Component */}
+              <ManifestoStrip values={manifestoValues} />
             </motion.div>
 
             {/* CTA Section */}
