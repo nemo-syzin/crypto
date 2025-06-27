@@ -23,6 +23,7 @@ import {
   BarChart3
 } from 'lucide-react';
 import { UnifiedVantaBackground } from '@/components/shared/UnifiedVantaBackground';
+import { ManifestoStrip } from '@/components/ui/manifesto-strip';
 import ExchangeCalculator from '@/components/ExchangeCalculator';
 import RatesComparison from '@/components/RatesComparison';
 import Image from 'next/image';
@@ -64,6 +65,58 @@ export default function ExchangePage() {
       },
     },
   };
+
+  // Данные для манифест ленты преимуществ обмена
+  const exchangeAdvantages = [
+    {
+      id: 'real-time-rates',
+      number: '01',
+      title: 'Рыночные курсы в реальном времени',
+      description: 'Наши курсы обновляются каждые 30 секунд, обеспечивая вам самые актуальные и конкурентные цены на рынке обмена. Мы используем передовые алгоритмы для мониторинга множества источников и предоставления оптимальных курсов.',
+      priority: 1,
+      color: '#3b82f6'
+    },
+    {
+      id: 'transparency',
+      number: '02',
+      title: 'Полная прозрачность операций',
+      description: 'Все комиссии включены в курс обмена. Никаких скрытых платежей или дополнительных сборов. Вы видите итоговую сумму до подтверждения сделки. Полная прозрачность на каждом этапе процесса обмена.',
+      priority: 2,
+      color: '#10b981'
+    },
+    {
+      id: 'security',
+      number: '03',
+      title: 'Безопасный процесс обмена',
+      description: 'Многоуровневая система защиты, шифрование данных и соответствие международным стандартам безопасности для защиты ваших средств. Банковский уровень защиты для всех транзакций.',
+      priority: 3,
+      color: '#8b5cf6'
+    },
+    {
+      id: 'updates',
+      number: '04',
+      title: 'Регулярные обновления курсов',
+      description: 'Мониторинг рынка 24/7 и автоматическое обновление курсов каждые 30 секунд гарантируют, что вы всегда получаете лучшую цену. Наша система работает круглосуточно для вашей выгоды.',
+      priority: 4,
+      color: '#f97316'
+    },
+    {
+      id: 'comparison',
+      number: '05',
+      title: 'Легкое сравнение предложений',
+      description: 'Сравнивайте курсы разных обменников в одном месте. Мы показываем лучшие предложения рынка для принятия обоснованных решений. Все данные в удобном формате для быстрого анализа.',
+      priority: 5,
+      color: '#06b6d4'
+    },
+    {
+      id: 'professional',
+      number: '06',
+      title: 'Профессиональный сервис',
+      description: 'Многолетний опыт работы, тысячи довольных клиентов и высокие рейтинги доверия. Мы предоставляем сервис мирового класса с индивидуальным подходом к каждому клиенту.',
+      priority: 6,
+      color: '#6366f1'
+    }
+  ];
 
   if (!isMounted) {
     return null;
@@ -322,6 +375,32 @@ export default function ExchangePage() {
                   {/* ❌ УБРАНА ОРАНЖЕВАЯ ЗАЛИВКА */}
                 </div>
               </div>
+            </motion.div>
+
+            {/* Manifesto Strip - Преимущества обмена */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+              className="max-w-7xl mx-auto"
+            >
+              <div className="text-center mb-12">
+                <div className="inline-flex items-center gap-2 bg-[#001D8D]/10 text-[#001D8D] px-6 py-3 text-lg mb-8 font-medium">
+                  <BarChart3 className="h-6 w-6" />
+                  Преимущества нашего обмена
+                </div>
+                <h2 className="text-4xl md:text-5xl font-bold text-[#001D8D] mb-6 tracking-tight">
+                  Почему выбирают KenigSwap
+                </h2>
+                <p className="text-xl text-[#001D8D]/70 max-w-4xl mx-auto leading-relaxed">
+                  Мы предоставляем комплексное решение для обмена криптовалют с фокусом на безопасность, 
+                  скорость и прозрачность. Каждое преимущество создано для вашего удобства и выгоды.
+                </p>
+              </div>
+
+              {/* Manifesto Strip Component */}
+              <ManifestoStrip values={exchangeAdvantages} />
             </motion.div>
 
             {/* Final CTA */}
