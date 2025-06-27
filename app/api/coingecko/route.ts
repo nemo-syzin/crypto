@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 // Cache for API responses
 let cache: Map<string, { data: any; timestamp: number }> = new Map();
-const CACHE_DURATION = 60 * 1000; // Increased to 60 seconds to reduce API calls
+const CACHE_DURATION = 60 * 1000; // 60 seconds cache duration
 
 function getCachedData(key: string): any | null {
   const cached = cache.get(key);
@@ -16,45 +16,10 @@ function setCachedData(key: string, data: any): void {
   cache.set(key, { data, timestamp: Date.now() });
 }
 
-// Retry function with exponential backoff and better error handling
-async function fetchWithRetry(url: string, headers: HeadersInit, maxRetries: number = 2): Promise<Response> {
-  let lastError: Error;
-  
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      console.log(`🔄 Attempt ${attempt}/${maxRetries} - Fetching: ${url}`);
-      
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000); // Reduced timeout to 8 seconds
-      
-      const response = await fetch(url, {
-        headers,
-        signal: controller.signal,
-      });
-      
-      clearTimeout(timeoutId);
-      return response;
-    } catch (error) {
-      lastError = error as Error;
-      console.warn(`⚠️ Attempt ${attempt} failed:`, error instanceof Error ? error.message : 'Unknown error');
-      
-      // Don't retry on the last attempt
-      if (attempt === maxRetries) {
-        break;
-      }
-      
-      // Shorter backoff for faster recovery
-      const delay = Math.pow(1.5, attempt - 1) * 1000;
-      console.log(`⏳ Waiting ${delay}ms before retry...`);
-      await new Promise(resolve => setTimeout(resolve, delay));
-    }
-  }
-  
-  throw lastError!;
-}
-
-// Fallback data for when API is unavailable
+// Enhanced fallback data for when API is unavailable
 function getFallbackData(endpoint: string): any {
+  console.log(`📦 Serving fallback data for endpoint: ${endpoint}`);
+  
   if (endpoint === '/coins/markets') {
     return [
       {
@@ -90,6 +55,23 @@ function getFallbackData(endpoint: string): any {
         ath: 4878,
         atl: 0.43,
         last_updated: new Date().toISOString()
+      },
+      {
+        id: 'binancecoin',
+        symbol: 'bnb',
+        name: 'BNB',
+        image: 'https://assets.coingecko.com/coins/images/825/large/bnb-icon2_2x.png',
+        current_price: 310,
+        market_cap: 47000000000,
+        market_cap_rank: 3,
+        price_change_percentage_24h: -0.5,
+        total_volume: 1200000000,
+        circulating_supply: 153000000,
+        total_supply: 153000000,
+        max_supply: 200000000,
+        ath: 686,
+        atl: 0.096,
+        last_updated: new Date().toISOString()
       }
     ];
   }
@@ -121,6 +103,46 @@ function getFallbackData(endpoint: string): any {
   return null;
 }
 
+// Enhanced retry function with better error handling
+async function fetchWithRetry(url: string, headers: HeadersInit, maxRetries: number = 2): Promise<Response> {
+  let lastError: Error;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(`🔄 Attempt ${attempt}/${maxRetries} - Fetching: ${url}`);
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
+      const response = await fetch(url, {
+        headers,
+        signal: controller.signal,
+      });
+      
+      clearTimeout(timeoutId);
+      return response;
+    } catch (error) {
+      lastError = error as Error;
+      console.warn(`⚠️ Attempt ${attempt} failed:`, error instanceof Error ? error.message : 'Unknown error');
+      
+      // Don't retry on the last attempt
+      if (attempt === maxRetries) {
+        break;
+      }
+      
+      // Exponential backoff with jitter
+      const baseDelay = Math.pow(2, attempt - 1) * 1000;
+      const jitter = Math.random() * 500;
+      const delay = baseDelay + jitter;
+      
+      console.log(`⏳ Waiting ${Math.round(delay)}ms before retry...`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+  
+  throw lastError!;
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const endpoint = searchParams.get('endpoint');
@@ -141,17 +163,19 @@ export async function GET(request: NextRequest) {
 
   // Check if API key is configured
   const apiKey = process.env.COINGECKO_API_KEY;
-  if (!apiKey) {
-    console.warn('⚠️ CoinGecko API key not configured, using fallback data');
+  if (!apiKey || apiKey.trim() === '' || apiKey === 'your-api-key-here') {
+    console.warn('⚠️ CoinGecko API key not configured or invalid, using fallback data');
     const fallbackData = getFallbackData(endpoint);
     if (fallbackData) {
+      // Cache fallback data briefly to avoid repeated warnings
+      setCachedData(cacheKey, fallbackData);
       return NextResponse.json(fallbackData);
     }
     
     return NextResponse.json(
       { 
         error: 'CoinGecko API key not configured',
-        message: 'Please add COINGECKO_API_KEY to your environment variables. Get your free API key from https://www.coingecko.com/en/api/pricing',
+        message: 'Please add a valid COINGECKO_API_KEY to your environment variables. Get your free API key from https://www.coingecko.com/en/api/pricing',
         fallback: true
       }, 
       { status: 503 }
@@ -177,17 +201,19 @@ export async function GET(request: NextRequest) {
     const response = await fetchWithRetry(url, headers);
 
     if (!response.ok) {
-      const errorText = await response.text();
+      const errorText = await response.text().catch(() => 'Unable to read error response');
       console.error(`❌ CoinGecko API error: ${response.status} ${response.statusText}`, errorText);
       
-      // Handle specific error cases with fallback
+      // Always try fallback for any API error
+      const fallbackData = getFallbackData(endpoint);
+      if (fallbackData) {
+        console.warn(`⚠️ API error ${response.status}, using fallback data`);
+        setCachedData(cacheKey, fallbackData);
+        return NextResponse.json(fallbackData);
+      }
+      
+      // Handle specific error cases
       if (response.status === 401) {
-        console.warn('⚠️ Invalid API key, using fallback data');
-        const fallbackData = getFallbackData(endpoint);
-        if (fallbackData) {
-          return NextResponse.json(fallbackData);
-        }
-        
         return NextResponse.json(
           { 
             error: 'Invalid CoinGecko API key',
@@ -199,12 +225,6 @@ export async function GET(request: NextRequest) {
       }
       
       if (response.status === 429) {
-        console.warn('⚠️ Rate limit exceeded, using fallback data');
-        const fallbackData = getFallbackData(endpoint);
-        if (fallbackData) {
-          return NextResponse.json(fallbackData);
-        }
-        
         return NextResponse.json(
           { 
             error: 'Rate limit exceeded',
@@ -216,19 +236,12 @@ export async function GET(request: NextRequest) {
         );
       }
 
-      // For other errors, try fallback
-      const fallbackData = getFallbackData(endpoint);
-      if (fallbackData) {
-        console.warn(`⚠️ API error ${response.status}, using fallback data`);
-        return NextResponse.json(fallbackData);
-      }
-
       throw new Error(`CoinGecko API error: ${response.status} ${response.statusText}`);
     }
 
     const data = await response.json();
     
-    // Cache the response
+    // Cache the successful response
     setCachedData(cacheKey, data);
 
     console.log(`✅ CoinGecko data fetched successfully for: ${endpoint}`);
@@ -236,26 +249,35 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('❌ CoinGecko API proxy error:', error);
     
-    // Try to serve fallback data when API fails
+    // Always try to serve fallback data when API fails
     const fallbackData = getFallbackData(endpoint);
     if (fallbackData) {
       console.warn('⚠️ API failed, serving fallback data');
+      setCachedData(cacheKey, fallbackData);
       return NextResponse.json(fallbackData);
     }
     
-    // Provide more specific error messages based on error type
-    let errorMessage = 'Unknown error occurred';
-    let statusCode = 500;
+    // Provide specific error messages based on error type
+    let errorMessage = 'CoinGecko API is currently unavailable';
+    let statusCode = 503;
     
     if (error instanceof Error) {
-      if (error.message.includes('fetch failed') || error.message.includes('SocketError') || error.message.includes('other side closed')) {
-        errorMessage = 'Network connection failed. This could be due to API key issues, rate limiting, or server problems. The application will use cached data when available.';
+      const errorMsg = error.message.toLowerCase();
+      
+      if (errorMsg.includes('fetch failed') || 
+          errorMsg.includes('socketerror') || 
+          errorMsg.includes('other side closed') ||
+          errorMsg.includes('network') ||
+          errorMsg.includes('enotfound') ||
+          errorMsg.includes('econnrefused')) {
+        errorMessage = 'Network connection to CoinGecko API failed. This could be due to connectivity issues, invalid API key, or server problems. Please check your API key and try again.';
         statusCode = 503; // Service Unavailable
-      } else if (error.message.includes('timeout') || error.message.includes('aborted')) {
-        errorMessage = 'Request timed out. The CoinGecko API is taking too long to respond. Please try again.';
+      } else if (errorMsg.includes('timeout') || errorMsg.includes('aborted')) {
+        errorMessage = 'Request to CoinGecko API timed out. The service may be experiencing high load. Please try again.';
         statusCode = 504; // Gateway Timeout
-      } else {
-        errorMessage = error.message;
+      } else if (errorMsg.includes('unauthorized') || errorMsg.includes('401')) {
+        errorMessage = 'Invalid CoinGecko API key. Please verify your COINGECKO_API_KEY environment variable.';
+        statusCode = 401;
       }
     }
     
@@ -264,7 +286,8 @@ export async function GET(request: NextRequest) {
         error: 'Failed to fetch data from CoinGecko',
         message: errorMessage,
         retryAfter: 30,
-        fallback: true
+        fallback: true,
+        suggestion: 'The application will continue to work with cached or fallback data. Please check your CoinGecko API key configuration.'
       },
       { status: statusCode }
     );
