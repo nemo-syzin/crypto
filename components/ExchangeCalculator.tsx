@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useKenigRate } from '@/lib/hooks/rates';
-import { Calculator, RefreshCw, ArrowUpDown, AlertTriangle, Settings } from 'lucide-react';
+import { Calculator, RefreshCw, ArrowUpDown, AlertTriangle, Settings, ArrowLeftRight } from 'lucide-react';
 
 type ExchangeDirection = 'usdt-to-rub' | 'rub-to-usdt';
 
@@ -59,9 +59,17 @@ export default function ExchangeCalculator() {
     }
   };
 
-  // Handle amount change
+  // Format number with thousands separator
+  const formatWithThousands = (value: string): string => {
+    if (!value) return '';
+    const number = parseFloat(value.replace(/[^\d.]/g, ''));
+    if (isNaN(number)) return '';
+    return new Intl.NumberFormat('ru-RU').format(number);
+  };
+
+  // Handle amount change with thousands formatting
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+    const value = e.target.value.replace(/[^\d.]/g, ''); // Only digits and decimal point
     
     // Allow empty string, digits and one decimal point
     if (value === '' || /^\d*\.?\d*$/.test(value)) {
@@ -164,14 +172,15 @@ export default function ExchangeCalculator() {
         </Alert>
       )}
 
-      {/* Main Calculator */}
-      <Card className="bg-white/90 backdrop-blur-sm shadow-lg border border-[#001D8D]/10">
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <span className="flex items-center gap-2">
-              <Calculator className="h-5 w-5 text-[#001D8D]" />
-              Калькулятор обмена KenigSwap
-            </span>
+      {/* Main Calculator - Двойная карточка */}
+      <div className="relative">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <Calculator className="h-6 w-6 text-[#001D8D]" />
+            <h2 className="text-2xl font-bold text-[#001D8D]">Калькулятор обмена KenigSwap</h2>
+          </div>
+          <div className="flex items-center justify-center gap-4">
             <Button
               variant="outline"
               size="sm"
@@ -180,105 +189,191 @@ export default function ExchangeCalculator() {
               className="text-[#001D8D] border-[#001D8D]/20 hover:bg-[#001D8D]/5"
             >
               <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-              Обновить
+              Обновить курсы
             </Button>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Amount Input */}
-          <div className="space-y-2">
-            <Label htmlFor="amount">
-              {direction === 'usdt-to-rub' ? 'Сумма USDT' : 'Сумма RUB'}
-            </Label>
-            <Input
-              id="amount"
-              type="text"
-              value={amount}
-              onChange={handleAmountChange}
-              placeholder={direction === 'usdt-to-rub' ? 'Введите сумму USDT' : 'Введите сумму RUB'}
-              className="text-lg"
-              disabled={isCalculationDisabled}
-            />
+            {lastUpdated && (
+              <span className="text-sm text-[#001D8D]/70">
+                Обновлено: {lastUpdated.toLocaleTimeString('ru-RU')}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Двойная карточка */}
+        <div className="relative flex flex-col lg:flex-row gap-6 items-center">
+          
+          {/* Карточка "Отдаю" */}
+          <div className="flex-1 w-full">
+            <Card className="glass border border-[#E0E7FF] shadow-lg hover:shadow-xl transition-all duration-300 relative overflow-hidden">
+              {/* Градиентная тень для акцентной суммы */}
+              {amount && numericAmount > 0 && (
+                <div className="absolute inset-0 bg-gradient-to-br from-[#001D8D]/5 to-blue-500/5 opacity-50" />
+              )}
+              
+              <CardHeader className="pb-3 relative z-10">
+                <CardTitle className="text-lg font-semibold text-[#001D8D] flex items-center gap-2">
+                  <div className="w-3 h-3 bg-gradient-to-r from-[#001D8D] to-blue-600 rounded-full" />
+                  Отдаю
+                </CardTitle>
+              </CardHeader>
+              
+              <CardContent className="relative z-10">
+                <div className="space-y-4">
+                  <div>
+                    <Label className="text-[#001D8D]/70 font-medium">
+                      {direction === 'usdt-to-rub' ? 'Сумма USDT' : 'Сумма RUB'}
+                    </Label>
+                    <div className="relative mt-2">
+                      <Input
+                        type="text"
+                        value={amount ? formatWithThousands(amount) : ''}
+                        onChange={handleAmountChange}
+                        placeholder={direction === 'usdt-to-rub' ? '1 000 USDT' : '95 000 ₽'}
+                        className="text-2xl font-bold h-16 border-2 border-[#001D8D]/20 focus:border-[#001D8D] bg-white/80 backdrop-blur-sm"
+                        disabled={isCalculationDisabled}
+                      />
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                        <span className="text-lg font-semibold text-[#001D8D]/70">
+                          {direction === 'usdt-to-rub' ? 'USDT' : '₽'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Курс */}
+                  {hasValidRates && (
+                    <div className="text-sm text-[#001D8D]/60">
+                      Курс: {direction === 'usdt-to-rub' 
+                        ? `1 USDT = ${displayRate(rate.sell)} ₽` 
+                        : `1 USDT = ${displayRate(rate.buy)} ₽`}
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
-          {/* Direction Toggle */}
-          <div className="flex justify-center">
+          {/* Круглая кнопка-стрелка для смены направления */}
+          <div className="relative z-20 flex-shrink-0">
             <Button
-              variant="outline"
               onClick={toggleDirection}
               disabled={isCalculationDisabled}
-              className="bg-[#001D8D]/10 border-[#001D8D]/20 hover:bg-[#001D8D]/20 text-[#001D8D] disabled:opacity-50"
+              className="w-16 h-16 rounded-full bg-gradient-to-r from-[#001D8D] to-blue-600 hover:from-[#001D8D]/90 hover:to-blue-600/90 text-white shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300 disabled:opacity-50"
             >
-              <ArrowUpDown className="h-4 w-4 mr-2" />
-              {direction === 'usdt-to-rub' ? 'USDT → RUB' : 'RUB → USDT'}
+              <ArrowLeftRight className="h-6 w-6" />
             </Button>
+            
+            {/* Индикатор направления */}
+            <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs text-[#001D8D]/60 whitespace-nowrap">
+              {direction === 'usdt-to-rub' ? 'USDT → RUB' : 'RUB → USDT'}
+            </div>
           </div>
 
-          {/* Result */}
-          <div className="space-y-2">
-            <Label htmlFor="result">
-              {direction === 'usdt-to-rub' ? 'Получите RUB' : 'Получите USDT'}
-            </Label>
-            <Input
-              id="result"
-              type="text"
-              value={getResultDisplay()}
-              readOnly
-              placeholder={amount === '' ? 'Результат появится здесь' : ''}
-              className={`text-lg font-semibold ${
-                !hasValidRates ? 'bg-yellow-50 text-yellow-600' : 'bg-gray-50 text-[#001D8D]'
-              }`}
-            />
-          </div>
-
-          {/* Rate Information */}
-          {rate && !loading && !error && (
-            <div className="bg-gray-50 p-4 rounded-lg space-y-3">
-              <h4 className="font-semibold text-gray-900">Текущие курсы KenigSwap:</h4>
+          {/* Карточка "Получаю" */}
+          <div className="flex-1 w-full">
+            <Card className="glass border border-[#E0E7FF] shadow-lg hover:shadow-xl transition-all duration-300 relative overflow-hidden">
+              {/* Градиентная тень для результата */}
+              {result > 0 && (
+                <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-emerald-500/5 opacity-50" />
+              )}
               
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Продажа USDT:</span>
-                  <span className="font-medium text-[#001D8D]">{displayRate(rate.sell)} ₽</span>
+              <CardHeader className="pb-3 relative z-10">
+                <CardTitle className="text-lg font-semibold text-[#001D8D] flex items-center gap-2">
+                  <div className="w-3 h-3 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full" />
+                  Получаю
+                </CardTitle>
+              </CardHeader>
+              
+              <CardContent className="relative z-10">
+                <div className="space-y-4">
+                  <div>
+                    <Label className="text-[#001D8D]/70 font-medium">
+                      {direction === 'usdt-to-rub' ? 'Получите RUB' : 'Получите USDT'}
+                    </Label>
+                    <div className="relative mt-2">
+                      <div className={`h-16 flex items-center px-4 rounded-md border-2 text-2xl font-bold ${
+                        !hasValidRates 
+                          ? 'bg-yellow-50 border-yellow-200 text-yellow-600' 
+                          : result > 0 
+                          ? 'bg-green-50 border-green-200 text-green-700' 
+                          : 'bg-gray-50 border-gray-200 text-[#001D8D]/50'
+                      }`}>
+                        {getResultDisplay() || (amount === '' ? 'Результат появится здесь' : '')}
+                      </div>
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                        <span className="text-lg font-semibold text-[#001D8D]/70">
+                          {direction === 'usdt-to-rub' ? '₽' : 'USDT'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Комиссия */}
+                  <div className="text-sm text-[#001D8D]/60">
+                    Комиссия: включена в курс
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Покупка USDT:</span>
-                  <span className="font-medium text-[#001D8D]">{displayRate(rate.buy)} ₽</span>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Rate Information */}
+        {rate && !loading && !error && (
+          <div className="mt-8">
+            <Card className="bg-gradient-to-r from-gray-50 to-blue-50/30 border border-[#001D8D]/10">
+              <CardContent className="p-6">
+                <h4 className="font-semibold text-[#001D8D] mb-4 flex items-center gap-2">
+                  <div className="w-2 h-2 bg-[#001D8D] rounded-full" />
+                  Текущие курсы KenigSwap
+                </h4>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="flex justify-between items-center p-4 bg-white/80 rounded-lg border border-[#001D8D]/10">
+                    <span className="text-[#001D8D]/70 font-medium">Продажа USDT:</span>
+                    <span className="font-bold text-[#001D8D] text-lg">{displayRate(rate.sell)} ₽</span>
+                  </div>
+                  <div className="flex justify-between items-center p-4 bg-white/80 rounded-lg border border-[#001D8D]/10">
+                    <span className="text-[#001D8D]/70 font-medium">Покупка USDT:</span>
+                    <span className="font-bold text-[#001D8D] text-lg">{displayRate(rate.buy)} ₽</span>
+                  </div>
                 </div>
-              </div>
 
-              <div className="text-xs text-gray-500 border-t pt-2">
-                Курс используется: {direction === 'usdt-to-rub' 
-                  ? `${displayRate(rate.sell)} ₽ (продажа)` 
-                  : `${displayRate(rate.buy)} ₽ (покупка)`}
-                {lastUpdated && (
-                  <span className="block mt-1">
-                    Обновлено: {lastUpdated.toLocaleTimeString('ru-RU')}
-                  </span>
-                )}
-              </div>
+                <div className="mt-4 text-center text-sm text-[#001D8D]/60 border-t border-[#001D8D]/10 pt-4">
+                  Используется курс: {direction === 'usdt-to-rub' 
+                    ? `${displayRate(rate.sell)} ₽ (продажа)` 
+                    : `${displayRate(rate.buy)} ₽ (покупка)`}
+                  {lastUpdated && (
+                    <span className="block mt-1">
+                      Обновлено: {lastUpdated.toLocaleTimeString('ru-RU')}
+                    </span>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Loading State */}
+        {loading && (
+          <div className="mt-8 flex items-center justify-center py-8">
+            <div className="flex items-center gap-2 text-[#001D8D]">
+              <RefreshCw className="h-5 w-5 animate-spin" />
+              <span>Загрузка курсов из Supabase...</span>
             </div>
-          )}
+          </div>
+        )}
 
-          {/* Loading State */}
-          {loading && (
-            <div className="flex items-center justify-center py-8">
-              <div className="flex items-center gap-2 text-[#001D8D]">
-                <RefreshCw className="h-5 w-5 animate-spin" />
-                <span>Загрузка курсов из Supabase...</span>
-              </div>
-            </div>
-          )}
-
-          {/* Exchange Button */}
+        {/* Exchange Button */}
+        <div className="mt-8">
           <Button 
-            className="w-full bg-[#001D8D] hover:bg-[#001D8D]/90 text-white py-3 disabled:opacity-50"
+            className="w-full bg-gradient-to-r from-[#001D8D] to-blue-600 hover:from-[#001D8D]/90 hover:to-blue-600/90 text-white py-4 text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 disabled:opacity-50 disabled:transform-none"
             disabled={isCalculationDisabled || amount === '' || numericAmount <= 0}
           >
             {getExchangeButtonText()}
           </Button>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
