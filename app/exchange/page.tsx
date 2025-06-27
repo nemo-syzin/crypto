@@ -222,32 +222,6 @@ export default function ExchangePage() {
               </motion.div>
             </div>
 
-            {/* Exchange Advantages Manifesto Section */}
-            <motion.div
-              ref={ref}
-              variants={containerVariants}
-              initial="hidden"
-              animate={controls}
-              className="max-w-7xl mx-auto"
-            >
-              <div className="text-center mb-16">
-                <div className="inline-flex items-center gap-2 bg-[#001D8D]/10 text-[#001D8D] px-6 py-3 text-lg mb-8 font-medium">
-                  <BarChart3 className="h-6 w-6" />
-                  Манифест преимуществ обмена
-                </div>
-                <h2 className="text-4xl md:text-5xl font-bold text-[#001D8D] mb-6 tracking-tight">
-                  Почему выбирают наш сервис
-                </h2>
-                <p className="text-xl text-[#001D8D]/70 max-w-4xl mx-auto leading-relaxed">
-                  Каждое преимущество нашего сервиса создано для обеспечения максимального удобства, 
-                  безопасности и выгоды наших клиентов. Мы устанавливаем новые стандарты в индустрии обмена криптовалют.
-                </p>
-              </div>
-
-              {/* Manifesto Strip Component */}
-              <ManifestoStrip values={exchangeAdvantages} />
-            </motion.div>
-
             {/* Компактное видео с обрезкой сверху */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -401,6 +375,123 @@ export default function ExchangePage() {
                   {/* ❌ УБРАНА ОРАНЖЕВАЯ ЗАЛИВКА */}
                 </div>
               </div>
+            </motion.div>
+
+            {/* Value Proposition Cards */}
+            <motion.div
+              ref={ref}
+              variants={containerVariants}
+              initial="hidden"
+              animate={controls}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            >
+              <motion.div
+                variants={itemVariants}
+                className="bg-white/95 backdrop-blur-sm p-8 rounded-xl shadow-xl border border-[#001D8D]/20 hover:border-[#001D8D]/40 transition-all duration-300 hover:shadow-2xl"
+              >
+                <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-3 rounded-lg w-fit mb-4">
+                  <TrendingUp className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="text-xl font-bold mb-4 text-[#001D8D]">Рыночные курсы в реальном времени</h3>
+                <p className="text-[#001D8D]/70 mb-4">
+                  Наши курсы обновляются каждые 30 секунд, обеспечивая вам самые актуальные и конкурентные цены на рынке обмена.
+                </p>
+                <div className="text-sm text-green-600 font-medium">
+                  Автоматическое обновление курсов
+                </div>
+              </motion.div>
+
+              <motion.div
+                variants={itemVariants}
+                className="bg-white/95 backdrop-blur-sm p-8 rounded-xl shadow-xl border border-[#001D8D]/20 hover:border-[#001D8D]/40 transition-all duration-300 hover:shadow-2xl"
+              >
+                <div className="bg-gradient-to-br from-green-500 to-green-600 p-3 rounded-lg w-fit mb-4">
+                  <CheckCircle className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="text-xl font-bold mb-4 text-[#001D8D]">Полная прозрачность операций</h3>
+                <p className="text-[#001D8D]/70 mb-4">
+                  Все комиссии включены в курс обмена. Никаких скрытых платежей или дополнительных сборов. Вы видите итоговую сумму до подтверждения сделки.
+                </p>
+                <div className="text-sm text-blue-600 font-medium">
+                  Без скрытых комиссий
+                </div>
+              </motion.div>
+
+              <motion.div
+                variants={itemVariants}
+                className="bg-white/95 backdrop-blur-sm p-8 rounded-xl shadow-xl border border-[#001D8D]/20 hover:border-[#001D8D]/40 transition-all duration-300 hover:shadow-2xl"
+              >
+                <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-3 rounded-lg w-fit mb-4">
+                  <Shield className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="text-xl font-bold mb-4 text-[#001D8D]">Безопасный процесс обмена</h3>
+                <p className="text-[#001D8D]/70 mb-4">
+                  Многоуровневая система защиты, шифрование данных и соответствие международным стандартам безопасности для защиты ваших средств.
+                </p>
+                <div className="text-sm text-purple-600 font-medium">
+                  Банковский уровень защиты
+                </div>
+              </motion.div>
+
+              <motion.div
+                variants={itemVariants}
+                className="bg-white/95 backdrop-blur-sm p-8 rounded-xl shadow-xl border border-[#001D8D]/20 hover:border-[#001D8D]/40 transition-all duration-300 hover:shadow-2xl"
+              >
+                <div className="bg-gradient-to-br from-orange-500 to-orange-600 p-3 rounded-lg w-fit mb-4">
+                  <Clock className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="text-xl font-bold mb-4 text-[#001D8D]">Регулярные обновления курсов</h3>
+                <p className="text-[#001D8D]/70 mb-4">
+                  Мониторинг рынка 24/7 и автоматическое обновление курсов каждые 30 секунд гарантируют, что вы всегда получаете лучшую цену.
+                </p>
+                <div className="text-sm text-orange-600 font-medium">
+                  Мониторинг 24/7
+                </div>
+              </motion.div>
+
+              <motion.div
+                variants={itemVariants}
+                className="bg-white/95 backdrop-blur-sm p-8 rounded-xl shadow-xl border border-[#001D8D]/20 hover:border-[#001D8D]/40 transition-all duration-300 hover:shadow-2xl"
+              >
+                <div className="bg-gradient-to-br from-teal-500 to-teal-600 p-3 rounded-lg w-fit mb-4">
+                  <BarChart3 className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="text-xl font-bold mb-4 text-[#001D8D]">Легкое сравнение предложений</h3>
+                <p className="text-[#001D8D]/70 mb-4">
+                  Сравнивайте курсы разных обменников в одном месте. Мы показываем лучшие предложения рынка для принятия обоснованных решений.
+                </p>
+                <div className="text-sm text-teal-600 font-medium">
+                  Лучшие предложения рынка
+                </div>
+              </motion.div>
+
+              <motion.div
+                variants={itemVariants}
+                className="bg-white/95 backdrop-blur-sm p-8 rounded-xl shadow-xl border border-[#001D8D]/20 hover:border-[#001D8D]/40 transition-all duration-300 hover:shadow-2xl"
+              >
+                <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 p-3 rounded-lg w-fit mb-4">
+                  <Star className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="text-xl font-bold mb-4 text-[#001D8D]">Профессиональный сервис</h3>
+                <p className="text-[#001D8D]/70 mb-4">
+                  Многолетний опыт работы, тысячи довольных клиентов и высокие рейтинги доверия. Мы предоставляем сервис мирового класса.
+                </p>
+                <div className="text-sm text-indigo-600 font-medium">
+                  Высокие рейтинги доверия
+                </div>
+              </motion.div>
+            </motion.div>
+
+            {/* Exchange Advantages Manifesto Section - Перенесен сюда */}
+            <motion.div
+              ref={ref}
+              variants={containerVariants}
+              initial="hidden"
+              animate={controls}
+              className="max-w-7xl mx-auto"
+            >
+              {/* Manifesto Strip Component без заголовка */}
+              <ManifestoStrip values={exchangeAdvantages} />
             </motion.div>
 
             {/* Final CTA */}
