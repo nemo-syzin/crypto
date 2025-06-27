@@ -23,13 +23,15 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "www.revolut.com",
+        hostname: "res.coinpaper.com",
       }
     ],
   },
-  // Optimize bundle size
   experimental: {
-    optimizePackageImports: ['lucide-react', 'framer-motion']
+    optimizePackageImports: ['lucide-react', 'framer-motion', '@radix-ui/react-accordion', '@radix-ui/react-dialog']
+  },
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production'
   }
 };
 

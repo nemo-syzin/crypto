@@ -12,7 +12,6 @@ interface FearGreedResponse {
   data: FearGreedData[];
 }
 
-// Raw data fetching function for direct use
 async function getFearGreedIndex(): Promise<FearGreedData> {
   try {
     const response = await fetch('https://api.alternative.me/fng/?limit=1');
@@ -23,7 +22,6 @@ async function getFearGreedIndex(): Promise<FearGreedData> {
     return data.data[0];
   } catch (error) {
     console.error('Error fetching Fear & Greed Index:', error);
-    // Return fallback data
     return {
       value: '50',
       value_classification: 'Neutral',
@@ -32,24 +30,20 @@ async function getFearGreedIndex(): Promise<FearGreedData> {
   }
 }
 
-// Fetcher function for Fear & Greed Index
 const fngFetcher = async (): Promise<FearGreedData> => {
   return getFearGreedIndex();
 };
 
-// Hook for Fear & Greed Index - 10 minute refresh
 export function useFearGreed() {
   const { data, error, isLoading, mutate } = useSWR<FearGreedData>(
     'fear-greed-index',
     fngFetcher,
     {
-      refreshInterval: 10 * 60 * 1000, // 10 minutes
+      refreshInterval: 10 * 60 * 1000,
       revalidateOnFocus: false,
       revalidateOnReconnect: true,
-      dedupingInterval: 5 * 60 * 1000, // 5 minutes
-      onError: (error) => {
-        console.error('Fear & Greed Index hook error:', error);
-      },
+      dedupingInterval: 5 * 60 * 1000,
+      onError: (error) => console.error('Fear & Greed Index hook error:', error),
     }
   );
 
@@ -77,13 +71,4 @@ export function getFearGreedBgColor(value: number): string {
   return 'bg-blue-100';
 }
 
-function getFearGreedDescription(value: number): string {
-  if (value <= 25) return 'Extreme Fear';
-  if (value <= 45) return 'Fear';
-  if (value <= 55) return 'Neutral';
-  if (value <= 75) return 'Greed';
-  return 'Extreme Greed';
-}
-
-// Export function for direct use
-;
+export { getFearGreedIndex };
