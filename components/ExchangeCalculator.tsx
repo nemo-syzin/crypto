@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useKenigRate } from '@/lib/hooks/rates';
-import { Calculator, RefreshCw, ArrowUpDown, AlertTriangle, Settings, TrendingUp } from 'lucide-react';
+import { Calculator, RefreshCw, ArrowUpDown, AlertTriangle, Settings } from 'lucide-react';
 
 type ExchangeDirection = 'usdt-to-rub' | 'rub-to-usdt';
 
@@ -104,11 +104,6 @@ export default function ExchangeCalculator() {
     const toAmount = formatCurrency(result, toCurrency);
     
     return `Обменять ${fromAmount} → ${toAmount}`;
-  };
-
-  // Safe rate display helper
-  const displayRate = (rateValue: number | null): string => {
-    return (typeof rateValue === 'number' && !isNaN(rateValue)) ? rateValue.toFixed(2) : '—';
   };
 
   // Check if error is configuration related
@@ -239,40 +234,6 @@ export default function ExchangeCalculator() {
               Итоговая сумма к получению без скрытых комиссий
             </div>
           </div>
-
-          {/* Rate Information */}
-          {rate && !loading && !error && (
-            <div className="rates-container">
-              <h4 className="font-semibold text-[#001D8D] mb-4 flex items-center gap-2">
-                <TrendingUp className="h-4 w-4" />
-                Текущие курсы KenigSwap
-              </h4>
-              
-              <div className="grid grid-cols-2 gap-6">
-                <div className="text-center">
-                  <div className="text-sm text-gray-600 mb-1">Продажа USDT</div>
-                  <div className="rate-value">{displayRate(rate.sell)} ₽</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-sm text-gray-600 mb-1">Покупка USDT</div>
-                  <div className="rate-value">{displayRate(rate.buy)} ₽</div>
-                </div>
-              </div>
-
-              <div className="mt-4 pt-4 border-t border-gray-200">
-                <div className="text-sm text-gray-600 text-center">
-                  Курс используется: {direction === 'usdt-to-rub' 
-                    ? `${displayRate(rate.sell)} ₽ (продажа)` 
-                    : `${displayRate(rate.buy)} ₽ (покупка)`}
-                  {lastUpdated && (
-                    <span className="block mt-1 text-xs">
-                      Обновлено: {lastUpdated.toLocaleTimeString('ru-RU')}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* Loading State */}
           {loading && (
