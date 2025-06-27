@@ -449,12 +449,12 @@ const UnifiedMainSection = () => {
                   {partners.map((partner, index) => (
                     <div
                       key={`main-${index}`}
-                      className="logo-wrap w-28 md:w-24 sm:w-20 p-4 mx-6 rounded-xl bg-white shadow-sm hover:shadow-lg transition-all duration-300"
+                      className="partner-tile mx-6"
                     >
                       <img
                         src={partner.logo}
                         alt={`${partner.name} - Криптовалютная биржа`}
-                        className="w-full h-auto object-contain"
+                        className="w-full h-full object-contain"
                         loading={index < 3 ? "eager" : "lazy"}
                       />
                     </div>
@@ -474,12 +474,12 @@ const UnifiedMainSection = () => {
                   {partners.slice().reverse().map((partner, index) => (
                     <div
                       key={`secondary-${index}`}
-                      className="logo-wrap w-28 md:w-24 sm:w-20 p-4 mx-6 rounded-xl bg-white shadow-sm hover:shadow-lg transition-all duration-300"
+                      className="partner-tile mx-6"
                     >
                       <img
                         src={partner.logo}
                         alt={`${partner.name} - Криптовалютная биржа`}
-                        className="w-full h-auto object-contain"
+                        className="w-full h-full object-contain"
                         loading="lazy"
                       />
                     </div>
