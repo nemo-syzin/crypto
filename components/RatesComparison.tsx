@@ -175,11 +175,6 @@ export default function RatesComparison() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            {isBest && exchange.available && (
-              <span className="badge-outline badge-success text-xs">
-                Лучший
-              </span>
-            )}
             {sparklineData.length > 0 && (
               <TinySparkline 
                 data={sparklineData} 
