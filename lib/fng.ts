@@ -84,3 +84,6 @@ function getFearGreedDescription(value: number): string {
   if (value <= 75) return 'Greed';
   return 'Extreme Greed';
 }
+
+// Export function for direct use
+export { getFearGreedIndex };

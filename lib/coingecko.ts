@@ -58,6 +58,13 @@ interface CoinPriceHistory {
   total_volumes: [number, number][];
 }
 
+export interface FearGreedData {
+  value: string;
+  value_classification: string;
+  timestamp: string;
+  time_until_update?: string;
+}
+
 // Fetcher function for our proxy API
 const fetcher = async (url: string) => {
   const response = await fetch(url);
@@ -207,3 +214,6 @@ function useCoinHistory(coinId: string, days: number = 1) {
     isLoading,
   };
 }
+
+// Export functions for direct use
+export { getTopCoins, getGlobalMarketData, getCoinHistory };
