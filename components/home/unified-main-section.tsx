@@ -19,7 +19,11 @@ import {
   Shield, 
   Clock, 
   Building2, 
-  Globe 
+  Globe,
+  CheckCircle,
+  Star,
+  TrendingUp,
+  Zap
 } from 'lucide-react';
 import Marquee from 'react-fast-marquee';
 import { UnifiedVantaBackground } from '@/components/shared/UnifiedVantaBackground';
@@ -251,13 +255,17 @@ const UnifiedMainSection = () => {
       <div className="container mx-auto px-4 relative z-10">
         <div className="space-y-24">
           
-          {/* 1. Features Section */}
+          {/* 1. Features Section - Calculator Style */}
           <div>
             <div className="text-center max-w-3xl mx-auto mb-16">
+              <div className="inline-flex items-center gap-2 bg-[#001D8D]/10 text-[#001D8D] px-6 py-3 rounded-full text-lg mb-8 font-medium">
+                <Star className="h-6 w-6" />
+                Преимущества KenigSwap
+              </div>
               <h2 className="text-3xl md:text-4xl font-bold mb-6 text-[#001D8D]">
                 Почему выбирают <span className="text-[#001D8D]">Kenigswap</span>
               </h2>
-              <p className="text-[#001D8D]/80">
+              <p className="text-[#001D8D]/80 leading-relaxed">
                 Мы предоставляем безопасную, быструю и удобную платформу для всех ваших потребностей в обмене криптовалюты.
                 Наш фокус на конвертации USDT в рубли гарантирует вам лучший сервис.
               </p>
@@ -274,7 +282,7 @@ const UnifiedMainSection = () => {
                 <motion.div
                   key={index}
                   variants={itemVariants}
-                  className="relative overflow-hidden bg-white/80 backdrop-blur-sm p-8 rounded-lg shadow-lg border border-[#001D8D]/10 hover:border-[#001D8D]/30 transition-all duration-300"
+                  className="calculator-container group hover:shadow-xl transition-all duration-300"
                 >
                   <div className="relative z-10">
                     <div className="flex items-center justify-center h-12 w-12 mb-8">
@@ -288,108 +296,125 @@ const UnifiedMainSection = () => {
                       />
                     </div>
                     <h3 className="text-2xl md:text-3xl font-bold mb-4 text-[#001D8D]">{feature.title}</h3>
-                    <p className="text-[#001D8D]/70">{feature.description}</p>
+                    <p className="text-[#001D8D]/70 leading-relaxed">{feature.description}</p>
                   </div>
                 </motion.div>
               ))}
             </motion.div>
           </div>
 
-          {/* 2. Deal Process Section */}
+          {/* 2. Deal Process Section - Calculator Style */}
           <div className="max-w-5xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-semibold text-center text-[#001D8D] mb-10">
-              Как проходит обмен
-            </h2>
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center gap-2 bg-[#001D8D]/10 text-[#001D8D] px-6 py-3 rounded-full text-lg mb-8 font-medium">
+                <BarChart className="h-6 w-6" />
+                Процесс обмена
+              </div>
+              <h2 className="text-3xl md:text-4xl font-semibold text-center text-[#001D8D] mb-4">
+                Как проходит обмен
+              </h2>
+              <p className="text-[#001D8D]/70 max-w-3xl mx-auto leading-relaxed">
+                Выберите удобный способ обмена и следуйте простым шагам для безопасной и быстрой транзакции
+              </p>
+            </div>
 
-            <Tabs defaultValue="office" className="w-full mb-16">
-              <TabsList className="grid w-full grid-cols-2 mb-8 bg-white/90 backdrop-blur-sm border border-[#001D8D]/10">
-                <TabsTrigger value="office" className="text-[#001D8D]">
-                  <Building2 className="w-4 h-4 mr-2" />
-                  В офисе
-                </TabsTrigger>
-                <TabsTrigger value="online" className="text-[#001D8D]">
-                  <Globe className="w-4 h-4 mr-2" />
-                  Онлайн
-                </TabsTrigger>
-              </TabsList>
+            <div className="calculator-container mb-16">
+              <Tabs defaultValue="office" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-8 bg-white/90 backdrop-blur-sm border border-[#001D8D]/10">
+                  <TabsTrigger value="office" className="text-[#001D8D]">
+                    <Building2 className="w-4 h-4 mr-2" />
+                    В офисе
+                  </TabsTrigger>
+                  <TabsTrigger value="online" className="text-[#001D8D]">
+                    <Globe className="w-4 h-4 mr-2" />
+                    Онлайн
+                  </TabsTrigger>
+                </TabsList>
 
-              <TabsContent value="office" className="space-y-6">
-                {officeSteps.map((step, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                    viewport={{ once: true }}
-                    className="bg-white/90 backdrop-blur-sm rounded-lg p-6 shadow-lg border border-[#001D8D]/10 hover:border-[#001D8D]/30 transition-all duration-300"
-                  >
-                    <div className="flex items-start gap-4">
-                      <div className="flex-shrink-0 w-12 h-12 rounded-full bg-[#001D8D]/10 flex items-center justify-center">
-                        <span className="text-[#001D8D] font-bold">{index + 1}</span>
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex justify-between items-start">
-                          <h3 className="text-xl font-bold text-[#001D8D] mb-2">
-                            {step.title}
-                          </h3>
-                          <div className="flex items-center text-sm text-[#001D8D]/70">
-                            <Clock className="w-4 h-4 mr-1" />
-                            {step.time}
-                          </div>
+                <TabsContent value="office" className="space-y-6">
+                  {officeSteps.map((step, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                      viewport={{ once: true }}
+                      className="glass-tile p-6 hover:shadow-lg transition-all duration-300"
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="flex-shrink-0 w-12 h-12 rounded-full bg-[#001D8D]/10 flex items-center justify-center">
+                          <span className="text-[#001D8D] font-bold">{index + 1}</span>
                         </div>
-                        <p className="text-[#001D8D]/70">
-                          {step.description}
-                        </p>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </TabsContent>
-
-              <TabsContent value="online" className="space-y-6">
-                {onlineSteps.map((step, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                    viewport={{ once: true }}
-                    className="bg-white/90 backdrop-blur-sm rounded-lg p-6 shadow-lg border border-[#001D8D]/10 hover:border-[#001D8D]/30 transition-all duration-300"
-                  >
-                    <div className="flex items-start gap-4">
-                      <div className="flex-shrink-0 w-12 h-12 rounded-full bg-[#001D8D]/10 flex items-center justify-center">
-                        <span className="text-[#001D8D] font-bold">{index + 1}</span>
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex justify-between items-start">
-                          <h3 className="text-xl font-bold text-[#001D8D] mb-2">
-                            {step.title}
-                          </h3>
-                          <div className="flex items-center text-sm text-[#001D8D]/70">
-                            <Clock className="w-4 h-4 mr-1" />
-                            {step.time}
+                        <div className="flex-1">
+                          <div className="flex justify-between items-start">
+                            <h3 className="text-xl font-bold text-[#001D8D] mb-2">
+                              {step.title}
+                            </h3>
+                            <div className="flex items-center text-sm text-[#001D8D]/70">
+                              <Clock className="w-4 h-4 mr-1" />
+                              {step.time}
+                            </div>
                           </div>
+                          <p className="text-[#001D8D]/70 leading-relaxed">
+                            {step.description}
+                          </p>
                         </div>
-                        <p className="text-[#001D8D]/70">
-                          {step.description}
-                        </p>
                       </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </TabsContent>
-            </Tabs>
+                    </motion.div>
+                  ))}
+                </TabsContent>
 
-            {/* FAQ Section */}
+                <TabsContent value="online" className="space-y-6">
+                  {onlineSteps.map((step, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                      viewport={{ once: true }}
+                      className="glass-tile p-6 hover:shadow-lg transition-all duration-300"
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="flex-shrink-0 w-12 h-12 rounded-full bg-[#001D8D]/10 flex items-center justify-center">
+                          <span className="text-[#001D8D] font-bold">{index + 1}</span>
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex justify-between items-start">
+                            <h3 className="text-xl font-bold text-[#001D8D] mb-2">
+                              {step.title}
+                            </h3>
+                            <div className="flex items-center text-sm text-[#001D8D]/70">
+                              <Clock className="w-4 h-4 mr-1" />
+                              {step.time}
+                            </div>
+                          </div>
+                          <p className="text-[#001D8D]/70 leading-relaxed">
+                            {step.description}
+                          </p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </TabsContent>
+              </Tabs>
+            </div>
+
+            {/* FAQ Section - Calculator Style */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
               viewport={{ once: true }}
+              className="calculator-container"
             >
-              <h2 className="text-3xl md:text-4xl font-semibold text-center text-[#001D8D] mb-10">
-                Частые вопросы
-              </h2>
+              <div className="text-center mb-8">
+                <h2 className="text-3xl md:text-4xl font-semibold text-[#001D8D] mb-4">
+                  Частые вопросы
+                </h2>
+                <p className="text-[#001D8D]/70">
+                  Ответы на самые популярные вопросы о нашем сервисе
+                </p>
+              </div>
               <Accordion
                 type="single"
                 collapsible
@@ -401,7 +426,7 @@ const UnifiedMainSection = () => {
                   <AccordionItem
                     key={index}
                     value={`item-${index}`}
-                    className="border border-[#001D8D]/10 rounded-lg px-6 py-2 hover:border-[#001D8D]/30 transition-all duration-300 bg-white/90 backdrop-blur-sm"
+                    className="glass-tile px-6 py-2 hover:shadow-md transition-all duration-300"
                   >
                     <AccordionTrigger className="text-[#001D8D] hover:text-[#001D8D]/80 text-left font-medium">
                       {faq.question}
@@ -415,7 +440,7 @@ const UnifiedMainSection = () => {
             </motion.div>
           </div>
 
-          {/* 3. Partners Section */}
+          {/* 3. Partners Section - Calculator Style */}
           <div>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -424,6 +449,10 @@ const UnifiedMainSection = () => {
               viewport={{ once: true }}
               className="text-center mb-12"
             >
+              <div className="inline-flex items-center gap-2 bg-[#001D8D]/10 text-[#001D8D] px-6 py-3 rounded-full text-lg mb-8 font-medium">
+                <Globe className="h-6 w-6" />
+                Наши партнёры
+              </div>
               <h2 className="text-3xl md:text-4xl font-bold mb-6 text-[#001D8D]">
                 Наши партнёры
               </h2>
@@ -433,7 +462,7 @@ const UnifiedMainSection = () => {
               </p>
             </motion.div>
 
-            <div className="relative mb-12">
+            <div className="calculator-container mb-12">
               {/* Gradient overlays for smooth edges */}
               <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-white via-white/80 to-transparent z-10 pointer-events-none" />
               <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-white via-white/80 to-transparent z-10 pointer-events-none" />
@@ -513,7 +542,7 @@ const UnifiedMainSection = () => {
             </motion.div>
           </div>
 
-          {/* 4. CTA Section */}
+          {/* 4. CTA Section - Calculator Style */}
           <div className="max-w-5xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <motion.div
@@ -521,11 +550,12 @@ const UnifiedMainSection = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
                 viewport={{ once: true }}
+                className="calculator-container"
               >
                 <h2 className="text-3xl md:text-4xl font-bold mb-6 text-[#001D8D]">
                   Готовы начать <span className="text-[#001D8D]">обмен?</span>
                 </h2>
-                <p className="text-[#001D8D]/70 mb-8">
+                <p className="text-[#001D8D]/70 mb-8 leading-relaxed">
                   Создайте аккаунт уже сегодня и получите самый быстрый и безопасный способ конвертации USDT в рубли.
                 </p>
                 
@@ -542,7 +572,7 @@ const UnifiedMainSection = () => {
                   
                   <div className="flex items-start gap-3">
                     <div className="mt-1 bg-[#001D8D]/5 p-2 rounded-full">
-                      <BarChart className="h-5 w-5 text-[#001D8D]" />
+                      <TrendingUp className="h-5 w-5 text-[#001D8D]" />
                     </div>
                     <div>
                       <h4 className="font-semibold text-[#001D8D]">Лучшие курсы</h4>
@@ -567,12 +597,12 @@ const UnifiedMainSection = () => {
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
                 viewport={{ once: true }}
-                className="bg-white/90 backdrop-blur-sm rounded-lg p-8 shadow-lg border border-[#001D8D]/10 hover:border-[#001D8D]/30 transition-all duration-300"
+                className="calculator-container"
               >
                 <h3 className="text-2xl font-bold mb-6 text-center text-[#001D8D]">
                   Начните сегодня
                 </h3>
-                <p className="text-[#001D8D]/70 mb-8 text-center">
+                <p className="text-[#001D8D]/70 mb-8 text-center leading-relaxed">
                   Зарегистрируйтесь всего за несколько минут и начните обменивать криптовалюту по лучшим курсам.
                 </p>
                 
