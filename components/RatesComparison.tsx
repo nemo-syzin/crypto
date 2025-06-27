@@ -1,16 +1,51 @@
 "use client";
 
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { TinySparkline } from '@/components/ui/tiny-sparkline';
 import { useAllRates } from '@/lib/hooks/rates';
-import { TrendingUp, RefreshCw, Crown, AlertTriangle, Clock, Settings, Star, Award } from 'lucide-react';
+import { 
+  TrendingUp, 
+  RefreshCw, 
+  AlertTriangle, 
+  Settings, 
+  ArrowRightLeft, 
+  Info,
+  ChevronDown,
+  ChevronUp
+} from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
 export default function RatesComparison() {
   const { rates, loading, error, lastUpdated, refetch } = useAllRates();
+  const [countdown, setCountdown] = useState<string>('');
+  const [showMobileDetails, setShowMobileDetails] = useState(false);
+
+  // Countdown timer effect
+  useEffect(() => {
+    if (!lastUpdated) return;
+
+    const updateCountdown = () => {
+      const now = new Date();
+      const diff = Math.floor((now.getTime() - lastUpdated.getTime()) / 1000);
+      
+      if (diff < 60) {
+        setCountdown(`${diff} с назад`);
+      } else if (diff < 3600) {
+        setCountdown(`${Math.floor(diff / 60)} мин назад`);
+      } else {
+        setCountdown(`${Math.floor(diff / 3600)} ч назад`);
+      }
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+    return () => clearInterval(interval);
+  }, [lastUpdated]);
 
   const formatRate = (rate: number | null): string => {
     if (rate === null || rate === undefined || isNaN(rate)) return '—';
@@ -32,7 +67,35 @@ export default function RatesComparison() {
     }
   };
 
-  // Логика для определения лучших курсов (только KenigSwap и BestChange)
+  // Calculate delta vs KenigSwap
+  const calculateDelta = (rate: number | null, kenigRate: number | null): { 
+    delta: number; 
+    isPositive: boolean; 
+    color: string 
+  } => {
+    if (!rate || !kenigRate || isNaN(rate) || isNaN(kenigRate)) {
+      return { delta: 0, isPositive: false, color: 'text-gray-400' };
+    }
+    
+    const delta = ((rate - kenigRate) / kenigRate) * 100;
+    const isPositive = delta > 0;
+    const color = isPositive ? 'text-green-600' : 'text-gray-400';
+    
+    return { delta: Math.abs(delta), isPositive, color };
+  };
+
+  // Mock sparkline data (в реальном приложении это будут исторические данные)
+  const generateSparklineData = (baseRate: number | null): number[] => {
+    if (!baseRate) return [];
+    const data = [];
+    for (let i = 0; i < 8; i++) {
+      const variation = (Math.random() - 0.5) * 0.02; // ±1% variation
+      data.push(baseRate * (1 + variation));
+    }
+    return data;
+  };
+
+  // Логика для определения лучших курсов
   const getBestSellRate = () => {
     if (!rates) return null;
     const sellRates = [
@@ -41,7 +104,6 @@ export default function RatesComparison() {
     ].filter(item => item.rate !== null && !isNaN(item.rate!)) as { source: string; rate: number }[];
     
     if (sellRates.length === 0) return null;
-    // Лучший курс продажи = самый НИЗКИЙ (выгоднее для клиента)
     return sellRates.reduce((best, current) => 
       current.rate < best.rate ? current : best
     );
@@ -55,7 +117,6 @@ export default function RatesComparison() {
     ].filter(item => item.rate !== null && !isNaN(item.rate!)) as { source: string; rate: number }[];
     
     if (buyRates.length === 0) return null;
-    // Лучший курс покупки = самый ВЫСОКИЙ (выгоднее для клиента)
     return buyRates.reduce((best, current) => 
       current.rate > best.rate ? current : best
     );
@@ -64,17 +125,14 @@ export default function RatesComparison() {
   const bestSell = getBestSellRate();
   const bestBuy = getBestBuyRate();
 
-  // Убираем EnergoTransBank из данных обмена
   const exchangeData = rates ? [
     {
       name: 'KenigSwap',
       sellRate: rates.kenig.sell,
       buyRate: rates.kenig.buy,
       updatedAt: rates.kenig.updated_at,
-      color: '#3b82f6',
       available: rates.kenig.sell !== null && !isNaN(rates.kenig.sell!),
       description: 'Основной обменник',
-      isCompetitive: true,
       priority: 1
     },
     {
@@ -82,10 +140,8 @@ export default function RatesComparison() {
       sellRate: rates.bestchange.sell,
       buyRate: rates.bestchange.buy,
       updatedAt: rates.bestchange.updated_at,
-      color: '#10b981',
       available: rates.bestchange.sell !== null && !isNaN(rates.bestchange.sell!),
       description: 'Агрегатор обменников',
-      isCompetitive: true,
       priority: 2
     }
   ] : [];
@@ -97,54 +153,134 @@ export default function RatesComparison() {
     error.includes('environment variables')
   );
 
+  // Mobile: show only leader
+  const mobileLeader = exchangeData.find(ex => 
+    (bestSell?.source === ex.name || bestBuy?.source === ex.name) && ex.available
+  ) || exchangeData[0];
+
+  const renderRateCard = (exchange: any, type: 'sell' | 'buy', isBest: boolean) => {
+    const rate = type === 'sell' ? exchange.sellRate : exchange.buyRate;
+    const kenigRate = type === 'sell' ? rates?.kenig.sell : rates?.kenig.buy;
+    const delta = calculateDelta(rate, kenigRate);
+    const sparklineData = generateSparklineData(rate);
+    const sparklineColor = delta.isPositive ? '#10b981' : '#6b7280';
+
+    return (
+      <div
+        key={`${type}-${exchange.name}`}
+        className={`glass-tile p-6 transition-all duration-200 ${
+          !exchange.available
+            ? 'opacity-60'
+            : isBest
+            ? 'ring-2 ring-green-500'
+            : ''
+        }`}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h4 className="text-lg font-semibold text-[#001D8D]">
+              {exchange.name}
+            </h4>
+            <p className="text-xs text-muted/70">
+              {exchange.description}
+            </p>
+          </div>
+          <div className="flex flex-col items-end gap-1">
+            {isBest && exchange.available && (
+              <span className="badge-outline badge-success">
+                Лучший
+              </span>
+            )}
+            {!exchange.available && (
+              <span className="badge-outline badge-neutral">
+                Недоступно
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Rate and Sparkline */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="text-3xl font-bold text-[#001D8D]">
+            {formatRate(rate)}
+          </div>
+          {sparklineData.length > 0 && (
+            <TinySparkline 
+              data={sparklineData} 
+              color={sparklineColor}
+              width={30}
+              height={8}
+            />
+          )}
+        </div>
+
+        {/* Delta indicator */}
+        {exchange.name !== 'KenigSwap' && (
+          <div className={`text-xs mb-2 ${delta.color}`}>
+            {delta.isPositive ? '+' : '−'}{delta.delta.toFixed(2)}%
+          </div>
+        )}
+        {exchange.name === 'KenigSwap' && (
+          <div className="text-xs mb-2 text-gray-400">
+            базовый курс
+          </div>
+        )}
+
+        {/* Updated time */}
+        <div className="text-xs text-muted/70">
+          обновлено {formatRelativeTime(exchange.updatedAt)}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6">
       {/* Configuration Error Alert */}
       {isConfigurationError && (
-        <div className="error-toast">
-          <Settings className="h-4 w-4 mr-2 inline" />
-          <strong>Требуется настройка:</strong>
-          <br />
-          {error}
-          <br />
-          <span className="text-sm mt-2 block">
-            Проверьте файл .env.local и убедитесь, что указаны правильные значения для NEXT_PUBLIC_SUPABASE_URL и NEXT_PUBLIC_SUPABASE_ANON_KEY
-          </span>
-        </div>
+        <Alert className="bg-orange-50 border-orange-200">
+          <Settings className="h-4 w-4 text-orange-600" />
+          <AlertDescription className="text-orange-800">
+            <strong>Требуется настройка:</strong>
+            <br />
+            {error}
+          </AlertDescription>
+        </Alert>
       )}
 
       {/* Other Errors Alert */}
       {error && !isConfigurationError && (
-        <div className="error-toast">
-          <AlertTriangle className="h-4 w-4 mr-2 inline" />
-          <strong>Ошибка загрузки курсов:</strong> {error}
-        </div>
+        <Alert className="bg-red-50 border-red-200">
+          <AlertTriangle className="h-4 w-4 text-red-600" />
+          <AlertDescription className="text-red-800">
+            <strong>Ошибка загрузки курсов:</strong> {error}
+          </AlertDescription>
+        </Alert>
       )}
 
       {/* Main Comparison Card */}
-      <div className="calculator-container">
+      <Card className="glass-tile border-none shadow-lg">
         <CardHeader className="pb-6">
           <div className="flex items-center justify-between">
+            <CardTitle className="text-[#001D8D] flex items-center gap-2">
+              <TrendingUp className="h-5 w-5" />
+              Сравнение курсов обмена
+            </CardTitle>
+            
+            {/* Refresh button with countdown */}
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-gradient-to-br from-green-500 to-green-600">
-                <TrendingUp className="h-5 w-5 text-white" />
+              <div className="countdown-timer">
+                Обновлено {countdown}
               </div>
-              <span className="text-[#001D8D] text-xl font-bold">
-                Сравнение курсов обмена
-              </span>
+              <button
+                onClick={refetch}
+                disabled={loading}
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-[#001D8D]/10 hover:bg-[#001D8D]/20 transition-colors"
+              >
+                <RefreshCw className={`h-4 w-4 text-[#001D8D] ${loading ? 'animate-spin' : ''}`} />
+              </button>
             </div>
-            <button
-              onClick={refetch}
-              disabled={loading}
-              className="refresh-button"
-            >
-              <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-              {lastUpdated && (
-                <span className="timestamp">
-                  {lastUpdated.toLocaleTimeString('ru-RU')}
-                </span>
-              )}
-            </button>
           </div>
         </CardHeader>
 
@@ -160,193 +296,83 @@ export default function RatesComparison() {
             <div className="space-y-8">
               {/* Sell Rates Section */}
               <div>
-                <div className="flex items-center gap-2 mb-6">
-                  <div className="w-1 h-6 bg-gradient-to-b from-red-500 to-red-600 rounded-full"></div>
-                  <h3 className="text-lg font-bold text-[#001D8D]">
-                    Продажа USDT → RUB
-                  </h3>
-                  <div className="hint-text ml-2">
-                    (лучший курс = самый низкий)
-                  </div>
+                <h3 className="flex items-center gap-2 text-lg font-semibold mb-2">
+                  <ArrowRightLeft className="h-4 w-4 text-red-500" />
+                  Продажа USDT → RUB
+                </h3>
+                <p className="text-xs text-muted/70 mb-6">
+                  (лучший курс = самый низкий)
+                  <button className="ml-2 text-[#001D8D]/50 hover:text-[#001D8D]">
+                    <Info className="h-3 w-3 inline" />
+                  </button>
+                </p>
+
+                {/* Desktop view */}
+                <div className="hidden sm:grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {exchangeData.map((exchange) => 
+                    renderRateCard(exchange, 'sell', bestSell?.source === exchange.name)
+                  )}
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {exchangeData.map((exchange) => (
-                    <div
-                      key={`sell-${exchange.name}`}
-                      className={`relative p-6 rounded-xl transition-all duration-300 ${
-                        !exchange.available
-                          ? 'bg-gray-50 border border-gray-200 opacity-60'
-                          : bestSell?.source === exchange.name
-                          ? 'bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-400 shadow-lg scale-105'
-                          : 'bg-white border border-gray-200 hover:border-blue-300 hover:shadow-md'
-                      }`}
-                    >
-                      {/* Best Rate Crown */}
-                      {bestSell?.source === exchange.name && exchange.available && (
-                        <div className="absolute -top-3 -right-3">
-                          <div className="bg-green-500 text-white p-2 rounded-full shadow-lg">
-                            <Crown className="h-4 w-4" />
-                          </div>
-                        </div>
-                      )}
 
-                      <div className="flex items-center justify-between mb-4">
-                        <div>
-                          <h4 className="font-bold text-[#001D8D] text-lg">
-                            {exchange.name}
-                          </h4>
-                          <p className="text-sm text-[#001D8D]/60">{exchange.description}</p>
-                        </div>
-                        <div className="flex flex-col items-end gap-1">
-                          {bestSell?.source === exchange.name && exchange.available && (
-                            <Badge className="bg-green-500 text-white border-0 text-xs">
-                              <Crown className="h-3 w-3 mr-1" />
-                              Лучший
-                            </Badge>
-                          )}
-                          {!exchange.available && (
-                            <Badge variant="outline" className="text-xs text-gray-500">
-                              Недоступно
-                            </Badge>
-                          )}
-                        </div>
+                {/* Mobile view */}
+                <div className="sm:hidden">
+                  {mobileLeader && renderRateCard(mobileLeader, 'sell', bestSell?.source === mobileLeader.name)}
+                  
+                  {exchangeData.length > 1 && (
+                    <details className="mt-4">
+                      <summary className="flex items-center gap-2 cursor-pointer text-sm text-[#001D8D] hover:text-[#001D8D]/80">
+                        <span>Показать ещё {exchangeData.length - 1} источников</span>
+                        <ChevronDown className="h-4 w-4" />
+                      </summary>
+                      <div className="mt-4 space-y-4">
+                        {exchangeData.filter(ex => ex.name !== mobileLeader.name).map((exchange) => 
+                          renderRateCard(exchange, 'sell', bestSell?.source === exchange.name)
+                        )}
                       </div>
-                      
-                      <div className="text-2xl font-bold text-[#001D8D] mb-3">
-                        {formatRate(exchange.sellRate)}
-                      </div>
-                      
-                      <div className="text-xs text-[#001D8D]/50">
-                        {exchange.available ? formatRelativeTime(exchange.updatedAt) : 'Нет данных'}
-                      </div>
-
-                      {/* Priority indicator */}
-                      <div className="absolute bottom-2 left-2">
-                        <div className="flex gap-1">
-                          {Array.from({ length: 3 - exchange.priority }, (_, i) => (
-                            <div 
-                              key={i} 
-                              className="w-1 h-1 rounded-full"
-                              style={{ backgroundColor: exchange.color }}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                    </details>
+                  )}
                 </div>
               </div>
 
               {/* Buy Rates Section */}
               <div>
-                <div className="flex items-center gap-2 mb-6">
-                  <div className="w-1 h-6 bg-gradient-to-b from-blue-500 to-blue-600 rounded-full"></div>
-                  <h3 className="text-lg font-bold text-[#001D8D]">
-                    Покупка USDT ← RUB
-                  </h3>
-                  <div className="hint-text ml-2">
-                    (лучший курс = самый высокий)
-                  </div>
+                <h3 className="flex items-center gap-2 text-lg font-semibold mb-2">
+                  <ArrowRightLeft className="h-4 w-4 text-blue-500" />
+                  Покупка USDT ← RUB
+                </h3>
+                <p className="text-xs text-muted/70 mb-6">
+                  (лучший курс = самый высокий)
+                  <button className="ml-2 text-[#001D8D]/50 hover:text-[#001D8D]">
+                    <Info className="h-3 w-3 inline" />
+                  </button>
+                </p>
+
+                {/* Desktop view */}
+                <div className="hidden sm:grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {exchangeData.map((exchange) => 
+                    renderRateCard(exchange, 'buy', bestBuy?.source === exchange.name)
+                  )}
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {exchangeData.map((exchange) => (
-                    <div
-                      key={`buy-${exchange.name}`}
-                      className={`relative p-6 rounded-xl transition-all duration-300 ${
-                        !exchange.available
-                          ? 'bg-gray-50 border border-gray-200 opacity-60'
-                          : bestBuy?.source === exchange.name
-                          ? 'bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-400 shadow-lg scale-105'
-                          : 'bg-white border border-gray-200 hover:border-blue-300 hover:shadow-md'
-                      }`}
-                    >
-                      {/* Best Rate Crown */}
-                      {bestBuy?.source === exchange.name && exchange.available && (
-                        <div className="absolute -top-3 -right-3">
-                          <div className="bg-green-500 text-white p-2 rounded-full shadow-lg">
-                            <Crown className="h-4 w-4" />
-                          </div>
-                        </div>
-                      )}
 
-                      <div className="flex items-center justify-between mb-4">
-                        <div>
-                          <h4 className="font-bold text-[#001D8D] text-lg">
-                            {exchange.name}
-                          </h4>
-                          <p className="text-sm text-[#001D8D]/60">{exchange.description}</p>
-                        </div>
-                        <div className="flex flex-col items-end gap-1">
-                          {bestBuy?.source === exchange.name && exchange.available && (
-                            <Badge className="bg-green-500 text-white border-0 text-xs">
-                              <Crown className="h-3 w-3 mr-1" />
-                              Лучший
-                            </Badge>
-                          )}
-                          {!exchange.available && (
-                            <Badge variant="outline" className="text-xs text-gray-500">
-                              Недоступно
-                            </Badge>
-                          )}
-                        </div>
+                {/* Mobile view */}
+                <div className="sm:hidden">
+                  {mobileLeader && renderRateCard(mobileLeader, 'buy', bestBuy?.source === mobileLeader.name)}
+                  
+                  {exchangeData.length > 1 && (
+                    <details className="mt-4">
+                      <summary className="flex items-center gap-2 cursor-pointer text-sm text-[#001D8D] hover:text-[#001D8D]/80">
+                        <span>Показать ещё {exchangeData.length - 1} источников</span>
+                        <ChevronDown className="h-4 w-4" />
+                      </summary>
+                      <div className="mt-4 space-y-4">
+                        {exchangeData.filter(ex => ex.name !== mobileLeader.name).map((exchange) => 
+                          renderRateCard(exchange, 'buy', bestBuy?.source === exchange.name)
+                        )}
                       </div>
-                      
-                      <div className="text-2xl font-bold text-[#001D8D] mb-3">
-                        {formatRate(exchange.buyRate)}
-                      </div>
-                      
-                      <div className="text-xs text-[#001D8D]/50">
-                        {exchange.available ? formatRelativeTime(exchange.updatedAt) : 'Нет данных'}
-                      </div>
-
-                      {/* Priority indicator */}
-                      <div className="absolute bottom-2 left-2">
-                        <div className="flex gap-1">
-                          {Array.from({ length: 3 - exchange.priority }, (_, i) => (
-                            <div 
-                              key={i} 
-                              className="w-1 h-1 rounded-full"
-                              style={{ backgroundColor: exchange.color }}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                    </details>
+                  )}
                 </div>
               </div>
-
-              {/* Summary - только для KenigSwap и BestChange */}
-              {(bestSell || bestBuy) && (
-                <div className="rates-container">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Award className="h-5 w-5 text-[#001D8D]" />
-                    <h4 className="font-bold text-[#001D8D] text-lg">
-                      Лучшие курсы сейчас
-                    </h4>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-white p-4 rounded-lg border border-green-200">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Star className="h-4 w-4 text-green-600" />
-                        <span className="text-[#001D8D]/70 font-medium">Лучшая продажа USDT:</span>
-                      </div>
-                      <div className="rate-value text-xl">
-                        {bestSell ? `${formatRate(bestSell.rate)} (${bestSell.source})` : '—'}
-                      </div>
-                    </div>
-                    <div className="bg-white p-4 rounded-lg border border-blue-200">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Star className="h-4 w-4 text-blue-600" />
-                        <span className="text-[#001D8D]/70 font-medium">Лучшая покупка USDT:</span>
-                      </div>
-                      <div className="rate-value text-xl">
-                        {bestBuy ? `${formatRate(bestBuy.rate)} (${bestBuy.source})` : '—'}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
           ) : (
             <div className="text-center py-12 text-[#001D8D]/70">
@@ -356,7 +382,7 @@ export default function RatesComparison() {
             </div>
           )}
         </CardContent>
-      </div>
+      </Card>
     </div>
   );
 }

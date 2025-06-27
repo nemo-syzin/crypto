@@ -62,6 +62,22 @@
     @apply bg-white/80 backdrop-blur-md border border-white/20;
   }
 
+  /* Glass Tile - новый стиль для карточек курсов */
+  .glass-tile {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+    transition: all 0.2s ease;
+  }
+
+  .glass-tile:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 40px rgba(31, 38, 135, 0.2);
+  }
+
   .text-gradient {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-[#001D8D] to-[#001D8D];
   }
@@ -394,6 +410,37 @@
       opacity: 1;
       transform: translateY(0);
     }
+  }
+
+  /* Countdown timer styles */
+  .countdown-timer {
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    color: #718096;
+    font-size: 12px;
+  }
+
+  /* Badge styles for rates comparison */
+  .badge-outline {
+    border: 1px solid currentColor;
+    background: transparent;
+    color: inherit;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  .badge-success {
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.1);
+    border-color: #10b981;
+  }
+
+  .badge-neutral {
+    color: #6b7280;
+    background: rgba(107, 114, 128, 0.1);
+    border-color: #6b7280;
   }
 }
 
