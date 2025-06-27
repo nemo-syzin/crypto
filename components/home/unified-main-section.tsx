@@ -202,11 +202,37 @@ const UnifiedMainSection = () => {
     triggerOnce: true,
   });
 
+  // Отдельные контроллеры для анимации шагов
+  const officeStepsControls = useAnimation();
+  const onlineStepsControls = useAnimation();
+  const [officeStepsRef, officeStepsInView] = useInView({
+    threshold: 0.1,
+    triggerOnce: true,
+  });
+  const [onlineStepsRef, onlineStepsInView] = useInView({
+    threshold: 0.1,
+    triggerOnce: true,
+  });
+
   useEffect(() => {
     if (inView) {
       controls.start('visible');
     }
   }, [controls, inView]);
+
+  // Анимация для шагов офиса
+  useEffect(() => {
+    if (officeStepsInView) {
+      officeStepsControls.start('visible');
+    }
+  }, [officeStepsControls, officeStepsInView]);
+
+  // Анимация для онлайн шагов
+  useEffect(() => {
+    if (onlineStepsInView) {
+      onlineStepsControls.start('visible');
+    }
+  }, [onlineStepsControls, onlineStepsInView]);
 
   const containerVariants = {
     hidden: {},
@@ -224,6 +250,33 @@ const UnifiedMainSection = () => {
       y: 0,
       transition: {
         duration: 0.5,
+      },
+    },
+  };
+
+  // Варианты анимации для шагов с более выраженным эффектом
+  const stepsContainerVariants = {
+    hidden: {},
+    visible: {
+      transition: {
+        staggerChildren: 0.15, // Увеличенная задержка между шагами
+      },
+    },
+  };
+
+  const stepVariants = {
+    hidden: { 
+      opacity: 0, 
+      y: 30,
+      scale: 0.95
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        duration: 0.6,
+        ease: "easeOut"
       },
     },
   };
@@ -308,7 +361,7 @@ const UnifiedMainSection = () => {
             </motion.div>
           </div>
 
-          {/* 2. Deal Process Section - Calculator Style */}
+          {/* 2. Deal Process Section - Calculator Style с анимацией шагов */}
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-12">
               <div className="inline-flex items-center gap-2 bg-[#001D8D]/10 text-[#001D8D] px-6 py-3 rounded-full text-lg mb-8 font-medium">
@@ -336,76 +389,132 @@ const UnifiedMainSection = () => {
                   </TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="office" className="space-y-6">
-                  {officeSteps.map((step, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: index * 0.1 }}
-                      viewport={{ once: true }}
-                      className="glass-tile p-6 hover:shadow-lg transition-all duration-300"
-                    >
-                      <div className="flex items-start gap-4">
-                        {/* Номер в стиле манифеста */}
-                        <div className="flex-shrink-0">
-                          <div className="manifesto-number text-3xl font-bold text-[#001D8D] tracking-wider">
-                            {formatStepNumber(index)}
-                          </div>
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex justify-between items-start">
-                            <h3 className="text-xl font-bold text-[#001D8D] mb-2">
-                              {step.title}
-                            </h3>
-                            <div className="flex items-center text-sm text-[#001D8D]/70">
-                              <Clock className="w-4 h-4 mr-1" />
-                              {step.time}
+                <TabsContent value="office">
+                  <motion.div
+                    ref={officeStepsRef}
+                    variants={stepsContainerVariants}
+                    initial="hidden"
+                    animate={officeStepsControls}
+                    className="space-y-6"
+                  >
+                    {officeSteps.map((step, index) => (
+                      <motion.div
+                        key={index}
+                        variants={stepVariants}
+                        className="glass-tile p-6 hover:shadow-lg transition-all duration-300 group"
+                        whileHover={{ 
+                          scale: 1.02,
+                          boxShadow: "0 20px 40px rgba(0, 29, 141, 0.15)"
+                        }}
+                      >
+                        <div className="flex items-start gap-4">
+                          {/* Номер в стиле манифеста с анимацией */}
+                          <motion.div 
+                            className="flex-shrink-0"
+                            whileHover={{ scale: 1.1 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            <div className="manifesto-number text-3xl font-bold text-[#001D8D] tracking-wider group-hover:text-blue-600 transition-colors duration-300">
+                              {formatStepNumber(index)}
                             </div>
+                          </motion.div>
+                          <div className="flex-1">
+                            <div className="flex justify-between items-start">
+                              <motion.h3 
+                                className="text-xl font-bold text-[#001D8D] mb-2 group-hover:text-blue-600 transition-colors duration-300"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: 0.2 }}
+                              >
+                                {step.title}
+                              </motion.h3>
+                              <motion.div 
+                                className="flex items-center text-sm text-[#001D8D]/70"
+                                initial={{ opacity: 0, x: 10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.3 }}
+                              >
+                                <Clock className="w-4 h-4 mr-1" />
+                                {step.time}
+                              </motion.div>
+                            </div>
+                            <motion.p 
+                              className="text-[#001D8D]/70 leading-relaxed"
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              transition={{ delay: 0.4 }}
+                            >
+                              {step.description}
+                            </motion.p>
                           </div>
-                          <p className="text-[#001D8D]/70 leading-relaxed">
-                            {step.description}
-                          </p>
                         </div>
-                      </div>
-                    </motion.div>
-                  ))}
+                      </motion.div>
+                    ))}
+                  </motion.div>
                 </TabsContent>
 
-                <TabsContent value="online" className="space-y-6">
-                  {onlineSteps.map((step, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: index * 0.1 }}
-                      viewport={{ once: true }}
-                      className="glass-tile p-6 hover:shadow-lg transition-all duration-300"
-                    >
-                      <div className="flex items-start gap-4">
-                        {/* Номер в стиле манифеста */}
-                        <div className="flex-shrink-0">
-                          <div className="manifesto-number text-3xl font-bold text-[#001D8D] tracking-wider">
-                            {formatStepNumber(index)}
-                          </div>
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex justify-between items-start">
-                            <h3 className="text-xl font-bold text-[#001D8D] mb-2">
-                              {step.title}
-                            </h3>
-                            <div className="flex items-center text-sm text-[#001D8D]/70">
-                              <Clock className="w-4 h-4 mr-1" />
-                              {step.time}
+                <TabsContent value="online">
+                  <motion.div
+                    ref={onlineStepsRef}
+                    variants={stepsContainerVariants}
+                    initial="hidden"
+                    animate={onlineStepsControls}
+                    className="space-y-6"
+                  >
+                    {onlineSteps.map((step, index) => (
+                      <motion.div
+                        key={index}
+                        variants={stepVariants}
+                        className="glass-tile p-6 hover:shadow-lg transition-all duration-300 group"
+                        whileHover={{ 
+                          scale: 1.02,
+                          boxShadow: "0 20px 40px rgba(0, 29, 141, 0.15)"
+                        }}
+                      >
+                        <div className="flex items-start gap-4">
+                          {/* Номер в стиле манифеста с анимацией */}
+                          <motion.div 
+                            className="flex-shrink-0"
+                            whileHover={{ scale: 1.1 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            <div className="manifesto-number text-3xl font-bold text-[#001D8D] tracking-wider group-hover:text-blue-600 transition-colors duration-300">
+                              {formatStepNumber(index)}
                             </div>
+                          </motion.div>
+                          <div className="flex-1">
+                            <div className="flex justify-between items-start">
+                              <motion.h3 
+                                className="text-xl font-bold text-[#001D8D] mb-2 group-hover:text-blue-600 transition-colors duration-300"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: 0.2 }}
+                              >
+                                {step.title}
+                              </motion.h3>
+                              <motion.div 
+                                className="flex items-center text-sm text-[#001D8D]/70"
+                                initial={{ opacity: 0, x: 10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.3 }}
+                              >
+                                <Clock className="w-4 h-4 mr-1" />
+                                {step.time}
+                              </motion.div>
+                            </div>
+                            <motion.p 
+                              className="text-[#001D8D]/70 leading-relaxed"
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              transition={{ delay: 0.4 }}
+                            >
+                              {step.description}
+                            </motion.p>
                           </div>
-                          <p className="text-[#001D8D]/70 leading-relaxed">
-                            {step.description}
-                          </p>
                         </div>
-                      </div>
-                    </motion.div>
-                  ))}
+                      </motion.div>
+                    ))}
+                  </motion.div>
                 </TabsContent>
               </Tabs>
             </div>
