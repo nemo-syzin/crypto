@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PrincipleCard } from "@/components/ui/principle-card";
 import { 
   Target,
   Eye,
@@ -74,52 +75,40 @@ export function AboutPageClient() {
 
   const values = [
     {
-      icon: Users,
+      icon: <Users className="h-7 w-7" />,
       title: "Клиентоориентированность",
       description: "Мы зарабатываем тогда, когда зарабатывают наши клиенты. Стремимся глубоко понимать потребности каждого клиента, предлагая персонализированные решения.",
-      color: "from-blue-500 to-blue-600",
-      bgColor: "bg-blue-50",
-      borderColor: "border-blue-200"
+      iconColor: "#3b82f6"
     },
     {
-      icon: Shield,
+      icon: <Shield className="h-7 w-7" />,
       title: "Надежность и прозрачность",
       description: "Мы строго соблюдаем требования AML и KYC и руководствуемся высокими стандартами безопасности. С осторожностью относимся к сверхприбыльным предложениям, обеспечивая полную прозрачность операций.",
-      color: "from-green-500 to-green-600",
-      bgColor: "bg-green-50",
-      borderColor: "border-green-200"
+      iconColor: "#10b981"
     },
     {
-      icon: Zap,
+      icon: <Zap className="h-7 w-7" />,
       title: "Гибкость и адаптивность",
       description: "В условиях быстро меняющейся внешней среды и новых экономических вызовов мы оперативно адаптируемся и находим нестандартные решения для каждого клиента. Индивидуальный подход к сложным задачам является нашим конкурентным преимуществом.",
-      color: "from-orange-500 to-orange-600",
-      bgColor: "bg-orange-50",
-      borderColor: "border-orange-200"
+      iconColor: "#f97316"
     },
     {
-      icon: Award,
+      icon: <Award className="h-7 w-7" />,
       title: "Профессионализм",
       description: "Наши специалисты четко понимают специфику своей работы и постоянно держат руку на пульсе событий, гарантируя высокое качество предоставляемых услуг.",
-      color: "from-purple-500 to-purple-600",
-      bgColor: "bg-purple-50",
-      borderColor: "border-purple-200"
+      iconColor: "#8b5cf6"
     },
     {
-      icon: Lightbulb,
+      icon: <Lightbulb className="h-7 w-7" />,
       title: "Инновационность",
       description: "Мы внимательно следим за инновациями и интегрируем новейшие технологии, чтобы всегда оставаться впереди конкурентов и предоставлять клиентам передовые решения.",
-      color: "from-yellow-500 to-yellow-600",
-      bgColor: "bg-yellow-50",
-      borderColor: "border-yellow-200"
+      iconColor: "#6366f1"
     },
     {
-      icon: Handshake,
+      icon: <Handshake className="h-7 w-7" />,
       title: "Долгосрочность и партнерство",
       description: "Наш подход к сотрудничеству основан на честности и взаимном доверии. Мы рассматриваем клиентов как партнёров, вместе с которыми достигаем долгосрочного успеха и развития.",
-      color: "from-indigo-500 to-indigo-600",
-      bgColor: "bg-indigo-50",
-      borderColor: "border-indigo-200"
+      iconColor: "#0ea5e9"
     }
   ];
 
@@ -465,7 +454,7 @@ export function AboutPageClient() {
               <CrystalVisualization />
             </motion.div>
 
-            {/* Values Section - Static Information Boxes */}
+            {/* Values Section - Modern Geometric Design */}
             <motion.div
               ref={ref}
               variants={containerVariants}
@@ -474,63 +463,48 @@ export function AboutPageClient() {
               className="max-w-7xl mx-auto"
             >
               <div className="text-center mb-16">
-                <Badge className="bg-gradient-to-r from-[#001D8D] to-blue-600 text-white px-6 py-2 text-lg mb-6">
-                  <Diamond className="h-5 w-5 mr-2" />
-                  Наши ценности
-                </Badge>
-                <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-4">
+                <div className="inline-flex items-center gap-2 bg-[#001D8D]/10 text-[#001D8D] px-6 py-3 text-lg mb-8 font-medium">
+                  <Diamond className="h-6 w-6" />
                   Принципы, которыми мы руководствуемся
+                </div>
+                <h2 className="text-4xl md:text-5xl font-bold text-[#001D8D] mb-6 tracking-tight">
+                  Наши ценности
                 </h2>
-                <p className="text-xl text-[#001D8D]/70 max-w-3xl mx-auto">
-                  Наши ценности формируют культуру компании и определяют подход к работе с каждым клиентом
+                <p className="text-xl text-[#001D8D]/70 max-w-4xl mx-auto leading-relaxed">
+                  Наши принципы формируют культуру компании и определяют профессиональный подход к работе с каждым клиентом
                 </p>
               </div>
 
+              {/* Modern Geometric Grid */}
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
+                transition={{ duration: 0.8 }}
                 viewport={{ once: true }}
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
               >
                 {values.map((value, index) => (
-                  <div
+                  <PrincipleCard
                     key={index}
-                    className="relative bg-white rounded-[20px] p-6 transition-all duration-300 hover:shadow-xl"
-                    style={{
-                      boxShadow: '0 4px 20px rgba(0, 29, 141, 0.08)',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.boxShadow = '0 12px 40px rgba(0, 29, 141, 0.15)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 29, 141, 0.08)';
-                    }}
-                  >
-                    {/* Gradient border */}
-                    <div className="absolute inset-0 rounded-[20px] bg-gradient-to-br from-[#94bfff] to-[#d1e5ff] p-[2px] -z-10">
-                      <div className="w-full h-full bg-white rounded-[18px]" />
-                    </div>
-
-                    {/* Icon */}
-                    <div className="mb-6">
-                      <div className="inline-flex p-3 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg">
-                        <value.icon className="h-6 w-6 text-white" />
-                      </div>
-                    </div>
-
-                    {/* Title */}
-                    <h3 className="text-xl font-semibold text-[#001D8D] mb-4 leading-tight">
-                      {value.title}
-                    </h3>
-
-                    {/* Description */}
-                    <p className="text-[#001D8D]/70 leading-relaxed text-sm">
-                      {value.description}
-                    </p>
-                  </div>
+                    icon={value.icon}
+                    title={value.title}
+                    text={value.description}
+                    iconColor={value.iconColor}
+                    className="h-full"
+                  />
                 ))}
               </motion.div>
+
+              {/* Geometric separator */}
+              <div className="flex justify-center mt-16">
+                <div className="flex items-center gap-4">
+                  <div className="w-8 h-0.5 bg-gradient-to-r from-transparent to-[#94bfff]" />
+                  <div className="w-3 h-3 bg-[#94bfff] transform rotate-45" />
+                  <div className="w-16 h-0.5 bg-gradient-to-r from-[#94bfff] to-[#d1e5ff]" />
+                  <div className="w-3 h-3 bg-[#d1e5ff] transform rotate-45" />
+                  <div className="w-8 h-0.5 bg-gradient-to-r from-[#d1e5ff] to-transparent" />
+                </div>
+              </div>
             </motion.div>
 
             {/* CTA Section */}
