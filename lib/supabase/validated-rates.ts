@@ -1,6 +1,6 @@
 import { supabase, isSupabaseAvailable, getSupabaseStatus } from './client';
 
-interface ValidatedKenigRate {
+export interface ValidatedKenigRate {
   id: number;
   source: string;
   sell: number;
@@ -356,7 +356,7 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
  * @param source - The source to get rates for (e.g., 'kenig', 'bestchange', 'energo')
  * @returns Promise with validated rate or null if not found/invalid
  */
-async function getValidatedRateBySource(source: string): Promise<ValidatedKenigRate | null> {
+export async function getValidatedRateBySource(source: string): Promise<ValidatedKenigRate | null> {
   try {
     const result = await getValidatedKenigRates();
     
@@ -376,7 +376,7 @@ async function getValidatedRateBySource(source: string): Promise<ValidatedKenigR
  * Gets the best (highest) sell rate from all valid rates
  * @returns Promise with the best sell rate or null if none found
  */
-async function getBestSellRate(): Promise<{ rate: number; source: string } | null> {
+export async function getBestSellRate(): Promise<{ rate: number; source: string } | null> {
   try {
     const result = await getValidatedKenigRates();
     
@@ -403,7 +403,7 @@ async function getBestSellRate(): Promise<{ rate: number; source: string } | nul
  * Gets the best (highest) buy rate from all valid rates
  * @returns Promise with the best buy rate or null if none found
  */
-async function getBestBuyRate(): Promise<{ rate: number; source: string } | null> {
+export async function getBestBuyRate(): Promise<{ rate: number; source: string } | null> {
   try {
     const result = await getValidatedKenigRates();
     
