@@ -97,39 +97,34 @@ export function SupportPageClient() {
     },
   };
 
+  // Обновленные методы связи в фирменном стиле
   const contactMethods = [
     {
       icon: MessageCircle,
       title: "Онлайн-чат",
       description: "Самый быстрый способ получить ответ на ваш вопрос. Наши операторы доступны ежедневно с 9:00 до 22:00.",
       action: "Начать чат",
-      color: "from-blue-500 to-blue-600",
-      bgColor: "bg-blue-50",
-      borderColor: "border-blue-200",
       available: true,
-      responseTime: "< 5 минут"
+      responseTime: "< 5 минут",
+      features: ["Мгновенные ответы", "Поддержка файлов", "История чата"]
     },
     {
       icon: Mail,
       title: "Электронная почта",
       description: "Отправьте нам сообщение на support@kenigswap.com и получите подробный ответ в течение 24 часов.",
       action: "Написать письмо",
-      color: "from-green-500 to-green-600",
-      bgColor: "bg-green-50",
-      borderColor: "border-green-200",
       available: true,
-      responseTime: "< 24 часа"
+      responseTime: "< 24 часа",
+      features: ["Подробные ответы", "Прикрепление файлов", "Официальная переписка"]
     },
     {
       icon: Send,
       title: "Телеграм-бот",
       description: "Используйте нашего Telegram-бота для оперативной поддержки: @KenigSwapSupportBot",
       action: "Открыть Telegram",
-      color: "from-purple-500 to-purple-600",
-      bgColor: "bg-purple-50",
-      borderColor: "border-purple-200",
       available: true,
-      responseTime: "< 10 минут"
+      responseTime: "< 10 минут",
+      features: ["Быстрые уведомления", "Статус заявок", "Мобильная поддержка"]
     }
   ];
 
@@ -287,7 +282,7 @@ export function SupportPageClient() {
               </div>
             </motion.div>
 
-            {/* Contact Methods */}
+            {/* Contact Methods - В фирменном стиле калькулятора */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -296,6 +291,10 @@ export function SupportPageClient() {
               className="max-w-6xl mx-auto"
             >
               <div className="text-center mb-12">
+                <div className="inline-flex items-center gap-2 bg-[#001D8D]/10 text-[#001D8D] px-6 py-3 rounded-full text-lg mb-8 font-medium">
+                  <MessageCircle className="h-6 w-6" />
+                  Связаться с нами
+                </div>
                 <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-4">
                   Связаться с нами
                 </h2>
@@ -314,35 +313,61 @@ export function SupportPageClient() {
                     viewport={{ once: true }}
                     className="group"
                   >
-                    <Card className={`h-full ${method.bgColor} border-2 ${method.borderColor} hover:border-[#001D8D]/40 transition-all duration-300 hover:shadow-2xl hover:scale-105 transform`}>
-                      <CardContent className="p-8 text-center">
-                        <div className="relative mb-6">
-                          <div className={`inline-flex p-4 rounded-full bg-gradient-to-br ${method.color} shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                            <method.icon className="h-8 w-8 text-white" />
-                          </div>
+                    {/* Карточка в стиле калькулятора */}
+                    <div className="calculator-container h-full group-hover:shadow-xl transition-all duration-300">
+                      {/* Заголовок с иконкой */}
+                      <div className="flex items-center gap-3 mb-6">
+                        <div className="p-3 rounded-lg bg-gradient-to-br from-[#001D8D] to-blue-600 group-hover:scale-110 transition-transform duration-300">
+                          <method.icon className="h-6 w-6 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-bold text-[#001D8D] group-hover:text-blue-600 transition-colors">
+                            {method.title}
+                          </h3>
                           {method.available && (
-                            <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
-                              Online
+                            <div className="flex items-center gap-1 mt-1">
+                              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                              <span className="text-xs text-green-600 font-medium">Online</span>
                             </div>
                           )}
                         </div>
-                        
-                        <h3 className="text-xl font-bold text-[#001D8D] mb-3">{method.title}</h3>
-                        <p className="text-[#001D8D]/70 leading-relaxed mb-4">{method.description}</p>
-                        
-                        <div className="mb-4">
-                          <Badge className="bg-white/80 text-[#001D8D] border border-[#001D8D]/20">
-                            <Clock className="h-3 w-3 mr-1" />
-                            {method.responseTime}
-                          </Badge>
+                      </div>
+                      
+                      {/* Описание */}
+                      <p className="text-[#001D8D]/70 leading-relaxed mb-6">
+                        {method.description}
+                      </p>
+                      
+                      {/* Время ответа */}
+                      <div className="mb-6">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Clock className="h-4 w-4 text-[#001D8D]/70" />
+                          <span className="text-sm font-medium text-[#001D8D]/70">Время ответа</span>
                         </div>
+                        <div className="text-2xl font-bold text-[#001D8D]">
+                          {method.responseTime}
+                        </div>
+                      </div>
 
-                        <Button className={`w-full bg-gradient-to-r ${method.color} text-white hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl`}>
-                          {method.action}
-                          <ArrowRight className="h-4 w-4 ml-2" />
-                        </Button>
-                      </CardContent>
-                    </Card>
+                      {/* Особенности */}
+                      <div className="mb-6">
+                        <div className="text-sm font-medium text-[#001D8D]/70 mb-3">Особенности:</div>
+                        <div className="space-y-2">
+                          {method.features.map((feature, featureIndex) => (
+                            <div key={featureIndex} className="flex items-center gap-2">
+                              <CheckCircle className="h-3 w-3 text-green-600 flex-shrink-0" />
+                              <span className="text-xs text-[#001D8D]/70">{feature}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Кнопка действия */}
+                      <button className="w-full bg-gradient-to-r from-[#001D8D] to-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2">
+                        {method.action}
+                        <ArrowRight className="h-4 w-4" />
+                      </button>
+                    </div>
                   </motion.div>
                 ))}
               </div>
