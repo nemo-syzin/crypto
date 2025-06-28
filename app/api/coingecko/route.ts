@@ -104,7 +104,7 @@ function getFallbackData(endpoint: string): any {
 }
 
 // Enhanced retry function with better error handling and connection management
-async function fetchWithRetry(url: string, headers: HeadersInit, maxRetries: number = 3): Promise<Response> {
+async function fetchWithRetry(url: string, headers: HeadersInit, maxRetries: number = 5): Promise<Response> {
   let lastError: Error;
   
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
