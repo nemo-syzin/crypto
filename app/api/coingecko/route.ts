@@ -103,8 +103,8 @@ function getFallbackData(endpoint: string): any {
   return null;
 }
 
-// Enhanced retry function with better error handling
-async function fetchWithRetry(url: string, headers: HeadersInit, maxRetries: number = 2): Promise<Response> {
+// Enhanced retry function with better error handling and connection management
+async function fetchWithRetry(url: string, headers: HeadersInit, maxRetries: number = 3): Promise<Response> {
   let lastError: Error;
   
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
@@ -112,30 +112,47 @@ async function fetchWithRetry(url: string, headers: HeadersInit, maxRetries: num
       console.log(`🔄 Attempt ${attempt}/${maxRetries} - Fetching: ${url}`);
       
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 8000); // Reduced timeout to 8 seconds
       
       const response = await fetch(url, {
-        headers,
+        headers: {
+          ...headers,
+          'Connection': 'close', // Force connection close to prevent socket reuse issues
+          'Cache-Control': 'no-cache', // Prevent caching issues
+        },
         signal: controller.signal,
+        // Add keepalive false to prevent connection pooling issues
+        keepalive: false,
       });
       
       clearTimeout(timeoutId);
       return response;
     } catch (error) {
       lastError = error as Error;
-      console.warn(`⚠️ Attempt ${attempt} failed:`, error instanceof Error ? error.message : 'Unknown error');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.warn(`⚠️ Attempt ${attempt} failed:`, errorMessage);
       
-      // Don't retry on the last attempt
-      if (attempt === maxRetries) {
+      // Check if it's a network/socket error that might benefit from retry
+      const isRetryableError = errorMessage.toLowerCase().includes('fetch failed') ||
+                              errorMessage.toLowerCase().includes('socketerror') ||
+                              errorMessage.toLowerCase().includes('other side closed') ||
+                              errorMessage.toLowerCase().includes('network') ||
+                              errorMessage.toLowerCase().includes('enotfound') ||
+                              errorMessage.toLowerCase().includes('econnrefused') ||
+                              errorMessage.toLowerCase().includes('timeout') ||
+                              errorMessage.toLowerCase().includes('aborted');
+      
+      // Don't retry on the last attempt or if it's not a retryable error
+      if (attempt === maxRetries || !isRetryableError) {
         break;
       }
       
-      // Exponential backoff with jitter
-      const baseDelay = Math.pow(2, attempt - 1) * 1000;
-      const jitter = Math.random() * 500;
+      // Progressive backoff with jitter for network errors
+      const baseDelay = Math.pow(2, attempt - 1) * 1500; // Increased base delay
+      const jitter = Math.random() * 1000;
       const delay = baseDelay + jitter;
       
-      console.log(`⏳ Waiting ${Math.round(delay)}ms before retry...`);
+      console.log(`⏳ Network error detected, waiting ${Math.round(delay)}ms before retry...`);
       await new Promise(resolve => setTimeout(resolve, delay));
     }
   }
@@ -194,6 +211,9 @@ export async function GET(request: NextRequest) {
       'Accept': 'application/json',
       'x-cg-demo-api-key': apiKey,
       'User-Agent': 'KenigSwap/1.0',
+      // Add headers to help with connection stability
+      'Accept-Encoding': 'gzip, deflate',
+      'DNT': '1',
     };
 
     console.log(`🔄 Fetching CoinGecko data from: ${endpoint}`);
@@ -270,10 +290,10 @@ export async function GET(request: NextRequest) {
           errorMsg.includes('network') ||
           errorMsg.includes('enotfound') ||
           errorMsg.includes('econnrefused')) {
-        errorMessage = 'Network connection to CoinGecko API failed. This could be due to connectivity issues, invalid API key, or server problems. Please check your API key and try again.';
+        errorMessage = 'Network connection to CoinGecko API failed. This is likely due to network connectivity issues, API server problems, or rate limiting. The application will continue to work with fallback data.';
         statusCode = 503; // Service Unavailable
       } else if (errorMsg.includes('timeout') || errorMsg.includes('aborted')) {
-        errorMessage = 'Request to CoinGecko API timed out. The service may be experiencing high load. Please try again.';
+        errorMessage = 'Request to CoinGecko API timed out. The service may be experiencing high load. The application will continue to work with fallback data.';
         statusCode = 504; // Gateway Timeout
       } else if (errorMsg.includes('unauthorized') || errorMsg.includes('401')) {
         errorMessage = 'Invalid CoinGecko API key. Please verify your COINGECKO_API_KEY environment variable.';
@@ -287,7 +307,7 @@ export async function GET(request: NextRequest) {
         message: errorMessage,
         retryAfter: 30,
         fallback: true,
-        suggestion: 'The application will continue to work with cached or fallback data. Please check your CoinGecko API key configuration.'
+        suggestion: 'The application will continue to work with cached or fallback data. This error is typically temporary and will resolve automatically.'
       },
       { status: statusCode }
     );
