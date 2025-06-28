@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Shield, 
@@ -35,14 +35,12 @@ interface PolicySection {
 export function AmlKycPolicyClient() {
   const [isMounted, setIsMounted] = useState(false);
   const [activeSection, setActiveSection] = useState<string>('goals');
-  const contentRef = useRef<HTMLDivElement>(null);
-  const sectionRefs = useRef<Map<string, HTMLElement>>(new Map());
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  // Мемоизированные данные секций политики
+  // Memoized policy sections data
   const policySections = useMemo<PolicySection[]>(() => [
     {
       id: 'goals',
@@ -240,7 +238,7 @@ AML – это комплекс мер и процедур, предотвращ
     }
   ], []);
 
-  // Мемоизированные элементы оглавления
+  // Memoized table of contents items
   const tocItems = useMemo(() => 
     policySections.map(section => ({
       id: section.id,
@@ -249,7 +247,7 @@ AML – это комплекс мер и процедур, предотвращ
     })), [policySections]
   );
 
-  // Оптимизированный обработчик клика по разделу
+  // Scroll to section handler
   const handleSectionClick = useCallback((sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
@@ -257,38 +255,25 @@ AML – это комплекс мер и процедур, предотвращ
       const elementPosition = element.getBoundingClientRect().top;
       const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
 
-      // Используем scrollIntoView с behavior: 'smooth' вместо window.scrollTo
-      // для более плавной прокрутки
-      element.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
       });
-      
       setActiveSection(sectionId);
     }
   }, []);
 
-  // Оптимизированный наблюдатель за видимыми секциями
+  // Intersection observer for active section tracking
   useEffect(() => {
     if (!isMounted) return;
 
-    // Используем IntersectionObserver для отслеживания видимых секций
     const observer = new IntersectionObserver(
       (entries) => {
-        // Находим самую верхнюю видимую секцию
-        const visibleEntries = entries.filter(entry => entry.isIntersecting);
-        if (visibleEntries.length > 0) {
-          // Сортируем по позиции сверху
-          visibleEntries.sort((a, b) => {
-            const aRect = a.boundingClientRect;
-            const bRect = b.boundingClientRect;
-            return aRect.top - bRect.top;
-          });
-          
-          // Устанавливаем активную секцию
-          const topSection = visibleEntries[0];
-          setActiveSection(topSection.target.id);
-        }
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
       },
       {
         rootMargin: '-20% 0px -70% 0px',
@@ -296,33 +281,15 @@ AML – это комплекс мер и процедур, предотвращ
       }
     );
 
-    // Наблюдаем за всеми секциями
     policySections.forEach((section) => {
       const element = document.getElementById(section.id);
       if (element) {
         observer.observe(element);
-        sectionRefs.current.set(section.id, element);
       }
     });
 
     return () => observer.disconnect();
   }, [isMounted, policySections]);
-
-  // Оптимизация прокрутки
-  useEffect(() => {
-    if (!isMounted) return;
-    
-    // Добавляем CSS-класс для оптимизации прокрутки
-    if (contentRef.current) {
-      contentRef.current.classList.add('content-optimized-scroll');
-    }
-    
-    return () => {
-      if (contentRef.current) {
-        contentRef.current.classList.remove('content-optimized-scroll');
-      }
-    };
-  }, [isMounted]);
 
   if (!isMounted) {
     return null;
@@ -330,24 +297,24 @@ AML – это комплекс мер и процедур, предотвращ
 
   return (
     <div className="min-h-screen bg-white relative overflow-hidden">
-      {/* Упрощенный фон */}
+      {/* Simplified background */}
       <section className="relative py-20 bg-gradient-to-b from-white via-blue-50/10 to-blue-100/20 overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <UnifiedVantaBackground 
-            type="dots" // Используем dots вместо topology для лучшей производительности
+            type="dots"
             color={0x94bdff}
             color2={0xFF6B35}
             backgroundColor={0xffffff}
             size={1.5}
             spacing={30}
             showLines={false}
-            mouseControls={false} // Отключаем для экономии ресурсов
-            touchControls={false} // Отключаем для экономии ресурсов
-            forceAnimate={false} // Отключаем принудительную анимацию
+            mouseControls={false}
+            touchControls={false}
+            forceAnimate={false}
           />
         </div>
 
-        {/* Градиентные переходы */}
+        {/* Gradient transitions */}
         <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-white to-transparent z-5" />
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent to-blue-100/20 z-5" />
 
@@ -367,12 +334,12 @@ AML – это комплекс мер и процедур, предотвращ
             </div>
 
             {/* Main content */}
-            <div className="lg:w-3/4" ref={contentRef}>
+            <div className="lg:w-3/4">
               {/* Header */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, ease: "easeOut" }}
+                transition={{ duration: 0.5 }}
                 className="text-center mb-16"
               >
                 <div className="flex justify-center mb-6">
@@ -393,7 +360,7 @@ AML – это комплекс мер и процедур, предотвращ
                 </p>
               </motion.div>
 
-              {/* Policy sections - используем виртуализацию для оптимизации */}
+              {/* Policy sections */}
               <div className="space-y-12">
                 {policySections.map((section, index) => {
                   const IconComponent = section.icon;
@@ -403,7 +370,7 @@ AML – это комплекс мер и процедур, предотвращ
                       id={section.id}
                       initial={{ opacity: 0, y: 20 }}
                       whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.4, ease: "easeOut" }}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
                       viewport={{ once: true, margin: "-100px" }}
                       className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg border border-[#001D8D]/10 p-8 hover:shadow-xl transition-all duration-300"
                     >
@@ -459,7 +426,7 @@ AML – это комплекс мер и процедур, предотвращ
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, ease: "easeOut" }}
+                transition={{ duration: 0.5 }}
                 viewport={{ once: true }}
                 className="mt-16 bg-gradient-to-r from-[#001D8D] to-blue-700 text-white rounded-xl p-8"
               >

@@ -1,6 +1,6 @@
 "use client";
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -9,14 +9,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   ArrowRight, 
   Wallet, 
+  BarChart, 
   Shield, 
   Clock, 
   Building2, 
   Globe,
   CheckCircle,
+  Star,
   TrendingUp,
   Zap
 } from 'lucide-react';
+import Marquee from 'react-fast-marquee';
 import { UnifiedVantaBackground } from '@/components/shared/UnifiedVantaBackground';
 
 // Данные для секций
@@ -109,7 +112,7 @@ const onlineSteps = [
   }
 ];
 
-// Оптимизированный массив партнеров - уменьшаем количество для лучшей производительности
+// ✅ РАСШИРЕННЫЙ МАССИВ ПАРТНЕРОВ - дублируем для заполнения полноэкранного режима
 const basePartners = [
   {
     name: "Bitcoin",
@@ -149,588 +152,153 @@ const basePartners = [
   }
 ];
 
-// Оптимизированный компонент для партнерской ленты
-const PartnersMarquee = React.memo(() => {
-  const [isVisible, setIsVisible] = useState(false);
-  const { ref, inView } = useInView({
+// ✅ СОЗДАЕМ РАСШИРЕННЫЙ МАССИВ для заполнения широких экранов
+const partners = [
+  ...basePartners,
+  ...basePartners, // Дублируем для заполнения
+  ...basePartners  // Еще раз дублируем для очень широких экранов
+];
+
+const UnifiedMainSection = () => {
+  const controls = useAnimation();
+  const [ref, inView] = useInView({
+    threshold: 0.1,
     triggerOnce: true,
-    threshold: 0.1
+  });
+
+  // Отдельные контроллеры для анимации шагов
+  const officeStepsControls = useAnimation();
+  const onlineStepsControls = useAnimation();
+  const [officeStepsRef, officeStepsInView] = useInView({
+    threshold: 0.1,
+    triggerOnce: true,
+  });
+  const [onlineStepsRef, onlineStepsInView] = useInView({
+    threshold: 0.1,
+    triggerOnce: true,
   });
 
   useEffect(() => {
     if (inView) {
-      setIsVisible(true);
+      controls.start('visible');
     }
-  }, [inView]);
+  }, [controls, inView]);
 
-  // Создаем два набора партнеров для бесконечной анимации
-  const partners = [...basePartners, ...basePartners];
+  // Анимация для шагов офиса
+  useEffect(() => {
+    if (officeStepsInView) {
+      officeStepsControls.start('visible');
+    }
+  }, [officeStepsControls, officeStepsInView]);
 
-  return (
-    <div ref={ref} className="relative mb-12 overflow-hidden">
-      {isVisible && (
-        <>
-          {/* Первая лента - CSS анимация вместо React-Fast-Marquee */}
-          <div className="partners-marquee-container mb-6">
-            <div className="partners-marquee" style={{ animationDuration: '40s' }}>
-              {partners.map((partner, index) => (
-                <div
-                  key={`main-${partner.name}-${index}`}
-                  className="flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200 hover:border-[#001D8D]/30 hover:shadow-lg transition-all duration-300 hover:scale-105 flex-shrink-0 mx-2"
-                  style={{
-                    width: '72px',
-                    height: '72px',
-                    minWidth: '72px',
-                    maxWidth: '72px'
-                  }}
-                >
-                  <img
-                    src={partner.logo}
-                    alt={`${partner.name} - Криптовалютная биржа`}
-                    className="w-9 h-9 object-contain"
-                    loading={index < 6 ? "eager" : "lazy"}
-                  />
-                </div>
-              ))}
-              {/* Дублируем для бесконечной анимации */}
-              {partners.map((partner, index) => (
-                <div
-                  key={`main-dup-${partner.name}-${index}`}
-                  className="flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200 hover:border-[#001D8D]/30 hover:shadow-lg transition-all duration-300 hover:scale-105 flex-shrink-0 mx-2"
-                  style={{
-                    width: '72px',
-                    height: '72px',
-                    minWidth: '72px',
-                    maxWidth: '72px'
-                  }}
-                >
-                  <img
-                    src={partner.logo}
-                    alt={`${partner.name} - Криптовалютная биржа`}
-                    className="w-9 h-9 object-contain"
-                    loading="lazy"
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
+  // Анимация для онлайн шагов
+  useEffect(() => {
+    if (onlineStepsInView) {
+      onlineStepsControls.start('visible');
+    }
+  }, [onlineStepsControls, onlineStepsInView]);
 
-          {/* Вторая лента - обратное направление */}
-          <div className="partners-marquee-container">
-            <div className="partners-marquee partners-marquee-reverse" style={{ animationDuration: '50s' }}>
-              {partners.slice().reverse().map((partner, index) => (
-                <div
-                  key={`secondary-${partner.name}-${index}`}
-                  className="flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200 hover:border-[#001D8D]/30 hover:shadow-lg transition-all duration-300 hover:scale-105 flex-shrink-0 mx-2"
-                  style={{
-                    width: '72px',
-                    height: '72px',
-                    minWidth: '72px',
-                    maxWidth: '72px'
-                  }}
-                >
-                  <img
-                    src={partner.logo}
-                    alt={`${partner.name} - Криптовалютная биржа`}
-                    className="w-9 h-9 object-contain"
-                    loading="lazy"
-                  />
-                </div>
-              ))}
-              {/* Дублируем для бесконечной анимации */}
-              {partners.slice().reverse().map((partner, index) => (
-                <div
-                  key={`secondary-dup-${partner.name}-${index}`}
-                  className="flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200 hover:border-[#001D8D]/30 hover:shadow-lg transition-all duration-300 hover:scale-105 flex-shrink-0 mx-2"
-                  style={{
-                    width: '72px',
-                    height: '72px',
-                    minWidth: '72px',
-                    maxWidth: '72px'
-                  }}
-                >
-                  <img
-                    src={partner.logo}
-                    alt={`${partner.name} - Криптовалютная биржа`}
-                    className="w-9 h-9 object-contain"
-                    loading="lazy"
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        </>
-      )}
-    </div>
-  );
-});
-
-PartnersMarquee.displayName = 'PartnersMarquee';
-
-// Оптимизированный компонент для шагов
-const StepItem = React.memo(({ step, index }: { step: any, index: number }) => {
-  // Функция для форматирования номера шага в стиле манифеста
-  const formatStepNumber = (index: number): string => {
-    return (index + 1).toString().padStart(2, '0');
+  const containerVariants = {
+    hidden: {},
+    visible: {
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
   };
 
-  return (
-    <motion.div
-      key={index}
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ 
-        duration: 0.4, 
-        ease: "easeOut",
-        delay: index * 0.1
-      }}
-      viewport={{ once: true, margin: "-50px" }}
-      className="glass-tile p-6 hover:shadow-lg transition-all duration-300 group"
-    >
-      <div className="flex items-start gap-4">
-        <div className="flex-shrink-0">
-          <div className="manifesto-number text-3xl font-bold text-[#001D8D] tracking-wider group-hover:text-blue-600 transition-colors duration-300">
-            {formatStepNumber(index)}
-          </div>
-        </div>
-        <div className="flex-1">
-          <div className="flex justify-between items-start">
-            <h3 className="text-xl font-bold text-[#001D8D] mb-2 group-hover:text-blue-600 transition-colors duration-300">
-              {step.title}
-            </h3>
-            <div className="flex items-center text-sm text-[#001D8D]/70">
-              <Clock className="w-4 h-4 mr-1" />
-              {step.time}
-            </div>
-          </div>
-          <p className="text-[#001D8D]/70 leading-relaxed">
-            {step.description}
-          </p>
-        </div>
-      </div>
-    </motion.div>
-  );
-});
-
-StepItem.displayName = 'StepItem';
-
-// Оптимизированный компонент для видео с ленивой загрузкой
-const LazyVideo = React.memo(({ 
-  src, 
-  poster = "/images/video-placeholder.jpg",
-  className = "",
-  style = {}
-}: { 
-  src: string, 
-  poster?: string,
-  className?: string,
-  style?: React.CSSProperties
-}) => {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const { ref, inView } = useInView({
-    triggerOnce: true,
-    threshold: 0.1
-  });
-
-  // Загружаем и воспроизводим видео только когда оно в поле зрения
-  useEffect(() => {
-    if (inView && videoRef.current) {
-      // Устанавливаем src только когда элемент в поле зрения
-      videoRef.current.src = src;
-      
-      // Обработчик события загрузки
-      const handleLoaded = () => {
-        setIsLoaded(true);
-        videoRef.current?.play().then(() => {
-          setIsPlaying(true);
-        }).catch(err => {
-          console.warn('Autoplay failed:', err);
-        });
-      };
-      
-      videoRef.current.addEventListener('loadeddata', handleLoaded);
-      
-      return () => {
-        if (videoRef.current) {
-          videoRef.current.removeEventListener('loadeddata', handleLoaded);
-          videoRef.current.pause();
-          videoRef.current.src = '';
-        }
-      };
-    }
-  }, [inView, src]);
-
-  // Определяем, нужно ли использовать мобильную версию (изображение вместо видео)
-  const [isMobile, setIsMobile] = useState(false);
-  
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  return (
-    <div ref={ref} className={`lazy-video-container ${className}`} style={style}>
-      {/* Плейсхолдер, который показывается до загрузки видео */}
-      {!isLoaded && (
-        <div className="lazy-video-placeholder">
-          <div className="w-12 h-12 rounded-full border-4 border-[#001D8D]/20 border-t-[#001D8D] animate-spin"></div>
-        </div>
-      )}
-      
-      {/* На мобильных устройствах показываем изображение вместо видео */}
-      {isMobile ? (
-        <img 
-          src={poster} 
-          alt="Video preview" 
-          className={`lazy-video ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
-          style={{
-            objectFit: 'cover',
-            objectPosition: 'center bottom',
-          }}
-        />
-      ) : (
-        <video
-          ref={videoRef}
-          className={`lazy-video ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
-          muted
-          loop
-          playsInline
-          preload="none"
-          poster={poster}
-          style={{
-            objectFit: 'cover',
-            objectPosition: 'center bottom',
-          }}
-        />
-      )}
-    </div>
-  );
-});
-
-LazyVideo.displayName = 'LazyVideo';
-
-// Оптимизированный компонент для секции с видео
-const VideoSection = React.memo(({ 
-  videoSrc, 
-  title, 
-  description, 
-  features,
-  reversed = false
-}: { 
-  videoSrc: string, 
-  title: string, 
-  description: string, 
-  features: Array<{icon: any, title: string, description: string}>,
-  reversed?: boolean
-}) => {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
-      viewport={{ once: true }}
-      className={`grid grid-cols-1 lg:grid-cols-2 gap-12 items-center`}
-    >
-      {/* Видео контейнер с ленивой загрузкой */}
-      <div className={`order-2 ${reversed ? 'lg:order-1' : 'lg:order-2'}`}>
-        <div className="relative mx-auto" style={{ 
-          width: '480px', 
-          height: '560px',
-          maxWidth: '100%'
-        }}>
-          <LazyVideo
-            src={videoSrc}
-            poster="/images/video-placeholder.jpg"
-            className="w-full h-full rounded-lg shadow-lg"
-            style={{
-              width: '100%',
-              height: '100%',
-              borderRadius: '8px'
-            }}
-          />
-        </div>
-      </div>
-      
-      {/* Текстовый контент */}
-      <div className={`order-1 ${reversed ? 'lg:order-2' : 'lg:order-1'} space-y-6`}>
-        <div className="inline-flex items-center gap-2 bg-[#001D8D]/10 text-[#001D8D] px-4 py-2 rounded-full text-sm font-medium">
-          <Shield className="h-4 w-4" />
-          {title}
-        </div>
-        
-        <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D]">
-          {title}
-        </h2>
-        
-        <p className="text-lg text-[#001D8D]/70 leading-relaxed">
-          {description}
-        </p>
-        
-        <div className="space-y-4">
-          {features.map((feature, idx) => (
-            <div key={idx} className="flex items-start gap-3">
-              <div className="bg-blue-100 p-2 rounded-lg">
-                <feature.icon className="h-5 w-5 text-blue-600" />
-              </div>
-              <div>
-                <h4 className="font-semibold text-[#001D8D]">{feature.title}</h4>
-                <p className="text-sm text-[#001D8D]/70">{feature.description}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </motion.div>
-  );
-});
-
-VideoSection.displayName = 'VideoSection';
-
-// Основной компонент, обернутый в React.memo для предотвращения ненужных ререндеров
-const UnifiedMainSection = React.memo(() => {
-  const [activeTab, setActiveTab] = useState<string>('office');
-  
-  // Оптимизированные анимации с tween вместо spring
-  const fadeInAnimation = {
+  const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
       opacity: 1,
       y: 0,
       transition: {
-        duration: 0.4,
+        duration: 0.5,
+      },
+    },
+  };
+
+  // Варианты анимации для шагов с более выраженным эффектом
+  const stepsContainerVariants = {
+    hidden: {},
+    visible: {
+      transition: {
+        staggerChildren: 0.15, // Увеличенная задержка между шагами
+      },
+    },
+  };
+
+  const stepVariants = {
+    hidden: { 
+      opacity: 0, 
+      y: 30,
+      scale: 0.95
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        duration: 0.6,
         ease: "easeOut"
       },
     },
   };
 
-  // Мемоизированные секции для предотвращения ненужных ререндеров
-  const featuresSection = useMemo(() => (
-    <div>
-      <div className="text-center max-w-3xl mx-auto mb-16">
-        <h2 className="text-3xl md:text-4xl font-bold mb-6 text-[#001D8D]">
-          Почему выбирают <span className="text-[#001D8D]">Kenigswap</span>
-        </h2>
-        <p className="text-[#001D8D]/80 leading-relaxed">
-          Мы предоставляем безопасную, быструю и удобную платформу для всех ваших потребностей в обмене криптовалюты.
-          Наш фокус на конвертации USDT в рубли гарантирует вам лучший сервис.
-        </p>
+  // Функция для форматирования номера шага в стиле манифеста
+  const formatStepNumber = (index: number): string => {
+    return (index + 1).toString().padStart(2, '0');
+  };
+
+  // ✅ УЛУЧШЕННЫЙ КОМПОНЕНТ ЛОГОТИПА ПАРТНЕРА - адаптивные размеры
+  const PartnerLogo = ({ partner, index }: { partner: typeof basePartners[0]; index: number }) => {
+    return (
+      <div
+        key={`${partner.name}-${index}`}
+        className="flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200 hover:border-[#001D8D]/30 hover:shadow-lg transition-all duration-300 hover:scale-105 flex-shrink-0 mx-2"
+        style={{
+          // ✅ Адаптивные размеры для разных экранов
+          width: '72px',
+          height: '72px',
+          minWidth: '72px',
+          maxWidth: '72px'
+        }}
+      >
+        <img
+          src={partner.logo}
+          alt={`${partner.name} - Криптовалютная биржа`}
+          className="w-9 h-9 object-contain"
+          loading={index < 6 ? "eager" : "lazy"}
+          onError={(e) => {
+            // ✅ Graceful fallback - скрываем сломанные изображения
+            const target = e.currentTarget as HTMLImageElement;
+            const container = target.parentElement;
+            if (container) {
+              container.style.display = 'none';
+            }
+          }}
+        />
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-24">
-        {features.map((feature, index) => (
-          <motion.div
-            key={index}
-            variants={fadeInAnimation}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-50px" }}
-            className="calculator-container group hover:shadow-xl transition-all duration-300"
-          >
-            <div className="relative z-10">
-              <div className="flex items-center justify-center h-12 w-12 mb-8">
-                <Image
-                  src={feature.icon}
-                  alt={feature.title}
-                  width={48}
-                  height={48}
-                  className="w-12 h-12 object-contain"
-                  unoptimized
-                  loading={index < 2 ? "eager" : "lazy"}
-                />
-              </div>
-              <h3 className="text-2xl md:text-3xl font-bold mb-4 text-[#001D8D]">{feature.title}</h3>
-              <p className="text-[#001D8D]/70 leading-relaxed">{feature.description}</p>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-    </div>
-  ), [fadeInAnimation]);
-
-  // Мемоизированная секция шагов
-  const stepsSection = useMemo(() => (
-    <div className="max-w-5xl mx-auto">
-      <div className="text-center mb-12">
-        <h2 className="text-3xl md:text-4xl font-semibold text-center text-[#001D8D] mb-4">
-          Как проходит обмен
-        </h2>
-        <p className="text-[#001D8D]/70 max-w-3xl mx-auto leading-relaxed">
-          Выберите удобный способ обмена и следуйте простым шагам для безопасной и быстрой транзакции
-        </p>
-      </div>
-
-      <div className="calculator-container mb-16">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-8 bg-white/90 backdrop-blur-sm border border-[#001D8D]/10">
-            <TabsTrigger value="office" className="text-[#001D8D]">
-              <Building2 className="w-4 h-4 mr-2" />
-              В офисе
-            </TabsTrigger>
-            <TabsTrigger value="online" className="text-[#001D8D]">
-              <Globe className="w-4 h-4 mr-2" />
-              Онлайн
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="office" className="space-y-6">
-            {officeSteps.map((step, index) => (
-              <StepItem key={index} step={step} index={index} />
-            ))}
-          </TabsContent>
-
-          <TabsContent value="online" className="space-y-6">
-            {onlineSteps.map((step, index) => (
-              <StepItem key={index} step={step} index={index} />
-            ))}
-          </TabsContent>
-        </Tabs>
-      </div>
-    </div>
-  ), [activeTab]);
-
-  // Мемоизированная CTA секция
-  const ctaSection = useMemo(() => (
-    <div className="max-w-5xl mx-auto">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease: "easeOut" }}
-          viewport={{ once: true }}
-          className="calculator-container"
-        >
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-[#001D8D]">
-            Готовы начать <span className="text-[#001D8D]">обмен?</span>
-          </h2>
-          <p className="text-[#001D8D]/70 mb-8 leading-relaxed">
-            Создайте аккаунт уже сегодня и получите самый быстрый и безопасный способ конвертации USDT в рубли.
-          </p>
-          
-          <div className="space-y-4">
-            <div className="flex items-start gap-3">
-              <div className="mt-1 bg-[#001D8D]/5 p-2 rounded-full">
-                <Wallet className="h-5 w-5 text-[#001D8D]" />
-              </div>
-              <div>
-                <h4 className="font-semibold text-[#001D8D]">Быстрая настройка</h4>
-                <p className="text-sm text-[#001D8D]/70">Начните работу за считанные минуты с нашим упрощенным процессом регистрации</p>
-              </div>
-            </div>
-            
-            <div className="flex items-start gap-3">
-              <div className="mt-1 bg-[#001D8D]/5 p-2 rounded-full">
-                <TrendingUp className="h-5 w-5 text-[#001D8D]" />
-              </div>
-              <div>
-                <h4 className="font-semibold text-[#001D8D]">Лучшие курсы</h4>
-                <p className="text-sm text-[#001D8D]/70">Всегда получайте самые конкурентоспособные курсы обмена USDT на рубли</p>
-              </div>
-            </div>
-            
-            <div className="flex items-start gap-3">
-              <div className="mt-1 bg-[#001D8D]/5 p-2 rounded-full">
-                <Shield className="h-5 w-5 text-[#001D8D]" />
-              </div>
-              <div>
-                <h4 className="font-semibold text-[#001D8D]">100% безопасность</h4>
-                <p className="text-sm text-[#001D8D]/70">Ведущие в отрасли меры безопасности для защиты ваших активов</p>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-        
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease: "easeOut", delay: 0.2 }}
-          viewport={{ once: true }}
-          className="calculator-container"
-        >
-          <h3 className="text-2xl font-bold mb-6 text-center text-[#001D8D]">
-            Начните сегодня
-          </h3>
-          <p className="text-[#001D8D]/70 mb-8 text-center leading-relaxed">
-            Зарегистрируйтесь всего за несколько минут и начните обменивать криптовалюту по лучшим курсам.
-          </p>
-          
-          <div className="space-y-4">
-            <Link href="/register">
-              <SolidTrustButton 
-                size="lg" 
-                fullWidth
-                className="mb-4"
-              >
-                Создать аккаунт
-              </SolidTrustButton>
-            </Link>
-            
-            <Link href="/login" className="block">
-              <button className="w-full border-2 border-[#001D8D]/20 text-[#001D8D] hover:bg-[#001D8D]/5 px-6 py-3 rounded-lg font-semibold transition-all duration-300">
-                Войти
-              </button>
-            </Link>
-          </div>
-          
-          <div className="mt-8 text-center text-sm text-[#001D8D]/60">
-            Уже есть аккаунт? <Link href="/login" className="text-[#001D8D] hover:underline">Войти</Link>
-          </div>
-        </motion.div>
-      </div>
-    </div>
-  ), []);
-
-  // Оптимизированные видео-секции
-  const videoSections = useMemo(() => (
-    <>
-      <VideoSection
-        videoSrc="https://assets.revolut.com/published-assets-v3/b1f70228-8ed2-4e1d-a51d-10751333535f/007cc12b-da09-4a4d-bd11-608e4e6d9c21.mp4"
-        title="Максимальная защита ваших средств"
-        description="Используем передовые технологии шифрования и многоуровневую систему защиты. Все транзакции проходят через защищенные каналы с соблюдением международных стандартов безопасности."
-        features={[
-          {
-            icon: CheckCircle,
-            title: "256-битное шифрование",
-            description: "Тот же уровень защиты, что используют банки"
-          },
-          {
-            icon: Shield,
-            title: "Соответствие AML/KYC",
-            description: "Полное соблюдение международных требований"
-          },
-          {
-            icon: Zap,
-            title: "Лицензированная деятельность",
-            description: "Официальная регистрация и лицензии"
-          }
-        ]}
-      />
-    </>
-  ), []);
+    );
+  };
 
   return (
-    <section className="relative py-20 bg-gradient-to-b from-white via-blue-50/10 to-blue-100/20 overflow-hidden scroll-optimized">
-      {/* Упрощенный фон */}
+    <section className="relative py-20 bg-gradient-to-b from-white via-blue-50/10 to-blue-100/20 overflow-hidden">
+      {/*  ДВУХЦВЕТНЫЙ ФОН - ОРАНЖЕВЫЙ + СИНИЙ */}
       <div className="absolute inset-0 opacity-15">
         <UnifiedVantaBackground 
-          type="dots" // Используем dots вместо topology
-          color={0x94bdff}
-          color2={0xFF6B35}
-          backgroundColor={0xffffff}
-          points={10}
-          maxDistance={15}
-          spacing={20}
-          showDots={true}
-          speed={1.0}
-          mouseControls={false} // Отключаем для экономии ресурсов
-          touchControls={false} // Отключаем для экономии ресурсов
-          forceAnimate={false} // Отключаем принудительную анимацию
+          type="topology"
+          color={0x94bdff}           //  ОСНОВНОЙ ЦВЕТ 
+          color2={0xFF6B35}          //  ДОПОЛНЯЮЩИЙ ЦВЕТ -эффектов)
+          backgroundColor={0xffffff}  //  Белый фон
+          points={15}                 // Еще больше точек для богатства
+          maxDistance={20}            //  Увеличено с 1 до 20 для правильной работы
+          spacing={10}                //  Еще плотнее сетка
+          showDots={true}             // Показать точки
+          speed={1.4}                 // ⚡ Быстрее анимация
+          mouseControls={true}        //  Реакция на мышь
+          touchControls={true}        //  Реакция на касания
+          forceAnimate={true}         //  Принудительная анимация
         />
       </div>
 
@@ -740,18 +308,212 @@ const UnifiedMainSection = React.memo(() => {
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="space-y-24">
-          {/* 1. Features Section */}
-          {featuresSection}
+          
+          {/* 1. Features Section - Без плашки */}
+          <div>
+            <div className="text-center max-w-3xl mx-auto mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold mb-6 text-[#001D8D]">
+                Почему выбирают <span className="text-[#001D8D]">Kenigswap</span>
+              </h2>
+              <p className="text-[#001D8D]/80 leading-relaxed">
+                Мы предоставляем безопасную, быструю и удобную платформу для всех ваших потребностей в обмене криптовалюты.
+                Наш фокус на конвертации USDT в рубли гарантирует вам лучший сервис.
+              </p>
+            </div>
 
-          {/* 2. Deal Process Section */}
-          {stepsSection}
+            <motion.div
+              ref={ref}
+              variants={containerVariants}
+              initial="hidden"
+              animate={controls}
+              className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-24"
+            >
+              {features.map((feature, index) => (
+                <motion.div
+                  key={index}
+                  variants={itemVariants}
+                  className="calculator-container group hover:shadow-xl transition-all duration-300"
+                >
+                  <div className="relative z-10">
+                    <div className="flex items-center justify-center h-12 w-12 mb-8">
+                      <Image
+                        src={feature.icon}
+                        alt={feature.title}
+                        width={48}
+                        height={48}
+                        className="w-12 h-12 object-contain"
+                        unoptimized
+                      />
+                    </div>
+                    <h3 className="text-2xl md:text-3xl font-bold mb-4 text-[#001D8D]">{feature.title}</h3>
+                    <p className="text-[#001D8D]/70 leading-relaxed">{feature.description}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
 
-          {/* 3. Partners Section - оптимизированная версия */}
+          {/* 2. Deal Process Section - Без плашки */}
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-semibold text-center text-[#001D8D] mb-4">
+                Как проходит обмен
+              </h2>
+              <p className="text-[#001D8D]/70 max-w-3xl mx-auto leading-relaxed">
+                Выберите удобный способ обмена и следуйте простым шагам для безопасной и быстрой транзакции
+              </p>
+            </div>
+
+            <div className="calculator-container mb-16">
+              <Tabs defaultValue="office" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-8 bg-white/90 backdrop-blur-sm border border-[#001D8D]/10">
+                  <TabsTrigger value="office" className="text-[#001D8D]">
+                    <Building2 className="w-4 h-4 mr-2" />
+                    В офисе
+                  </TabsTrigger>
+                  <TabsTrigger value="online" className="text-[#001D8D]">
+                    <Globe className="w-4 h-4 mr-2" />
+                    Онлайн
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="office">
+                  <motion.div
+                    ref={officeStepsRef}
+                    variants={stepsContainerVariants}
+                    initial="hidden"
+                    animate={officeStepsControls}
+                    className="space-y-6"
+                  >
+                    {officeSteps.map((step, index) => (
+                      <motion.div
+                        key={index}
+                        variants={stepVariants}
+                        className="glass-tile p-6 hover:shadow-lg transition-all duration-300 group"
+                        whileHover={{ 
+                          scale: 1.02,
+                          boxShadow: "0 20px 40px rgba(0, 29, 141, 0.15)"
+                        }}
+                      >
+                        <div className="flex items-start gap-4">
+                          {/* Номер в стиле манифеста с анимацией */}
+                          <motion.div 
+                            className="flex-shrink-0"
+                            whileHover={{ scale: 1.1 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            <div className="manifesto-number text-3xl font-bold text-[#001D8D] tracking-wider group-hover:text-blue-600 transition-colors duration-300">
+                              {formatStepNumber(index)}
+                            </div>
+                          </motion.div>
+                          <div className="flex-1">
+                            <div className="flex justify-between items-start">
+                              <motion.h3 
+                                className="text-xl font-bold text-[#001D8D] mb-2 group-hover:text-blue-600 transition-colors duration-300"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: 0.2 }}
+                              >
+                                {step.title}
+                              </motion.h3>
+                              <motion.div 
+                                className="flex items-center text-sm text-[#001D8D]/70"
+                                initial={{ opacity: 0, x: 10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.3 }}
+                              >
+                                <Clock className="w-4 h-4 mr-1" />
+                                {step.time}
+                              </motion.div>
+                            </div>
+                            <motion.p 
+                              className="text-[#001D8D]/70 leading-relaxed"
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              transition={{ delay: 0.4 }}
+                            >
+                              {step.description}
+                            </motion.p>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                </TabsContent>
+
+                <TabsContent value="online">
+                  <motion.div
+                    ref={onlineStepsRef}
+                    variants={stepsContainerVariants}
+                    initial="hidden"
+                    animate={onlineStepsControls}
+                    className="space-y-6"
+                  >
+                    {onlineSteps.map((step, index) => (
+                      <motion.div
+                        key={index}
+                        variants={stepVariants}
+                        className="glass-tile p-6 hover:shadow-lg transition-all duration-300 group"
+                        whileHover={{ 
+                          scale: 1.02,
+                          boxShadow: "0 20px 40px rgba(0, 29, 141, 0.15)"
+                        }}
+                      >
+                        <div className="flex items-start gap-4">
+                          {/* Номер в стиле манифеста с анимацией */}
+                          <motion.div 
+                            className="flex-shrink-0"
+                            whileHover={{ scale: 1.1 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            <div className="manifesto-number text-3xl font-bold text-[#001D8D] tracking-wider group-hover:text-blue-600 transition-colors duration-300">
+                              {formatStepNumber(index)}
+                            </div>
+                          </motion.div>
+                          <div className="flex-1">
+                            <div className="flex justify-between items-start">
+                              <motion.h3 
+                                className="text-xl font-bold text-[#001D8D] mb-2 group-hover:text-blue-600 transition-colors duration-300"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: 0.2 }}
+                              >
+                                {step.title}
+                              </motion.h3>
+                              <motion.div 
+                                className="flex items-center text-sm text-[#001D8D]/70"
+                                initial={{ opacity: 0, x: 10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.3 }}
+                              >
+                                <Clock className="w-4 w-4 mr-1" />
+                                {step.time}
+                              </motion.div>
+                            </div>
+                            <motion.p 
+                              className="text-[#001D8D]/70 leading-relaxed"
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              transition={{ delay: 0.4 }}
+                            >
+                              {step.description}
+                            </motion.p>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                </TabsContent>
+              </Tabs>
+            </div>
+          </div>
+
+          {/* 3. Partners Section - ✅ ТОЛЬКО ДВЕ СТРОКИ БЕЗ ПРОПУСКОВ */}
           <div>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, ease: "easeOut" }}
+              transition={{ duration: 0.5 }}
               viewport={{ once: true }}
               className="text-center mb-12"
             >
@@ -764,44 +526,180 @@ const UnifiedMainSection = React.memo(() => {
               </p>
             </motion.div>
 
-            {/* Оптимизированная партнерская лента */}
-            <PartnersMarquee />
+            {/* ✅ ТОЛЬКО ДВЕ ЛЕНТЫ - БЕЗ ПРОПУСКОВ НА ЛЮБЫХ ЭКРАНАХ */}
+            <div className="relative mb-12 overflow-hidden">
+              {/* ✅ Первая лента - слева направо с увеличенной скоростью */}
+              <div className="mb-6">
+                <Marquee
+                  gradient={false}
+                  speed={60} // Увеличена скорость
+                  pauseOnHover={true}
+                  className="py-4"
+                  style={{ 
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0px' // Убираем промежутки
+                  }}
+                >
+                  {partners
+                    .filter(partner => partner.logo && partner.name)
+                    .map((partner, index) => (
+                      <PartnerLogo 
+                        key={`main-${partner.name}-${index}`}
+                        partner={partner} 
+                        index={index} 
+                      />
+                    ))}
+                </Marquee>
+              </div>
 
+              {/* ✅ Вторая лента - справа налево с другой скоростью */}
+              <div>
+                <Marquee
+                  gradient={false}
+                  speed={45} // Другая скорость для визуального разнообразия
+                  direction="right"
+                  pauseOnHover={true}
+                  className="py-4"
+                  style={{ 
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0px' // Убираем промежутки
+                  }}
+                >
+                  {partners
+                    .filter(partner => partner.logo && partner.name)
+                    .slice()
+                    .reverse()
+                    .map((partner, index) => (
+                      <PartnerLogo 
+                        key={`secondary-${partner.name}-${index}`}
+                        partner={partner} 
+                        index={index} 
+                      />
+                    ))}
+                </Marquee>
+              </div>
+            </div>
+
+            {/* Trust indicators */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, ease: "easeOut", delay: 0.3 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
               viewport={{ once: true }}
               className="text-center"
             >
               <div className="flex flex-wrap justify-center items-center gap-8 text-sm text-[#001D8D]/60">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                   <span>Проверенные партнеры</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
                   <span>Лицензированные биржи</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                  <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
                   <span>Высокие рейтинги безопасности</span>
                 </div>
               </div>
             </motion.div>
           </div>
 
-          {/* Видео секции */}
-          {videoSections}
+          {/* 4. CTA Section - Calculator Style */}
+          <div className="max-w-5xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                viewport={{ once: true }}
+                className="calculator-container"
+              >
+                <h2 className="text-3xl md:text-4xl font-bold mb-6 text-[#001D8D]">
+                  Готовы начать <span className="text-[#001D8D]">обмен?</span>
+                </h2>
+                <p className="text-[#001D8D]/70 mb-8 leading-relaxed">
+                  Создайте аккаунт уже сегодня и получите самый быстрый и безопасный способ конвертации USDT в рубли.
+                </p>
+                
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3">
+                    <div className="mt-1 bg-[#001D8D]/5 p-2 rounded-full">
+                      <Wallet className="h-5 w-5 text-[#001D8D]" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-[#001D8D]">Быстрая настройка</h4>
+                      <p className="text-sm text-[#001D8D]/70">Начните работу за считанные минуты с нашим упрощенным процессом регистрации</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-3">
+                    <div className="mt-1 bg-[#001D8D]/5 p-2 rounded-full">
+                      <TrendingUp className="h-5 w-5 text-[#001D8D]" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-[#001D8D]">Лучшие курсы</h4>
+                      <p className="text-sm text-[#001D8D]/70">Всегда получайте самые конкурентоспособные курсы обмена USDT на рубли</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-3">
+                    <div className="mt-1 bg-[#001D8D]/5 p-2 rounded-full">
+                      <Shield className="h-5 w-5 text-[#001D8D]" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-[#001D8D]">100% безопасность</h4>
+                      <p className="text-sm text-[#001D8D]/70">Ведущие в отрасли меры безопасности для защиты ваших активов</p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+              
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                viewport={{ once: true }}
+                className="calculator-container"
+              >
+                <h3 className="text-2xl font-bold mb-6 text-center text-[#001D8D]">
+                  Начните сегодня
+                </h3>
+                <p className="text-[#001D8D]/70 mb-8 text-center leading-relaxed">
+                  Зарегистрируйтесь всего за несколько минут и начните обменивать криптовалюту по лучшим курсам.
+                </p>
+                
+                <div className="space-y-4">
+                  <Link href="/register">
+                    <SolidTrustButton 
+                      size="lg" 
+                      fullWidth
+                      className="mb-4"
+                    >
+                      Создать аккаунт
+                    </SolidTrustButton>
+                  </Link>
+                  
+                  <Link href="/login" className="block">
+                    <button className="w-full border-2 border-[#001D8D]/20 text-[#001D8D] hover:bg-[#001D8D]/5 px-6 py-3 rounded-lg font-semibold transition-all duration-300">
+                      Войти
+                    </button>
+                  </Link>
+                </div>
+                
+                <div className="mt-8 text-center text-sm text-[#001D8D]/60">
+                  Уже есть аккаунт? <Link href="/login" className="text-[#001D8D] hover:underline">Войти</Link>
+                </div>
+              </motion.div>
+            </div>
+          </div>
 
-          {/* 4. CTA Section */}
-          {ctaSection}
         </div>
       </div>
     </section>
   );
-});
-
-UnifiedMainSection.displayName = 'UnifiedMainSection';
+};
 
 export default UnifiedMainSection;

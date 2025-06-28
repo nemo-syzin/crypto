@@ -24,24 +24,13 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "www.revolut.com",
-      },
-      {
-        protocol: "https",
-        hostname: "res.coinpaper.com",
       }
     ],
   },
   // Optimize bundle size
   experimental: {
-    optimizePackageImports: ['lucide-react', 'framer-motion'],
-    scrollRestoration: true
-  },
-  // Оптимизация для производительности
-  compiler: {
-    removeConsole: process.env.NODE_ENV === 'production',
-  },
-  // Оптимизация изображений
-  optimizeFonts: true
+    optimizePackageImports: ['lucide-react', 'framer-motion']
+  }
 };
 
 module.exports = nextConfig;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
 interface TableOfContentsItem {
@@ -24,7 +24,6 @@ export function TableOfContents({
 }: TableOfContentsProps) {
   const [isSticky, setIsSticky] = useState(false);
   const [activeId, setActiveId] = useState<string>(activeItem || items[0]?.id || '');
-  const [scrollProgress, setScrollProgress] = useState(0);
 
   // Обновляем активный элемент при изменении props
   useEffect(() => {
@@ -33,38 +32,22 @@ export function TableOfContents({
     }
   }, [activeItem]);
 
-  // Отслеживаем скролл для стилизации и прогресса чтения
+  // Отслеживаем скролл для стилизации
   useEffect(() => {
     const handleScroll = () => {
-      // Обновляем состояние sticky
       setIsSticky(window.scrollY > 100);
-      
-      // Вычисляем прогресс чтения
-      const scrollTop = window.scrollY;
-      const docHeight = document.body.offsetHeight;
-      const winHeight = window.innerHeight;
-      const scrollPercent = scrollTop / (docHeight - winHeight);
-      setScrollProgress(Math.min(scrollPercent * 100, 100));
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Оптимизированный обработчик клика
-  const handleClick = useCallback((id: string) => {
+  const handleClick = (id: string) => {
     setActiveId(id);
     if (onItemClick) {
       onItemClick(id);
     }
-  }, [onItemClick]);
-
-  // Вычисляем прогресс чтения на основе активного элемента
-  const getReadingProgress = useCallback(() => {
-    const activeIndex = items.findIndex(item => item.id === activeId);
-    if (activeIndex === -1) return 0;
-    return ((activeIndex + 1) / items.length) * 100;
-  }, [activeId, items]);
+  };
 
   return (
     <motion.div 
@@ -73,7 +56,7 @@ export function TableOfContents({
       } transition-all duration-300 ${className}`}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
+      transition={{ duration: 0.5 }}
     >
       <h3 className="text-lg font-bold text-[#001D8D] mb-4">Содержание</h3>
       
@@ -108,7 +91,7 @@ export function TableOfContents({
             className="h-1.5 rounded-full bg-gradient-to-r from-[#001D8D] to-blue-600"
             initial={{ width: '0%' }}
             animate={{ 
-              width: `${getReadingProgress()}%` 
+              width: `${(items.findIndex(item => item.id === activeId) + 1) / items.length * 100}%` 
             }}
             transition={{ duration: 0.3 }}
           />

@@ -40,17 +40,6 @@
   
   body {
     @apply bg-white text-[#001D8D] m-0 p-0;
-    /* Оптимизация прокрутки */
-    overscroll-behavior: none;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-  
-  /* Оптимизация прокрутки для контента */
-  .content-optimized-scroll {
-    will-change: transform;
-    transform: translateZ(0);
-    backface-visibility: hidden;
   }
 }
 
@@ -203,7 +192,7 @@
     border: 1px solid rgba(0, 29, 141, 0.1);
   }
 
-  /* Partner tile glass-blur styles - оптимизированные */
+  /* Partner tile glass-blur styles */
   .partner-tile {
     /* Glass-blur background */
     background: rgba(255, 255, 255, 0.12);
@@ -215,7 +204,7 @@
     
     /* Base styling */
     border: 1px solid rgba(255, 255, 255, 0.2);
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    transition: all 0.2s ease-in-out;
     
     /* Flexbox centering */
     display: flex;
@@ -269,7 +258,7 @@
     }
   }
 
-  /* Hover and focus states - оптимизированные */
+  /* Hover and focus states */
   .partner-tile:hover,
   .partner-tile:focus-visible {
     /* Shadow on hover */
@@ -453,56 +442,6 @@
     background: rgba(107, 114, 128, 0.1);
     border-color: #6b7280;
   }
-  
-  /* Оптимизация для партнерской ленты */
-  .partners-marquee-container {
-    overflow: hidden;
-    position: relative;
-    width: 100%;
-  }
-  
-  .partners-marquee {
-    display: flex;
-    will-change: transform;
-    animation: marquee 30s linear infinite;
-  }
-  
-  .partners-marquee-reverse {
-    animation-direction: reverse;
-    animation-duration: 40s;
-  }
-  
-  @keyframes marquee {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-100%); }
-  }
-  
-  /* Оптимизация для видео */
-  .lazy-video-container {
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .lazy-video-placeholder {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: #f1f5f9;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1;
-    transition: opacity 0.3s ease;
-  }
-  
-  .lazy-video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: opacity 0.3s ease;
-  }
 }
 
 @layer utilities {
@@ -552,18 +491,6 @@
 
   .manifesto-hover-scale:hover {
     transform: scale(1.02);
-  }
-  
-  /* Оптимизация для прокрутки */
-  .scroll-optimized {
-    will-change: transform;
-    transform: translateZ(0);
-    backface-visibility: hidden;
-  }
-  
-  /* Оптимизация для анимаций */
-  .animation-optimized {
-    will-change: transform, opacity;
   }
 }
 
