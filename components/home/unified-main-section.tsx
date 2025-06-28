@@ -508,7 +508,7 @@ const UnifiedMainSection = () => {
             </div>
           </div>
 
-          {/* 3. Partners Section - ✅ ПОЛНОСТЬЮ ИСПРАВЛЕННАЯ ВЕРСИЯ БЕЗ ПРОПУСКОВ */}
+          {/* 3. Partners Section - ✅ ТОЛЬКО ДВЕ СТРОКИ БЕЗ ПРОПУСКОВ */}
           <div>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -526,7 +526,7 @@ const UnifiedMainSection = () => {
               </p>
             </motion.div>
 
-            {/* ✅ ПОЛНОСТЬЮ ПЕРЕРАБОТАННАЯ СЕКЦИЯ MARQUEE - БЕЗ ПРОПУСКОВ НА ЛЮБЫХ ЭКРАНАХ */}
+            {/* ✅ ТОЛЬКО ДВЕ ЛЕНТЫ - БЕЗ ПРОПУСКОВ НА ЛЮБЫХ ЭКРАНАХ */}
             <div className="relative mb-12 overflow-hidden">
               {/* ✅ Первая лента - слева направо с увеличенной скоростью */}
               <div className="mb-6">
@@ -554,7 +554,7 @@ const UnifiedMainSection = () => {
               </div>
 
               {/* ✅ Вторая лента - справа налево с другой скоростью */}
-              <div className="mb-6">
+              <div>
                 <Marquee
                   gradient={false}
                   speed={45} // Другая скорость для визуального разнообразия
@@ -574,31 +574,6 @@ const UnifiedMainSection = () => {
                     .map((partner, index) => (
                       <PartnerLogo 
                         key={`secondary-${partner.name}-${index}`}
-                        partner={partner} 
-                        index={index} 
-                      />
-                    ))}
-                </Marquee>
-              </div>
-
-              {/* ✅ Третья лента - для очень широких экранов */}
-              <div className="hidden xl:block">
-                <Marquee
-                  gradient={false}
-                  speed={55}
-                  pauseOnHover={true}
-                  className="py-4"
-                  style={{ 
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0px' // Убираем промежутки
-                  }}
-                >
-                  {partners
-                    .filter(partner => partner.logo && partner.name)
-                    .map((partner, index) => (
-                      <PartnerLogo 
-                        key={`third-${partner.name}-${index}`}
                         partner={partner} 
                         index={index} 
                       />
