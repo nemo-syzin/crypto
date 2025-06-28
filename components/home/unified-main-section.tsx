@@ -112,60 +112,43 @@ const onlineSteps = [
   }
 ];
 
+// ✅ ИСПРАВЛЕННЫЙ МАССИВ ПАРТНЕРОВ - убраны все потенциальные источники пропусков
 const partners = [
   {
     name: "Bitcoin",
-    logo: "https://res.coinpaper.com/coinpaper/bitcoin_btc_logo_e68b8dbb0c.svg",
-    width: 120,
-    height: 40
+    logo: "https://res.coinpaper.com/coinpaper/bitcoin_btc_logo_e68b8dbb0c.svg"
   },
   {
-    name: "USDC",
-    logo: "https://res.coinpaper.com/coinpaper/usd_coin_usdc_logo_33584e28ac.svg",
-    width: 120,
-    height: 40
+    name: "USDC", 
+    logo: "https://res.coinpaper.com/coinpaper/usd_coin_usdc_logo_33584e28ac.svg"
   },
   {
     name: "USDT",
-    logo: "https://res.coinpaper.com/coinpaper/tether_usdt_logo_1c069eb107.svg",
-    width: 120,
-    height: 40
+    logo: "https://res.coinpaper.com/coinpaper/tether_usdt_logo_1c069eb107.svg"
   },
   {
     name: "BNB",
-    logo: "https://res.coinpaper.com/coinpaper/bnb_bnb_logo_c9840ff036.svg",
-    width: 120,
-    height: 40
+    logo: "https://res.coinpaper.com/coinpaper/bnb_bnb_logo_c9840ff036.svg"
   },
   {
     name: "XRP",
-    logo: "https://res.coinpaper.com/coinpaper/xrp_xrp_logo_4693101055.svg",
-    width: 120,
-    height: 40
+    logo: "https://res.coinpaper.com/coinpaper/xrp_xrp_logo_4693101055.svg"
   },
   {
     name: "Cardano",
-    logo: "https://res.coinpaper.com/coinpaper/cardano_ada_logo_12715cd3e9.svg",
-    width: 120,
-    height: 40
+    logo: "https://res.coinpaper.com/coinpaper/cardano_ada_logo_12715cd3e9.svg"
   },
   {
     name: "Polkadot",
-    logo: "https://res.coinpaper.com/coinpaper/Polkadot_Token_Polkadot_Token_Pink_6531f20385.svg",
-    width: 120,
-    height: 40
+    logo: "https://res.coinpaper.com/coinpaper/Polkadot_Token_Polkadot_Token_Pink_6531f20385.svg"
   },
   {
     name: "Optimism",
-    logo: "https://res.coinpaper.com/coinpaper/optimism_logo_d197e3b2f3.svg",
-    width: 120,
-    height: 40
+    logo: "https://res.coinpaper.com/coinpaper/optimism_logo_d197e3b2f3.svg"
   },
   {
     name: "Dogecoin",
-    logo: "https://res.coinpaper.com/coinpaper/dogecoin_doge_logo_477144b3df.svg",
-    width: 120,
-    height: 40
+    logo: "https://res.coinpaper.com/coinpaper/dogecoin_doge_logo_477144b3df.svg"
   }
 ];
 
@@ -258,6 +241,35 @@ const UnifiedMainSection = () => {
   // Функция для форматирования номера шага в стиле манифеста
   const formatStepNumber = (index: number): string => {
     return (index + 1).toString().padStart(2, '0');
+  };
+
+  // ✅ КОМПОНЕНТ ЛОГОТИПА ПАРТНЕРА - без пропусков
+  const PartnerLogo = ({ partner, index }: { partner: typeof partners[0]; index: number }) => {
+    return (
+      <div
+        key={`${partner.name}-${index}`}
+        className="flex items-center justify-center w-20 h-20 mx-3 bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200 hover:border-[#001D8D]/30 hover:shadow-lg transition-all duration-300 hover:scale-105 flex-shrink-0"
+        style={{
+          minWidth: '80px', // Фиксированная минимальная ширина
+          maxWidth: '80px'   // Фиксированная максимальная ширина
+        }}
+      >
+        <img
+          src={partner.logo}
+          alt={`${partner.name} - Криптовалютная биржа`}
+          className="w-10 h-10 object-contain"
+          loading={index < 3 ? "eager" : "lazy"}
+          onError={(e) => {
+            // ✅ Graceful fallback - скрываем сломанные изображения
+            const target = e.currentTarget as HTMLImageElement;
+            const container = target.parentElement;
+            if (container) {
+              container.style.display = 'none';
+            }
+          }}
+        />
+      </div>
+    );
   };
 
   return (
@@ -464,7 +476,7 @@ const UnifiedMainSection = () => {
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: 0.3 }}
                               >
-                                <Clock className="w-4 h-4 mr-1" />
+                                <Clock className="w-4 w-4 mr-1" />
                                 {step.time}
                               </motion.div>
                             </div>
@@ -486,7 +498,7 @@ const UnifiedMainSection = () => {
             </div>
           </div>
 
-          {/* 3. Partners Section - Исправленная версия без пропусков */}
+          {/* 3. Partners Section - ✅ ИСПРАВЛЕННАЯ ВЕРСИЯ БЕЗ ПРОПУСКОВ */}
           <div>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -504,6 +516,7 @@ const UnifiedMainSection = () => {
               </p>
             </motion.div>
 
+            {/* ✅ ИСПРАВЛЕННАЯ СЕКЦИЯ MARQUEE - БЕЗ ПРОПУСКОВ */}
             <div className="relative mb-12">
               {/* Main marquee - left to right */}
               <div className="mb-8">
@@ -512,20 +525,20 @@ const UnifiedMainSection = () => {
                   speed={50}
                   pauseOnHover={true}
                   className="py-6"
+                  style={{ 
+                    display: 'flex',
+                    alignItems: 'center'
+                  }}
                 >
-                  {partners.map((partner, index) => (
-                    <div
-                      key={`main-${index}`}
-                      className="flex items-center justify-center w-20 h-20 mx-4 bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200 hover:border-[#001D8D]/30 hover:shadow-lg transition-all duration-300 hover:scale-105"
-                    >
-                      <img
-                        src={partner.logo}
-                        alt={`${partner.name} - Криптовалютная биржа`}
-                        className="w-10 h-10 object-contain"
-                        loading={index < 3 ? "eager" : "lazy"}
+                  {partners
+                    .filter(partner => partner.logo && partner.name) // ✅ Фильтруем только валидные партнеры
+                    .map((partner, index) => (
+                      <PartnerLogo 
+                        key={`main-${partner.name}-${index}`}
+                        partner={partner} 
+                        index={index} 
                       />
-                    </div>
-                  ))}
+                    ))}
                 </Marquee>
               </div>
 
@@ -537,20 +550,22 @@ const UnifiedMainSection = () => {
                   direction="right"
                   pauseOnHover={true}
                   className="py-6"
+                  style={{ 
+                    display: 'flex',
+                    alignItems: 'center'
+                  }}
                 >
-                  {partners.slice().reverse().map((partner, index) => (
-                    <div
-                      key={`secondary-${index}`}
-                      className="flex items-center justify-center w-20 h-20 mx-4 bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200 hover:border-[#001D8D]/30 hover:shadow-lg transition-all duration-300 hover:scale-105"
-                    >
-                      <img
-                        src={partner.logo}
-                        alt={`${partner.name} - Криптовалютная биржа`}
-                        className="w-10 h-10 object-contain"
-                        loading="lazy"
+                  {partners
+                    .filter(partner => partner.logo && partner.name) // ✅ Фильтруем только валидные партнеры
+                    .slice()
+                    .reverse()
+                    .map((partner, index) => (
+                      <PartnerLogo 
+                        key={`secondary-${partner.name}-${index}`}
+                        partner={partner} 
+                        index={index} 
                       />
-                    </div>
-                  ))}
+                    ))}
                 </Marquee>
               </div>
             </div>
