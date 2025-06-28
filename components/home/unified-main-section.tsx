@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import Image from 'next/image';
@@ -486,7 +486,7 @@ const UnifiedMainSection = () => {
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: 0.3 }}
                               >
-                                <Clock className="w-4 w-4 mr-1" />
+                                <Clock className="w-4 h-4 mr-1" />
                                 {step.time}
                               </motion.div>
                             </div>
