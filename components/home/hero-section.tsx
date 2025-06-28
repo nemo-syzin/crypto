@@ -1,34 +1,56 @@
 "use client";
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { UnifiedVantaBackground } from '@/components/shared/UnifiedVantaBackground';
+import { useInView } from 'react-intersection-observer';
 
 const HeroSection = () => {
   const [isMounted, setIsMounted] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const { ref, inView } = useInView({
+    triggerOnce: true,
+    threshold: 0.1,
+  });
 
+  // Проверка предпочтений пользователя по уменьшению движения
   useEffect(() => {
     setIsMounted(true);
+    
+    if (typeof window !== 'undefined') {
+      const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+      setPrefersReducedMotion(mediaQuery.matches);
+      
+      const handleChange = (e: MediaQueryListEvent) => {
+        setPrefersReducedMotion(e.matches);
+      };
+      
+      mediaQuery.addEventListener('change', handleChange);
+      return () => mediaQuery.removeEventListener('change', handleChange);
+    }
   }, []);
 
   if (!isMounted) return null;
 
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden bg-white">
-      <div className="absolute inset-0 z-0 opacity-100">
-        <UnifiedVantaBackground 
-          type="globe"
-          color={0x01278f}
-          color2={0x01278f}     
-          backgroundColor={0xffffff} 
-          scale={1.0}
-          size={1}
-          mouseControls={true}
-          touchControls={true}
-          gyroControls={false}
-        />
-      </div>
+    <section ref={ref} className="relative min-h-screen flex items-center overflow-hidden bg-white">
+      {/* Оптимизированный фон - рендерится только когда секция в поле зрения */}
+      {inView && (
+        <div className="absolute inset-0 z-0 opacity-100">
+          <UnifiedVantaBackground 
+            type="globe"
+            color={0x01278f}
+            color2={0x01278f}     
+            backgroundColor={0xffffff} 
+            scale={1.0}
+            size={1}
+            mouseControls={false} // Отключаем для экономии ресурсов
+            touchControls={false} // Отключаем для экономии ресурсов
+            gyroControls={false}
+          />
+        </div>
+      )}
 
       {/* Очень тонкий градиентный переход к следующему разделу */}
       <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-b from-transparent to-blue-50/20 z-5" />

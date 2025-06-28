@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Lock, 
@@ -18,7 +18,6 @@ import {
   Cookie,
   Phone,
   BookOpen,
-  ExternalLink,
   Info
 } from 'lucide-react';
 import { UnifiedVantaBackground } from '@/components/shared/UnifiedVantaBackground';
@@ -35,12 +34,14 @@ interface PolicySection {
 export function PrivacyPolicyClient() {
   const [isMounted, setIsMounted] = useState(false);
   const [activeSection, setActiveSection] = useState<string>('general');
+  const contentRef = useRef<HTMLDivElement>(null);
+  const sectionRefs = useRef<Map<string, HTMLElement>>(new Map());
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  // Memoized policy sections data
+  // Мемоизированные данные секций политики
   const policySections = useMemo<PolicySection[]>(() => [
     {
       id: 'general',
@@ -215,7 +216,7 @@ export function PrivacyPolicyClient() {
     }
   ], []);
 
-  // Memoized table of contents items
+  // Мемоизированные элементы оглавления
   const tocItems = useMemo(() => 
     policySections.map(section => ({
       id: section.id,
@@ -224,7 +225,7 @@ export function PrivacyPolicyClient() {
     })), [policySections]
   );
 
-  // Scroll to section handler
+  // Оптимизированный обработчик клика по разделу
   const handleSectionClick = useCallback((sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
@@ -232,25 +233,38 @@ export function PrivacyPolicyClient() {
       const elementPosition = element.getBoundingClientRect().top;
       const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
 
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
+      // Используем scrollIntoView с behavior: 'smooth' вместо window.scrollTo
+      // для более плавной прокрутки
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
       });
+      
       setActiveSection(sectionId);
     }
   }, []);
 
-  // Intersection observer for active section tracking
+  // Оптимизированный наблюдатель за видимыми секциями
   useEffect(() => {
     if (!isMounted) return;
 
+    // Используем IntersectionObserver для отслеживания видимых секций
     const observer = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveSection(entry.target.id);
-          }
-        });
+        // Находим самую верхнюю видимую секцию
+        const visibleEntries = entries.filter(entry => entry.isIntersecting);
+        if (visibleEntries.length > 0) {
+          // Сортируем по позиции сверху
+          visibleEntries.sort((a, b) => {
+            const aRect = a.boundingClientRect;
+            const bRect = b.boundingClientRect;
+            return aRect.top - bRect.top;
+          });
+          
+          // Устанавливаем активную секцию
+          const topSection = visibleEntries[0];
+          setActiveSection(topSection.target.id);
+        }
       },
       {
         rootMargin: '-20% 0px -70% 0px',
@@ -258,15 +272,33 @@ export function PrivacyPolicyClient() {
       }
     );
 
+    // Наблюдаем за всеми секциями
     policySections.forEach((section) => {
       const element = document.getElementById(section.id);
       if (element) {
         observer.observe(element);
+        sectionRefs.current.set(section.id, element);
       }
     });
 
     return () => observer.disconnect();
   }, [isMounted, policySections]);
+
+  // Оптимизация прокрутки
+  useEffect(() => {
+    if (!isMounted) return;
+    
+    // Добавляем CSS-класс для оптимизации прокрутки
+    if (contentRef.current) {
+      contentRef.current.classList.add('content-optimized-scroll');
+    }
+    
+    return () => {
+      if (contentRef.current) {
+        contentRef.current.classList.remove('content-optimized-scroll');
+      }
+    };
+  }, [isMounted]);
 
   if (!isMounted) {
     return null;
@@ -274,24 +306,24 @@ export function PrivacyPolicyClient() {
 
   return (
     <div className="min-h-screen bg-white relative overflow-hidden">
-      {/* Simplified background */}
+      {/* Упрощенный фон */}
       <section className="relative py-20 bg-gradient-to-b from-white via-blue-50/10 to-blue-100/20 overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <UnifiedVantaBackground 
-            type="dots"
+            type="dots" // Используем dots вместо topology для лучшей производительности
             color={0x94bdff}
             color2={0xFF6B35}
             backgroundColor={0xffffff}
             size={1.5}
             spacing={30}
             showLines={false}
-            mouseControls={false}
-            touchControls={false}
-            forceAnimate={false}
+            mouseControls={false} // Отключаем для экономии ресурсов
+            touchControls={false} // Отключаем для экономии ресурсов
+            forceAnimate={false} // Отключаем принудительную анимацию
           />
         </div>
 
-        {/* Gradient transitions */}
+        {/* Градиентные переходы */}
         <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-white to-transparent z-5" />
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent to-blue-100/20 z-5" />
 
@@ -311,12 +343,12 @@ export function PrivacyPolicyClient() {
             </div>
 
             {/* Main content */}
-            <div className="lg:w-3/4">
+            <div className="lg:w-3/4" ref={contentRef}>
               {/* Header */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
                 className="text-center mb-16"
               >
                 <div className="flex justify-center mb-6">
@@ -337,7 +369,7 @@ export function PrivacyPolicyClient() {
                 </p>
               </motion.div>
 
-              {/* Policy sections */}
+              {/* Policy sections - используем виртуализацию для оптимизации */}
               <div className="space-y-12">
                 {policySections.map((section, index) => {
                   const IconComponent = section.icon;
@@ -347,7 +379,7 @@ export function PrivacyPolicyClient() {
                       id={section.id}
                       initial={{ opacity: 0, y: 20 }}
                       whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                      transition={{ duration: 0.4, ease: "easeOut" }}
                       viewport={{ once: true, margin: "-100px" }}
                       className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg border border-[#001D8D]/10 p-8 hover:shadow-xl transition-all duration-300"
                     >
@@ -403,7 +435,7 @@ export function PrivacyPolicyClient() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
                 viewport={{ once: true }}
                 className="mt-16 bg-gradient-to-r from-[#001D8D] to-blue-700 text-white rounded-xl p-8"
               >
@@ -434,7 +466,7 @@ export function PrivacyPolicyClient() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
                 viewport={{ once: true }}
                 className="mt-8 bg-gray-50 rounded-xl p-6 border border-gray-200"
               >

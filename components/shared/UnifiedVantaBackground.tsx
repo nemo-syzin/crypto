@@ -1,7 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import * as THREE from 'three';
+import { useEffect, useRef, useState, useCallback } from "react";
+import dynamic from 'next/dynamic';
+import { useInView } from 'react-intersection-observer';
+
+// Динамический импорт THREE для уменьшения размера бандла
+const THREE = dynamic(() => import('three').then(mod => mod), { 
+  ssr: false,
+  loading: () => null
+});
 
 interface UnifiedVantaBackgroundProps {
   type: 'topology' | 'dots' | 'globe';
@@ -31,18 +38,30 @@ interface UnifiedVantaBackgroundProps {
   showLines?: boolean;
 }
 
-// Global flag to ensure p5.js is only loaded once
-let p5LoadPromise: Promise<any> | null = null;
-let p5Instance: any = null;
-let hasP5LoadFailed = false;
+// Статичный фоллбэк компонент для случаев, когда Vanta не может быть загружен
+const StaticBackground = ({ 
+  color = 0xFF6B35, 
+  color2 = 0x001D8D, 
+  className = "absolute inset-0 w-full h-full" 
+}) => (
+  <div 
+    className={className}
+    style={{ 
+      background: `linear-gradient(135deg, ${color ? `#${color.toString(16).padStart(6, '0')}20` : '#94bdff20'}, ${color2 ? `#${color2.toString(16).padStart(6, '0')}10` : '#001D8D10'})`,
+      zIndex: 0,
+      pointerEvents: 'none',
+      userSelect: 'none'
+    }}
+  />
+);
 
 export function UnifiedVantaBackground({
   type,
   color = 0xFF6B35,          
   color2 = 0x001D8D,         
   backgroundColor = 0xffffff,
-  mouseControls = true,
-  touchControls = true,
+  mouseControls = false, // Отключаем по умолчанию для экономии ресурсов
+  touchControls = false, // Отключаем по умолчанию для экономии ресурсов
   gyroControls = false,
   minHeight = 200,
   minWidth = 200,
@@ -50,260 +69,226 @@ export function UnifiedVantaBackground({
   scaleMobile = 1.0,
   className = "absolute inset-0 w-full h-full",
   
-  // Topology props
-  points = 12,
-  maxDistance = 22,
-  spacing = 20,
+  // Topology props - уменьшаем значения для лучшей производительности
+  points = 8, // Уменьшено с 12
+  maxDistance = 15, // Уменьшено с 22
+  spacing = 25, // Увеличено с 20 для меньшего количества точек
   showDots = true,
-  speed = 1.0,
-  forceAnimate = true,
+  speed = 0.8, // Уменьшено с 1.0
+  forceAnimate = false, // Отключаем принудительную анимацию
   
   // Dots props
-  size = 2.0,
-  showLines = true
+  size = 1.5, // Уменьшено с 2.0
+  showLines = false // Отключаем линии для лучшей производительности
 }: UnifiedVantaBackgroundProps) {
   const vantaRef = useRef<HTMLDivElement>(null);
   const vantaEffect = useRef<any>(null);
   const [fallbackMode, setFallbackMode] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [isLowPowerMode, setIsLowPowerMode] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+  
+  // Используем IntersectionObserver для загрузки эффекта только когда он в поле зрения
+  const { ref: inViewRef, inView } = useInView({
+    threshold: 0.1,
+    triggerOnce: false,
+  });
 
+  // Объединяем refs
+  const setRefs = useCallback(
+    (node: HTMLDivElement | null) => {
+      // Ref для Vanta
+      vantaRef.current = node;
+      // Ref для IntersectionObserver
+      inViewRef(node);
+    },
+    [inViewRef]
+  );
+
+  // Проверка предпочтений пользователя и возможностей устройства
   useEffect(() => {
-    let mounted = true;
+    setIsClient(true);
+    
+    // Проверка prefers-reduced-motion
+    if (typeof window !== 'undefined') {
+      const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+      setPrefersReducedMotion(mediaQuery.matches);
+      
+      const handleChange = (e: MediaQueryListEvent) => {
+        setPrefersReducedMotion(e.matches);
+      };
+      
+      mediaQuery.addEventListener('change', handleChange);
+      return () => mediaQuery.removeEventListener('change', handleChange);
+    }
+  }, []);
 
-    const initVanta = async () => {
+  // Проверка возможностей GPU
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // Проверка на мобильное устройство
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      
+      // Проверка на низкопроизводительное устройство
+      const isLowEnd = 
+        navigator.hardwareConcurrency <= 4 || 
+        /Intel/i.test(navigator.userAgent) || 
+        isMobile;
+      
+      setIsLowPowerMode(isLowEnd);
+    }
+  }, []);
+
+  // Основной эффект для инициализации Vanta
+  useEffect(() => {
+    // Если компонент не в клиенте, предпочитает уменьшенное движение или устройство слабое - используем фоллбэк
+    if (!isClient || prefersReducedMotion || isLowPowerMode) {
+      setFallbackMode(true);
+      return;
+    }
+
+    // Если компонент не в поле зрения, не инициализируем Vanta
+    if (!inView) {
+      return;
+    }
+
+    // Очистка предыдущего эффекта
+    if (vantaEffect.current) {
       try {
-        if (!mounted || !vantaRef.current || vantaEffect.current) return;
+        vantaEffect.current.destroy();
+      } catch (error) {
+        console.warn('Warning during effect cleanup:', error);
+      }
+      vantaEffect.current = null;
+    }
 
-        // Only run on client side
-        if (typeof window === 'undefined') return;
+    // Используем requestIdleCallback или setTimeout для отложенной инициализации
+    const initVantaEffect = () => {
+      if (!vantaRef.current || vantaEffect.current) return;
 
-        // If p5 loading has failed before, skip topology
-        if (hasP5LoadFailed && type === 'topology') {
-          console.warn('⚠️ p5.js previously failed to load, skipping topology effect');
-          setFallbackMode(true);
-          return;
-        }
-
-        // Cleanup any existing effect first
-        if (vantaEffect.current) {
-          try {
-            vantaEffect.current.destroy();
-          } catch (error) {
-            console.warn('Warning during effect cleanup:', error);
+      // Динамический импорт нужного эффекта
+      const loadEffect = async () => {
+        try {
+          // Глобальный THREE для Vanta
+          if (!(window as any).THREE && THREE) {
+            (window as any).THREE = THREE;
           }
-          vantaEffect.current = null;
-        }
 
-        // Ensure THREE is available globally
-        if (!(window as any).THREE) {
-          (window as any).THREE = THREE;
-        }
-
-        let VantaEffect;
-
-        // Import dependencies based on type with enhanced error handling
-        if (type === 'topology') {
-          try {
-            // Ensure p5.js is properly loaded and initialized - only on client side
-            if (!p5LoadPromise && typeof window !== 'undefined') {
-              p5LoadPromise = import('p5').then(p5Module => {
-                const P5Constructor = p5Module.default;
-                
-                // Store the p5 instance globally
-                p5Instance = P5Constructor;
-                (window as any).__P5__ = P5Constructor;
-                (window as any).p5 = P5Constructor;
-                
-                console.log('✅ p5.js loaded and assigned to window.p5');
-                
-                // Increased delay to ensure p5.js is fully ready
-                return new Promise(resolve => {
-                  setTimeout(() => {
-                    resolve(P5Constructor);
-                  }, 1500);
-                });
-              }).catch(error => {
-                console.warn('⚠️ Failed to load p5.js:', error);
-                hasP5LoadFailed = true;
-                throw error;
-              });
-            }
-            
-            // Wait for p5.js to be completely loaded and ready
-            if (p5LoadPromise) {
-              await p5LoadPromise;
-            }
-            
-            // Double-check that p5 is available and properly initialized
-            if (!(window as any).p5 || !p5Instance) {
-              throw new Error('p5.js failed to initialize properly');
-            }
-
-            // Only import Vanta topology after p5.js is confirmed ready
-            const topologyModule = await import('vanta/dist/vanta.topology.min');
-            VantaEffect = topologyModule.default;
-            
-            // Additional safety check
-            if (!VantaEffect) {
-              throw new Error('Vanta topology module failed to load');
-            }
-            
-          } catch (p5Error) {
-            console.warn('⚠️ p5.js or topology loading failed, falling back to dots effect:', p5Error);
-            hasP5LoadFailed = true;
-            
-            // Fallback to dots effect
-            try {
-              const dotsModule = await import('vanta/dist/vanta.dots.min');
-              VantaEffect = dotsModule.default;
-              console.log('✅ Fallback to dots effect successful');
-            } catch (fallbackError) {
-              console.warn('⚠️ Fallback to dots also failed:', fallbackError);
-              setFallbackMode(true);
-              return;
-            }
-          }
+          let VantaEffect;
           
-        } else if (type === 'dots') {
-          try {
+          if (type === 'dots') {
             const dotsModule = await import('vanta/dist/vanta.dots.min');
             VantaEffect = dotsModule.default;
-          } catch (error) {
-            console.warn('⚠️ Failed to load dots effect:', error);
-            setFallbackMode(true);
-            return;
-          }
-        } else if (type === 'globe') {
-          try {
+          } else if (type === 'globe') {
             const globeModule = await import('vanta/dist/vanta.globe.min');
             VantaEffect = globeModule.default;
-          } catch (error) {
-            console.warn('⚠️ Failed to load globe effect:', error);
-            setFallbackMode(true);
-            return;
+          } else {
+            // Для topology используем dots как фоллбэк
+            const dotsModule = await import('vanta/dist/vanta.dots.min');
+            VantaEffect = dotsModule.default;
+            type = 'dots'; // Переключаемся на dots
           }
-        }
 
-        if (!mounted || !vantaRef.current || !VantaEffect) return;
+          if (!vantaRef.current || !VantaEffect) return;
 
-        // Build configuration based on type
-        let config: any = {
-          el: vantaRef.current,
-          THREE: (window as any).THREE,
-          mouseControls,
-          touchControls,
-          gyroControls,
-          minHeight,
-          minWidth,
-          scale,
-          scaleMobile,
-          color,
-          backgroundColor
-        };
+          // Базовая конфигурация
+          let config: any = {
+            el: vantaRef.current,
+            THREE: (window as any).THREE,
+            mouseControls,
+            touchControls,
+            gyroControls,
+            minHeight,
+            minWidth,
+            scale,
+            scaleMobile,
+            color,
+            backgroundColor
+          };
 
-        // Add type-specific configurations
-        if (type === 'topology' && !hasP5LoadFailed) {
-          // Ensure p5 is available in config
-          if (!(window as any).p5) {
-            throw new Error('p5.js not available for topology initialization');
+          // Добавляем специфичные настройки
+          if (type === 'dots') {
+            config = {
+              ...config,
+              size,
+              spacing,
+              showLines
+            };
+          } else if (type === 'globe') {
+            config = {
+              ...config,
+              color2,
+              size: size || 1.0
+            };
           }
-          
-          config = {
-            ...config,
-            p5: (window as any).p5,
-            points,
-            maxDistance,
-            spacing,
-            showDots,
-            speed,
-            forceAnimate
-          };
-          console.log(`🎨 Topology with primary color: #${color.toString(16)}`);
-        } else if (type === 'dots' || hasP5LoadFailed) {
-          config = {
-            ...config,
-            size,
-            spacing,
-            showLines
-          };
-          console.log(`🔵 Dots with primary color: #${color.toString(16)}`);
-        } else if (type === 'globe') {
-          config = {
-            ...config,
-            color2,
-            size: size || 1.0
-          };
-          console.log(`🌍 Globe with dual colors: #${color.toString(16)} + #${color2.toString(16)}`);
-        }
 
-        console.log(`🎨 Initializing Unified Vanta ${type} with dual-color config:`, config);
-
-        // Initialize the effect with additional error handling
-        try {
+          // Инициализируем эффект
           vantaEffect.current = VantaEffect(config);
-          console.log(`✅ Unified Vanta ${type} initialized successfully with dual colors`);
-        } catch (initError) {
-          console.warn(`⚠️ Vanta ${type} initialization failed:`, initError);
-          // Clean up on initialization failure
-          if (vantaEffect.current) {
-            try {
-              vantaEffect.current.destroy();
-            } catch (destroyError) {
-              console.warn('Error during cleanup:', destroyError);
-            }
-            vantaEffect.current = null;
-          }
+          
+        } catch (error) {
+          console.warn('Failed to initialize Vanta effect:', error);
           setFallbackMode(true);
         }
+      };
 
-      } catch (error) {
-        console.warn(`⚠️ Failed to initialize Unified Vanta ${type}:`, error);
-        setFallbackMode(true);
+      // Используем requestIdleCallback или setTimeout для отложенной инициализации
+      if (typeof window !== 'undefined') {
+        if ('requestIdleCallback' in window) {
+          (window as any).requestIdleCallback(loadEffect);
+        } else {
+          setTimeout(loadEffect, 200);
+        }
       }
     };
 
-    // Only initialize on client side with increased delay
-    if (typeof window !== 'undefined') {
-      const timer = setTimeout(initVanta, 200);
-      
-      return () => {
-        mounted = false;
-        clearTimeout(timer);
-        
-        if (vantaEffect.current) {
-          try {
-            vantaEffect.current.destroy();
-          } catch (error) {
-            console.warn(`⚠️ Unified Vanta ${type} cleanup warning:`, error);
-          } finally {
-            vantaEffect.current = null;
-          }
-        }
-      };
-    }
+    initVantaEffect();
 
+    // Очистка при размонтировании
     return () => {
-      mounted = false;
+      if (vantaEffect.current) {
+        try {
+          vantaEffect.current.destroy();
+        } catch (error) {
+          console.warn('Warning during effect cleanup:', error);
+        }
+        vantaEffect.current = null;
+      }
     };
-  }, [type, color, color2, backgroundColor, mouseControls, touchControls, gyroControls, minHeight, minWidth, scale, scaleMobile, points, maxDistance, spacing, showDots, speed, forceAnimate, size, showLines]);
+  }, [
+    isClient, 
+    inView, 
+    prefersReducedMotion, 
+    isLowPowerMode, 
+    type, 
+    color, 
+    color2, 
+    backgroundColor, 
+    mouseControls, 
+    touchControls, 
+    gyroControls, 
+    minHeight, 
+    minWidth, 
+    scale, 
+    scaleMobile, 
+    points, 
+    maxDistance, 
+    spacing, 
+    showDots, 
+    speed, 
+    forceAnimate, 
+    size, 
+    showLines
+  ]);
 
-  // Render fallback if needed
-  if (fallbackMode) {
-    return (
-      <div 
-        className={className}
-        style={{ 
-          background: `linear-gradient(135deg, ${color ? `#${color.toString(16).padStart(6, '0')}20` : '#94bdff20'}, ${color2 ? `#${color2.toString(16).padStart(6, '0')}10` : '#001D8D10'})`,
-          zIndex: 0,
-          pointerEvents: 'none',
-          userSelect: 'none'
-        }}
-      />
-    );
+  // Рендерим фоллбэк, если нужно
+  if (fallbackMode || prefersReducedMotion || isLowPowerMode || !isClient) {
+    return <StaticBackground color={color} color2={color2} className={className} />;
   }
 
+  // Рендерим контейнер для Vanta
   return (
     <div 
-      ref={vantaRef} 
+      ref={setRefs}
       className={className}
       style={{ 
         zIndex: 0,
