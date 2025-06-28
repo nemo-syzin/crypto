@@ -6,7 +6,7 @@ import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 
 export const metadata: Metadata = {
-  title: 'CryptoExchange - USDT to RUB Exchange Platform',
+  title: 'KenigSwap - USDT to RUB Exchange Platform',
   description: 'A modern crypto exchange platform specializing in USDT to RUB exchanges with competitive rates.',
 };
 
@@ -17,6 +17,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ru" suppressHydrationWarning>
+      <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+      </head>
       <body className="min-h-screen">
         <ThemeProvider
           attribute="class"

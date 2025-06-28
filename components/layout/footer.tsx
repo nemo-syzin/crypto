@@ -1,13 +1,19 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
+import { Facebook, Twitter, Instagram, Linkedin, Shield, FileText, Lock } from 'lucide-react';
 
 const footerLinks = [
   { href: "/exchange", label: "Exchange" },
   { href: "/rates", label: "Rates" },
   { href: "/about", label: "About" },
   { href: "/support", label: "Support" },
+];
+
+const policyLinks = [
+  { href: "/policy/aml-kyc", label: "AML/CTF и KYC" },
+  { href: "/policy/terms", label: "Условия использования" },
+  { href: "/policy/privacy", label: "Политика конфиденциальности" },
 ];
 
 const Footer = () => {
@@ -96,24 +102,22 @@ const Footer = () => {
           <div>
             <h3 className="font-bold text-lg mb-4 text-gray-900">Legal</h3>
             <ul className="space-y-2">
-              <li>
-                <Link href="#" className="text-gray-600 hover:text-[#001D8D] transition-colors duration-200">
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="text-gray-600 hover:text-[#001D8D] transition-colors duration-200">
-                  Terms of Service
-                </Link>
-              </li>
+              {policyLinks.map((link) => (
+                <li key={link.href} className="flex items-center gap-2">
+                  {link.href.includes('privacy') && <Lock className="h-4 w-4 text-gray-400" />}
+                  {link.href.includes('terms') && <FileText className="h-4 w-4 text-gray-400" />}
+                  {link.href.includes('aml-kyc') && <Shield className="h-4 w-4 text-gray-400" />}
+                  <Link 
+                    href={link.href} 
+                    className="text-gray-600 hover:text-[#001D8D] transition-colors duration-200"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
               <li>
                 <Link href="#" className="text-gray-600 hover:text-[#001D8D] transition-colors duration-200">
                   Compliance
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="text-gray-600 hover:text-[#001D8D] transition-colors duration-200">
-                  KYC/AML Policy
                 </Link>
               </li>
             </ul>
@@ -128,18 +132,18 @@ const Footer = () => {
             <div className="mt-4 md:mt-0">
               <ul className="flex space-x-6">
                 <li>
-                  <Link href="#" className="text-sm text-gray-500 hover:text-[#001D8D] transition-colors duration-200">
+                  <Link href="/policy/privacy" className="text-sm text-gray-500 hover:text-[#001D8D] transition-colors duration-200">
                     Privacy
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="text-sm text-gray-500 hover:text-[#001D8D] transition-colors duration-200">
+                  <Link href="/policy/terms" className="text-sm text-gray-500 hover:text-[#001D8D] transition-colors duration-200">
                     Terms
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="text-sm text-gray-500 hover:text-[#001D8D] transition-colors duration-200">
-                    Cookies
+                  <Link href="/policy/aml-kyc" className="text-sm text-gray-500 hover:text-[#001D8D] transition-colors duration-200">
+                    AML/KYC
                   </Link>
                 </li>
               </ul>
