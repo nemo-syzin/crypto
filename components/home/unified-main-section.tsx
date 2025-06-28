@@ -112,8 +112,8 @@ const onlineSteps = [
   }
 ];
 
-// ✅ ИСПРАВЛЕННЫЙ МАССИВ ПАРТНЕРОВ - убраны все потенциальные источники пропусков
-const partners = [
+// ✅ РАСШИРЕННЫЙ МАССИВ ПАРТНЕРОВ - дублируем для заполнения полноэкранного режима
+const basePartners = [
   {
     name: "Bitcoin",
     logo: "https://res.coinpaper.com/coinpaper/bitcoin_btc_logo_e68b8dbb0c.svg"
@@ -150,6 +150,13 @@ const partners = [
     name: "Dogecoin",
     logo: "https://res.coinpaper.com/coinpaper/dogecoin_doge_logo_477144b3df.svg"
   }
+];
+
+// ✅ СОЗДАЕМ РАСШИРЕННЫЙ МАССИВ для заполнения широких экранов
+const partners = [
+  ...basePartners,
+  ...basePartners, // Дублируем для заполнения
+  ...basePartners  // Еще раз дублируем для очень широких экранов
 ];
 
 const UnifiedMainSection = () => {
@@ -243,22 +250,25 @@ const UnifiedMainSection = () => {
     return (index + 1).toString().padStart(2, '0');
   };
 
-  // ✅ КОМПОНЕНТ ЛОГОТИПА ПАРТНЕРА - без пропусков
-  const PartnerLogo = ({ partner, index }: { partner: typeof partners[0]; index: number }) => {
+  // ✅ УЛУЧШЕННЫЙ КОМПОНЕНТ ЛОГОТИПА ПАРТНЕРА - адаптивные размеры
+  const PartnerLogo = ({ partner, index }: { partner: typeof basePartners[0]; index: number }) => {
     return (
       <div
         key={`${partner.name}-${index}`}
-        className="flex items-center justify-center w-20 h-20 mx-3 bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200 hover:border-[#001D8D]/30 hover:shadow-lg transition-all duration-300 hover:scale-105 flex-shrink-0"
+        className="flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200 hover:border-[#001D8D]/30 hover:shadow-lg transition-all duration-300 hover:scale-105 flex-shrink-0 mx-2"
         style={{
-          minWidth: '80px', // Фиксированная минимальная ширина
-          maxWidth: '80px'   // Фиксированная максимальная ширина
+          // ✅ Адаптивные размеры для разных экранов
+          width: '72px',
+          height: '72px',
+          minWidth: '72px',
+          maxWidth: '72px'
         }}
       >
         <img
           src={partner.logo}
           alt={`${partner.name} - Криптовалютная биржа`}
-          className="w-10 h-10 object-contain"
-          loading={index < 3 ? "eager" : "lazy"}
+          className="w-9 h-9 object-contain"
+          loading={index < 6 ? "eager" : "lazy"}
           onError={(e) => {
             // ✅ Graceful fallback - скрываем сломанные изображения
             const target = e.currentTarget as HTMLImageElement;
@@ -498,7 +508,7 @@ const UnifiedMainSection = () => {
             </div>
           </div>
 
-          {/* 3. Partners Section - ✅ ИСПРАВЛЕННАЯ ВЕРСИЯ БЕЗ ПРОПУСКОВ */}
+          {/* 3. Partners Section - ✅ ПОЛНОСТЬЮ ИСПРАВЛЕННАЯ ВЕРСИЯ БЕЗ ПРОПУСКОВ */}
           <div>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -516,22 +526,23 @@ const UnifiedMainSection = () => {
               </p>
             </motion.div>
 
-            {/* ✅ ИСПРАВЛЕННАЯ СЕКЦИЯ MARQUEE - БЕЗ ПРОПУСКОВ */}
-            <div className="relative mb-12">
-              {/* Main marquee - left to right */}
-              <div className="mb-8">
+            {/* ✅ ПОЛНОСТЬЮ ПЕРЕРАБОТАННАЯ СЕКЦИЯ MARQUEE - БЕЗ ПРОПУСКОВ НА ЛЮБЫХ ЭКРАНАХ */}
+            <div className="relative mb-12 overflow-hidden">
+              {/* ✅ Первая лента - слева направо с увеличенной скоростью */}
+              <div className="mb-6">
                 <Marquee
                   gradient={false}
-                  speed={50}
+                  speed={60} // Увеличена скорость
                   pauseOnHover={true}
-                  className="py-6"
+                  className="py-4"
                   style={{ 
                     display: 'flex',
-                    alignItems: 'center'
+                    alignItems: 'center',
+                    gap: '0px' // Убираем промежутки
                   }}
                 >
                   {partners
-                    .filter(partner => partner.logo && partner.name) // ✅ Фильтруем только валидные партнеры
+                    .filter(partner => partner.logo && partner.name)
                     .map((partner, index) => (
                       <PartnerLogo 
                         key={`main-${partner.name}-${index}`}
@@ -542,26 +553,52 @@ const UnifiedMainSection = () => {
                 </Marquee>
               </div>
 
-              {/* Secondary marquee - right to left for visual variety */}
-              <div>
+              {/* ✅ Вторая лента - справа налево с другой скоростью */}
+              <div className="mb-6">
                 <Marquee
                   gradient={false}
-                  speed={40}
+                  speed={45} // Другая скорость для визуального разнообразия
                   direction="right"
                   pauseOnHover={true}
-                  className="py-6"
+                  className="py-4"
                   style={{ 
                     display: 'flex',
-                    alignItems: 'center'
+                    alignItems: 'center',
+                    gap: '0px' // Убираем промежутки
                   }}
                 >
                   {partners
-                    .filter(partner => partner.logo && partner.name) // ✅ Фильтруем только валидные партнеры
+                    .filter(partner => partner.logo && partner.name)
                     .slice()
                     .reverse()
                     .map((partner, index) => (
                       <PartnerLogo 
                         key={`secondary-${partner.name}-${index}`}
+                        partner={partner} 
+                        index={index} 
+                      />
+                    ))}
+                </Marquee>
+              </div>
+
+              {/* ✅ Третья лента - для очень широких экранов */}
+              <div className="hidden xl:block">
+                <Marquee
+                  gradient={false}
+                  speed={55}
+                  pauseOnHover={true}
+                  className="py-4"
+                  style={{ 
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0px' // Убираем промежутки
+                  }}
+                >
+                  {partners
+                    .filter(partner => partner.logo && partner.name)
+                    .map((partner, index) => (
+                      <PartnerLogo 
+                        key={`third-${partner.name}-${index}`}
                         partner={partner} 
                         index={index} 
                       />
