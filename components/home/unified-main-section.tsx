@@ -287,13 +287,9 @@ const UnifiedMainSection = () => {
       <div className="container mx-auto px-4 relative z-10">
         <div className="space-y-24">
           
-          {/* 1. Features Section - Calculator Style */}
+          {/* 1. Features Section - Без плашки */}
           <div>
             <div className="text-center max-w-3xl mx-auto mb-16">
-              <div className="inline-flex items-center gap-2 bg-[#001D8D]/10 text-[#001D8D] px-6 py-3 rounded-full text-lg mb-8 font-medium">
-                <Star className="h-6 w-6" />
-                Преимущества KenigSwap
-              </div>
               <h2 className="text-3xl md:text-4xl font-bold mb-6 text-[#001D8D]">
                 Почему выбирают <span className="text-[#001D8D]">Kenigswap</span>
               </h2>
@@ -335,13 +331,9 @@ const UnifiedMainSection = () => {
             </motion.div>
           </div>
 
-          {/* 2. Deal Process Section - Calculator Style с анимацией шагов */}
+          {/* 2. Deal Process Section - Без плашки */}
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-12">
-              <div className="inline-flex items-center gap-2 bg-[#001D8D]/10 text-[#001D8D] px-6 py-3 rounded-full text-lg mb-8 font-medium">
-                <BarChart className="h-6 w-6" />
-                Процесс обмена
-              </div>
               <h2 className="text-3xl md:text-4xl font-semibold text-center text-[#001D8D] mb-4">
                 Как проходит обмен
               </h2>
@@ -494,7 +486,7 @@ const UnifiedMainSection = () => {
             </div>
           </div>
 
-          {/* 3. Partners Section - Calculator Style */}
+          {/* 3. Partners Section - Без плашки */}
           <div>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -503,10 +495,6 @@ const UnifiedMainSection = () => {
               viewport={{ once: true }}
               className="text-center mb-12"
             >
-              <div className="inline-flex items-center gap-2 bg-[#001D8D]/10 text-[#001D8D] px-6 py-3 rounded-full text-lg mb-8 font-medium">
-                <Globe className="h-6 w-6" />
-                Наши партнёры
-              </div>
               <h2 className="text-3xl md:text-4xl font-bold mb-6 text-[#001D8D]">
                 Наши партнёры
               </h2>

@@ -316,39 +316,38 @@ export function SupportPageClient() {
                     {/* Карточка в стиле калькулятора */}
                     <div className="calculator-container h-full group-hover:shadow-xl transition-all duration-300">
                       {/* Заголовок с иконкой */}
-                      <div className="flex items-center gap-3 mb-6">
-                        <div className="p-3 rounded-lg bg-gradient-to-br from-[#001D8D] to-blue-600 group-hover:scale-110 transition-transform duration-300">
+                      <div className="flex items-start gap-4 mb-6">
+                        <div className="flex-shrink-0 p-3 rounded-lg bg-gradient-to-br from-[#001D8D] to-blue-600 group-hover:scale-110 transition-transform duration-300">
                           <method.icon className="h-6 w-6 text-white" />
                         </div>
-                        <div>
-                          <h3 className="text-xl font-bold text-[#001D8D] group-hover:text-blue-600 transition-colors">
-                            {method.title}
-                          </h3>
-                          {method.available && (
-                            <div className="flex items-center gap-1 mt-1">
-                              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                              <span className="text-xs text-green-600 font-medium">Online</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-2">
+                            <h3 className="text-xl font-bold text-[#001D8D] group-hover:text-blue-600 transition-colors">
+                              {method.title}
+                            </h3>
+                            {method.available && (
+                              <div className="flex items-center gap-1">
+                                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                <span className="text-xs text-green-600 font-medium">Online</span>
+                              </div>
+                            )}
+                          </div>
+                          
+                          {/* Время ответа - крупно */}
+                          <div className="mb-3">
+                            <div className="text-2xl font-bold text-[#001D8D]">
+                              {method.responseTime}
                             </div>
-                          )}
+                            <div className="text-sm text-[#001D8D]/70">время ответа</div>
+                          </div>
                         </div>
                       </div>
                       
                       {/* Описание */}
-                      <p className="text-[#001D8D]/70 leading-relaxed mb-6">
+                      <p className="text-[#001D8D]/70 leading-relaxed mb-6 text-sm">
                         {method.description}
                       </p>
                       
-                      {/* Время ответа */}
-                      <div className="mb-6">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Clock className="h-4 w-4 text-[#001D8D]/70" />
-                          <span className="text-sm font-medium text-[#001D8D]/70">Время ответа</span>
-                        </div>
-                        <div className="text-2xl font-bold text-[#001D8D]">
-                          {method.responseTime}
-                        </div>
-                      </div>
-
                       {/* Особенности */}
                       <div className="mb-6">
                         <div className="text-sm font-medium text-[#001D8D]/70 mb-3">Особенности:</div>
@@ -363,10 +362,12 @@ export function SupportPageClient() {
                       </div>
 
                       {/* Кнопка действия */}
-                      <button className="w-full bg-gradient-to-r from-[#001D8D] to-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2">
-                        {method.action}
-                        <ArrowRight className="h-4 w-4" />
-                      </button>
+                      <div className="mt-auto">
+                        <button className="w-full bg-gradient-to-r from-[#001D8D] to-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2">
+                          {method.action}
+                          <ArrowRight className="h-4 w-4" />
+                        </button>
+                      </div>
                     </div>
                   </motion.div>
                 ))}
