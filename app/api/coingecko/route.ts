@@ -117,7 +117,6 @@ async function fetchWithRetry(url: string, headers: HeadersInit, maxRetries: num
       const response = await fetch(url, {
         headers: {
           ...headers,
-          'Connection': 'close', // Force connection close to prevent socket reuse issues
           'Cache-Control': 'no-cache', // Prevent caching issues
         },
         signal: controller.signal,
