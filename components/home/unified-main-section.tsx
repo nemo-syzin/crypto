@@ -486,7 +486,7 @@ const UnifiedMainSection = () => {
             </div>
           </div>
 
-          {/* 3. Partners Section - Без плашки */}
+          {/* 3. Partners Section - Исправленная версия без пропусков */}
           <div>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -504,11 +504,7 @@ const UnifiedMainSection = () => {
               </p>
             </motion.div>
 
-            <div className="calculator-container mb-12">
-              {/* Gradient overlays for smooth edges */}
-              <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-white via-white/80 to-transparent z-10 pointer-events-none" />
-              <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-white via-white/80 to-transparent z-10 pointer-events-none" />
-
+            <div className="relative mb-12">
               {/* Main marquee - left to right */}
               <div className="mb-8">
                 <Marquee
@@ -520,12 +516,12 @@ const UnifiedMainSection = () => {
                   {partners.map((partner, index) => (
                     <div
                       key={`main-${index}`}
-                      className="partner-tile mx-6"
+                      className="flex items-center justify-center w-20 h-20 mx-4 bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200 hover:border-[#001D8D]/30 hover:shadow-lg transition-all duration-300 hover:scale-105"
                     >
                       <img
                         src={partner.logo}
                         alt={`${partner.name} - Криптовалютная биржа`}
-                        className="w-full h-full object-contain"
+                        className="w-10 h-10 object-contain"
                         loading={index < 3 ? "eager" : "lazy"}
                       />
                     </div>
@@ -545,12 +541,12 @@ const UnifiedMainSection = () => {
                   {partners.slice().reverse().map((partner, index) => (
                     <div
                       key={`secondary-${index}`}
-                      className="partner-tile mx-6"
+                      className="flex items-center justify-center w-20 h-20 mx-4 bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200 hover:border-[#001D8D]/30 hover:shadow-lg transition-all duration-300 hover:scale-105"
                     >
                       <img
                         src={partner.logo}
                         alt={`${partner.name} - Криптовалютная биржа`}
-                        className="w-full h-full object-contain"
+                        className="w-10 h-10 object-contain"
                         loading="lazy"
                       />
                     </div>
