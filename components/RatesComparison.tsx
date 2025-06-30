@@ -260,7 +260,7 @@ export default function RatesComparison() {
             <div className="flex items-center justify-center py-8">
               <div className="flex items-center gap-2 text-[#001D8D]">
                 <RefreshCw className="h-4 w-4 animate-spin" />
-                <span className="text-sm">Загрузка...</span>
+                <span className="text-sm">Загрузка актуальных курсов...</span>
               </div>
             </div>
           ) : rates ? (
@@ -338,7 +338,7 @@ export default function RatesComparison() {
           ) : (
             <div className="text-center py-8 text-[#001D8D]/70">
               <div className="text-2xl mb-2">📊</div>
-              <p className="text-sm">Нет данных</p>
+              <p className="text-sm">Нет данных о курсах</p>
             </div>
           )}
         </CardContent>
@@ -350,7 +350,7 @@ export default function RatesComparison() {
               <Info className="h-4 w-4 text-[#001D8D]/70" />
             </div>
             <div className="text-sm text-[#001D8D]/80 leading-relaxed">
-              <strong className="text-[#001D8D]">Мы не скрываем цифры:</strong> здесь наши цены и предложения других сервисов side-by-side, чтобы подтвердить нашу честность.
+              <strong className="text-[#001D8D]">Актуальные курсы:</strong> данные обновляются каждые 30 секунд из нашей базы данных для обеспечения точности и актуальности.
             </div>
           </div>
         </div>

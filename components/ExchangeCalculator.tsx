@@ -94,8 +94,8 @@ export default function ExchangeCalculator() {
 
   // Function to display result
   const getResultDisplay = (): string => {
-    if (loading) return 'Загрузка...';
-    if (!hasValidRates) return 'Курсы ещё загружаются…';
+    if (loading) return 'Загрузка курсов...';
+    if (!hasValidRates) return 'Курсы обновляются...';
     if (amount === '' || numericAmount <= 0) return '';
     
     return formatCurrency(result, direction === 'usdt-to-rub' ? 'RUB' : 'USDT');
@@ -103,8 +103,8 @@ export default function ExchangeCalculator() {
 
   // Function to display exchange button text
   const getExchangeButtonText = (): string => {
-    if (loading) return 'Загрузка...';
-    if (!hasValidRates) return 'Курсы ещё загружаются…';
+    if (loading) return 'Загрузка курсов...';
+    if (!hasValidRates) return 'Ожидание актуальных курсов...';
     if (amount === '' || numericAmount <= 0) return 'Введите сумму для обмена';
     
     const fromCurrency = direction === 'usdt-to-rub' ? 'USDT' : 'RUB';
@@ -129,8 +129,8 @@ export default function ExchangeCalculator() {
     const formattedRate = formatRate(currentRate);
     
     return direction === 'usdt-to-rub' 
-      ? `Введите количество USDT для обмена на рубли по курсу (${formattedRate})`
-      : `Введите количество рублей для покупки USDT по курсу (${formattedRate})`;
+      ? `Введите количество USDT для обмена на рубли по курсу ${formattedRate}`
+      : `Введите количество рублей для покупки USDT по курсу ${formattedRate}`;
   };
 
   // Check if error is configuration related
@@ -179,9 +179,9 @@ export default function ExchangeCalculator() {
         <Alert className="bg-yellow-50 border-yellow-200">
           <AlertTriangle className="h-4 w-4 text-yellow-600" />
           <AlertDescription className="text-yellow-800">
-            <strong>Курсы ещё загружаются…</strong>
+            <strong>Обновление курсов...</strong>
             <br />
-            Пожалуйста, подождите, пока курсы обмена загрузятся из базы данных.
+            Получаем актуальные курсы обмена из базы данных. Пожалуйста, подождите.
           </AlertDescription>
         </Alert>
       )}
@@ -264,7 +264,29 @@ export default function ExchangeCalculator() {
             <div className="flex items-center justify-center py-8">
               <div className="flex items-center gap-3 text-[#001D8D]">
                 <RefreshCw className="h-5 w-5 animate-spin" />
-                <span className="font-medium">Загрузка курсов из Supabase...</span>
+                <span className="font-medium">Загрузка актуальных курсов...</span>
+              </div>
+            </div>
+          )}
+
+          {/* Current Rates Display */}
+          {hasValidRates && (
+            <div className="rates-container">
+              <h4 className="font-semibold text-[#001D8D] mb-3">Текущие курсы KenigSwap</h4>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="text-center">
+                  <div className="text-sm text-[#001D8D]/70 mb-1">Продажа USDT</div>
+                  <div className="rate-value">{formatRate(rate.sell)}</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-sm text-[#001D8D]/70 mb-1">Покупка USDT</div>
+                  <div className="rate-value">{formatRate(rate.buy)}</div>
+                </div>
+              </div>
+              <div className="text-center mt-3">
+                <div className="text-xs text-[#001D8D]/50">
+                  Обновлено: {new Date(rate.updated_at).toLocaleString('ru-RU')}
+                </div>
               </div>
             </div>
           )}

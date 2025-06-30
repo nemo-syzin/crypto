@@ -16,10 +16,13 @@ export async function GET() {
   try {
     const now = Date.now();
     
+    // Check cache first
     if (cache && (now - cache.timestamp) < CACHE_DURATION) {
+      console.log('📦 Serving cached rates data');
       return NextResponse.json(cache.data);
     }
 
+    console.log('🔄 Fetching fresh rates from database...');
     const validationResult = await getValidatedKenigRates();
     
     const data = {
@@ -32,11 +35,13 @@ export async function GET() {
     };
 
     if (validationResult.hasValidRates) {
+      console.log(`✅ Found ${validationResult.validRatesCount} valid rates`);
+      
       validationResult.rates.forEach(rate => {
         if (rate.isValid) {
           const rateData = {
-            sell: rate.sell,
-            buy: rate.buy,
+            sell: Number(rate.sell),
+            buy: Number(rate.buy),
             updated_at: rate.updated_at
           };
 
@@ -45,18 +50,21 @@ export async function GET() {
           else if (rate.source === 'energo') data.energo = rateData;
         }
       });
-    }
-
-    // Use fallback if no valid rates
-    if (!validationResult.hasValidRates) {
+    } else {
+      console.warn('⚠️ No valid rates found, using fallback data');
       const fallback = getFallbackData();
       Object.assign(data, fallback);
     }
 
+    // Update cache
     cache = { data, timestamp: now };
+    
+    console.log('📤 Returning rates data:', data);
     return NextResponse.json(data);
   } catch (error) {
-    console.error('API Error in /api/rates:', error);
-    return NextResponse.json(getFallbackData());
+    console.error('❌ API Error in /api/rates:', error);
+    const fallbackData = getFallbackData();
+    fallbackData.error = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json(fallbackData);
   }
 }
