@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { TrendingUp, TrendingDown, ChevronUp, ChevronDown, BarChart3, Activity } from 'lucide-react';
+import { TrendingUp, TrendingDown, ChevronUp, ChevronDown, BarChart3, Activity, Info, Download, Filter } from 'lucide-react';
 import type { CoinMarketData } from '@/lib/coingecko';
 
 interface MarketTableProps {
@@ -13,7 +13,7 @@ interface MarketTableProps {
   loading?: boolean;
 }
 
-type SortField = 'market_cap_rank' | 'current_price' | 'price_change_percentage_24h' | 'price_change_percentage_7d_in_currency' | 'market_cap' | 'total_volume';
+type SortField = 'market_cap_rank' | 'current_price' | 'price_change_percentage_24h' | 'price_change_percentage_7d_in_currency' | 'market_cap' | 'total_volume' | 'circulating_supply';
 type SortDirection = 'asc' | 'desc';
 
 export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
@@ -78,6 +78,14 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
     return `$${value.toLocaleString()}`;
   };
 
+  const formatSupply = (value: number | null): string => {
+    if (!value) return 'N/A';
+    if (value >= 1e9) return `${(value / 1e9).toFixed(2)}B`;
+    if (value >= 1e6) return `${(value / 1e6).toFixed(2)}M`;
+    if (value >= 1e3) return `${(value / 1e3).toFixed(2)}K`;
+    return value.toLocaleString();
+  };
+
   const SortButton = ({ field, children }: { field: SortField; children: React.ReactNode }) => (
     <Button
       variant="ghost"
@@ -132,7 +140,7 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
           <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600">
             <BarChart3 className="h-5 w-5 text-white" />
           </div>
-          <h3 className="text-xl font-bold text-[#001D8D]">Обзор рынка</h3>
+          <h3 className="text-xl font-bold text-[#001D8D]">Полная таблица рынка</h3>
         </div>
         <div className="animate-pulse">
           <div className="grid grid-cols-8 gap-4 mb-4">
@@ -159,12 +167,18 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
           <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600">
             <BarChart3 className="h-5 w-5 text-white" />
           </div>
-          <h3 className="text-xl font-bold text-[#001D8D]">Обзор рынка</h3>
+          <h3 className="text-xl font-bold text-[#001D8D]">Полная таблица рынка</h3>
         </div>
-        <Badge variant="outline" className="text-xs">
-          <Activity className="h-3 w-3 mr-1" />
-          Живые данные
-        </Badge>
+        <div className="flex items-center gap-3">
+          <Badge variant="outline" className="text-xs">
+            <Activity className="h-3 w-3 mr-1" />
+            Живые данные
+          </Badge>
+          <Button variant="outline" size="sm" className="text-xs flex items-center gap-1">
+            <Download className="h-3 w-3" />
+            Экспорт
+          </Button>
+        </div>
       </div>
       
       <div className="overflow-x-auto">
@@ -175,21 +189,24 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
                 <SortButton field="market_cap_rank">#</SortButton>
               </th>
               <th className="text-left py-3 px-2" scope="col">Название</th>
-              <th className="text-center py-3 px-2" scope="col">Тренд</th>
+              <th className="text-center py-3 px-2 hidden md:table-cell" scope="col">Тренд</th>
               <th className="text-right py-3 px-2" scope="col">
                 <SortButton field="current_price">Цена</SortButton>
               </th>
               <th className="text-right py-3 px-2" scope="col">
                 <SortButton field="price_change_percentage_24h">24ч %</SortButton>
               </th>
-              <th className="text-right py-3 px-2" scope="col">
+              <th className="text-right py-3 px-2 hidden md:table-cell" scope="col">
                 <SortButton field="price_change_percentage_7d_in_currency">7д %</SortButton>
               </th>
               <th className="text-right py-3 px-2" scope="col">
                 <SortButton field="market_cap">Капитализация</SortButton>
               </th>
-              <th className="text-right py-3 px-2" scope="col">
+              <th className="text-right py-3 px-2 hidden md:table-cell" scope="col">
                 <SortButton field="total_volume">Объем (24ч)</SortButton>
+              </th>
+              <th className="text-right py-3 px-2 hidden lg:table-cell" scope="col">
+                <SortButton field="circulating_supply">Циркулирующее предложение</SortButton>
               </th>
             </tr>
           </thead>
@@ -228,7 +245,7 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
                     </div>
                   </div>
                 </td>
-                <td className="py-4 px-2 text-center">
+                <td className="py-4 px-2 text-center hidden md:table-cell">
                   <MiniSparkline coin={coin} />
                 </td>
                 <td className="py-4 px-2 text-right font-semibold text-[#001D8D]">
@@ -254,7 +271,7 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
                     </span>
                   </Badge>
                 </td>
-                <td className="py-4 px-2 text-right">
+                <td className="py-4 px-2 text-right hidden md:table-cell">
                   <span className={`${
                     (coin.price_change_percentage_7d_in_currency || 0) >= 0
                       ? 'text-green-600'
@@ -267,8 +284,18 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
                 <td className="py-4 px-2 text-right text-[#001D8D]/70">
                   {formatMarketCap(coin.market_cap)}
                 </td>
-                <td className="py-4 px-2 text-right text-[#001D8D]/70">
+                <td className="py-4 px-2 text-right text-[#001D8D]/70 hidden md:table-cell">
                   {formatMarketCap(coin.total_volume)}
+                </td>
+                <td className="py-4 px-2 text-right text-[#001D8D]/70 hidden lg:table-cell">
+                  <div className="flex flex-col items-end">
+                    <div>{formatSupply(coin.circulating_supply)} {coin.symbol.toUpperCase()}</div>
+                    {coin.max_supply && (
+                      <div className="text-xs text-[#001D8D]/50">
+                        Макс: {formatSupply(coin.max_supply)}
+                      </div>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}
@@ -317,13 +344,48 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
       )}
       
       {/* Table footer with info */}
-      <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
+      <div className="mt-4 pt-4 border-t border-gray-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-xs text-gray-500">
         <div className="flex items-center gap-2">
           <Activity className="h-3 w-3" />
           <span>Нажмите на любую строку для просмотра подробных графиков</span>
         </div>
-        <div>
-          Данные обновляются каждые 5 минут
+        
+        <div className="flex items-start gap-4">
+          <div className="flex items-center gap-1">
+            <Info className="h-3 w-3 text-blue-500" />
+            <span>Данные обновляются каждые 5 минут</span>
+          </div>
+          
+          <div className="flex items-center gap-1">
+            <Filter className="h-3 w-3 text-purple-500" />
+            <span>Отсортировано по: {sortField === 'market_cap_rank' ? 'рангу' : 
+              sortField === 'current_price' ? 'цене' : 
+              sortField === 'price_change_percentage_24h' ? 'изменению 24ч' : 
+              sortField === 'price_change_percentage_7d_in_currency' ? 'изменению 7д' : 
+              sortField === 'market_cap' ? 'капитализации' : 
+              sortField === 'total_volume' ? 'объему' : 
+              sortField === 'circulating_supply' ? 'предложению' : 'рангу'}</span>
+          </div>
+        </div>
+      </div>
+      
+      {/* Table Legend */}
+      <div className="mt-6 p-4 bg-blue-50/50 rounded-lg border border-blue-100 text-sm">
+        <div className="flex items-start gap-3">
+          <Info className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+          <div>
+            <h5 className="font-semibold text-blue-900 mb-2">Информация о таблице</h5>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 text-xs text-blue-800">
+              <div>• <strong>Ранг</strong>: Позиция по рыночной капитализации</div>
+              <div>• <strong>Цена</strong>: Текущая цена в USD</div>
+              <div>• <strong>24ч %</strong>: Изменение цены за последние 24 часа</div>
+              <div>• <strong>7д %</strong>: Изменение цены за последние 7 дней</div>
+              <div>• <strong>Капитализация</strong>: Общая рыночная стоимость</div>
+              <div>• <strong>Объем (24ч)</strong>: Объем торгов за 24 часа</div>
+              <div>• <strong>Циркулирующее предложение</strong>: Количество монет в обращении</div>
+              <div>• <strong>Макс. предложение</strong>: Максимально возможное количество монет</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
