@@ -297,20 +297,22 @@ AML – это комплекс мер и процедур, предотвращ
 
   return (
     <div className="min-h-screen bg-white relative overflow-hidden">
-      {/* Simplified background */}
+      {/* Background with Vanta */}
       <section className="relative py-20 bg-gradient-to-b from-white via-blue-50/10 to-blue-100/20 overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
+        <div className="absolute inset-0 opacity-15">
           <UnifiedVantaBackground 
-            type="dots"
+            type="topology"
             color={0x94bdff}
             color2={0xFF6B35}
             backgroundColor={0xffffff}
-            size={1.5}
-            spacing={30}
-            showLines={false}
-            mouseControls={false}
-            touchControls={false}
-            forceAnimate={false}
+            points={15}
+            maxDistance={20}
+            spacing={16}
+            showDots={true}
+            speed={1.4}
+            mouseControls={true}
+            touchControls={true}
+            forceAnimate={true}
           />
         </div>
 
