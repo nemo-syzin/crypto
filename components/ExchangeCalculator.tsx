@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -17,13 +17,13 @@ export default function ExchangeCalculator() {
   const [isAnimating, setIsAnimating] = useState(false);
   const { rate, loading, error, lastUpdated, refetch } = useKenigRate();
 
-  // Function to safely parse number
-  const parseAmount = (value: string): number => {
+  // Мемоизированные функции для предотвращения лишних ререндеров
+  const parseAmount = useMemo(() => (value: string): number => {
     const parsed = parseFloat(value);
     return isNaN(parsed) ? 0 : parsed;
-  };
+  }, []);
 
-  const calculateResult = (): number => {
+  const calculateResult = useMemo((): number => {
     const numericAmount = parseAmount(amount);
     if (!rate || numericAmount <= 0) return 0;
     
@@ -36,7 +36,7 @@ export default function ExchangeCalculator() {
     } else {
       return buyRate ? numericAmount / buyRate : 0;
     }
-  };
+  }, [amount, rate, direction, parseAmount]);
 
   const toggleDirection = () => {
     setDirection(prev => prev === 'usdt-to-rub' ? 'rub-to-usdt' : 'usdt-to-rub');
@@ -44,7 +44,8 @@ export default function ExchangeCalculator() {
     setTimeout(() => setIsAnimating(false), 150);
   };
 
-  const formatCurrency = (value: number, currency: 'USDT' | 'RUB'): string => {
+  // Мемоизированные функции форматирования
+  const formatCurrency = useMemo(() => (value: number, currency: 'USDT' | 'RUB'): string => {
     if (value === 0) return '';
     
     if (currency === 'RUB') {
@@ -60,10 +61,9 @@ export default function ExchangeCalculator() {
         maximumFractionDigits: 4,
       }).format(value) + ' USDT';
     }
-  };
+  }, []);
 
-  // Function to format rate for display
-  const formatRate = (rateValue: number | null): string => {
+  const formatRate = useMemo(() => (rateValue: number | null): string => {
     if (!rateValue || isNaN(rateValue)) return '—';
     return new Intl.NumberFormat('ru-RU', {
       style: 'currency',
@@ -71,7 +71,7 @@ export default function ExchangeCalculator() {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(rateValue);
-  };
+  }, []);
 
   // Handle amount change
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -83,26 +83,25 @@ export default function ExchangeCalculator() {
     }
   };
 
-  // Check if rates are available and valid
-  const hasValidRates = rate && 
+  // Мемоизированные проверки и вычисления
+  const hasValidRates = useMemo(() => rate && 
     typeof rate.sell === 'number' && !isNaN(rate.sell) && rate.sell > 0 &&
-    typeof rate.buy === 'number' && !isNaN(rate.buy) && rate.buy > 0;
+    typeof rate.buy === 'number' && !isNaN(rate.buy) && rate.buy > 0, [rate]);
 
   const isCalculationDisabled = !hasValidRates || loading || !!error;
   const numericAmount = parseAmount(amount);
-  const result = calculateResult();
+  const result = calculateResult;
 
-  // Function to display result
-  const getResultDisplay = (): string => {
+  // Мемоизированные функции отображения
+  const getResultDisplay = useMemo((): string => {
     if (loading) return 'Загрузка курсов...';
     if (!hasValidRates) return 'Курсы обновляются...';
     if (amount === '' || numericAmount <= 0) return '';
     
     return formatCurrency(result, direction === 'usdt-to-rub' ? 'RUB' : 'USDT');
-  };
+  }, [loading, hasValidRates, amount, numericAmount, result, direction, formatCurrency]);
 
-  // Function to display exchange button text
-  const getExchangeButtonText = (): string => {
+  const getExchangeButtonText = useMemo((): string => {
     if (loading) return 'Загрузка курсов...';
     if (!hasValidRates) return 'Ожидание актуальных курсов...';
     if (amount === '' || numericAmount <= 0) return 'Введите сумму для обмена';
@@ -115,10 +114,9 @@ export default function ExchangeCalculator() {
     const toAmount = formatCurrency(result, toCurrency);
     
     return `Обменять ${fromAmount} → ${toAmount}`;
-  };
+  }, [loading, hasValidRates, amount, numericAmount, direction, result, formatCurrency]);
 
-  // Function to get hint text with current rate
-  const getHintText = (): string => {
+  const getHintText = useMemo((): string => {
     if (!hasValidRates) {
       return direction === 'usdt-to-rub' 
         ? 'Введите количество USDT для обмена на рубли' 
@@ -131,7 +129,7 @@ export default function ExchangeCalculator() {
     return direction === 'usdt-to-rub' 
       ? `Введите количество USDT для обмена на рубли по курсу ${formattedRate}`
       : `Введите количество рублей для покупки USDT по курсу ${formattedRate}`;
-  };
+  }, [hasValidRates, direction, rate, formatRate]);
 
   // Check if error is configuration related
   const isConfigurationError = error && (
@@ -181,7 +179,7 @@ export default function ExchangeCalculator() {
           <AlertDescription className="text-yellow-800">
             <strong>Обновление курсов...</strong>
             <br />
-            Получаем актуальные курсы обмена из базы данных. Пожалуйста, подождите.
+            Получаем актуальные курсы обмена из базы данных kenig_rates. Пожалуйста, подождите.
           </AlertDescription>
         </Alert>
       )}
@@ -229,7 +227,7 @@ export default function ExchangeCalculator() {
               className={`input-field ${error ? 'border-red-300' : ''}`}
             />
             <div className="hint-text">
-              {getHintText()}
+              {getHintText}
             </div>
           </div>
 
@@ -251,7 +249,7 @@ export default function ExchangeCalculator() {
             </Label>
             <div className={`input-field bg-gray-50 ${isAnimating ? 'result-animation' : ''}`}>
               <div className="text-[#001D8D] font-semibold">
-                {getResultDisplay() || (amount === '' ? 'Результат появится здесь' : '')}
+                {getResultDisplay || (amount === '' ? 'Результат появится здесь' : '')}
               </div>
             </div>
             <div className="hint-text">
@@ -260,7 +258,7 @@ export default function ExchangeCalculator() {
           </div>
 
           {/* Loading State */}
-          {loading && (
+          {loading && !rate && (
             <div className="flex items-center justify-center py-8">
               <div className="flex items-center gap-3 text-[#001D8D]">
                 <RefreshCw className="h-5 w-5 animate-spin" />
@@ -300,7 +298,7 @@ export default function ExchangeCalculator() {
             }`}
             disabled={isCalculationDisabled || amount === '' || numericAmount <= 0}
           >
-            {getExchangeButtonText()}
+            {getExchangeButtonText}
           </button>
         </CardContent>
       </div>

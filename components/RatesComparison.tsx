@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -24,7 +24,7 @@ export default function RatesComparison() {
   const [countdown, setCountdown] = useState<string>('');
   const [showMobileDetails, setShowMobileDetails] = useState(false);
 
-  // Countdown timer effect
+  // Countdown timer effect - стабильный без лишних обновлений
   useEffect(() => {
     if (!lastUpdated) return;
 
@@ -46,7 +46,8 @@ export default function RatesComparison() {
     return () => clearInterval(interval);
   }, [lastUpdated]);
 
-  const formatRate = (rate: number | null): string => {
+  // Мемоизированные функции для предотвращения лишних ререндеров
+  const formatRate = useMemo(() => (rate: number | null): string => {
     if (rate === null || rate === undefined || isNaN(rate)) return '—';
     return new Intl.NumberFormat('ru-RU', {
       style: 'currency',
@@ -54,10 +55,10 @@ export default function RatesComparison() {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(rate);
-  };
+  }, []);
 
-  // Calculate delta vs KenigSwap
-  const calculateDelta = (rate: number | null, kenigRate: number | null): { 
+  // Calculate delta vs KenigSwap - мемоизировано
+  const calculateDelta = useMemo(() => (rate: number | null, kenigRate: number | null): { 
     delta: number; 
     isPositive: boolean; 
     color: string 
@@ -71,10 +72,10 @@ export default function RatesComparison() {
     const color = isPositive ? 'text-green-600' : 'text-gray-400';
     
     return { delta: Math.abs(delta), isPositive, color };
-  };
+  }, []);
 
-  // Mock sparkline data
-  const generateSparklineData = (baseRate: number | null): number[] => {
+  // Mock sparkline data - мемоизировано
+  const generateSparklineData = useMemo(() => (baseRate: number | null): number[] => {
     if (!baseRate) return [];
     const data = [];
     for (let i = 0; i < 6; i++) {
@@ -82,58 +83,63 @@ export default function RatesComparison() {
       data.push(baseRate * (1 + variation));
     }
     return data;
-  };
+  }, []);
 
-  // Логика для определения лучших курсов
-  const getBestSellRate = () => {
-    if (!rates) return null;
-    const sellRates = [
-      { source: 'KenigSwap', rate: rates.kenig.sell },
-      { source: 'BestChange', rate: rates.bestchange.sell },
-    ].filter(item => item.rate !== null && !isNaN(item.rate!)) as { source: string; rate: number }[];
+  // Мемоизированные данные для предотвращения лишних вычислений
+  const exchangeData = useMemo(() => {
+    if (!rates) return [];
     
-    if (sellRates.length === 0) return null;
-    return sellRates.reduce((best, current) => 
-      current.rate < best.rate ? current : best
-    );
-  };
+    return [
+      {
+        name: 'KenigSwap',
+        sellRate: rates.kenig.sell,
+        buyRate: rates.kenig.buy,
+        updatedAt: rates.kenig.updated_at,
+        available: rates.kenig.sell !== null && !isNaN(rates.kenig.sell!),
+        description: 'Основной',
+        priority: 1
+      },
+      {
+        name: 'BestChange',
+        sellRate: rates.bestchange.sell,
+        buyRate: rates.bestchange.buy,
+        updatedAt: rates.bestchange.updated_at,
+        available: rates.bestchange.sell !== null && !isNaN(rates.bestchange.sell!),
+        description: 'Агрегатор',
+        priority: 2
+      }
+    ];
+  }, [rates]);
 
-  const getBestBuyRate = () => {
-    if (!rates) return null;
-    const buyRates = [
-      { source: 'KenigSwap', rate: rates.kenig.buy },
-      { source: 'BestChange', rate: rates.bestchange.buy },
-    ].filter(item => item.rate !== null && !isNaN(item.rate!)) as { source: string; rate: number }[];
-    
-    if (buyRates.length === 0) return null;
-    return buyRates.reduce((best, current) => 
-      current.rate > best.rate ? current : best
-    );
-  };
+  // Логика для определения лучших курсов - мемоизировано
+  const bestRates = useMemo(() => {
+    const getBestSellRate = () => {
+      const sellRates = exchangeData
+        .filter(item => item.sellRate !== null && !isNaN(item.sellRate!) && item.available)
+        .map(item => ({ source: item.name, rate: item.sellRate! }));
+      
+      if (sellRates.length === 0) return null;
+      return sellRates.reduce((best, current) => 
+        current.rate < best.rate ? current : best
+      );
+    };
 
-  const bestSell = getBestSellRate();
-  const bestBuy = getBestBuyRate();
+    const getBestBuyRate = () => {
+      const buyRates = exchangeData
+        .filter(item => item.buyRate !== null && !isNaN(item.buyRate!) && item.available)
+        .map(item => ({ source: item.name, rate: item.buyRate! }));
+      
+      if (buyRates.length === 0) return null;
+      return buyRates.reduce((best, current) => 
+        current.rate > best.rate ? current : best
+      );
+    };
 
-  const exchangeData = rates ? [
-    {
-      name: 'KenigSwap',
-      sellRate: rates.kenig.sell,
-      buyRate: rates.kenig.buy,
-      updatedAt: rates.kenig.updated_at,
-      available: rates.kenig.sell !== null && !isNaN(rates.kenig.sell!),
-      description: 'Основной',
-      priority: 1
-    },
-    {
-      name: 'BestChange',
-      sellRate: rates.bestchange.sell,
-      buyRate: rates.bestchange.buy,
-      updatedAt: rates.bestchange.updated_at,
-      available: rates.bestchange.sell !== null && !isNaN(rates.bestchange.sell!),
-      description: 'Агрегатор',
-      priority: 2
-    }
-  ] : [];
+    return {
+      bestSell: getBestSellRate(),
+      bestBuy: getBestBuyRate()
+    };
+  }, [exchangeData]);
 
   // Check if error is configuration related
   const isConfigurationError = error && (
@@ -142,12 +148,15 @@ export default function RatesComparison() {
     error.includes('environment variables')
   );
 
-  // Mobile: show only leader
-  const mobileLeader = exchangeData.find(ex => 
-    (bestSell?.source === ex.name || bestBuy?.source === ex.name) && ex.available
-  ) || exchangeData[0];
+  // Mobile: show only leader - мемоизировано
+  const mobileLeader = useMemo(() => {
+    return exchangeData.find(ex => 
+      (bestRates.bestSell?.source === ex.name || bestRates.bestBuy?.source === ex.name) && ex.available
+    ) || exchangeData[0];
+  }, [exchangeData, bestRates]);
 
-  const renderCompactRateCard = (exchange: any, type: 'sell' | 'buy', isBest: boolean) => {
+  // Мемоизированный компонент карточки курса
+  const renderCompactRateCard = useMemo(() => (exchange: any, type: 'sell' | 'buy', isBest: boolean) => {
     const rate = type === 'sell' ? exchange.sellRate : exchange.buyRate;
     const kenigRate = type === 'sell' ? rates?.kenig.sell : rates?.kenig.buy;
     const delta = calculateDelta(rate, kenigRate);
@@ -206,7 +215,7 @@ export default function RatesComparison() {
         </div>
       </div>
     );
-  };
+  }, [rates, calculateDelta, generateSparklineData, formatRate]);
 
   return (
     <div className="space-y-4">
@@ -256,7 +265,7 @@ export default function RatesComparison() {
         </CardHeader>
 
         <CardContent className="space-y-6">
-          {loading ? (
+          {loading && !rates ? (
             <div className="flex items-center justify-center py-8">
               <div className="flex items-center gap-2 text-[#001D8D]">
                 <RefreshCw className="h-4 w-4 animate-spin" />
@@ -276,13 +285,13 @@ export default function RatesComparison() {
                 {/* Desktop view - Compact grid */}
                 <div className="hidden sm:grid grid-cols-2 gap-4">
                   {exchangeData.map((exchange) => 
-                    renderCompactRateCard(exchange, 'sell', bestSell?.source === exchange.name)
+                    renderCompactRateCard(exchange, 'sell', bestRates.bestSell?.source === exchange.name)
                   )}
                 </div>
 
                 {/* Mobile view - Simplified */}
                 <div className="sm:hidden">
-                  {mobileLeader && renderCompactRateCard(mobileLeader, 'sell', bestSell?.source === mobileLeader.name)}
+                  {mobileLeader && renderCompactRateCard(mobileLeader, 'sell', bestRates.bestSell?.source === mobileLeader.name)}
                   
                   {exchangeData.length > 1 && (
                     <details className="mt-3">
@@ -292,7 +301,7 @@ export default function RatesComparison() {
                       </summary>
                       <div className="mt-3 space-y-3">
                         {exchangeData.filter(ex => ex.name !== mobileLeader.name).map((exchange) => 
-                          renderCompactRateCard(exchange, 'sell', bestSell?.source === exchange.name)
+                          renderCompactRateCard(exchange, 'sell', bestRates.bestSell?.source === exchange.name)
                         )}
                       </div>
                     </details>
@@ -311,13 +320,13 @@ export default function RatesComparison() {
                 {/* Desktop view - Compact grid */}
                 <div className="hidden sm:grid grid-cols-2 gap-4">
                   {exchangeData.map((exchange) => 
-                    renderCompactRateCard(exchange, 'buy', bestBuy?.source === exchange.name)
+                    renderCompactRateCard(exchange, 'buy', bestRates.bestBuy?.source === exchange.name)
                   )}
                 </div>
 
                 {/* Mobile view - Simplified */}
                 <div className="sm:hidden">
-                  {mobileLeader && renderCompactRateCard(mobileLeader, 'buy', bestBuy?.source === mobileLeader.name)}
+                  {mobileLeader && renderCompactRateCard(mobileLeader, 'buy', bestRates.bestBuy?.source === mobileLeader.name)}
                   
                   {exchangeData.length > 1 && (
                     <details className="mt-3">
@@ -327,7 +336,7 @@ export default function RatesComparison() {
                       </summary>
                       <div className="mt-3 space-y-3">
                         {exchangeData.filter(ex => ex.name !== mobileLeader.name).map((exchange) => 
-                          renderCompactRateCard(exchange, 'buy', bestBuy?.source === exchange.name)
+                          renderCompactRateCard(exchange, 'buy', bestRates.bestBuy?.source === exchange.name)
                         )}
                       </div>
                     </details>
@@ -350,7 +359,7 @@ export default function RatesComparison() {
               <Info className="h-4 w-4 text-[#001D8D]/70" />
             </div>
             <div className="text-sm text-[#001D8D]/80 leading-relaxed">
-              <strong className="text-[#001D8D]">Актуальные курсы:</strong> данные обновляются каждые 30 секунд из нашей базы данных для обеспечения точности и актуальности.
+              <strong className="text-[#001D8D]">Актуальные курсы:</strong> данные обновляются каждые 30 секунд из базы данных kenig_rates для обеспечения точности и актуальности.
             </div>
           </div>
         </div>

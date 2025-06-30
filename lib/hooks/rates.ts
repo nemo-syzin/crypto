@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 interface KenigRate {
   sell: number;
@@ -16,16 +16,45 @@ interface AllRates {
   isFallback?: boolean;
 }
 
-// Enhanced rates hook with better error handling and reduced update frequency
+// Кэш для предотвращения лишних запросов
+let ratesCache: { data: AllRates | null; timestamp: number } | null = null;
+const CACHE_DURATION = 30000; // 30 секунд
+
+// Enhanced rates hook with stable updates and caching
 export function useAllRates() {
   const [rates, setRates] = useState<AllRates | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const fetchingRef = useRef(false);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const fetchRates = useCallback(async () => {
+  const fetchRates = useCallback(async (forceRefresh = false) => {
+    // Предотвращаем множественные одновременные запросы
+    if (fetchingRef.current && !forceRefresh) {
+      console.log('🔄 Fetch already in progress, skipping...');
+      return;
+    }
+
+    // Проверяем кэш
+    const now = Date.now();
+    if (!forceRefresh && ratesCache && (now - ratesCache.timestamp) < CACHE_DURATION) {
+      console.log('📦 Using cached rates data');
+      if (ratesCache.data && !rates) {
+        setRates(ratesCache.data);
+        setLastUpdated(new Date(ratesCache.timestamp));
+        setLoading(false);
+      }
+      return;
+    }
+
+    fetchingRef.current = true;
+    
     try {
-      setLoading(true);
+      // Показываем загрузку только при первом запросе
+      if (!rates) {
+        setLoading(true);
+      }
       setError(null);
       
       console.log('🔄 Fetching rates from API...');
@@ -71,7 +100,20 @@ export function useAllRates() {
         setError('Нет актуальных курсов в базе данных');
       }
       
-      setRates(data);
+      // Обновляем кэш
+      ratesCache = {
+        data,
+        timestamp: now
+      };
+      
+      // Обновляем состояние только если данные действительно изменились
+      setRates(prevRates => {
+        if (!prevRates || JSON.stringify(prevRates) !== JSON.stringify(data)) {
+          return data;
+        }
+        return prevRates;
+      });
+      
       setLastUpdated(new Date());
       
       if (hasValidRates && data.isFromDatabase) {
@@ -84,9 +126,9 @@ export function useAllRates() {
       console.error('❌ Error fetching rates:', errorMessage);
       setError(errorMessage);
       
-      // Set fallback rates if no data exists
+      // Set fallback rates only if no data exists
       if (!rates) {
-        setRates({
+        const fallbackData = {
           kenig: { sell: 95.50, buy: 94.80, updated_at: new Date().toISOString() },
           bestchange: { sell: 95.30, buy: 94.90, updated_at: new Date().toISOString() },
           energo: { sell: 95.20, buy: 94.70, updated_at: new Date().toISOString() },
@@ -94,33 +136,75 @@ export function useAllRates() {
           isFromDatabase: false,
           error: errorMessage,
           isFallback: true
-        });
+        };
+        
+        setRates(fallbackData);
+        ratesCache = {
+          data: fallbackData,
+          timestamp: now
+        };
       }
     } finally {
       setLoading(false);
+      fetchingRef.current = false;
     }
   }, [rates]);
 
+  // Инициализация и настройка интервала
   useEffect(() => {
+    // Первоначальная загрузка
     fetchRates();
-    // Увеличиваем интервал обновления до 2 минут для снижения нагрузки
-    const interval = setInterval(fetchRates, 120000);
-    return () => clearInterval(interval);
+    
+    // Настройка интервала обновления каждые 30 секунд
+    intervalRef.current = setInterval(() => {
+      fetchRates();
+    }, 30000);
+
+    // Cleanup
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
   }, [fetchRates]);
 
-  return { rates, loading, error, lastUpdated, refetch: fetchRates };
+  // Функция для принудительного обновления
+  const refetch = useCallback(() => {
+    fetchRates(true);
+  }, [fetchRates]);
+
+  return { 
+    rates, 
+    loading, 
+    error, 
+    lastUpdated, 
+    refetch 
+  };
 }
 
-// Enhanced kenig rate hook with better validation
+// Enhanced kenig rate hook with stable updates
 export function useKenigRate() {
   const [rate, setRate] = useState<KenigRate | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const fetchingRef = useRef(false);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const fetchRate = useCallback(async () => {
+  const fetchRate = useCallback(async (forceRefresh = false) => {
+    // Предотвращаем множественные одновременные запросы
+    if (fetchingRef.current && !forceRefresh) {
+      return;
+    }
+
+    fetchingRef.current = true;
+    
     try {
-      setLoading(true);
+      // Показываем загрузку только при первом запросе
+      if (!rate) {
+        setLoading(true);
+      }
       setError(null);
       
       console.log('🔄 Fetching Kenig rate from API...');
@@ -149,7 +233,16 @@ export function useKenigRate() {
         
         // Validate that rates are reasonable numbers
         if (kenigRate.sell > 0 && kenigRate.buy > 0 && kenigRate.sell > kenigRate.buy) {
-          setRate(kenigRate);
+          // Обновляем только если данные изменились
+          setRate(prevRate => {
+            if (!prevRate || 
+                prevRate.sell !== kenigRate.sell || 
+                prevRate.buy !== kenigRate.buy) {
+              return kenigRate;
+            }
+            return prevRate;
+          });
+          
           console.log('✅ Kenig rate updated successfully:', kenigRate);
           
           if (data.isFromDatabase) {
@@ -163,11 +256,13 @@ export function useKenigRate() {
       } else {
         // Use fallback rate if no valid data
         console.warn('⚠️ No valid Kenig rate found, using fallback');
-        setRate({
-          sell: 95.50,
-          buy: 94.80,
-          updated_at: new Date().toISOString()
-        });
+        if (!rate) {
+          setRate({
+            sell: 95.50,
+            buy: 94.80,
+            updated_at: new Date().toISOString()
+          });
+        }
         setError('Нет данных о курсах Kenig');
       }
       
@@ -177,7 +272,7 @@ export function useKenigRate() {
       console.error('❌ Error fetching Kenig rate:', errorMessage);
       setError(errorMessage);
       
-      // Set fallback rate if no data exists
+      // Set fallback rate only if no data exists
       if (!rate) {
         setRate({
           sell: 95.50,
@@ -187,15 +282,36 @@ export function useKenigRate() {
       }
     } finally {
       setLoading(false);
+      fetchingRef.current = false;
     }
   }, [rate]);
 
   useEffect(() => {
+    // Первоначальная загрузка
     fetchRate();
-    // Увеличиваем интервал обновления до 2 минут
-    const interval = setInterval(fetchRate, 120000);
-    return () => clearInterval(interval);
+    
+    // Настройка интервала обновления каждые 30 секунд
+    intervalRef.current = setInterval(() => {
+      fetchRate();
+    }, 30000);
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
   }, [fetchRate]);
 
-  return { rate, loading, error, lastUpdated, refetch: fetchRate };
+  const refetch = useCallback(() => {
+    fetchRate(true);
+  }, [fetchRate]);
+
+  return { 
+    rate, 
+    loading, 
+    error, 
+    lastUpdated, 
+    refetch 
+  };
 }
