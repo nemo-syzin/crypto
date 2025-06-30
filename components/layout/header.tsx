@@ -80,27 +80,38 @@ const Header = () => {
               <button
                 className="text-[#001D8D] hover:opacity-80 transition-colors duration-200 flex items-center gap-1"
                 onClick={() => setPolicyDropdownOpen(!policyDropdownOpen)}
-                onBlur={() => setTimeout(() => setPolicyDropdownOpen(false), 100)}
+                onBlur={(e) => {
+                  // Проверяем, что фокус не переходит на элемент внутри dropdown
+                  if (!e.currentTarget.contains(e.relatedTarget)) {
+                    setTimeout(() => setPolicyDropdownOpen(false), 150);
+                  }
+                }}
               >
                 Policy <ChevronDown className="h-4 w-4" />
               </button>
               {policyDropdownOpen && (
-                <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+                <div 
+                  className="absolute top-full left-0 mt-2 w-64 bg-white rounded-md shadow-lg py-2 z-50 border border-gray-200"
+                  onMouseLeave={() => setPolicyDropdownOpen(false)}
+                >
                   <Link 
                     href="/policy/aml-kyc" 
-                    className="block px-4 py-2 text-sm text-[#001D8D] hover:bg-[#001D8D]/5"
+                    className="block px-4 py-3 text-sm text-[#001D8D] hover:bg-[#001D8D]/5 transition-colors"
+                    onClick={() => setPolicyDropdownOpen(false)}
                   >
                     AML/CTF и KYC
                   </Link>
                   <Link 
                     href="/policy/terms" 
-                    className="block px-4 py-2 text-sm text-[#001D8D] hover:bg-[#001D8D]/5"
+                    className="block px-4 py-3 text-sm text-[#001D8D] hover:bg-[#001D8D]/5 transition-colors"
+                    onClick={() => setPolicyDropdownOpen(false)}
                   >
                     Условия использования
                   </Link>
                   <Link 
                     href="/policy/privacy" 
-                    className="block px-4 py-2 text-sm text-[#001D8D] hover:bg-[#001D8D]/5"
+                    className="block px-4 py-3 text-sm text-[#001D8D] hover:bg-[#001D8D]/5 transition-colors"
+                    onClick={() => setPolicyDropdownOpen(false)}
                   >
                     Политика конфиденциальности
                   </Link>
@@ -194,19 +205,19 @@ const Header = () => {
                     <div className="pl-4 flex flex-col gap-2">
                       <Link 
                         href="/policy/aml-kyc" 
-                        className="p-1 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors text-sm"
+                        className="p-2 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors text-sm"
                       >
                         AML/CTF и KYC
                       </Link>
                       <Link 
                         href="/policy/terms" 
-                        className="p-1 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors text-sm"
+                        className="p-2 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors text-sm"
                       >
                         Условия использования
                       </Link>
                       <Link 
                         href="/policy/privacy" 
-                        className="p-1 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors text-sm"
+                        className="p-2 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors text-sm"
                       >
                         Политика конфиденциальности
                       </Link>
