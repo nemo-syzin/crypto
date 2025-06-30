@@ -125,7 +125,7 @@ export function MarketAnalysis({ coins, loading }: MarketAnalysisProps) {
             {highVolatility.length}
           </div>
           <div className="text-sm text-gray-600">
-            Монет с изменением >5%
+            Монет с изменением &gt;5%
           </div>
         </div>
       </div>
@@ -141,7 +141,7 @@ export function MarketAnalysis({ coins, loading }: MarketAnalysisProps) {
           
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Сильный рост (>5%)</span>
+              <span className="text-sm text-gray-600">Сильный рост (&gt;5%)</span>
               <div className="flex items-center gap-2">
                 <div className="w-20 bg-gray-200 rounded-full h-2">
                   <div 
@@ -186,7 +186,7 @@ export function MarketAnalysis({ coins, loading }: MarketAnalysisProps) {
             </div>
 
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Сильное падение (<-5%)</span>
+              <span className="text-sm text-gray-600">Сильное падение (&lt;-5%)</span>
               <div className="flex items-center gap-2">
                 <div className="w-20 bg-gray-200 rounded-full h-2">
                   <div 
@@ -262,7 +262,7 @@ export function MarketAnalysis({ coins, loading }: MarketAnalysisProps) {
             <div className="text-sm text-blue-800 space-y-1">
               <div>• {gainers.length > losers.length ? 'Большинство' : 'Меньшинство'} криптовалют показывают положительную динамику</div>
               <div>• Средний коэффициент оборота составляет {((totalVolume / totalMarketCap) * 100).toFixed(1)}%</div>
-              <div>• {highVolatility.length} монет демонстрируют высокую волатильность (>5%)</div>
+              <div>• {highVolatility.length} монет демонстрируют высокую волатильность (&gt;5%)</div>
               <div>• Топ-5 криптовалют составляют {coins.slice(0, 5).reduce((sum, coin) => sum + (coin.market_cap / totalMarketCap) * 100, 0).toFixed(1)}% от общей капитализации</div>
             </div>
           </div>
