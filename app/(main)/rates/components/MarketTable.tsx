@@ -19,6 +19,8 @@ type SortDirection = 'asc' | 'desc';
 export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
   const [sortField, setSortField] = useState<SortField>('market_cap_rank');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 10;
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -43,6 +45,13 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
       return aValue < bValue ? 1 : -1;
     }
   });
+
+  // Pagination
+  const totalPages = Math.ceil(sortedCoins.length / itemsPerPage);
+  const paginatedCoins = sortedCoins.slice(
+    (page - 1) * itemsPerPage,
+    page * itemsPerPage
+  );
 
   const formatPrice = (price: number): string => {
     if (price >= 1) {
@@ -185,7 +194,7 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
             </tr>
           </thead>
           <tbody>
-            {sortedCoins.map((coin) => (
+            {paginatedCoins.map((coin) => (
               <tr
                 key={coin.id}
                 onClick={() => onCoinClick(coin)}
@@ -266,6 +275,46 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
           </tbody>
         </table>
       </div>
+      
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="mt-6 flex items-center justify-between">
+          <div className="text-sm text-[#001D8D]/70">
+            Показано {(page - 1) * itemsPerPage + 1}-{Math.min(page * itemsPerPage, sortedCoins.length)} из {sortedCoins.length}
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage(p => Math.max(p - 1, 1))}
+              disabled={page === 1}
+              className="text-[#001D8D]"
+            >
+              Назад
+            </Button>
+            {Array.from({ length: totalPages }).map((_, i) => (
+              <Button
+                key={i}
+                variant={page === i + 1 ? "default" : "outline"}
+                size="sm"
+                onClick={() => setPage(i + 1)}
+                className={page === i + 1 ? "bg-[#001D8D] text-white" : "text-[#001D8D]"}
+              >
+                {i + 1}
+              </Button>
+            ))}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage(p => Math.min(p + 1, totalPages))}
+              disabled={page === totalPages}
+              className="text-[#001D8D]"
+            >
+              Вперед
+            </Button>
+          </div>
+        </div>
+      )}
       
       {/* Table footer with info */}
       <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
