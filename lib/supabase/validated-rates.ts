@@ -43,22 +43,38 @@ function validateRateRecord(rate: any): ValidatedKenigRate {
   const validationErrors: string[] = [];
   let isValid = true;
 
-  const sellField = rate.usdt_sell_rate !== undefined ? 'usdt_sell_rate' : 'sell';
-  const buyField = rate.usdt_buy_rate !== undefined ? 'usdt_buy_rate' : 'buy';
+  // Проверяем разные возможные названия полей
+  const sellField = rate.usdt_sell_rate !== undefined ? 'usdt_sell_rate' : 
+                   rate.sell_rate !== undefined ? 'sell_rate' : 
+                   rate.sell !== undefined ? 'sell' : null;
+                   
+  const buyField = rate.usdt_buy_rate !== undefined ? 'usdt_buy_rate' : 
+                  rate.buy_rate !== undefined ? 'buy_rate' : 
+                  rate.buy !== undefined ? 'buy' : null;
 
-  const sellValidation = validateRateValue(rate[sellField], 'Sell rate');
-  if (!sellValidation.isValid) {
-    validationErrors.push(sellValidation.error!);
+  if (!sellField) {
+    validationErrors.push('Sell rate field not found (checked: usdt_sell_rate, sell_rate, sell)');
     isValid = false;
+  } else {
+    const sellValidation = validateRateValue(rate[sellField], 'Sell rate');
+    if (!sellValidation.isValid) {
+      validationErrors.push(sellValidation.error!);
+      isValid = false;
+    }
   }
 
-  const buyValidation = validateRateValue(rate[buyField], 'Buy rate');
-  if (!buyValidation.isValid) {
-    validationErrors.push(buyValidation.error!);
+  if (!buyField) {
+    validationErrors.push('Buy rate field not found (checked: usdt_buy_rate, buy_rate, buy)');
     isValid = false;
+  } else {
+    const buyValidation = validateRateValue(rate[buyField], 'Buy rate');
+    if (!buyValidation.isValid) {
+      validationErrors.push(buyValidation.error!);
+      isValid = false;
+    }
   }
 
-  if (sellValidation.isValid && buyValidation.isValid) {
+  if (sellField && buyField && isValid) {
     const sellRate = parseFloat(rate[sellField]);
     const buyRate = parseFloat(rate[buyField]);
     
@@ -77,8 +93,8 @@ function validateRateRecord(rate: any): ValidatedKenigRate {
   return {
     id: rate.id || 0,
     source: rate.source || 'unknown',
-    sell: sellValidation.isValid ? parseFloat(rate[sellField]) : 0,
-    buy: buyValidation.isValid ? parseFloat(rate[buyField]) : 0,
+    sell: sellField && isValid ? parseFloat(rate[sellField]) : 0,
+    buy: buyField && isValid ? parseFloat(rate[buyField]) : 0,
     updated_at: timestamp || new Date().toISOString(),
     isValid,
     validationErrors
@@ -110,10 +126,10 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
   }
 
   try {
-    console.log('🔄 Querying exchange_rates table...');
+    console.log('🔄 Querying kenig_rates table...');
     
     const { data, error } = await supabase
-      .from('exchange_rates')
+      .from('kenig_rates')
       .select('*')
       .order('updated_at', { ascending: false });
 
@@ -122,10 +138,10 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
       throw new Error(`Supabase error: ${error.message} (Code: ${error.code})`);
     }
 
-    console.log('📊 Raw data from Supabase:', data);
+    console.log('📊 Raw data from Supabase kenig_rates table:', data);
 
     if (!data || data.length === 0) {
-      console.warn('⚠️ No data found in exchange_rates table');
+      console.warn('⚠️ No data found in kenig_rates table');
       return {
         rates: [],
         hasValidRates: false,
@@ -134,7 +150,7 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
         invalidRatesCount: 0,
         lastUpdated: new Date(),
         isFromDatabase: true,
-        error: 'No exchange rate data found in database'
+        error: 'No exchange rate data found in kenig_rates table'
       };
     }
 
@@ -150,6 +166,11 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
         source: r.source,
         errors: r.validationErrors
       })));
+    }
+
+    // Log structure of first record for debugging
+    if (data.length > 0) {
+      console.log('📋 First record structure:', Object.keys(data[0]));
     }
 
     return {
