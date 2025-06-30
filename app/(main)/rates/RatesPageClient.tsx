@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { RefreshCw, Clock, AlertTriangle, TrendingUp, BarChart3, Activity, Globe, Star } from 'lucide-react';
+import { RefreshCw, Clock, AlertTriangle, TrendingUp, BarChart3, Activity, Globe, Star, Zap, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -10,6 +10,8 @@ import { useRates } from '@/lib/useRates';
 import { GlobalSummary } from './components/GlobalSummary';
 import { TopMovers } from './components/TopMovers';
 import { MarketTable } from './components/MarketTable';
+import { MarketAnalysis } from './components/MarketAnalysis';
+import { TrendingCoins } from './components/TrendingCoins';
 import { CoinDrawer } from './components/CoinDrawer';
 import { UnifiedVantaBackground } from '@/components/shared/UnifiedVantaBackground';
 import type { CoinMarketData } from '@/lib/coingecko';
@@ -62,7 +64,7 @@ export function RatesPageClient() {
             transition={{ duration: 0.5 }}
             className="text-center mb-16"
           >
-            <div className="calculator-container max-w-4xl mx-auto">
+            <div className="calculator-container max-w-5xl mx-auto">
               <div className="flex justify-center mb-6">
                 <div className="p-3 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600">
                   <BarChart3 className="h-6 w-6 text-white" />
@@ -71,19 +73,24 @@ export function RatesPageClient() {
               <h1 className="text-4xl md:text-5xl font-bold text-[#001D8D] mb-4">
                 Курсы криптовалют в реальном времени
               </h1>
-              <p className="text-xl text-[#001D8D]/80 max-w-3xl mx-auto mb-8 leading-relaxed">
-                Актуальные данные рынка криптовалют от CoinGecko API. Отслеживайте цены, тренды и рыночную аналитику с обновлениями каждые 5 минут.
+              <p className="text-xl text-[#001D8D]/80 max-w-4xl mx-auto mb-8 leading-relaxed">
+                Полный анализ криптовалютного рынка с актуальными данными от CoinGecko API. 
+                Отслеживайте цены, тренды, объемы торгов и рыночную аналитику с обновлениями каждые 5 минут.
               </p>
               
-              {/* Status indicators with calculator styling */}
+              {/* Enhanced status indicators */}
               <div className="flex flex-wrap justify-center items-center gap-4 mb-8">
                 <Badge className="bg-green-100 text-green-800 border-green-200 px-4 py-2">
                   <TrendingUp className="h-4 w-4 mr-2" />
-                  Данные CoinGecko
+                  Живые данные CoinGecko
                 </Badge>
                 <Badge variant="outline" className="text-[#001D8D]/70 border-[#001D8D]/20 px-4 py-2">
                   <Clock className="h-4 w-4 mr-2" />
                   Обновление каждые 5 минут
+                </Badge>
+                <Badge variant="outline" className="text-[#001D8D]/70 border-[#001D8D]/20 px-4 py-2">
+                  <Globe className="h-4 w-4 mr-2" />
+                  Глобальный охват рынка
                 </Badge>
                 {data && (
                   <Badge variant="outline" className="text-[#001D8D]/70 border-[#001D8D]/20 px-4 py-2">
@@ -93,7 +100,7 @@ export function RatesPageClient() {
                 )}
               </div>
               
-              {/* Controls with calculator button style */}
+              {/* Enhanced controls */}
               <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
                 <button
                   onClick={refetch}
@@ -101,8 +108,15 @@ export function RatesPageClient() {
                   className="bg-gradient-to-r from-[#001D8D] to-blue-600 text-white px-8 py-4 rounded-lg font-semibold hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
                   <RefreshCw className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
-                  {loading ? 'Обновление...' : 'Обновить данные'}
+                  {loading ? 'Обновление данных...' : 'Обновить все данные'}
                 </button>
+                
+                {data && (
+                  <div className="text-sm text-[#001D8D]/70 text-center">
+                    <div>Отслеживается {data.coins.length} криптовалют</div>
+                    <div>Последнее обновление: {data.lastUpdated.toLocaleString()}</div>
+                  </div>
+                )}
               </div>
             </div>
           </motion.div>
@@ -112,7 +126,7 @@ export function RatesPageClient() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-8 max-w-4xl mx-auto"
+              className="mb-8 max-w-5xl mx-auto"
             >
               <div className="calculator-container">
                 <Alert className="bg-red-50 border-red-200">
@@ -133,19 +147,23 @@ export function RatesPageClient() {
             </motion.div>
           )}
 
-          {/* Global Summary with calculator container style */}
+          {/* Global Summary - Enhanced */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
             className="mb-12"
           >
-            <div className="calculator-container max-w-6xl mx-auto">
-              <div className="flex items-center gap-3 mb-6">
+            <div className="max-w-7xl mx-auto">
+              <div className="flex items-center gap-3 mb-8">
                 <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600">
                   <Globe className="h-5 w-5 text-white" />
                 </div>
                 <h2 className="text-2xl font-bold text-[#001D8D]">Обзор глобального рынка</h2>
+                <Badge variant="outline" className="ml-auto text-xs">
+                  <Activity className="h-3 w-3 mr-1" />
+                  Расширенная аналитика
+                </Badge>
               </div>
               <GlobalSummary 
                 global={data?.global || null}
@@ -155,19 +173,54 @@ export function RatesPageClient() {
             </div>
           </motion.div>
 
-          {/* Top Movers with calculator container style */}
+          {/* Trending Coins - New Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
             className="mb-12"
           >
-            <div className="calculator-container max-w-6xl mx-auto">
-              <div className="flex items-center gap-3 mb-6">
+            <div className="max-w-7xl mx-auto">
+              <TrendingCoins 
+                coins={data?.coins || []}
+                onCoinClick={handleCoinClick}
+                loading={loading}
+              />
+            </div>
+          </motion.div>
+
+          {/* Market Analysis - New Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="mb-12"
+          >
+            <div className="max-w-7xl mx-auto">
+              <MarketAnalysis 
+                coins={data?.coins || []}
+                loading={loading}
+              />
+            </div>
+          </motion.div>
+
+          {/* Top Movers - Enhanced */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="mb-12"
+          >
+            <div className="max-w-7xl mx-auto">
+              <div className="flex items-center gap-3 mb-8">
                 <div className="p-2 rounded-lg bg-gradient-to-br from-green-500 to-green-600">
                   <TrendingUp className="h-5 w-5 text-white" />
                 </div>
                 <h2 className="text-2xl font-bold text-[#001D8D]">Лидеры роста и падения</h2>
+                <Badge variant="outline" className="ml-auto text-xs">
+                  <Zap className="h-3 w-3 mr-1" />
+                  24 часа
+                </Badge>
               </div>
               <TopMovers 
                 coins={data?.coins || []}
@@ -177,22 +230,22 @@ export function RatesPageClient() {
             </div>
           </motion.div>
 
-          {/* Market Table with calculator container style */}
+          {/* Market Table - Enhanced */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
             className="mb-12"
           >
-            <div className="calculator-container max-w-7xl mx-auto">
-              <div className="flex items-center gap-3 mb-6">
+            <div className="max-w-7xl mx-auto">
+              <div className="flex items-center gap-3 mb-8">
                 <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600">
                   <BarChart3 className="h-5 w-5 text-white" />
                 </div>
-                <h2 className="text-2xl font-bold text-[#001D8D]">Рыночные данные</h2>
+                <h2 className="text-2xl font-bold text-[#001D8D]">Полная таблица рынка</h2>
                 <Badge variant="outline" className="ml-auto text-xs">
-                  <Activity className="h-3 w-3 mr-1" />
-                  Живые данные
+                  <Target className="h-3 w-3 mr-1" />
+                  Топ-{data?.coins.length || 10} криптовалют
                 </Badge>
               </div>
               <MarketTable 
@@ -203,46 +256,58 @@ export function RatesPageClient() {
             </div>
           </motion.div>
 
-          {/* API Info Cards with calculator styling */}
+          {/* Enhanced API Info Cards */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto"
+            transition={{ duration: 0.5, delay: 0.6 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto"
           >
-            <div className="calculator-container">
+            <div className="calculator-container hover:shadow-xl transition-all duration-300">
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600">
                   <Globe className="h-5 w-5 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-[#001D8D]">CoinGecko API</h3>
+                <h3 className="text-lg font-bold text-[#001D8D]">CoinGecko API</h3>
               </div>
-              <p className="text-[#001D8D]/70 leading-relaxed">
-                Данные от профессионального API CoinGecko с кэшированием на 30 секунд и оптимизированной частотой запросов.
+              <p className="text-[#001D8D]/70 leading-relaxed text-sm">
+                Профессиональные данные от CoinGecko с кэшированием на 30 секунд и оптимизированной частотой запросов для стабильной работы.
               </p>
             </div>
 
-            <div className="calculator-container">
+            <div className="calculator-container hover:shadow-xl transition-all duration-300">
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 rounded-lg bg-gradient-to-br from-green-500 to-green-600">
                   <RefreshCw className="h-5 w-5 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-[#001D8D]">Живые обновления</h3>
+                <h3 className="text-lg font-bold text-[#001D8D]">Живые обновления</h3>
               </div>
-              <p className="text-[#001D8D]/70 leading-relaxed">
-                Рыночные данные обновляются каждые 5 минут, глобальные данные каждые 10 минут для оптимальной производительности.
+              <p className="text-[#001D8D]/70 leading-relaxed text-sm">
+                Рыночные данные обновляются каждые 5 минут, глобальные данные каждые 10 минут. Индекс страха и жадности обновляется ежечасно.
               </p>
             </div>
 
-            <div className="calculator-container">
+            <div className="calculator-container hover:shadow-xl transition-all duration-300">
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600">
                   <Star className="h-5 w-5 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-[#001D8D]">Умное кэширование</h3>
+                <h3 className="text-lg font-bold text-[#001D8D]">Умное кэширование</h3>
               </div>
-              <p className="text-[#001D8D]/70 leading-relaxed">
-                Edge-кэширование с SWR обеспечивает быструю загрузку при соблюдении лимитов API. Данные кэшируются на 30 секунд.
+              <p className="text-[#001D8D]/70 leading-relaxed text-sm">
+                Edge-кэширование с SWR обеспечивает мгновенную загрузку при соблюдении лимитов API. Данные кэшируются на 30 секунд на уровне CDN.
+              </p>
+            </div>
+
+            <div className="calculator-container hover:shadow-xl transition-all duration-300">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 rounded-lg bg-gradient-to-br from-orange-500 to-orange-600">
+                  <BarChart3 className="h-5 w-5 text-white" />
+                </div>
+                <h3 className="text-lg font-bold text-[#001D8D]">Расширенная аналитика</h3>
+              </div>
+              <p className="text-[#001D8D]/70 leading-relaxed text-sm">
+                Комплексный анализ рынка включает тренды, волатильность, распределение капитализации и детальную статистику по каждой криптовалюте.
               </p>
             </div>
           </motion.div>
