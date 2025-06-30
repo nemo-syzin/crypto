@@ -53,13 +53,16 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
     return value.toLocaleString();
   };
 
-  const formatPercentage = (value: number): string => {
+  const formatPercentage = (value: number | null | undefined): string => {
+    if (value === null || value === undefined || isNaN(value)) {
+      return 'N/A';
+    }
     return `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
   };
 
   // Calculate price volatility indicator
   const getVolatilityLevel = (): { level: string; color: string; description: string } => {
-    const change24h = Math.abs(coin.price_change_percentage_24h);
+    const change24h = Math.abs(coin.price_change_percentage_24h || 0);
     if (change24h < 2) return { level: 'Low', color: 'text-green-600', description: 'Stable price movement' };
     if (change24h < 5) return { level: 'Medium', color: 'text-yellow-600', description: 'Moderate price swings' };
     if (change24h < 10) return { level: 'High', color: 'text-orange-600', description: 'Significant volatility' };
@@ -68,7 +71,7 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
 
   // Calculate market sentiment
   const getMarketSentiment = (): { sentiment: string; color: string; icon: React.ReactNode } => {
-    const change24h = coin.price_change_percentage_24h;
+    const change24h = coin.price_change_percentage_24h || 0;
     const change7d = coin.price_change_percentage_7d_in_currency || 0;
     
     if (change24h > 5 && change7d > 10) {
@@ -141,13 +144,13 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
                   <div className="text-right">
                     <Badge 
                       className={`text-lg px-4 py-2 ${
-                        coin.price_change_percentage_24h >= 0
+                        (coin.price_change_percentage_24h || 0) >= 0
                           ? 'bg-green-100 text-green-800 border-green-300'
                           : 'bg-red-100 text-red-800 border-red-300'
                       }`}
                     >
                       <span className="flex items-center gap-2">
-                        {coin.price_change_percentage_24h >= 0 ? (
+                        {(coin.price_change_percentage_24h || 0) >= 0 ? (
                           <TrendingUp className="h-4 w-4" />
                         ) : (
                           <TrendingDown className="h-4 w-4" />
@@ -284,7 +287,7 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
                           {new Date(coin.ath_date).toLocaleDateString()}
                         </div>
                         <div className={`text-xs px-2 py-1 rounded mt-2 ${
-                          coin.ath_change_percentage >= 0 ? 'text-green-600 bg-green-100' : 'text-red-600 bg-red-100'
+                          (coin.ath_change_percentage || 0) >= 0 ? 'text-green-600 bg-green-100' : 'text-red-600 bg-red-100'
                         }`}>
                           {formatPercentage(coin.ath_change_percentage)} from ATH
                         </div>
@@ -299,7 +302,7 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
                           {new Date(coin.atl_date).toLocaleDateString()}
                         </div>
                         <div className={`text-xs px-2 py-1 rounded mt-2 ${
-                          coin.atl_change_percentage >= 0 ? 'text-green-600 bg-green-100' : 'text-red-600 bg-red-100'
+                          (coin.atl_change_percentage || 0) >= 0 ? 'text-green-600 bg-green-100' : 'text-red-600 bg-red-100'
                         }`}>
                           {formatPercentage(coin.atl_change_percentage)} from ATL
                         </div>
@@ -315,13 +318,13 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
                           <div className={`font-bold ${
                             (coin.price_change_percentage_1h_in_currency || 0) >= 0 ? 'text-green-600' : 'text-red-600'
                           }`}>
-                            {formatPercentage(coin.price_change_percentage_1h_in_currency || 0)}
+                            {formatPercentage(coin.price_change_percentage_1h_in_currency)}
                           </div>
                         </div>
                         <div className="text-center">
                           <div className="text-xs text-gray-500 mb-1">24 Hours</div>
                           <div className={`font-bold ${
-                            coin.price_change_percentage_24h >= 0 ? 'text-green-600' : 'text-red-600'
+                            (coin.price_change_percentage_24h || 0) >= 0 ? 'text-green-600' : 'text-red-600'
                           }`}>
                             {formatPercentage(coin.price_change_percentage_24h)}
                           </div>
@@ -331,7 +334,7 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
                           <div className={`font-bold ${
                             (coin.price_change_percentage_7d_in_currency || 0) >= 0 ? 'text-green-600' : 'text-red-600'
                           }`}>
-                            {formatPercentage(coin.price_change_percentage_7d_in_currency || 0)}
+                            {formatPercentage(coin.price_change_percentage_7d_in_currency)}
                           </div>
                         </div>
                       </div>
@@ -379,7 +382,7 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
                         </div>
                         <div className="text-right">
                           <div className="text-2xl font-bold text-yellow-700">
-                            {Math.abs(coin.price_change_percentage_24h).toFixed(1)}%
+                            {Math.abs(coin.price_change_percentage_24h || 0).toFixed(1)}%
                           </div>
                           <div className="text-xs text-yellow-600">24h movement</div>
                         </div>
@@ -410,7 +413,7 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
                         <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
                           <span className="text-sm font-medium text-gray-700">Market Cap Change (24h)</span>
                           <span className={`font-bold ${
-                            coin.market_cap_change_percentage_24h >= 0 ? 'text-green-600' : 'text-red-600'
+                            (coin.market_cap_change_percentage_24h || 0) >= 0 ? 'text-green-600' : 'text-red-600'
                           }`}>
                             {formatPercentage(coin.market_cap_change_percentage_24h)}
                           </span>
