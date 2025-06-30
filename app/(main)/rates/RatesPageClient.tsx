@@ -11,7 +11,6 @@ import { GlobalSummary } from './components/GlobalSummary';
 import { TopMovers } from './components/TopMovers';
 import { MarketTable } from './components/MarketTable';
 import { MarketAnalysis } from './components/MarketAnalysis';
-import { TrendingCoins } from './components/TrendingCoins';
 import { CoinDrawer } from './components/CoinDrawer';
 import { UnifiedVantaBackground } from '@/components/shared/UnifiedVantaBackground';
 import type { CoinMarketData } from '@/lib/coingecko';
@@ -173,23 +172,7 @@ export function RatesPageClient() {
             </div>
           </motion.div>
 
-          {/* Trending Coins - New Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="mb-12"
-          >
-            <div className="max-w-7xl mx-auto">
-              <TrendingCoins 
-                coins={data?.coins || []}
-                onCoinClick={handleCoinClick}
-                loading={loading}
-              />
-            </div>
-          </motion.div>
-
-          {/* Market Analysis - New Section */}
+          {/* Market Analysis */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
