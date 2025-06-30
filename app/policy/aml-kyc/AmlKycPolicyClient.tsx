@@ -19,7 +19,8 @@ import {
   Archive,
   Gavel,
   BookOpen,
-  ExternalLink
+  ExternalLink,
+  Info
 } from 'lucide-react';
 import { UnifiedVantaBackground } from '@/components/shared/UnifiedVantaBackground';
 import { TableOfContents } from '@/components/ui/table-of-contents';
@@ -297,7 +298,7 @@ AML – это комплекс мер и процедур, предотвращ
 
   return (
     <div className="min-h-screen bg-white relative overflow-hidden">
-      {/* Background with Vanta */}
+      {/* Background */}
       <section className="relative py-20 bg-gradient-to-b from-white via-blue-50/10 to-blue-100/20 overflow-hidden">
         <div className="absolute inset-0 opacity-15">
           <UnifiedVantaBackground 
