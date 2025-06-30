@@ -13,9 +13,10 @@ interface AllRates {
   timestamp: string;
   isFromDatabase: boolean;
   error?: string;
+  isFallback?: boolean;
 }
 
-// Enhanced rates hook with better error handling and fallback
+// Enhanced rates hook with better error handling and reduced update frequency
 export function useAllRates() {
   const [rates, setRates] = useState<AllRates | null>(null);
   const [loading, setLoading] = useState(true);
@@ -26,6 +27,8 @@ export function useAllRates() {
     try {
       setLoading(true);
       setError(null);
+      
+      console.log('🔄 Fetching rates from API...');
       
       const response = await fetch('/api/rates', {
         cache: 'no-cache',
@@ -40,10 +43,20 @@ export function useAllRates() {
       }
       
       const data = await response.json();
+      console.log('📊 Received rates data:', data);
       
       // Validate that we have actual rate data
       if (!data || typeof data !== 'object') {
         throw new Error('Invalid response format');
+      }
+      
+      // Check if this is fallback data
+      if (data.isFallback) {
+        console.warn('⚠️ Received fallback data from API');
+        setError('Используются тестовые данные - проверьте подключение к базе данных');
+      } else if (data.error) {
+        console.warn('⚠️ API returned error:', data.error);
+        setError(data.error);
       }
       
       // Ensure we have at least some valid rates
@@ -53,16 +66,19 @@ export function useAllRates() {
         (data.energo?.sell && data.energo?.buy)
       );
       
-      if (!hasValidRates) {
-        console.warn('No valid rates found in response:', data);
-        // Still set the data but with a warning
-        setRates(data);
-      } else {
-        setRates(data);
+      if (!hasValidRates && !data.isFallback) {
+        console.warn('⚠️ No valid rates found in response:', data);
+        setError('Нет актуальных курсов в базе данных');
       }
       
+      setRates(data);
       setLastUpdated(new Date());
-      console.log('✅ Rates updated successfully:', data);
+      
+      if (hasValidRates && data.isFromDatabase) {
+        console.log('✅ Successfully loaded rates from database');
+        setError(null);
+      }
+      
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch rates';
       console.error('❌ Error fetching rates:', errorMessage);
@@ -76,7 +92,8 @@ export function useAllRates() {
           energo: { sell: 95.20, buy: 94.70, updated_at: new Date().toISOString() },
           timestamp: new Date().toISOString(),
           isFromDatabase: false,
-          error: errorMessage
+          error: errorMessage,
+          isFallback: true
         });
       }
     } finally {
@@ -86,8 +103,8 @@ export function useAllRates() {
 
   useEffect(() => {
     fetchRates();
-    // Update every 30 seconds
-    const interval = setInterval(fetchRates, 30000);
+    // Увеличиваем интервал обновления до 2 минут для снижения нагрузки
+    const interval = setInterval(fetchRates, 120000);
     return () => clearInterval(interval);
   }, [fetchRates]);
 
@@ -106,6 +123,8 @@ export function useKenigRate() {
       setLoading(true);
       setError(null);
       
+      console.log('🔄 Fetching Kenig rate from API...');
+      
       const response = await fetch('/api/rates', {
         cache: 'no-cache',
         headers: {
@@ -119,6 +138,7 @@ export function useKenigRate() {
       }
       
       const data = await response.json();
+      console.log('📊 Received data for Kenig rate:', data);
       
       if (data.kenig && data.kenig.sell && data.kenig.buy) {
         const kenigRate = {
@@ -131,6 +151,12 @@ export function useKenigRate() {
         if (kenigRate.sell > 0 && kenigRate.buy > 0 && kenigRate.sell > kenigRate.buy) {
           setRate(kenigRate);
           console.log('✅ Kenig rate updated successfully:', kenigRate);
+          
+          if (data.isFromDatabase) {
+            setError(null);
+          } else if (data.isFallback) {
+            setError('Используются тестовые данные');
+          }
         } else {
           throw new Error('Invalid rate values received');
         }
@@ -142,6 +168,7 @@ export function useKenigRate() {
           buy: 94.80,
           updated_at: new Date().toISOString()
         });
+        setError('Нет данных о курсах Kenig');
       }
       
       setLastUpdated(new Date());
@@ -165,8 +192,8 @@ export function useKenigRate() {
 
   useEffect(() => {
     fetchRate();
-    // Update every 30 seconds
-    const interval = setInterval(fetchRate, 30000);
+    // Увеличиваем интервал обновления до 2 минут
+    const interval = setInterval(fetchRate, 120000);
     return () => clearInterval(interval);
   }, [fetchRate]);
 

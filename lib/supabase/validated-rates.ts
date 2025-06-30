@@ -88,7 +88,15 @@ function validateRateRecord(rate: any): ValidatedKenigRate {
 export async function getValidatedKenigRates(): Promise<RateValidationResult> {
   const status = getSupabaseStatus();
   
+  console.log('🔍 Checking Supabase configuration:', {
+    hasUrl: status.hasUrl,
+    hasKey: status.hasKey,
+    isConfigured: status.isConfigured,
+    url: status.url?.substring(0, 30) + '...'
+  });
+  
   if (!isSupabaseAvailable()) {
+    console.warn('⚠️ Supabase not available:', status);
     return {
       rates: [],
       hasValidRates: false,
@@ -97,19 +105,27 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
       invalidRatesCount: 0,
       lastUpdated: new Date(),
       isFromDatabase: false,
-      error: 'Supabase not configured - please check your .env.local file for NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY'
+      error: `Supabase configuration issue: URL=${status.hasUrl ? 'OK' : 'MISSING'}, KEY=${status.hasKey ? 'OK' : 'MISSING'}`
     };
   }
 
   try {
+    console.log('🔄 Querying exchange_rates table...');
+    
     const { data, error } = await supabase
       .from('exchange_rates')
       .select('*')
       .order('updated_at', { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+      console.error('❌ Supabase query error:', error);
+      throw new Error(`Supabase error: ${error.message} (Code: ${error.code})`);
+    }
+
+    console.log('📊 Raw data from Supabase:', data);
 
     if (!data || data.length === 0) {
+      console.warn('⚠️ No data found in exchange_rates table');
       return {
         rates: [],
         hasValidRates: false,
@@ -118,12 +134,23 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
         invalidRatesCount: 0,
         lastUpdated: new Date(),
         isFromDatabase: true,
-        error: 'No data found'
+        error: 'No exchange rate data found in database'
       };
     }
 
     const validatedRates = data.map(validateRateRecord);
     const validRates = validatedRates.filter(rate => rate.isValid);
+
+    console.log(`✅ Validation complete: ${validRates.length}/${validatedRates.length} rates are valid`);
+
+    // Log invalid rates for debugging
+    const invalidRates = validatedRates.filter(rate => !rate.isValid);
+    if (invalidRates.length > 0) {
+      console.warn('⚠️ Invalid rates found:', invalidRates.map(r => ({
+        source: r.source,
+        errors: r.validationErrors
+      })));
+    }
 
     return {
       rates: validatedRates,
@@ -136,8 +163,10 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
     };
 
   } catch (error) {
+    console.error('❌ Error in getValidatedKenigRates:', error);
+    
     // Enhanced error handling to capture specific Supabase error messages
-    let errorMessage = 'Unknown error';
+    let errorMessage = 'Unknown database error';
     
     if (error && typeof error === 'object') {
       // Handle Supabase error objects
@@ -147,6 +176,8 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
         errorMessage = error.error;
       } else if ('details' in error && typeof error.details === 'string') {
         errorMessage = error.details;
+      } else if ('hint' in error && typeof error.hint === 'string') {
+        errorMessage = `${errorMessage} (Hint: ${error.hint})`;
       }
     } else if (typeof error === 'string') {
       errorMessage = error;
