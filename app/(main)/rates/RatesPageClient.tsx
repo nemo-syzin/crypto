@@ -2,17 +2,15 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { RefreshCw, Clock, AlertTriangle, TrendingUp, Calculator, BarChart3 } from 'lucide-react';
+import { RefreshCw, Clock, AlertTriangle, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRates } from '@/lib/useRates';
 import { GlobalSummary } from './components/GlobalSummary';
 import { TopMovers } from './components/TopMovers';
 import { MarketTable } from './components/MarketTable';
 import { CoinDrawer } from './components/CoinDrawer';
-import { CalculatorRatesDisplay } from './components/CalculatorRatesDisplay';
 import { UnifiedVantaBackground } from '@/components/shared/UnifiedVantaBackground';
 import type { CoinMarketData } from '@/lib/coingecko';
 
@@ -20,7 +18,6 @@ export function RatesPageClient() {
   const { data, loading, error, refetch, calculate4hChange } = useRates();
   const [selectedCoin, setSelectedCoin] = useState<CoinMarketData | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('calculator');
 
   const handleCoinClick = (coin: CoinMarketData) => {
     setSelectedCoin(coin);
@@ -66,20 +63,20 @@ export function RatesPageClient() {
             className="text-center mb-12"
           >
             <h1 className="text-4xl md:text-5xl font-bold text-[#001D8D] mb-4">
-              Профессиональные курсы и аналитика
+              Live Crypto Rates
             </h1>
             <p className="text-xl text-[#001D8D]/80 max-w-3xl mx-auto mb-8">
-              Интерактивный калькулятор курсов и полная аналитика криптовалютного рынка в реальном времени
+              Real-time cryptocurrency market data powered by CoinGecko API. Track prices, trends, and market analysis with live updates.
             </p>
             
             {/* API Status Badge */}
             <div className="flex justify-center items-center gap-4 mb-8">
               <Badge className="bg-green-100 text-green-800 border-green-200">
                 <TrendingUp className="h-3 w-3 mr-1" />
-                Live Data
+                Live CoinGecko Data
               </Badge>
               <Badge variant="outline" className="text-[#001D8D]/70">
-                Обновление каждые 30 секунд
+                Updates every 5 minutes
               </Badge>
             </div>
             
@@ -91,13 +88,13 @@ export function RatesPageClient() {
                 className="bg-[#001D8D] hover:bg-[#001D8D]/90 text-white"
               >
                 <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-                Обновить данные
+                Refresh Data
               </Button>
               
               {data && (
                 <div className="flex items-center gap-2 text-sm text-[#001D8D]/70">
                   <Clock className="h-4 w-4" />
-                  Обновлено: {data.lastUpdated.toLocaleTimeString()}
+                  Last updated: {data.lastUpdated.toLocaleTimeString()}
                 </div>
               )}
             </div>
@@ -113,92 +110,57 @@ export function RatesPageClient() {
               <Alert className="bg-red-50 border-red-200">
                 <AlertTriangle className="h-4 w-4 text-red-600" />
                 <AlertDescription className="text-red-800">
-                  <strong>Ошибка загрузки данных:</strong> {error}
+                  <strong>Error loading data:</strong> {error}
                   <Button 
                     variant="outline" 
                     size="sm" 
                     onClick={refetch}
                     className="ml-4 text-red-800 border-red-300 hover:bg-red-100"
                   >
-                    Попробовать снова
+                    Try Again
                   </Button>
                 </AlertDescription>
               </Alert>
             </motion.div>
           )}
 
-          {/* Main Content Tabs */}
+          {/* Global Summary */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="mb-12"
           >
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <div className="flex justify-center mb-8">
-                <TabsList className="bg-white/90 backdrop-blur-sm border-2 border-[#001D8D]/20 p-1">
-                  <TabsTrigger 
-                    value="calculator" 
-                    className="data-[state=active]:bg-[#001D8D] data-[state=active]:text-white flex items-center gap-2"
-                  >
-                    <Calculator className="h-4 w-4" />
-                    Калькулятор курсов
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="market" 
-                    className="data-[state=active]:bg-[#001D8D] data-[state=active]:text-white flex items-center gap-2"
-                  >
-                    <BarChart3 className="h-4 w-4" />
-                    Рыночная аналитика
-                  </TabsTrigger>
-                </TabsList>
-              </div>
+            <GlobalSummary 
+              global={data?.global || null}
+              fearGreed={data?.fearGreed || null}
+              loading={loading}
+            />
+          </motion.div>
 
-              <TabsContent value="calculator" className="space-y-8">
-                <CalculatorRatesDisplay />
-              </TabsContent>
+          {/* Top Movers */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <TopMovers 
+              coins={data?.coins || []}
+              calculate4hChange={calculate4hChange}
+              loading={loading}
+            />
+          </motion.div>
 
-              <TabsContent value="market" className="space-y-8">
-                {/* Global Summary */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.1 }}
-                >
-                  <GlobalSummary 
-                    global={data?.global || null}
-                    fearGreed={data?.fearGreed || null}
-                    loading={loading}
-                  />
-                </motion.div>
-
-                {/* Top Movers */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
-                >
-                  <TopMovers 
-                    coins={data?.coins || []}
-                    calculate4hChange={calculate4hChange}
-                    loading={loading}
-                  />
-                </motion.div>
-
-                {/* Market Table */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.3 }}
-                >
-                  <MarketTable 
-                    coins={data?.coins || []}
-                    onCoinClick={handleCoinClick}
-                    loading={loading}
-                  />
-                </motion.div>
-              </TabsContent>
-            </Tabs>
+          {/* Market Table */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
+            <MarketTable 
+              coins={data?.coins || []}
+              onCoinClick={handleCoinClick}
+              loading={loading}
+            />
           </motion.div>
 
           {/* API Info Cards */}
@@ -209,23 +171,23 @@ export function RatesPageClient() {
             className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12"
           >
             <div className="bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-[#001D8D]/10">
-              <h3 className="text-xl font-bold text-[#001D8D] mb-4">Профессиональный калькулятор</h3>
+              <h3 className="text-xl font-bold text-[#001D8D] mb-4">CoinGecko API</h3>
               <p className="text-[#001D8D]/70">
-                Интерактивный калькулятор в стиле цифрового дисплея с актуальными курсами обмена и математическими операциями.
+                Powered by CoinGecko's professional API with 30-second caching and optimized request frequency to stay within limits.
               </p>
             </div>
 
             <div className="bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-[#001D8D]/10">
-              <h3 className="text-xl font-bold text-[#001D8D] mb-4">Живые обновления</h3>
+              <h3 className="text-xl font-bold text-[#001D8D] mb-4">Live Updates</h3>
               <p className="text-[#001D8D]/70">
-                Курсы обновляются каждые 30 секунд, рыночные данные каждые 5 минут. Fear & Greed Index обновляется ежечасно.
+                Market data refreshes every 5 minutes, global data every 10 minutes. Fear & Greed Index updates hourly for optimal performance.
               </p>
             </div>
 
             <div className="bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-[#001D8D]/10">
-              <h3 className="text-xl font-bold text-[#001D8D] mb-4">Умное кэширование</h3>
+              <h3 className="text-xl font-bold text-[#001D8D] mb-4">Smart Caching</h3>
               <p className="text-[#001D8D]/70">
-                Edge-кэширование с SWR обеспечивает быструю загрузку при соблюдении лимитов API. Данные кэшируются на 30 секунд.
+                Edge caching with SWR ensures fast loading times while respecting API rate limits. Data is cached for 30 seconds at the edge.
               </p>
             </div>
           </motion.div>
