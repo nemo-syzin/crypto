@@ -20,8 +20,8 @@ export function useRates() {
   const snapshotsRef = useRef(snapshots);
   snapshotsRef.current = snapshots;
 
-  // Use individual hooks
-  const { data: coins, error: coinsError, isLoading: coinsLoading, refetch: refetchCoins } = useMarket(10);
+  // Use individual hooks - updated to fetch 20 coins instead of 10
+  const { data: coins, error: coinsError, isLoading: coinsLoading, refetch: refetchCoins } = useMarket(20);
   const { data: global, error: globalError, isLoading: globalLoading, refetch: refetchGlobal } = useGlobal();
   const { data: fearGreed, error: fearGreedError, isLoading: fearGreedLoading, refetch: refetchFearGreed } = useFearGreed();
 

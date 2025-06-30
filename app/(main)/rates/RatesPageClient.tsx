@@ -245,7 +245,7 @@ export function RatesPageClient() {
                 <h2 className="text-2xl font-bold text-[#001D8D]">Полная таблица рынка</h2>
                 <Badge variant="outline" className="ml-auto text-xs">
                   <Target className="h-3 w-3 mr-1" />
-                  Топ-{data?.coins.length || 10} криптовалют
+                  Топ-{data?.coins.length || 20} криптовалют
                 </Badge>
               </div>
               <MarketTable 
