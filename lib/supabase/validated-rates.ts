@@ -97,7 +97,7 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
       invalidRatesCount: 0,
       lastUpdated: new Date(),
       isFromDatabase: false,
-      error: 'Supabase not configured'
+      error: 'Supabase not configured - please check your .env.local file for NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY'
     };
   }
 
@@ -136,6 +136,24 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
     };
 
   } catch (error) {
+    // Enhanced error handling to capture specific Supabase error messages
+    let errorMessage = 'Unknown error';
+    
+    if (error && typeof error === 'object') {
+      // Handle Supabase error objects
+      if ('message' in error && typeof error.message === 'string') {
+        errorMessage = error.message;
+      } else if ('error' in error && typeof error.error === 'string') {
+        errorMessage = error.error;
+      } else if ('details' in error && typeof error.details === 'string') {
+        errorMessage = error.details;
+      }
+    } else if (typeof error === 'string') {
+      errorMessage = error;
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+
     return {
       rates: [],
       hasValidRates: false,
@@ -144,7 +162,7 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
       invalidRatesCount: 0,
       lastUpdated: new Date(),
       isFromDatabase: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: errorMessage
     };
   }
 }
