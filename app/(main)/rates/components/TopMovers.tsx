@@ -14,29 +14,25 @@ interface TopMoversProps {
 export function TopMovers({ coins, calculate4hChange, loading }: TopMoversProps) {
   if (loading) {
     return (
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {[1, 2].map((i) => (
-          <Card key={i} className="animate-pulse">
-            <CardHeader>
-              <div className="h-5 bg-gray-200 rounded w-1/2"></div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {[1, 2, 3].map((j) => (
-                  <div key={j} className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
-                      <div>
-                        <div className="h-4 bg-gray-200 rounded w-16 mb-1"></div>
-                        <div className="h-3 bg-gray-200 rounded w-12"></div>
-                      </div>
+          <div key={i} className="calculator-container animate-pulse">
+            <div className="h-5 bg-gray-200 rounded w-1/2 mb-4"></div>
+            <div className="space-y-3">
+              {[1, 2, 3].map((j) => (
+                <div key={j} className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
+                    <div>
+                      <div className="h-4 bg-gray-200 rounded w-16 mb-1"></div>
+                      <div className="h-3 bg-gray-200 rounded w-12"></div>
                     </div>
-                    <div className="h-6 bg-gray-200 rounded w-16"></div>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                  <div className="h-6 bg-gray-200 rounded w-16"></div>
+                </div>
+              ))}
+            </div>
+          </div>
         ))}
       </div>
     );
@@ -77,7 +73,7 @@ export function TopMovers({ coins, calculate4hChange, loading }: TopMoversProps)
     const change1h = coin.price_change_percentage_1h_in_currency || 0;
     
     return (
-      <div key={coin.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors">
+      <div key={coin.id} className="flex items-center justify-between p-4 rounded-lg hover:bg-gray-50 transition-colors">
         <div className="flex items-center gap-3">
           <img 
             src={coin.image} 
@@ -106,7 +102,7 @@ export function TopMovers({ coins, calculate4hChange, loading }: TopMoversProps)
           <div className="flex flex-col gap-1 text-xs text-gray-500">
             {change1h !== 0 && (
               <div className="flex items-center gap-1">
-                <span>1h:</span>
+                <span>1ч:</span>
                 <span className={change1h >= 0 ? 'text-green-600' : 'text-red-600'}>
                   {change1h >= 0 ? '+' : ''}{change1h.toFixed(2)}%
                 </span>
@@ -115,7 +111,7 @@ export function TopMovers({ coins, calculate4hChange, loading }: TopMoversProps)
             {change4h !== null && (
               <div className="flex items-center gap-1">
                 <Clock className="h-3 w-3" />
-                <span>4h:</span>
+                <span>4ч:</span>
                 <span className={change4h >= 0 ? 'text-green-600' : 'text-red-600'}>
                   {change4h >= 0 ? '+' : ''}{change4h.toFixed(2)}%
                 </span>
@@ -128,48 +124,44 @@ export function TopMovers({ coins, calculate4hChange, loading }: TopMoversProps)
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Top Gainers */}
-      <Card className="bg-white/95 backdrop-blur-sm shadow-lg border border-[#001D8D]/10 hover:border-[#001D8D]/30 transition-all duration-300">
-        <CardHeader>
-          <CardTitle className="text-[#001D8D] flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-green-600" />
-            Top Gainers (24h)
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            {gainers.length > 0 ? (
-              gainers.map(coin => renderCoinRow(coin, true))
-            ) : (
-              <div className="text-center text-gray-500 py-4">
-                No gainers found
-              </div>
-            )}
+      <div className="calculator-container hover:shadow-xl transition-all duration-300">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-2 rounded-lg bg-gradient-to-br from-green-500 to-green-600">
+            <TrendingUp className="h-5 w-5 text-white" />
           </div>
-        </CardContent>
-      </Card>
+          <h3 className="text-xl font-bold text-[#001D8D]">Лидеры роста (24ч)</h3>
+        </div>
+        <div className="space-y-2">
+          {gainers.length > 0 ? (
+            gainers.map(coin => renderCoinRow(coin, true))
+          ) : (
+            <div className="text-center text-gray-500 py-4">
+              Лидеры роста не найдены
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Top Losers */}
-      <Card className="bg-white/95 backdrop-blur-sm shadow-lg border border-[#001D8D]/10 hover:border-[#001D8D]/30 transition-all duration-300">
-        <CardHeader>
-          <CardTitle className="text-[#001D8D] flex items-center gap-2">
-            <TrendingDown className="h-5 w-5 text-red-600" />
-            Top Losers (24h)
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            {losers.length > 0 ? (
-              losers.map(coin => renderCoinRow(coin, false))
-            ) : (
-              <div className="text-center text-gray-500 py-4">
-                No losers found
-              </div>
-            )}
+      <div className="calculator-container hover:shadow-xl transition-all duration-300">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-2 rounded-lg bg-gradient-to-br from-red-500 to-red-600">
+            <TrendingDown className="h-5 w-5 text-white" />
           </div>
-        </CardContent>
-      </Card>
+          <h3 className="text-xl font-bold text-[#001D8D]">Лидеры падения (24ч)</h3>
+        </div>
+        <div className="space-y-2">
+          {losers.length > 0 ? (
+            losers.map(coin => renderCoinRow(coin, false))
+          ) : (
+            <div className="text-center text-gray-500 py-4">
+              Лидеры падения не найдены
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
