@@ -6,7 +6,7 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'assets.revolut.com',
         port: '',
-        pathname: '/**',
+        pathname: '/published-assets-v3/**',
       },
       {
         protocol: 'https',
