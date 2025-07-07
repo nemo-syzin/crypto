@@ -79,8 +79,6 @@ const Footer = () => {
                   About Us
                 </Link>
               </li>
-                </a>
-              </li>
               <li>
                 <Link href="#" className="text-gray-600 hover:text-[#001D8D] transition-colors duration-200">
                   Careers
