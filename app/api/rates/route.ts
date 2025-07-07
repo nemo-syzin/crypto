@@ -19,7 +19,6 @@ export async function GET() {
     
     // Check cache first
     if (cache && (now - cache.timestamp) < CACHE_DURATION) {
-      console.log('📦 Serving cached rates data');
       return NextResponse.json(cache.data);
     }
 
@@ -41,7 +40,6 @@ export async function GET() {
     };
 
     if (validationResult.hasValidRates) {
-      console.log(`✅ Found ${validationResult.validRatesCount} valid rates out of ${validationResult.totalRates} total`);
       
       validationResult.rates.forEach(rate => {
         if (rate.isValid) {
@@ -50,8 +48,6 @@ export async function GET() {
             buy: Number(rate.buy),
             updated_at: rate.updated_at
           };
-
-          console.log(`📊 Processing rate for ${rate.source}:`, rateData);
 
           if (rate.source === 'kenig') data.kenig = rateData;
           else if (rate.source === 'bestchange') data.bestchange = rateData;
@@ -70,13 +66,6 @@ export async function GET() {
     if (validationResult.hasValidRates || !cache) {
       cache = { data, timestamp: now };
     }
-    
-    console.log('📤 Returning rates data:', {
-      ...(() => {
-        const { debug, ...rest } = data;
-        return rest;
-      })()
-    });
     
     return NextResponse.json(data);
   } catch (error) {
