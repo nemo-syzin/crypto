@@ -82,8 +82,25 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Empty column for spacing */}
-          <div></div>
+          {/* Legal/Policy */}
+          <div>
+            <h3 className="font-bold text-lg mb-4 text-gray-900">Legal</h3>
+            <ul className="space-y-2">
+              {policyLinks.map((link) => (
+                <li key={link.href} className="flex items-center gap-2">
+                  {link.href.includes('privacy') && <Lock className="h-4 w-4 text-gray-400" />}
+                  {link.href.includes('terms') && <FileText className="h-4 w-4 text-gray-400" />}
+                  {link.href.includes('aml-kyc') && <Shield className="h-4 w-4 text-gray-400" />}
+                  <Link 
+                    href={link.href} 
+                    className="text-gray-600 hover:text-[#001D8D] transition-colors duration-200"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
         <div className="mt-12 pt-6 border-t border-gray-200">
