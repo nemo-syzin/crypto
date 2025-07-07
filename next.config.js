@@ -7,6 +7,11 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
+        hostname: "assets.revolut.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
         hostname: "cdn.brandfetch.io",
         pathname: "/**",
       },
