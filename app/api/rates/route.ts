@@ -72,8 +72,10 @@ export async function GET() {
     }
     
     console.log('📤 Returning rates data:', {
-      ...data,
-      debug: undefined // Don't log debug info in response
+      ...(() => {
+        const { debug, ...rest } = data;
+        return rest;
+      })()
     });
     
     return NextResponse.json(data);
