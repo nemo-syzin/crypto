@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  images: {
+    domains: ['assets.revolut.com'],
+  },
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
