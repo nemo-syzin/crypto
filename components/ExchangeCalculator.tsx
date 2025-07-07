@@ -2,20 +2,35 @@
 
 import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useKenigRate } from '@/lib/hooks/rates';
+import { useAssets } from '@/hooks/useAssets';
 import { Calculator, RefreshCw, ArrowUpDown, AlertTriangle, Settings } from 'lucide-react';
 
 type ExchangeDirection = 'usdt-to-rub' | 'rub-to-usdt';
 
 export default function ExchangeCalculator() {
   const [amount, setAmount] = useState<string>('');
-  const [direction, setDirection] = useState<ExchangeDirection>('usdt-to-rub');
+  const [fromCurrency, setFromCurrency] = useState<string>('USDT');
+  const [toCurrency, setToCurrency] = useState<string>('RUB');
   const [isAnimating, setIsAnimating] = useState(false);
+  
   const { rate, loading, error, lastUpdated, refetch } = useKenigRate();
+  const { assets, loading: assetsLoading, error: assetsError } = useAssets();
+
+  // Определяем направление обмена на основе выбранных валют
+  const direction: ExchangeDirection = useMemo(() => {
+    if (fromCurrency === 'USDT' && toCurrency === 'RUB') {
+      return 'usdt-to-rub';
+    } else if (fromCurrency === 'RUB' && toCurrency === 'USDT') {
+      return 'rub-to-usdt';
+    }
+    // Для других пар валют используем USDT->RUB как базовое направление
+    return 'usdt-to-rub';
+  }, [fromCurrency, toCurrency]);
 
   // Мемоизированные функции для предотвращения лишних ререндеров
   const parseAmount = useMemo(() => (value: string): number => {
@@ -39,13 +54,17 @@ export default function ExchangeCalculator() {
   }, [amount, rate, direction, parseAmount]);
 
   const toggleDirection = () => {
-    setDirection(prev => prev === 'usdt-to-rub' ? 'rub-to-usdt' : 'usdt-to-rub');
+    // Меняем местами валюты
+    const tempFrom = fromCurrency;
+    setFromCurrency(toCurrency);
+    setToCurrency(tempFrom);
+    
     setIsAnimating(true);
     setTimeout(() => setIsAnimating(false), 150);
   };
 
   // Мемоизированные функции форматирования
-  const formatCurrency = useMemo(() => (value: number, currency: 'USDT' | 'RUB'): string => {
+  const formatCurrency = useMemo(() => (value: number, currency: string): string => {
     if (value === 0) return '';
     
     if (currency === 'RUB') {
@@ -55,11 +74,17 @@ export default function ExchangeCalculator() {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       }).format(value);
-    } else {
+    } else if (currency === 'USDT') {
       return new Intl.NumberFormat('en-US', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 4,
       }).format(value) + ' USDT';
+    } else {
+      // Для других валют используем общий формат
+      return new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 6,
+      }).format(value) + ` ${currency}`;
     }
   }, []);
 
@@ -98,44 +123,42 @@ export default function ExchangeCalculator() {
     if (!hasValidRates) return 'Курсы обновляются...';
     if (amount === '' || numericAmount <= 0) return '';
     
-    return formatCurrency(result, direction === 'usdt-to-rub' ? 'RUB' : 'USDT');
-  }, [loading, hasValidRates, amount, numericAmount, result, direction, formatCurrency]);
+    return formatCurrency(result, toCurrency);
+  }, [loading, hasValidRates, amount, numericAmount, result, toCurrency, formatCurrency]);
 
   const getExchangeButtonText = useMemo((): string => {
     if (loading) return 'Загрузка курсов...';
     if (!hasValidRates) return 'Ожидание актуальных курсов...';
     if (amount === '' || numericAmount <= 0) return 'Введите сумму для обмена';
     
-    const fromCurrency = direction === 'usdt-to-rub' ? 'USDT' : 'RUB';
-    const toCurrency = direction === 'usdt-to-rub' ? 'RUB' : 'USDT';
-    const fromAmount = direction === 'usdt-to-rub' 
-      ? `${numericAmount} USDT` 
-      : formatCurrency(numericAmount, 'RUB');
+    const fromAmount = formatCurrency(numericAmount, fromCurrency);
     const toAmount = formatCurrency(result, toCurrency);
     
     return `Обменять ${fromAmount} → ${toAmount}`;
-  }, [loading, hasValidRates, amount, numericAmount, direction, result, formatCurrency]);
+  }, [loading, hasValidRates, amount, numericAmount, fromCurrency, result, toCurrency, formatCurrency]);
 
   const getHintText = useMemo((): string => {
     if (!hasValidRates) {
-      return direction === 'usdt-to-rub' 
-        ? 'Введите количество USDT для обмена на рубли' 
-        : 'Введите количество рублей для покупки USDT';
+      return `Введите количество ${fromCurrency} для обмена на ${toCurrency}`;
     }
 
-    const currentRate = direction === 'usdt-to-rub' ? rate.sell : rate.buy;
-    const formattedRate = formatRate(currentRate);
-    
-    return direction === 'usdt-to-rub' 
-      ? `Введите количество USDT для обмена на рубли по курсу ${formattedRate}`
-      : `Введите количество рублей для покупки USDT по курсу ${formattedRate}`;
-  }, [hasValidRates, direction, rate, formatRate]);
+    // Показываем курс только для USDT/RUB пары
+    if ((fromCurrency === 'USDT' && toCurrency === 'RUB') || (fromCurrency === 'RUB' && toCurrency === 'USDT')) {
+      const currentRate = direction === 'usdt-to-rub' ? rate.sell : rate.buy;
+      const formattedRate = formatRate(currentRate);
+      
+      return direction === 'usdt-to-rub' 
+        ? `Введите количество USDT для обмена на рубли по курсу ${formattedRate}`
+        : `Введите количество рублей для покупки USDT по курсу ${formattedRate}`;
+    }
+
+    return `Введите количество ${fromCurrency} для обмена на ${toCurrency}`;
+  }, [hasValidRates, fromCurrency, toCurrency, direction, rate, formatRate]);
 
   // Check if error is configuration related
-  const isConfigurationError = error && (
-    error.includes('not configured') || 
-    error.includes('Invalid API key') || 
-    error.includes('environment variables')
+  const isConfigurationError = (error || assetsError) && (
+    (error && (error.includes('not configured') || error.includes('Invalid API key') || error.includes('environment variables'))) ||
+    (assetsError && (assetsError.includes('not configured') || assetsError.includes('Invalid API key') || assetsError.includes('environment variables')))
   );
 
   return (
@@ -147,7 +170,7 @@ export default function ExchangeCalculator() {
           <AlertDescription className="text-orange-800">
             <strong>Требуется настройка:</strong>
             <br />
-            {error}
+            {error || assetsError}
             <br />
             <span className="text-sm mt-2 block">
               Проверьте файл .env.local и убедитесь, что указаны правильные значения для NEXT_PUBLIC_SUPABASE_URL и NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -157,9 +180,9 @@ export default function ExchangeCalculator() {
       )}
 
       {/* Other Errors Alert */}
-      {error && !isConfigurationError && (
+      {(error || assetsError) && !isConfigurationError && (
         <div className="error-toast">
-          <strong>Ошибка загрузки курсов:</strong> {error}
+          <strong>Ошибка загрузки данных:</strong> {error || assetsError}
           <br />
           <Button 
             variant="outline" 
@@ -212,17 +235,40 @@ export default function ExchangeCalculator() {
         </CardHeader>
         
         <CardContent className="space-y-8">
+          {/* From Currency Selection */}
+          <div className="space-y-3">
+            <Label htmlFor="fromCurrency" className="text-[#001D8D] font-semibold text-base">
+              Отдаете
+            </Label>
+            <Select 
+              value={fromCurrency} 
+              onValueChange={setFromCurrency}
+              disabled={assetsLoading}
+            >
+              <SelectTrigger className="input-field">
+                <SelectValue placeholder="Выберите валюту" />
+              </SelectTrigger>
+              <SelectContent>
+                {assets.map((asset) => (
+                  <SelectItem key={asset} value={asset}>
+                    {asset}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           {/* Amount Input */}
           <div className="space-y-3">
             <Label htmlFor="amount" className="text-[#001D8D] font-semibold text-base">
-              {direction === 'usdt-to-rub' ? 'Сумма USDT' : 'Сумма RUB'}
+              Сумма {fromCurrency}
             </Label>
             <input
               id="amount"
               type="text"
               value={amount}
               onChange={handleAmountChange}
-              placeholder={direction === 'usdt-to-rub' ? '100 USDT' : '9500 RUB'}
+              placeholder={`100 ${fromCurrency}`}
               disabled={isCalculationDisabled}
               className={`input-field ${error ? 'border-red-300' : ''}`}
             />
@@ -242,10 +288,33 @@ export default function ExchangeCalculator() {
             </button>
           </div>
 
+          {/* To Currency Selection */}
+          <div className="space-y-3">
+            <Label htmlFor="toCurrency" className="text-[#001D8D] font-semibold text-base">
+              Получаете
+            </Label>
+            <Select 
+              value={toCurrency} 
+              onValueChange={setToCurrency}
+              disabled={assetsLoading}
+            >
+              <SelectTrigger className="input-field">
+                <SelectValue placeholder="Выберите валюту" />
+              </SelectTrigger>
+              <SelectContent>
+                {assets.map((asset) => (
+                  <SelectItem key={asset} value={asset}>
+                    {asset}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           {/* Result */}
           <div className="space-y-3">
             <Label htmlFor="result" className="text-[#001D8D] font-semibold text-base">
-              {direction === 'usdt-to-rub' ? 'Получите RUB' : 'Получите USDT'}
+              Получите {toCurrency}
             </Label>
             <div className={`input-field bg-gray-50 ${isAnimating ? 'result-animation' : ''}`}>
               <div className="text-[#001D8D] font-semibold">
@@ -267,8 +336,8 @@ export default function ExchangeCalculator() {
             </div>
           )}
 
-          {/* Current Rates Display */}
-          {hasValidRates && (
+          {/* Current Rates Display - только для USDT/RUB */}
+          {hasValidRates && ((fromCurrency === 'USDT' && toCurrency === 'RUB') || (fromCurrency === 'RUB' && toCurrency === 'USDT')) && (
             <div className="rates-container">
               <h4 className="font-semibold text-[#001D8D] mb-3">Текущие курсы KenigSwap</h4>
               <div className="grid grid-cols-2 gap-4">
