@@ -67,6 +67,22 @@ const Footer = () => {
                   </a>
                 </div>
               </div>
+              
+              {/* Contact via Telegram */}
+              <div>
+                <h4 className="text-sm font-semibold text-gray-700 mb-2">Связь с нами:</h4>
+                <a 
+                  href="https://t.me/Kenigswap" 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-500 hover:text-[#0088cc] transition-colors duration-200 flex items-center gap-2 bg-gray-100 hover:bg-[#0088cc]/10 px-3 py-2 rounded-lg group text-sm"
+                  aria-label="Связаться с нами в Telegram"
+                  title="Написать нам в Telegram"
+                >
+                  <Send size={16} className="group-hover:scale-110 transition-transform duration-200" />
+                  <span className="font-medium">@Kenigswap</span>
+                </a>
+              </div>
             </div>
           </div>
 
