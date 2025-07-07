@@ -65,11 +65,18 @@ const fetchExchangeRate = async (fromCurrency: string, toCurrency: string): Prom
     
     console.log(`✅ Found exchange rate for ${fromCurrency}/${toCurrency}:`, rateData);
     
+    // Проверяем, что курсы валидны
+    if (!rateData.usdt_sell_rate || !rateData.usdt_buy_rate || 
+        rateData.usdt_sell_rate <= 0 || rateData.usdt_buy_rate <= 0) {
+      console.warn('⚠️ Invalid rate values:', rateData);
+      return null;
+    }
+    
     // Для USDT/RUB: sell_rate - курс продажи USDT за RUB, buy_rate - курс покупки USDT за RUB
     if (fromCurrency === 'USDT' && toCurrency === 'RUB') {
       return {
-        sell: rateData.usdt_sell_rate,
-        buy: rateData.usdt_buy_rate,
+        sell: Number(rateData.usdt_sell_rate),
+        buy: Number(rateData.usdt_buy_rate),
         updated_at: rateData.updated_at,
         pair: `${fromCurrency}/${toCurrency}`,
         source: rateData.source
@@ -77,8 +84,8 @@ const fetchExchangeRate = async (fromCurrency: string, toCurrency: string): Prom
     } else if (fromCurrency === 'RUB' && toCurrency === 'USDT') {
       // Для RUB/USDT инвертируем курсы
       return {
-        sell: 1 / rateData.usdt_buy_rate,
-        buy: 1 / rateData.usdt_sell_rate,
+        sell: Number((1 / rateData.usdt_buy_rate).toFixed(6)),
+        buy: Number((1 / rateData.usdt_sell_rate).toFixed(6)),
         updated_at: rateData.updated_at,
         pair: `${fromCurrency}/${toCurrency}`,
         source: rateData.source
@@ -86,8 +93,8 @@ const fetchExchangeRate = async (fromCurrency: string, toCurrency: string): Prom
     }
     
     return {
-      sell: rateData.usdt_sell_rate,
-      buy: rateData.usdt_buy_rate,
+      sell: Number(rateData.usdt_sell_rate),
+      buy: Number(rateData.usdt_buy_rate),
       updated_at: rateData.updated_at,
       pair: `${fromCurrency}/${toCurrency}`,
       source: rateData.source
