@@ -37,19 +37,36 @@ const Footer = () => {
             на обмене USDT на рубли по выгодному курсу и с максимальной
             безопасностью.
             </p>
-            <div className="flex mt-4">
-              {/* Telegram Link */}
-              <a 
-                href="https://t.me/KenigSwap" 
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-500 hover:text-[#0088cc] transition-colors duration-200 flex items-center gap-2 bg-gray-100 hover:bg-[#0088cc]/10 px-3 py-2 rounded-lg group"
-                aria-label="Связаться с нами в Telegram"
-                title="Написать в Telegram @KenigSwap"
-              >
-                <Send size={20} className="group-hover:scale-110 transition-transform duration-200" />
-                <span className="text-sm font-medium">Telegram</span>
-              </a>
+            <div className="mt-4 space-y-3">
+              {/* Telegram Channels */}
+              <div>
+                <h4 className="text-sm font-semibold text-gray-700 mb-2">Наши каналы в Telegram:</h4>
+                <div className="space-y-2">
+                  <a 
+                    href="https://t.me/KaliningradCryptoKenigSwap" 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-500 hover:text-[#0088cc] transition-colors duration-200 flex items-center gap-2 bg-gray-100 hover:bg-[#0088cc]/10 px-3 py-2 rounded-lg group text-sm"
+                    aria-label="Канал с актуальными курсами"
+                    title="Актуальные курсы обмена"
+                  >
+                    <Send size={16} className="group-hover:scale-110 transition-transform duration-200" />
+                    <span className="font-medium">Актуальные курсы</span>
+                  </a>
+                  
+                  <a 
+                    href="https://t.me/KenigSwapNews" 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-500 hover:text-[#0088cc] transition-colors duration-200 flex items-center gap-2 bg-gray-100 hover:bg-[#0088cc]/10 px-3 py-2 rounded-lg group text-sm"
+                    aria-label="Новостной канал"
+                    title="Новости и обновления"
+                  >
+                    <Send size={16} className="group-hover:scale-110 transition-transform duration-200" />
+                    <span className="font-medium">Новости</span>
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
 
