@@ -6,8 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useExchangeRate } from '@/hooks/useExchangeRate';
-import { useAssets } from '@/hooks/useAssets';
+import { useKenigRate } from '@/lib/hooks/rates';
 import { Calculator, RefreshCw, ArrowUpDown, AlertTriangle, Settings, Info } from 'lucide-react';
 
 export default function ExchangeCalculator() {
@@ -16,8 +15,8 @@ export default function ExchangeCalculator() {
   const [toCurrency, setToCurrency] = useState<string>('RUB');
   const [isAnimating, setIsAnimating] = useState(false);
   
-  const { rate, loading, error, lastUpdated, refetch } = useExchangeRate(fromCurrency, toCurrency);
-  const { assets, loading: assetsLoading, error: assetsError } = useAssets();
+  // Используем тот же хук, что и в компоненте сравнения курсов
+  const { rate, loading, error, lastUpdated, refetch } = useKenigRate();
 
   // Определяем направление обмена на основе выбранных валют
   const direction = useMemo(() => {
@@ -29,6 +28,9 @@ export default function ExchangeCalculator() {
     // Для других пар используем sell как базовое направление
     return 'sell';
   }, [fromCurrency, toCurrency]);
+
+  // Доступные валюты (только те, для которых есть курсы)
+  const availableAssets = ['USDT', 'RUB'];
 
   // Мемоизированные функции для предотвращения лишних ререндеров
   const parseAmount = useMemo(() => (value: string): number => {
@@ -114,10 +116,17 @@ export default function ExchangeCalculator() {
     }
   };
 
+  // Проверяем поддержку валютной пары
+  const isPairSupported = useMemo(() => {
+    return (fromCurrency === 'USDT' && toCurrency === 'RUB') || 
+           (fromCurrency === 'RUB' && toCurrency === 'USDT');
+  }, [fromCurrency, toCurrency]);
+
   // Мемоизированные проверки и вычисления
   const hasValidRates = useMemo(() => rate && 
     typeof rate.sell === 'number' && !isNaN(rate.sell) && rate.sell > 0 &&
-    typeof rate.buy === 'number' && !isNaN(rate.buy) && rate.buy > 0, [rate]);
+    typeof rate.buy === 'number' && !isNaN(rate.buy) && rate.buy > 0 &&
+    isPairSupported, [rate, isPairSupported]);
 
   const isCalculationDisabled = !hasValidRates || loading || !!error;
   const numericAmount = parseAmount(amount);
@@ -126,45 +135,54 @@ export default function ExchangeCalculator() {
   // Мемоизированные функции отображения
   const getResultDisplay = useMemo((): string => {
     if (loading) return 'Загрузка курсов...';
-    if (!hasValidRates) return 'Курсы недоступны для данной пары';
+    if (!isPairSupported) return 'Данная валютная пара не поддерживается';
+    if (!hasValidRates) return 'Курсы недоступны';
     if (amount === '' || numericAmount <= 0) return '';
     
     return formatCurrency(result, toCurrency);
-  }, [loading, hasValidRates, amount, numericAmount, result, toCurrency, formatCurrency]);
+  }, [loading, isPairSupported, hasValidRates, amount, numericAmount, result, toCurrency, formatCurrency]);
 
   const getExchangeButtonText = useMemo((): string => {
     if (loading) return 'Загрузка курсов...';
-    if (!hasValidRates) return 'Курсы недоступны для данной пары';
+    if (!isPairSupported) return 'Выберите поддерживаемую валютную пару';
+    if (!hasValidRates) return 'Ожидание актуальных курсов...';
     if (amount === '' || numericAmount <= 0) return 'Введите сумму для обмена';
     
     const fromAmount = formatCurrency(numericAmount, fromCurrency);
     const toAmount = formatCurrency(result, toCurrency);
     
     return `Обменять ${fromAmount} → ${toAmount}`;
-  }, [loading, hasValidRates, amount, numericAmount, fromCurrency, result, toCurrency, formatCurrency]);
+  }, [loading, isPairSupported, hasValidRates, amount, numericAmount, fromCurrency, result, toCurrency, formatCurrency]);
 
   const getHintText = useMemo((): string => {
-    if (!hasValidRates) {
-      return `Курсы для пары ${fromCurrency}/${toCurrency} недоступны`;
+    if (!isPairSupported) {
+      return `Валютная пара ${fromCurrency}/${toCurrency} не поддерживается. Доступны только USDT/RUB и RUB/USDT`;
     }
 
-    // Показываем курс для любой доступной пары
+    if (!hasValidRates) {
+      return direction === 'sell' 
+        ? 'Введите количество USDT для обмена на рубли' 
+        : 'Введите количество рублей для покупки USDT';
+    }
+
+    // Показываем курс для поддерживаемой пары
     if (rate) {
       const currentRate = direction === 'sell' ? rate.sell : rate.buy;
-      const formattedRate = formatRate(currentRate, toCurrency);
+      const formattedRate = formatRate(currentRate, 'RUB');
       
       return direction === 'sell' 
-        ? `Курс продажи: 1 ${fromCurrency} = ${formattedRate}`
-        : `Курс покупки: 1 ${fromCurrency} = ${formattedRate}`;
+        ? `Курс продажи USDT: ${formattedRate}`
+        : `Курс покупки USDT: ${formattedRate}`;
     }
 
     return `Введите количество ${fromCurrency} для обмена на ${toCurrency}`;
-  }, [hasValidRates, fromCurrency, toCurrency, direction, rate, formatRate]);
+  }, [isPairSupported, hasValidRates, fromCurrency, toCurrency, direction, rate, formatRate]);
 
   // Check if error is configuration related
-  const isConfigurationError = (error || assetsError) && (
-    (error && (error.includes('not configured') || error.includes('Invalid API key') || error.includes('environment variables'))) ||
-    (assetsError && (assetsError.includes('not configured') || assetsError.includes('Invalid API key') || assetsError.includes('environment variables')))
+  const isConfigurationError = error && (
+    error.includes('not configured') || 
+    error.includes('Invalid API key') || 
+    error.includes('environment variables')
   );
 
   return (
@@ -176,7 +194,7 @@ export default function ExchangeCalculator() {
           <AlertDescription className="text-orange-800">
             <strong>Требуется настройка:</strong>
             <br />
-            {error || assetsError}
+            {error}
             <br />
             <span className="text-sm mt-2 block">
               Проверьте файл .env.local и убедитесь, что указаны правильные значения для NEXT_PUBLIC_SUPABASE_URL и NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -186,9 +204,9 @@ export default function ExchangeCalculator() {
       )}
 
       {/* Other Errors Alert */}
-      {(error || assetsError) && !isConfigurationError && (
+      {error && !isConfigurationError && (
         <div className="error-toast">
-          <strong>Ошибка загрузки данных:</strong> {error || assetsError}
+          <strong>Ошибка загрузки курсов:</strong> {error}
           <br />
           <Button 
             variant="outline" 
@@ -201,14 +219,26 @@ export default function ExchangeCalculator() {
         </div>
       )}
 
-      {/* Rate Unavailable Alert */}
-      {!hasValidRates && !loading && !isConfigurationError && rate === null && (
+      {/* Unsupported Pair Alert */}
+      {!isPairSupported && (
         <Alert className="bg-yellow-50 border-yellow-200">
           <AlertTriangle className="h-4 w-4 text-yellow-600" />
           <AlertDescription className="text-yellow-800">
-            <strong>Курсы недоступны</strong>
+            <strong>Валютная пара не поддерживается</strong>
             <br />
-            Для валютной пары {fromCurrency}/{toCurrency} курсы не найдены в базе данных. Попробуйте выбрать другую пару валют.
+            В настоящее время поддерживаются только обмены между USDT и RUB. Выберите одну из доступных валютных пар.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Rate Unavailable Alert */}
+      {isPairSupported && !hasValidRates && !loading && !isConfigurationError && (
+        <Alert className="bg-yellow-50 border-yellow-200">
+          <AlertTriangle className="h-4 w-4 text-yellow-600" />
+          <AlertDescription className="text-yellow-800">
+            <strong>Обновление курсов...</strong>
+            <br />
+            Получаем актуальные курсы обмена из базы данных. Пожалуйста, подождите.
           </AlertDescription>
         </Alert>
       )}
@@ -249,13 +279,12 @@ export default function ExchangeCalculator() {
             <Select 
               value={fromCurrency} 
               onValueChange={setFromCurrency}
-              disabled={assetsLoading}
             >
               <SelectTrigger className="input-field">
                 <SelectValue placeholder="Выберите валюту обмена" />
               </SelectTrigger>
               <SelectContent>
-                {assets.map((asset) => (
+                {availableAssets.map((asset) => (
                   <SelectItem key={asset} value={asset}>
                     {asset}
                   </SelectItem>
@@ -302,13 +331,12 @@ export default function ExchangeCalculator() {
             <Select 
               value={toCurrency} 
               onValueChange={setToCurrency}
-              disabled={assetsLoading}
             >
               <SelectTrigger className="input-field">
                 <SelectValue placeholder="Выберите валюту обмена" />
               </SelectTrigger>
               <SelectContent>
-                {assets.map((asset) => (
+                {availableAssets.map((asset) => (
                   <SelectItem key={asset} value={asset}>
                     {asset}
                   </SelectItem>
@@ -337,7 +365,7 @@ export default function ExchangeCalculator() {
             <div className="flex items-center justify-center py-8">
               <div className="flex items-center gap-3 text-[#001D8D]">
                 <RefreshCw className="h-5 w-5 animate-spin" />
-                <span className="font-medium">Загрузка курсов для {fromCurrency}/{toCurrency}...</span>
+                <span className="font-medium">Загрузка актуальных курсов...</span>
               </div>
             </div>
           )}
@@ -345,15 +373,15 @@ export default function ExchangeCalculator() {
           {/* Current Rates Display */}
           {hasValidRates && rate && (
             <div className="rates-container">
-              <h4 className="font-semibold text-[#001D8D] mb-3">Текущие курсы {rate.pair} ({rate.source})</h4>
+              <h4 className="font-semibold text-[#001D8D] mb-3">Текущие курсы KenigSwap</h4>
               <div className="grid grid-cols-2 gap-4">
                 <div className="text-center">
-                  <div className="text-sm text-[#001D8D]/70 mb-1">Продажа {fromCurrency}</div>
-                  <div className="rate-value">{formatRate(rate.sell, toCurrency)}</div>
+                  <div className="text-sm text-[#001D8D]/70 mb-1">Продажа USDT</div>
+                  <div className="rate-value">{formatRate(rate.sell, 'RUB')}</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-sm text-[#001D8D]/70 mb-1">Покупка {fromCurrency}</div>
-                  <div className="rate-value">{formatRate(rate.buy, toCurrency)}</div>
+                  <div className="text-sm text-[#001D8D]/70 mb-1">Покупка USDT</div>
+                  <div className="rate-value">{formatRate(rate.buy, 'RUB')}</div>
                 </div>
               </div>
               <div className="text-center mt-3">
@@ -377,18 +405,16 @@ export default function ExchangeCalculator() {
           </button>
 
           {/* Info about available pairs */}
-          {!hasValidRates && !loading && rate === null && (
-            <div className="border-t border-gray-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 px-6 py-4 rounded-lg">
-              <div className="flex items-start gap-3">
-                <div className="flex-shrink-0 mt-0.5">
-                  <Info className="h-4 w-4 text-[#001D8D]/70" />
-                </div>
-                <div className="text-sm text-[#001D8D]/80 leading-relaxed">
-                  <strong className="text-[#001D8D]">Доступные валютные пары:</strong> курсы загружаются из базы данных exchange_rates. В настоящее время поддерживаются только пары USDT/RUB и RUB/USDT. Для добавления других валютных пар обратитесь в поддержку.
-                </div>
+          <div className="border-t border-gray-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 px-6 py-4 rounded-lg">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0 mt-0.5">
+                <Info className="h-4 w-4 text-[#001D8D]/70" />
+              </div>
+              <div className="text-sm text-[#001D8D]/80 leading-relaxed">
+                <strong className="text-[#001D8D]">Доступные валютные пары:</strong> в настоящее время поддерживаются обмены USDT ⟷ RUB. Курсы обновляются каждые 30 секунд из базы данных exchange_rates.
               </div>
             </div>
-          )}
+          </div>
         </CardContent>
       </div>
     </div>
