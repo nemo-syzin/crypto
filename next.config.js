@@ -1,40 +1,36 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  images: {
+  reactStrictMode: true,
+  swcMinify: true,
+  images: { 
+    unoptimized: true,
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'assets.revolut.com',
-        port: '',
-        pathname: '/**',
+        protocol: "https",
+        hostname: "cdn.brandfetch.io",
       },
       {
-        protocol: 'https',
-        hostname: 'assets.coingecko.com',
-        port: '',
-        pathname: '/**',
+        protocol: "https",
+        hostname: "images.pexels.com",
       },
       {
-        protocol: 'https',
-        hostname: 'res.coinpaper.com',
-        port: '',
-        pathname: '/**',
+        protocol: "https",
+        hostname: "coex.global",
       },
       {
-        protocol: 'https',
-        hostname: 'coex.global',
-        port: '',
-        pathname: '/**',
+        protocol: "https",
+        hostname: "assets.revolut.com",
       },
+      {
+        protocol: "https",
+        hostname: "www.revolut.com",
+      }
     ],
   },
-  webpack: (config) => {
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      '@': require('path').resolve(__dirname, '.'),
-    };
-    return config;
-  },
+  // Optimize bundle size
+  experimental: {
+    optimizePackageImports: ['lucide-react', 'framer-motion']
+  }
 };
 
 module.exports = nextConfig;
