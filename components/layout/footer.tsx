@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Facebook, Twitter, Instagram, Linkedin, Shield, FileText, Lock } from 'lucide-react';
+import { Facebook, Twitter, Instagram, Linkedin, Shield, FileText, Lock, Send } from 'lucide-react';
 
 const footerLinks = [
   { href: "/exchange", label: "Exchange" },
@@ -37,7 +37,21 @@ const Footer = () => {
             на обмене USDT на рубли по выгодному курсу и с максимальной
             безопасностью.
             </p>
-            <div className="flex mt-4 space-x-4">
+            <div className="flex mt-4 space-x-4 items-center">
+              {/* Telegram Link */}
+              <a 
+                href="https://t.me/KenigSwap" 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-500 hover:text-[#0088cc] transition-colors duration-200 flex items-center gap-2 bg-gray-100 hover:bg-[#0088cc]/10 px-3 py-2 rounded-lg group"
+                aria-label="Связаться с нами в Telegram"
+                title="Написать в Telegram @KenigSwap"
+              >
+                <Send size={20} className="group-hover:scale-110 transition-transform duration-200" />
+                <span className="text-sm font-medium">Telegram</span>
+              </a>
+              
+              {/* Other Social Links */}
               {['Facebook', 'Twitter', 'Instagram', 'Linkedin'].map((social) => (
                 <a 
                   key={social} 
@@ -79,6 +93,18 @@ const Footer = () => {
                 <Link href="/about" className="text-gray-600 hover:text-[#001D8D] transition-colors duration-200">
                   About Us
                 </Link>
+              </li>
+              <li>
+                <a 
+                  href="https://t.me/KenigSwap" 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-600 hover:text-[#001D8D] transition-colors duration-200 flex items-center gap-2"
+                  aria-label="Telegram канал KenigSwap"
+                >
+                  <Send size={16} />
+                  Telegram Channel
+                </a>
               </li>
               <li>
                 <Link href="#" className="text-gray-600 hover:text-[#001D8D] transition-colors duration-200">
