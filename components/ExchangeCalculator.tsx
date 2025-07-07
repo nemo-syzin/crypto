@@ -345,7 +345,7 @@ export default function ExchangeCalculator() {
           {/* Current Rates Display */}
           {hasValidRates && rate && (
             <div className="rates-container">
-              <h4 className="font-semibold text-[#001D8D] mb-3">Текущие курсы {rate.pair}</h4>
+              <h4 className="font-semibold text-[#001D8D] mb-3">Текущие курсы {rate.pair} ({rate.source})</h4>
               <div className="grid grid-cols-2 gap-4">
                 <div className="text-center">
                   <div className="text-sm text-[#001D8D]/70 mb-1">Продажа {fromCurrency}</div>
@@ -384,7 +384,7 @@ export default function ExchangeCalculator() {
                   <Info className="h-4 w-4 text-[#001D8D]/70" />
                 </div>
                 <div className="text-sm text-[#001D8D]/80 leading-relaxed">
-                  <strong className="text-[#001D8D]">Доступные валютные пары:</strong> курсы загружаются из базы данных kenig_rates. Если для выбранной пары курсы недоступны, попробуйте выбрать другие валюты или обратитесь в поддержку для добавления нужной пары.
+                  <strong className="text-[#001D8D]">Доступные валютные пары:</strong> курсы загружаются из базы данных exchange_rates. В настоящее время поддерживаются только пары USDT/RUB и RUB/USDT. Для добавления других валютных пар обратитесь в поддержку.
                 </div>
               </div>
             </div>

@@ -15,11 +15,11 @@ const fetchAssets = async (): Promise<string[]> => {
   }
 
   try {
-    console.log('🔄 Fetching assets from kenig_rates table...');
+    console.log('🔄 Fetching assets from exchange_rates table...');
     
     const { data, error } = await supabase
-      .from('kenig_rates')
-      .select('base, quote')
+      .from('exchange_rates')
+      .select('source')
       .limit(1000); // 423 строк < 1000
 
     if (error) {
@@ -28,12 +28,13 @@ const fetchAssets = async (): Promise<string[]> => {
     }
 
     if (!data || data.length === 0) {
-      console.warn('⚠️ No data found in kenig_rates table, using fallback');
+      console.warn('⚠️ No data found in exchange_rates table, using fallback');
       return ['USDT', 'RUB', 'BTC', 'ETH', 'BNB', 'USDC'].sort();
     }
 
-    // превращаем в Set → массив → сортируем
-    const assets = [...new Set(data.flatMap((r: AssetData) => [r.base, r.quote]))].sort();
+    // Для таблицы exchange_rates у нас есть только источники (kenig, bestchange, energo)
+    // Но мы знаем, что они работают с USDT/RUB парами
+    const assets = ['USDT', 'RUB'].sort();
     
     console.log('✅ Successfully fetched assets:', assets);
     return assets;
