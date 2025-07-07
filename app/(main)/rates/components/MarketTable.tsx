@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -231,11 +232,12 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
                 </td>
                 <td className="py-4 px-2">
                   <div className="flex items-center gap-3">
-                    <img 
+                    <Image
                       src={coin.image} 
                       alt={`${coin.name} logo`}
+                      width={32}
+                      height={32}
                       className="w-8 h-8 rounded-full"
-                      loading="lazy"
                     />
                     <div>
                       <div className="font-semibold text-[#001D8D] group-hover:text-[#001D8D]/80">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerClose } from '@/components/ui/drawer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
@@ -98,9 +99,11 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="relative">
-                <img 
+                <Image
                   src={coin.image} 
                   alt={coin.name}
+                  width={48}
+                  height={48}
                   className="w-12 h-12 rounded-full border-2 border-white shadow-lg"
                 />
                 <div className="absolute -top-1 -right-1 bg-white rounded-full p-1">
