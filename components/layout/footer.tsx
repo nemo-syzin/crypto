@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Shield, FileText, Lock, Send } from 'lucide-react';
+import { Shield, FileText, Lock } from 'lucide-react';
 
 const footerLinks = [
   { href: "/exchange", label: "Exchange" },
@@ -34,54 +34,46 @@ const Footer = () => {
             </Link>
             <p className="mt-4 text-sm text-gray-600">
               Современная криптовалютная платформа, специализирующаяся
-            на обмене USDT на рубли по выгодному курсу и с максимальной
-            безопасностью.
+              на обмене USDT на рубли по выгодному курсу и с максимальной
+              безопасностью.
             </p>
-            <div className="mt-4 space-y-3">
-              {/* Telegram Channels */}
+            
+            {/* Telegram Links */}
+            <div className="mt-6 space-y-3">
               <div>
-                <h4 className="text-sm font-semibold text-gray-700 mb-2">Наши каналы в Telegram:</h4>
-                <div className="space-y-2">
-                  <a 
-                    href="https://t.me/KaliningradCryptoKenigSwap" 
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-gray-500 hover:text-[#0088cc] transition-colors duration-200 flex items-center gap-2 bg-gray-100 hover:bg-[#0088cc]/10 px-3 py-2 rounded-lg group text-sm"
-                    aria-label="Канал с актуальными курсами"
-                    title="Актуальные курсы обмена"
-                  >
-                    <Send size={16} className="group-hover:scale-110 transition-transform duration-200" />
-                    <span className="font-medium">Актуальные курсы</span>
-                  </a>
-                  
-                  <a 
-                    href="https://t.me/KenigSwapNews" 
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-gray-500 hover:text-[#0088cc] transition-colors duration-200 flex items-center gap-2 bg-gray-100 hover:bg-[#0088cc]/10 px-3 py-2 rounded-lg group text-sm"
-                    aria-label="Новостной канал"
-                    title="Новости и обновления"
-                  >
-                    <Send size={16} className="group-hover:scale-110 transition-transform duration-200" />
-                    <span className="font-medium">Новости</span>
-                  </a>
-                </div>
-              </div>
-              
-              {/* Contact via Telegram */}
-              <div>
-                <h4 className="text-sm font-semibold text-gray-700 mb-2">Связь с нами:</h4>
-                <a 
-                  href="https://t.me/Kenigswap" 
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-500 hover:text-[#0088cc] transition-colors duration-200 flex items-center gap-2 bg-gray-100 hover:bg-[#0088cc]/10 px-3 py-2 rounded-lg group text-sm"
-                  aria-label="Связаться с нами в Telegram"
-                  title="Написать нам в Telegram"
-                >
-                  <Send size={16} className="group-hover:scale-110 transition-transform duration-200" />
-                  <span className="font-medium">@Kenigswap</span>
-                </a>
+                <h4 className="text-sm font-semibold text-gray-700 mb-2">Telegram каналы:</h4>
+                <ul className="space-y-1">
+                  <li>
+                    <a 
+                      href="https://t.me/KaliningradCryptoKenigSwap" 
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-gray-600 hover:text-[#001D8D] transition-colors duration-200 text-sm"
+                    >
+                      Актуальные курсы
+                    </a>
+                  </li>
+                  <li>
+                    <a 
+                      href="https://t.me/KenigSwapNews" 
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-gray-600 hover:text-[#001D8D] transition-colors duration-200 text-sm"
+                    >
+                      Новости
+                    </a>
+                  </li>
+                  <li>
+                    <a 
+                      href="https://t.me/Kenigswap" 
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-gray-600 hover:text-[#001D8D] transition-colors duration-200 text-sm"
+                    >
+                      Связаться с менеджером
+                    </a>
+                  </li>
+                </ul>
               </div>
             </div>
           </div>
