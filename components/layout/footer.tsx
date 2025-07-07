@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Facebook, Twitter, Instagram, Linkedin, Shield, FileText, Lock, Send } from 'lucide-react';
+import { Shield, FileText, Lock, Send } from 'lucide-react';
 
 const footerLinks = [
   { href: "/exchange", label: "Exchange" },
@@ -37,7 +37,7 @@ const Footer = () => {
             на обмене USDT на рубли по выгодному курсу и с максимальной
             безопасностью.
             </p>
-            <div className="flex mt-4 space-x-4 items-center">
+            <div className="flex mt-4">
               {/* Telegram Link */}
               <a 
                 href="https://t.me/KenigSwap" 
@@ -50,21 +50,6 @@ const Footer = () => {
                 <Send size={20} className="group-hover:scale-110 transition-transform duration-200" />
                 <span className="text-sm font-medium">Telegram</span>
               </a>
-              
-              {/* Other Social Links */}
-              {['Facebook', 'Twitter', 'Instagram', 'Linkedin'].map((social) => (
-                <a 
-                  key={social} 
-                  href="#" 
-                  className="text-gray-500 hover:text-[#001D8D] transition-colors duration-200"
-                  aria-label={social}
-                >
-                  {social === 'Facebook' && <Facebook size={20} />}
-                  {social === 'Twitter' && <Twitter size={20} />}
-                  {social === 'Instagram' && <Instagram size={20} />}
-                  {social === 'Linkedin' && <Linkedin size={20} />}
-                </a>
-              ))}
             </div>
           </div>
 
@@ -94,16 +79,6 @@ const Footer = () => {
                   About Us
                 </Link>
               </li>
-              <li>
-                <a 
-                  href="https://t.me/KenigSwap" 
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-600 hover:text-[#001D8D] transition-colors duration-200 flex items-center gap-2"
-                  aria-label="Telegram канал KenigSwap"
-                >
-                  <Send size={16} />
-                  Telegram Channel
                 </a>
               </li>
               <li>
@@ -114,11 +89,6 @@ const Footer = () => {
               <li>
                 <Link href="#" className="text-gray-600 hover:text-[#001D8D] transition-colors duration-200">
                   Blog
-                </Link>
-              </li>
-              <li>
-                <Link href="/support" className="text-gray-600 hover:text-[#001D8D] transition-colors duration-200">
-                  Contact Support
                 </Link>
               </li>
             </ul>
