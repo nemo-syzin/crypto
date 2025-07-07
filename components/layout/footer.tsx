@@ -79,43 +79,11 @@ const Footer = () => {
                   About Us
                 </Link>
               </li>
-              <li>
-                <Link href="#" className="text-gray-600 hover:text-[#001D8D] transition-colors duration-200">
-                  Careers
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="text-gray-600 hover:text-[#001D8D] transition-colors duration-200">
-                  Blog
-                </Link>
-              </li>
             </ul>
           </div>
 
-          {/* Legal */}
-          <div>
-            <h3 className="font-bold text-lg mb-4 text-gray-900">Legal</h3>
-            <ul className="space-y-2">
-              {policyLinks.map((link) => (
-                <li key={link.href} className="flex items-center gap-2">
-                  {link.href.includes('privacy') && <Lock className="h-4 w-4 text-gray-400" />}
-                  {link.href.includes('terms') && <FileText className="h-4 w-4 text-gray-400" />}
-                  {link.href.includes('aml-kyc') && <Shield className="h-4 w-4 text-gray-400" />}
-                  <Link 
-                    href={link.href} 
-                    className="text-gray-600 hover:text-[#001D8D] transition-colors duration-200"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-              <li>
-                <Link href="#" className="text-gray-600 hover:text-[#001D8D] transition-colors duration-200">
-                  Compliance
-                </Link>
-              </li>
-            </ul>
-          </div>
+          {/* Empty column for spacing */}
+          <div></div>
         </div>
 
         <div className="mt-12 pt-6 border-t border-gray-200">
@@ -123,25 +91,6 @@ const Footer = () => {
             <p className="text-sm text-gray-500">
               © {new Date().getFullYear()} Kenigswap. All rights reserved.
             </p>
-            <div className="mt-4 md:mt-0">
-              <ul className="flex space-x-6">
-                <li>
-                  <Link href="/policy/privacy" className="text-sm text-gray-500 hover:text-[#001D8D] transition-colors duration-200">
-                    Privacy
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/policy/terms" className="text-sm text-gray-500 hover:text-[#001D8D] transition-colors duration-200">
-                    Terms
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/policy/aml-kyc" className="text-sm text-gray-500 hover:text-[#001D8D] transition-colors duration-200">
-                    AML/KYC
-                  </Link>
-                </li>
-              </ul>
-            </div>
           </div>
         </div>
       </div>
