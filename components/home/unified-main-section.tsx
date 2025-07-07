@@ -4,7 +4,7 @@ import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import Image from 'next/image';
 import Link from 'next/link';
-import { SolidTrustButton } from '@/components/ui/solid-trust-button';
+import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   ArrowRight, 
@@ -673,13 +673,12 @@ const UnifiedMainSection = () => {
                 
                 <div className="space-y-4">
                   <Link href="/register">
-                    <SolidTrustButton 
+                    <Button 
                       size="lg" 
-                      fullWidth
-                      className="mb-4"
+                      className="w-full mb-4 bg-[#001D8D] hover:bg-[#001D8D]/90 text-white font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
                     >
                       Создать аккаунт
-                    </SolidTrustButton>
+                    </Button>
                   </Link>
                   
                   <Link href="/login" className="block">
