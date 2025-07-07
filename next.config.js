@@ -1,7 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['assets.revolut.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'assets.revolut.com',
+        port: '',
+        pathname: '/**',
+      },
+    ],
   },
   webpack: (config) => {
     config.resolve.alias = {
