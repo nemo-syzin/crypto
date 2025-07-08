@@ -1,46 +1,66 @@
 import useSWR from 'swr';
 import { supabase, isSupabaseAvailable } from '@/lib/supabase/client';
 
-interface AssetData {
-  base: string;
-  quote: string;
-}
-
-/** Получаем уникальный список валют из столбцов base и quote */
+/** Берём уникальный список валют из столбцов base и quote */
 const fetchAssets = async (): Promise<string[]> => {
   if (!isSupabaseAvailable()) {
     console.warn('⚠️ Supabase not available, using fallback assets');
     // Fallback список валют
-    return ['USDT', 'RUB', 'BTC', 'ETH', 'BNB', 'USDC', 'ADA', 'DOT', 'SOL', 'MATIC', 'AVAX', 'XRP', 'DOGE', 'LTC', 'LINK'].sort();
+    return ['USDT', 'RUB', 'BTC', 'ETH', 'BNB', 'USDC'].sort();
   }
 
   try {
-    console.log('🔄 Fetching assets from kenig_rates table...');
+    console.log('🔄 Fetching assets from exchange_rates and kenig_rates tables...');
     
-    const { data, error } = await supabase
+    // Сначала получаем валюты из exchange_rates
+    const { data: exchangeData, error: exchangeError } = await supabase
+      .from('exchange_rates')
+      .select('source')
+      .limit(1000);
+
+    if (exchangeError) {
+      console.error('❌ Error fetching assets from exchange_rates:', exchangeError);
+      // Продолжаем выполнение, чтобы попробовать получить данные из kenig_rates
+    }
+    
+    // Затем получаем валюты из kenig_rates
+    const { data: kenigData, error: kenigError } = await supabase
       .from('kenig_rates')
       .select('base, quote')
       .not('base', 'is', null)
       .not('quote', 'is', null)
       .limit(1000);
 
-    if (error) {
-      console.error('❌ Error fetching assets:', error);
-      throw error;
+    if (kenigError) {
+      console.error('❌ Error fetching assets from kenig_rates:', kenigError);
+      
+      // Если обе таблицы недоступны, возвращаем fallback
+      if (exchangeError || !exchangeData || exchangeData.length === 0) {
+        throw new Error('Failed to fetch assets from both tables');
+      }
     }
 
-    if (!data || data.length === 0) {
-      console.warn('⚠️ No data found in kenig_rates table, using fallback');
-      return ['USDT', 'RUB', 'BTC', 'ETH', 'BNB', 'USDC'].sort();
+    // Если нет данных ни в одной из таблиц, используем fallback
+    if ((!kenigData || kenigData.length === 0) && 
+        (!exchangeData || exchangeData.length === 0)) {
+      console.warn('⚠️ No data found in either table, using fallback');
+      return ['USDT', 'RUB'].sort();
     }
 
     // Извлекаем уникальные валюты из base и quote
     const assetsSet = new Set<string>();
     
-    data.forEach((row: AssetData) => {
-      if (row.base) assetsSet.add(row.base);
-      if (row.quote) assetsSet.add(row.quote);
-    });
+    // Добавляем базовые валюты USDT и RUB
+    assetsSet.add('USDT');
+    assetsSet.add('RUB');
+    
+    // Добавляем валюты из kenig_rates, если они есть
+    if (kenigData && kenigData.length > 0) {
+      kenigData.forEach((row) => {
+        if (row.base) assetsSet.add(row.base);
+        if (row.quote) assetsSet.add(row.quote);
+      });
+    }
     
     const assets = Array.from(assetsSet).sort();
     
@@ -50,7 +70,7 @@ const fetchAssets = async (): Promise<string[]> => {
   } catch (error) {
     console.error('❌ Error in fetchAssets:', error);
     // Возвращаем fallback данные при ошибке
-    return ['USDT', 'RUB', 'BTC', 'ETH', 'BNB', 'USDC', 'ADA', 'DOT', 'SOL', 'MATIC', 'AVAX', 'XRP', 'DOGE', 'LTC', 'LINK'].sort();
+    return ['USDT', 'RUB'].sort();
   }
 };
 
