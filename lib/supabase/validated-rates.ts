@@ -114,42 +114,14 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
   if (!isSupabaseAvailable()) {
     console.warn('⚠️ Supabase not available:', status);
     return {
-      rates: [
-        {
-          id: 1,
-          source: 'kenig',
-          sell: 95.50,
-          buy: 94.80,
-          updated_at: new Date().toISOString(),
-          isValid: true,
-          validationErrors: []
-        },
-        {
-          id: 2,
-          source: 'bestchange',
-          sell: 95.30,
-          buy: 94.90,
-          updated_at: new Date().toISOString(),
-          isValid: true,
-          validationErrors: []
-        },
-        {
-          id: 3,
-          source: 'energo',
-          sell: 95.20,
-          buy: 94.70,
-          updated_at: new Date().toISOString(),
-          isValid: true,
-          validationErrors: []
-        }
-      ],
-      hasValidRates: true,
-      totalRates: 3,
-      validRatesCount: 3,
+      rates: [],
+      hasValidRates: false,
+      totalRates: 0,
+      validRatesCount: 0,
       invalidRatesCount: 0,
       lastUpdated: new Date(),
       isFromDatabase: false,
-      error: `Для подключения к реальной базе данных настройте Supabase: URL=${status.hasUrl ? 'OK' : 'MISSING'}, KEY=${status.hasKey ? 'OK' : 'MISSING'}`
+      error: `Supabase configuration issue: URL=${status.hasUrl ? 'OK' : 'MISSING'}, KEY=${status.hasKey ? 'OK' : 'MISSING'}`
     };
   }
 
