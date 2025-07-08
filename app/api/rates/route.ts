@@ -25,11 +25,6 @@ const getFallbackData = (): RatesResponse => ({
     USDT: { sell: 95.50, buy: 94.80, updated_at: new Date().toISOString() },
     BTC: { sell: 2800000, buy: 2750000, updated_at: new Date().toISOString() },
     ETH: { sell: 180000, buy: 175000, updated_at: new Date().toISOString() },
-const getFallbackData = (): RatesResponse => ({
-  rates: {
-    USDT: { sell: 95.50, buy: 94.80, updated_at: new Date().toISOString() },
-    BTC: { sell: 2800000, buy: 2750000, updated_at: new Date().toISOString() },
-    ETH: { sell: 180000, buy: 175000, updated_at: new Date().toISOString() },
     BNB: { sell: 25000, buy: 24500, updated_at: new Date().toISOString() },
     ADA: { sell: 35, buy: 34, updated_at: new Date().toISOString() },
     DOT: { sell: 450, buy: 440, updated_at: new Date().toISOString() }
@@ -78,42 +73,6 @@ export async function GET() {
     const ratesMap: { [currencyCode: string]: { sell: number | null; buy: number | null; updated_at?: string } } = {};
     
     data.forEach((record) => {
-      if (record.base && record.sell && record.buy) {
-        // Если курс для этой валюты еще не добавлен или текущий курс новее
-        if (!ratesMap[record.base] || 
-            new Date(record.updated_at) > new Date(ratesMap[record.base].updated_at || '')) {
-          ratesMap[record.base] = {
-            sell: Number(record.sell),
-            buy: Number(record.buy),
-            updated_at: record.updated_at
-          };
-        }
-      }
-    });
-
-    const responseData: RatesResponse = {
-      rates: ratesMap,
-      timestamp: new Date().toISOString(),
-      isFromDatabase: true
-    };
-
-    // Update cache
-    cache = { data: responseData, timestamp: now };
-    
-    console.log(`✅ Successfully loaded rates for ${Object.keys(ratesMap).length} currencies`);
-    return NextResponse.json(responseData);
-    
-  } catch (error) {
-    console.error('❌ API Error in /api/rates:', error);
-    const fallbackData = getFallbackData();
-    fallbackData.error = error instanceof Error ? error.message : 'API request failed';
-    return NextResponse.json(fallbackData);
-  }
-}
-      console.warn('⚠️ Supabase not available, using fallback data');
-      const fallbackData = getFallbackData();
-      fallbackData.error = 'Supabase configuration issue: URL or KEY missing';
-      return NextResponse.json(fallbackData);
       if (record.base && record.quote === 'RUB' && record.sell && record.buy) {
         // Если курс для этой валюты еще не добавлен или текущий курс новее
         if (!ratesMap[record.base] || 
