@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { RefreshCw, Clock, AlertTriangle, TrendingUp, BarChart3, Activity, Target } from 'lucide-react';
+import { useTopCoins } from '@/lib/coingecko-api';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useRates } from '@/lib/useRates';
@@ -16,6 +17,7 @@ import type { CoinMarketData } from '@/lib/coingecko';
 
 export function RatesPageClient() {
   const { data, loading, error, refetch, calculate4hChange } = useRates();
+  const { coins: cryptoCoins, loading: cryptoLoading, error: cryptoError } = useTopCoins('usd', 20);
   const [selectedCoin, setSelectedCoin] = useState<CoinMarketData | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -166,8 +168,9 @@ export function RatesPageClient() {
             <div className="max-w-7xl mx-auto">
               <MarketTable 
                 coins={data?.coins || []}
+                cryptoCoins={cryptoCoins || []}
                 onCoinClick={handleCoinClick}
-                loading={loading}
+                loading={loading || cryptoLoading}
               />
             </div>
           </motion.div>

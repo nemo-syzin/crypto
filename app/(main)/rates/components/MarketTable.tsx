@@ -5,11 +5,13 @@ import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { TrendingUp, TrendingDown, ChevronUp, ChevronDown, BarChart3, Activity, Info, Download, Filter } from 'lucide-react';
+import { TrendingUp, TrendingDown, ChevronUp, ChevronDown, BarChart3, Activity, Info, Download, Filter, Globe, Bitcoin } from 'lucide-react';
 import type { CoinMarketData } from '@/lib/coingecko';
+import type { Coin } from '@/lib/coingecko-api';
 
 interface MarketTableProps {
   coins: CoinMarketData[];
+  cryptoCoins?: Coin[];
   onCoinClick: (coin: CoinMarketData) => void;
   loading?: boolean;
 }
@@ -17,10 +19,11 @@ interface MarketTableProps {
 type SortField = 'market_cap_rank' | 'current_price' | 'price_change_percentage_24h' | 'price_change_percentage_7d_in_currency' | 'market_cap' | 'total_volume' | 'circulating_supply';
 type SortDirection = 'asc' | 'desc';
 
-export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
+export function MarketTable({ coins, cryptoCoins = [], onCoinClick, loading }: MarketTableProps) {
   const [sortField, setSortField] = useState<SortField>('market_cap_rank');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [page, setPage] = useState(1);
+  const [activeTab, setActiveTab] = useState<'coingecko' | 'kenig'>('coingecko');
   const itemsPerPage = 10;
 
   const handleSort = (field: SortField) => {
@@ -32,7 +35,42 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
     }
   };
 
-  const sortedCoins = [...coins].sort((a, b) => {
+  // Convert CoinGecko API data to match our CoinMarketData format
+  const convertedCryptoCoins: CoinMarketData[] = cryptoCoins.map(coin => ({
+    id: coin.id,
+    symbol: coin.symbol,
+    name: coin.name,
+    image: coin.image,
+    current_price: coin.current_price,
+    market_cap: coin.market_cap,
+    market_cap_rank: coin.market_cap_rank,
+    fully_diluted_valuation: coin.fully_diluted_valuation,
+    total_volume: coin.total_volume,
+    high_24h: coin.high_24h,
+    low_24h: coin.low_24h,
+    price_change_24h: coin.price_change_24h,
+    price_change_percentage_24h: coin.price_change_percentage_24h,
+    price_change_percentage_7d_in_currency: coin.price_change_percentage_7d_in_currency,
+    price_change_percentage_1h_in_currency: coin.price_change_percentage_1h_in_currency,
+    market_cap_change_24h: coin.market_cap_change_24h,
+    market_cap_change_percentage_24h: coin.market_cap_change_percentage_24h,
+    circulating_supply: coin.circulating_supply,
+    total_supply: coin.total_supply,
+    max_supply: coin.max_supply,
+    ath: coin.ath,
+    ath_change_percentage: coin.ath_change_percentage,
+    ath_date: coin.ath_date,
+    atl: coin.atl,
+    atl_change_percentage: coin.atl_change_percentage,
+    atl_date: coin.atl_date,
+    roi: null,
+    last_updated: coin.last_updated
+  }));
+
+  // Choose which data source to display
+  const displayCoins = activeTab === 'coingecko' ? convertedCryptoCoins : coins;
+
+  const sortedCoins = [...displayCoins].sort((a, b) => {
     let aValue = a[sortField];
     let bValue = b[sortField];
     
@@ -166,11 +204,41 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600">
-            <BarChart3 className="h-5 w-5 text-white" />
+            {activeTab === 'coingecko' ? (
+              <Globe className="h-5 w-5 text-white" />
+            ) : (
+              <BarChart3 className="h-5 w-5 text-white" />
+            )}
           </div>
-          <h3 className="text-xl font-bold text-[#001D8D]">Полная таблица рынка</h3>
+          <h3 className="text-xl font-bold text-[#001D8D]">
+            {activeTab === 'coingecko' ? 'Global Crypto Market' : 'Полная таблица рынка'}
+          </h3>
         </div>
         <div className="flex items-center gap-3">
+          <div className="flex rounded-lg border border-[#001D8D]/20 overflow-hidden">
+            <button
+              onClick={() => setActiveTab('coingecko')}
+              className={`px-3 py-1.5 text-xs font-medium flex items-center gap-1 ${
+                activeTab === 'coingecko' 
+                  ? 'bg-[#001D8D] text-white' 
+                  : 'bg-white text-[#001D8D] hover:bg-[#001D8D]/5'
+              }`}
+            >
+              <Globe className="h-3 w-3 mr-1" />
+              CoinGecko
+            </button>
+            <button
+              onClick={() => setActiveTab('kenig')}
+              className={`px-3 py-1.5 text-xs font-medium flex items-center gap-1 ${
+                activeTab === 'kenig' 
+                  ? 'bg-[#001D8D] text-white' 
+                  : 'bg-white text-[#001D8D] hover:bg-[#001D8D]/5'
+              }`}
+            >
+              <Bitcoin className="h-3 w-3 mr-1" />
+              KenigSwap
+            </button>
+          </div>
           <Badge variant="outline" className="text-xs">
             <Activity className="h-3 w-3 mr-1" />
             Живые данные
@@ -185,7 +253,7 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
       <div className="overflow-x-auto">
         <table className="w-full" role="table" aria-label="Cryptocurrency market data">
           <thead className="sticky top-0 bg-white/95 backdrop-blur-sm">
-            <tr className="border-b border-[#001D8D]/10">
+            <tr className="border-b border-[#001D8D]/10 text-sm">
               <th className="text-left py-3 px-2" scope="col">
                 <SortButton field="market_cap_rank">#</SortButton>
               </th>
@@ -213,93 +281,176 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
           </thead>
           <tbody>
             {paginatedCoins.map((coin) => (
-              <tr
-                key={coin.id}
-                onClick={() => onCoinClick(coin)}
-                className="border-b border-gray-100 hover:bg-[#001D8D]/5 cursor-pointer transition-colors group"
-                role="button"
-                tabIndex={0}
-                aria-label={`View details for ${coin.name}`}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    onCoinClick(coin);
-                  }
-                }}
-              >
-                <td className="py-4 px-2 text-[#001D8D]/70 font-medium">
-                  {coin.market_cap_rank}
-                </td>
-                <td className="py-4 px-2">
-                  <div className="flex items-center gap-3">
-                    <Image
-                      src={coin.image} 
-                      alt={`${coin.name} logo`}
-                      width={32}
-                      height={32}
-                      className="w-8 h-8 rounded-full"
-                    />
-                    <div>
-                      <div className="font-semibold text-[#001D8D] group-hover:text-[#001D8D]/80">
-                        {coin.name}
+              activeTab === 'coingecko' ? (
+                <tr
+                  key={coin.id}
+                  className="border-b border-gray-100 hover:bg-[#001D8D]/5 cursor-pointer transition-colors group"
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`View details for ${coin.name}`}
+                >
+                  <td className="py-4 px-2 text-[#001D8D]/70 font-medium">
+                    {coin.market_cap_rank}
+                  </td>
+                  <td className="py-4 px-2">
+                    <div className="flex items-center gap-3">
+                      <Image
+                        src={coin.image} 
+                        alt={`${coin.name} logo`}
+                        width={32}
+                        height={32}
+                        className="w-8 h-8 rounded-full"
+                      />
+                      <div>
+                        <div className="font-semibold text-[#001D8D] group-hover:text-[#001D8D]/80">
+                          {coin.name}
+                        </div>
+                        <div className="text-sm text-[#001D8D]/70">{coin.symbol.toUpperCase()}</div>
                       </div>
-                      <div className="text-sm text-[#001D8D]/70">{coin.symbol.toUpperCase()}</div>
                     </div>
-                  </div>
-                </td>
-                <td className="py-4 px-2 text-center hidden md:table-cell">
-                  <MiniSparkline coin={coin} />
-                </td>
-                <td className="py-4 px-2 text-right font-semibold text-[#001D8D]">
-                  {formatPrice(coin.current_price)}
-                </td>
-                <td className="py-4 px-2 text-right">
-                  <Badge 
-                    variant="outline" 
-                    className={`${
-                      coin.price_change_percentage_24h >= 0
-                        ? 'border-green-200 text-green-700 bg-green-50'
-                        : 'border-red-200 text-red-700 bg-red-50'
-                    }`}
-                  >
-                    <span className="flex items-center gap-1">
-                      {coin.price_change_percentage_24h >= 0 ? (
-                        <TrendingUp className="h-3 w-3" />
-                      ) : (
-                        <TrendingDown className="h-3 w-3" />
-                      )}
-                      {coin.price_change_percentage_24h >= 0 ? '+' : ''}
-                      {coin.price_change_percentage_24h.toFixed(2)}%
+                  </td>
+                  <td className="py-4 px-2 text-center hidden md:table-cell">
+                    <MiniSparkline coin={coin} />
+                  </td>
+                  <td className="py-4 px-2 text-right font-semibold text-[#001D8D]">
+                    {formatPrice(coin.current_price)}
+                  </td>
+                  <td className="py-4 px-2 text-right">
+                    <Badge 
+                      variant="outline" 
+                      className={`${
+                        coin.price_change_percentage_24h >= 0
+                          ? 'border-green-200 text-green-700 bg-green-50'
+                          : 'border-red-200 text-red-700 bg-red-50'
+                      }`}
+                    >
+                      <span className="flex items-center gap-1">
+                        {coin.price_change_percentage_24h >= 0 ? (
+                          <TrendingUp className="h-3 w-3" />
+                        ) : (
+                          <TrendingDown className="h-3 w-3" />
+                        )}
+                        {coin.price_change_percentage_24h >= 0 ? '+' : ''}
+                        {coin.price_change_percentage_24h.toFixed(2)}%
+                      </span>
+                    </Badge>
+                  </td>
+                  <td className="py-4 px-2 text-right hidden md:table-cell">
+                    <span className={`${
+                      (coin.price_change_percentage_7d_in_currency || 0) >= 0
+                        ? 'text-green-600'
+                        : 'text-red-600'
+                    }`}>
+                      {(coin.price_change_percentage_7d_in_currency || 0) >= 0 ? '+' : ''}
+                      {coin.price_change_percentage_7d_in_currency?.toFixed(2) || 'N/A'}%
                     </span>
-                  </Badge>
-                </td>
-                <td className="py-4 px-2 text-right hidden md:table-cell">
-                  <span className={`${
-                    (coin.price_change_percentage_7d_in_currency || 0) >= 0
-                      ? 'text-green-600'
-                      : 'text-red-600'
-                  }`}>
-                    {(coin.price_change_percentage_7d_in_currency || 0) >= 0 ? '+' : ''}
-                    {coin.price_change_percentage_7d_in_currency?.toFixed(2) || 'N/A'}%
-                  </span>
-                </td>
-                <td className="py-4 px-2 text-right text-[#001D8D]/70">
-                  {formatMarketCap(coin.market_cap)}
-                </td>
-                <td className="py-4 px-2 text-right text-[#001D8D]/70 hidden md:table-cell">
-                  {formatMarketCap(coin.total_volume)}
-                </td>
-                <td className="py-4 px-2 text-right text-[#001D8D]/70 hidden lg:table-cell">
-                  <div className="flex flex-col items-end">
-                    <div>{formatSupply(coin.circulating_supply)} {coin.symbol.toUpperCase()}</div>
-                    {coin.max_supply && (
-                      <div className="text-xs text-[#001D8D]/50">
-                        Макс: {formatSupply(coin.max_supply)}
+                  </td>
+                  <td className="py-4 px-2 text-right text-[#001D8D]/70">
+                    {formatMarketCap(coin.market_cap)}
+                  </td>
+                  <td className="py-4 px-2 text-right text-[#001D8D]/70 hidden md:table-cell">
+                    {formatMarketCap(coin.total_volume)}
+                  </td>
+                  <td className="py-4 px-2 text-right text-[#001D8D]/70 hidden lg:table-cell">
+                    <div className="flex flex-col items-end">
+                      <div>{formatSupply(coin.circulating_supply)} {coin.symbol.toUpperCase()}</div>
+                      {coin.max_supply && (
+                        <div className="text-xs text-[#001D8D]/50">
+                          Макс: {formatSupply(coin.max_supply)}
+                        </div>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                <tr
+                  key={coin.id}
+                  onClick={() => onCoinClick(coin)}
+                  className="border-b border-gray-100 hover:bg-[#001D8D]/5 cursor-pointer transition-colors group"
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`View details for ${coin.name}`}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      onCoinClick(coin);
+                    }
+                  }}
+                >
+                  <td className="py-4 px-2 text-[#001D8D]/70 font-medium">
+                    {coin.market_cap_rank}
+                  </td>
+                  <td className="py-4 px-2">
+                    <div className="flex items-center gap-3">
+                      <Image
+                        src={coin.image} 
+                        alt={`${coin.name} logo`}
+                        width={32}
+                        height={32}
+                        className="w-8 h-8 rounded-full"
+                      />
+                      <div>
+                        <div className="font-semibold text-[#001D8D] group-hover:text-[#001D8D]/80">
+                          {coin.name}
+                        </div>
+                        <div className="text-sm text-[#001D8D]/70">{coin.symbol.toUpperCase()}</div>
                       </div>
-                    )}
-                  </div>
-                </td>
-              </tr>
+                    </div>
+                  </td>
+                  <td className="py-4 px-2 text-center hidden md:table-cell">
+                    <MiniSparkline coin={coin} />
+                  </td>
+                  <td className="py-4 px-2 text-right font-semibold text-[#001D8D]">
+                    {formatPrice(coin.current_price)}
+                  </td>
+                  <td className="py-4 px-2 text-right">
+                    <Badge 
+                      variant="outline" 
+                      className={`${
+                        coin.price_change_percentage_24h >= 0
+                          ? 'border-green-200 text-green-700 bg-green-50'
+                          : 'border-red-200 text-red-700 bg-red-50'
+                      }`}
+                    >
+                      <span className="flex items-center gap-1">
+                        {coin.price_change_percentage_24h >= 0 ? (
+                          <TrendingUp className="h-3 w-3" />
+                        ) : (
+                          <TrendingDown className="h-3 w-3" />
+                        )}
+                        {coin.price_change_percentage_24h >= 0 ? '+' : ''}
+                        {coin.price_change_percentage_24h.toFixed(2)}%
+                      </span>
+                    </Badge>
+                  </td>
+                  <td className="py-4 px-2 text-right hidden md:table-cell">
+                    <span className={`${
+                      (coin.price_change_percentage_7d_in_currency || 0) >= 0
+                        ? 'text-green-600'
+                        : 'text-red-600'
+                    }`}>
+                      {(coin.price_change_percentage_7d_in_currency || 0) >= 0 ? '+' : ''}
+                      {coin.price_change_percentage_7d_in_currency?.toFixed(2) || 'N/A'}%
+                    </span>
+                  </td>
+                  <td className="py-4 px-2 text-right text-[#001D8D]/70">
+                    {formatMarketCap(coin.market_cap)}
+                  </td>
+                  <td className="py-4 px-2 text-right text-[#001D8D]/70 hidden md:table-cell">
+                    {formatMarketCap(coin.total_volume)}
+                  </td>
+                  <td className="py-4 px-2 text-right text-[#001D8D]/70 hidden lg:table-cell">
+                    <div className="flex flex-col items-end">
+                      <div>{formatSupply(coin.circulating_supply)} {coin.symbol.toUpperCase()}</div>
+                      {coin.max_supply && (
+                        <div className="text-xs text-[#001D8D]/50">
+                          Макс: {formatSupply(coin.max_supply)}
+                        </div>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              )
             ))}
           </tbody>
         </table>
@@ -348,14 +499,23 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
       {/* Table footer with info */}
       <div className="mt-4 pt-4 border-t border-gray-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-xs text-gray-500">
         <div className="flex items-center gap-2">
-          <Activity className="h-3 w-3" />
-          <span>Нажмите на любую строку для просмотра подробных графиков</span>
+          {activeTab === 'coingecko' ? (
+            <>
+              <Globe className="h-3 w-3" />
+              <span>Data provided by CoinGecko API</span>
+            </>
+          ) : (
+            <>
+              <Activity className="h-3 w-3" />
+              <span>Нажмите на любую строку для просмотра подробных графиков</span>
+            </>
+          )}
         </div>
         
         <div className="flex items-start gap-4">
           <div className="flex items-center gap-1">
             <Info className="h-3 w-3 text-blue-500" />
-            <span>Данные обновляются каждые 5 минут</span>
+            <span>{activeTab === 'coingecko' ? 'Data updates every 5 minutes' : 'Данные обновляются каждые 5 минут'}</span>
           </div>
           
           <div className="flex items-center gap-1">
@@ -375,19 +535,35 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
       <div className="mt-6 p-4 bg-blue-50/50 rounded-lg border border-blue-100 text-sm">
         <div className="flex items-start gap-3">
           <Info className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-          <div>
-            <h5 className="font-semibold text-blue-900 mb-2">Информация о таблице</h5>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 text-xs text-blue-800">
-              <div>• <strong>Ранг</strong>: Позиция по рыночной капитализации</div>
-              <div>• <strong>Цена</strong>: Текущая цена в USD</div>
-              <div>• <strong>24ч %</strong>: Изменение цены за последние 24 часа</div>
-              <div>• <strong>7д %</strong>: Изменение цены за последние 7 дней</div>
-              <div>• <strong>Капитализация</strong>: Общая рыночная стоимость</div>
-              <div>• <strong>Объем (24ч)</strong>: Объем торгов за 24 часа</div>
-              <div>• <strong>Циркулирующее предложение</strong>: Количество монет в обращении</div>
-              <div>• <strong>Макс. предложение</strong>: Максимально возможное количество монет</div>
+          {activeTab === 'coingecko' ? (
+            <div>
+              <h5 className="font-semibold text-blue-900 mb-2">Table Information</h5>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 text-xs text-blue-800">
+                <div>• <strong>Rank</strong>: Position by market capitalization</div>
+                <div>• <strong>Price</strong>: Current price in USD</div>
+                <div>• <strong>24h %</strong>: Price change in the last 24 hours</div>
+                <div>• <strong>7d %</strong>: Price change in the last 7 days</div>
+                <div>• <strong>Market Cap</strong>: Total market value</div>
+                <div>• <strong>Volume (24h)</strong>: Trading volume in 24 hours</div>
+                <div>• <strong>Circulating Supply</strong>: Number of coins in circulation</div>
+                <div>• <strong>Max Supply</strong>: Maximum possible number of coins</div>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div>
+              <h5 className="font-semibold text-blue-900 mb-2">Информация о таблице</h5>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 text-xs text-blue-800">
+                <div>• <strong>Ранг</strong>: Позиция по рыночной капитализации</div>
+                <div>• <strong>Цена</strong>: Текущая цена в USD</div>
+                <div>• <strong>24ч %</strong>: Изменение цены за последние 24 часа</div>
+                <div>• <strong>7д %</strong>: Изменение цены за последние 7 дней</div>
+                <div>• <strong>Капитализация</strong>: Общая рыночная стоимость</div>
+                <div>• <strong>Объем (24ч)</strong>: Объем торгов за 24 часа</div>
+                <div>• <strong>Циркулирующее предложение</strong>: Количество монет в обращении</div>
+                <div>• <strong>Макс. предложение</strong>: Максимально возможное количество монет</div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
