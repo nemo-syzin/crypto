@@ -1,5 +1,6 @@
 "use client";
 
+import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, TrendingDown, Clock } from 'lucide-react';
@@ -75,9 +76,11 @@ export function TopMovers({ coins, calculate4hChange, loading }: TopMoversProps)
     return (
       <div key={coin.id} className="flex items-center justify-between p-4 rounded-lg hover:bg-gray-50 transition-colors">
         <div className="flex items-center gap-3">
-          <img 
+          <Image 
             src={coin.image} 
             alt={coin.name}
+            width={32}
+            height={32}
             className="w-8 h-8 rounded-full"
             loading="lazy"
           />

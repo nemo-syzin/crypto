@@ -1,5 +1,6 @@
 "use client";
 
+import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, TrendingDown, Star, Flame, Zap, Crown } from 'lucide-react';
@@ -82,9 +83,11 @@ export function TrendingCoins({ coins, onCoinClick, loading }: TrendingCoinsProp
       className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-all duration-200 group"
     >
       <div className="relative">
-        <img 
+        <Image 
           src={coin.image} 
           alt={coin.name}
+          width={32}
+          height={32}
           className="w-8 h-8 rounded-full"
           loading="lazy"
         />
