@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 // API key for CoinGecko
-const API_KEY = process.env.NEXT_PUBLIC_COINGECKO_API_KEY || 'CG-shU9QGkzZMvPXBdgbTkZDmcm';
+const API_KEY = 'CG-shU9QGkzZMvPXBdgbTkZDmcm';
 
 // Base URL for CoinGecko API
 const BASE_URL = 'https://api.coingecko.com/api/v3';
@@ -182,6 +182,48 @@ export async function searchCoins(query: string): Promise<any[]> {
   }
 }
 
+// Function to fetch global market data
+export async function fetchGlobalData(): Promise<any> {
+  try {
+    const response = await fetch(`${BASE_URL}/global`, {
+      headers: {
+        'x-cg-demo-api-key': API_KEY,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error fetching global data: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Failed to fetch global data:', error);
+    throw error;
+  }
+}
+
+// Function to fetch trending coins
+export async function fetchTrendingCoins(): Promise<any> {
+  try {
+    const response = await fetch(`${BASE_URL}/search/trending`, {
+      headers: {
+        'x-cg-demo-api-key': API_KEY,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error fetching trending coins: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Failed to fetch trending coins:', error);
+    throw error;
+  }
+}
+
 // Custom hook for fetching top coins
 export function useTopCoins(currency: string = 'usd', limit: number = 20, page: number = 1) {
   const [coins, setCoins] = useState<Coin[]>([]);
@@ -261,11 +303,12 @@ export function useCoinDetails(coinId: string) {
   return { coinDetails, loading, error };
 }
 
-// Custom hook for fetching market chart data
+// Custom hook for fetching market chart data with auto-refresh
 export function useCoinMarketChart(coinId: string, currency: string = 'usd', days: number = 7) {
   const [chartData, setChartData] = useState<MarketChart | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   useEffect(() => {
     if (!coinId) {
@@ -279,6 +322,7 @@ export function useCoinMarketChart(coinId: string, currency: string = 'usd', day
         setError(null);
         const data = await fetchCoinMarketChart(coinId, currency, days);
         setChartData(data);
+        setLastUpdated(new Date());
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred');
       } finally {
@@ -287,7 +331,123 @@ export function useCoinMarketChart(coinId: string, currency: string = 'usd', day
     };
 
     fetchData();
+    
+    // Set up auto-refresh every 15 minutes for chart data
+    const refreshInterval = setInterval(fetchData, 15 * 60 * 1000);
+    
+    return () => clearInterval(refreshInterval);
   }, [coinId, currency, days]);
 
-  return { chartData, loading, error };
+  // Function to manually refresh data
+  const refetch = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await fetchCoinMarketChart(coinId, currency, days);
+      setChartData(data);
+      setLastUpdated(new Date());
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An unknown error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { chartData, loading, error, lastUpdated, refetch };
+}
+
+// Custom hook for fetching global market data
+export function useGlobalData() {
+  const [globalData, setGlobalData] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await fetchGlobalData();
+        setGlobalData(data);
+        setLastUpdated(new Date());
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+    
+    // Set up auto-refresh every 5 minutes
+    const refreshInterval = setInterval(fetchData, 5 * 60 * 1000);
+    
+    return () => clearInterval(refreshInterval);
+  }, []);
+
+  // Function to manually refresh data
+  const refetch = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await fetchGlobalData();
+      setGlobalData(data);
+      setLastUpdated(new Date());
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An unknown error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { globalData, loading, error, lastUpdated, refetch };
+}
+
+// Custom hook for fetching trending coins
+export function useTrendingCoins() {
+  const [trendingCoins, setTrendingCoins] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await fetchTrendingCoins();
+        setTrendingCoins(data);
+        setLastUpdated(new Date());
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+    
+    // Set up auto-refresh every 10 minutes
+    const refreshInterval = setInterval(fetchData, 10 * 60 * 1000);
+    
+    return () => clearInterval(refreshInterval);
+  }, []);
+
+  // Function to manually refresh data
+  const refetch = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await fetchTrendingCoins();
+      setTrendingCoins(data);
+      setLastUpdated(new Date());
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An unknown error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { trendingCoins, loading, error, lastUpdated, refetch };
 }

@@ -1,55 +1,40 @@
 "use client";
 
+import { useMemo } from 'react';
 import Image from 'next/image';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, TrendingDown, Star, Flame, Zap, Crown } from 'lucide-react';
-import type { CoinMarketData } from '@/lib/coingecko';
+import type { Coin } from '@/lib/coingecko-api';
 
 interface TrendingCoinsProps {
-  coins: CoinMarketData[];
-  onCoinClick: (coin: CoinMarketData) => void;
+  coins: Coin[];
+  onCoinClick: (coin: any) => void;
   loading?: boolean;
 }
 
 export function TrendingCoins({ coins, onCoinClick, loading }: TrendingCoinsProps) {
-  if (loading) {
-    return (
-      <div className="calculator-container animate-pulse">
-        <div className="h-6 bg-gray-200 rounded w-1/3 mb-6"></div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="space-y-4">
-              <div className="h-4 bg-gray-200 rounded w-2/3"></div>
-              {[1, 2, 3].map((j) => (
-                <div key={j} className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
-                  <div className="flex-1">
-                    <div className="h-4 bg-gray-200 rounded w-3/4 mb-1"></div>
-                    <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                  </div>
-                  <div className="h-6 bg-gray-200 rounded w-16"></div>
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
   // Calculate trending categories
-  const topPerformers = [...coins]
-    .sort((a, b) => b.price_change_percentage_24h - a.price_change_percentage_24h)
-    .slice(0, 3);
+  const topPerformers = useMemo(() => {
+    if (!coins || coins.length === 0) return [];
+    return [...coins]
+      .sort((a, b) => b.price_change_percentage_24h - a.price_change_percentage_24h)
+      .slice(0, 3);
+  }, [coins]);
 
-  const mostVolume = [...coins]
-    .sort((a, b) => b.total_volume - a.total_volume)
-    .slice(0, 3);
+  const mostVolume = useMemo(() => {
+    if (!coins || coins.length === 0) return [];
+    return [...coins]
+      .sort((a, b) => b.total_volume - a.total_volume)
+      .slice(0, 3);
+  }, [coins]);
 
-  const biggestMovers = [...coins]
-    .sort((a, b) => Math.abs(b.price_change_percentage_24h) - Math.abs(a.price_change_percentage_24h))
-    .slice(0, 3);
+  const biggestMovers = useMemo(() => {
+    if (!coins || coins.length === 0) return [];
+    return [...coins]
+      .sort((a, b) => Math.abs(b.price_change_percentage_24h) - Math.abs(a.price_change_percentage_24h))
+      .slice(0, 3);
+  }, [coins]);
 
   const formatPrice = (price: number): string => {
     if (price >= 1) {
@@ -76,7 +61,7 @@ export function TrendingCoins({ coins, onCoinClick, loading }: TrendingCoinsProp
     return `$${volume.toLocaleString()}`;
   };
 
-  const renderCoinItem = (coin: CoinMarketData, index: number, showVolume = false) => (
+  const renderCoinItem = (coin: Coin, index: number, showVolume = false) => (
     <div
       key={coin.id}
       onClick={() => onCoinClick(coin)}
@@ -135,16 +120,41 @@ export function TrendingCoins({ coins, onCoinClick, loading }: TrendingCoinsProp
     </div>
   );
 
+  if (loading) {
+    return (
+      <div className="calculator-container animate-pulse">
+        <div className="h-6 bg-gray-200 rounded w-1/3 mb-6"></div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="space-y-4">
+              <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+              {[1, 2, 3].map((j) => (
+                <div key={j} className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
+                  <div className="flex-1">
+                    <div className="h-4 bg-gray-200 rounded w-3/4 mb-1"></div>
+                    <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                  </div>
+                  <div className="h-6 bg-gray-200 rounded w-16"></div>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="calculator-container hover:shadow-xl transition-all duration-300">
       <div className="flex items-center gap-3 mb-6">
         <div className="p-2 rounded-lg bg-gradient-to-br from-yellow-500 to-orange-600">
           <Star className="h-5 w-5 text-white" />
         </div>
-        <h3 className="text-xl font-bold text-[#001D8D]">Трендовые криптовалюты</h3>
+        <h3 className="text-xl font-bold text-[#001D8D]">Trending Cryptocurrencies</h3>
         <Badge variant="outline" className="ml-auto text-xs">
           <Flame className="h-3 w-3 mr-1" />
-          Горячие
+          Hot
         </Badge>
       </div>
 
@@ -155,7 +165,7 @@ export function TrendingCoins({ coins, onCoinClick, loading }: TrendingCoinsProp
             <div className="p-1.5 rounded-lg bg-gradient-to-br from-green-500 to-green-600">
               <TrendingUp className="h-4 w-4 text-white" />
             </div>
-            <h4 className="font-semibold text-[#001D8D]">Лучшие результаты</h4>
+            <h4 className="font-semibold text-[#001D8D]">Top Performers</h4>
           </div>
           <div className="space-y-2">
             {topPerformers.map((coin, index) => renderCoinItem(coin, index))}
@@ -168,7 +178,7 @@ export function TrendingCoins({ coins, onCoinClick, loading }: TrendingCoinsProp
             <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600">
               <Zap className="h-4 w-4 text-white" />
             </div>
-            <h4 className="font-semibold text-[#001D8D]">Наибольший объем</h4>
+            <h4 className="font-semibold text-[#001D8D]">Highest Volume</h4>
           </div>
           <div className="space-y-2">
             {mostVolume.map((coin, index) => renderCoinItem(coin, index, true))}
@@ -181,7 +191,7 @@ export function TrendingCoins({ coins, onCoinClick, loading }: TrendingCoinsProp
             <div className="p-1.5 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600">
               <Flame className="h-4 w-4 text-white" />
             </div>
-            <h4 className="font-semibold text-[#001D8D]">Самые активные</h4>
+            <h4 className="font-semibold text-[#001D8D]">Biggest Movers</h4>
           </div>
           <div className="space-y-2">
             {biggestMovers.map((coin, index) => renderCoinItem(coin, index))}
@@ -196,7 +206,7 @@ export function TrendingCoins({ coins, onCoinClick, loading }: TrendingCoinsProp
             <div className="text-lg font-bold text-green-600">
               {topPerformers[0]?.price_change_percentage_24h.toFixed(1)}%
             </div>
-            <div className="text-sm text-green-800">Лучший рост</div>
+            <div className="text-sm text-green-800">Best Performer</div>
             <div className="text-xs text-green-600">{topPerformers[0]?.symbol.toUpperCase()}</div>
           </div>
 
@@ -204,7 +214,7 @@ export function TrendingCoins({ coins, onCoinClick, loading }: TrendingCoinsProp
             <div className="text-lg font-bold text-blue-600">
               {formatVolume(mostVolume[0]?.total_volume || 0)}
             </div>
-            <div className="text-sm text-blue-800">Макс. объем</div>
+            <div className="text-sm text-blue-800">Highest Volume</div>
             <div className="text-xs text-blue-600">{mostVolume[0]?.symbol.toUpperCase()}</div>
           </div>
 
@@ -212,7 +222,7 @@ export function TrendingCoins({ coins, onCoinClick, loading }: TrendingCoinsProp
             <div className="text-lg font-bold text-purple-600">
               {Math.abs(biggestMovers[0]?.price_change_percentage_24h || 0).toFixed(1)}%
             </div>
-            <div className="text-sm text-purple-800">Макс. движение</div>
+            <div className="text-sm text-purple-800">Biggest Move</div>
             <div className="text-xs text-purple-600">{biggestMovers[0]?.symbol.toUpperCase()}</div>
           </div>
         </div>

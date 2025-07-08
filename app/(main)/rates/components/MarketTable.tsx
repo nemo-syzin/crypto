@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { TrendingUp, TrendingDown, ChevronUp, ChevronDown, BarChart3, Activity, Info, Download, Filter, Globe } from 'lucide-react';
+import { TrendingUp, TrendingDown, ChevronUp, ChevronDown, BarChart3, Activity, Info, Download, Filter, Globe, Search } from 'lucide-react';
 import type { CoinMarketData } from '@/lib/coingecko';
 import type { Coin } from '@/lib/coingecko-api';
 
@@ -23,6 +23,7 @@ export function MarketTable({ coins, cryptoCoins = [], onCoinClick, loading }: M
   const [sortField, setSortField] = useState<SortField>('market_cap_rank');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [page, setPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
   const itemsPerPage = 10;
 
   const handleSort = (field: SortField) => {
@@ -69,7 +70,18 @@ export function MarketTable({ coins, cryptoCoins = [], onCoinClick, loading }: M
   // Choose which data source to display
   const displayCoins = convertedCryptoCoins;
 
-  const sortedCoins = [...displayCoins].sort((a, b) => {
+  // Filter coins based on search query
+  const filteredCoins = useMemo(() => {
+    if (!searchQuery.trim()) return displayCoins;
+    
+    const query = searchQuery.toLowerCase().trim();
+    return displayCoins.filter(coin => 
+      coin.name.toLowerCase().includes(query) || 
+      coin.symbol.toLowerCase().includes(query)
+    );
+  }, [displayCoins, searchQuery]);
+
+  const sortedCoins = [...filteredCoins].sort((a, b) => {
     let aValue = a[sortField];
     let bValue = b[sortField];
     
@@ -208,6 +220,16 @@ export function MarketTable({ coins, cryptoCoins = [], onCoinClick, loading }: M
           <h3 className="text-xl font-bold text-[#001D8D]">Global Crypto Market</h3>
         </div>
         <div className="flex items-center gap-3">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search coins..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="py-2 px-3 pr-10 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          </div>
           <Badge variant="outline" className="text-xs">
             <Activity className="h-3 w-3 mr-1" />
             Live data
@@ -387,9 +409,16 @@ export function MarketTable({ coins, cryptoCoins = [], onCoinClick, loading }: M
       
       {/* Table footer with info */}
       <div className="mt-4 pt-4 border-t border-gray-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-xs text-gray-500">
-        <div className="flex items-center gap-2">
-          <Globe className="h-3 w-3" />
-          <span>Data provided by CoinGecko API</span>
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Globe className="h-3 w-3" />
+            <span>Data provided by CoinGecko API</span>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <Activity className="h-3 w-3" />
+            <span>Showing {filteredCoins.length} of {displayCoins.length} coins</span>
+          </div>
         </div>
         
         <div className="flex items-start gap-4">

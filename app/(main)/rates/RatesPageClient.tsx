@@ -2,17 +2,21 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { RefreshCw, Clock, AlertTriangle, TrendingUp, BarChart3, Activity, Target, Globe } from 'lucide-react';
-import { useTopCoins } from '@/lib/coingecko-api';
+import { RefreshCw, AlertTriangle, Globe, PieChart, BarChart3, TrendingUp, TrendingDown, DollarSign, Clock, Info } from 'lucide-react';
+import { useTopCoins, useCoinMarketChart } from '@/lib/coingecko-api';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { MarketTable } from './components/MarketTable';
 import { CoinDrawer } from './components/CoinDrawer';
 import { UnifiedVantaBackground } from '@/components/shared/UnifiedVantaBackground';
+import { MarketOverview } from './components/MarketOverview';
+import { TrendingCoins } from './components/TrendingCoins';
+import { MarketStats } from './components/MarketStats';
 import type { CoinMarketData } from '@/lib/coingecko';
 
 export function RatesPageClient() {
   const { coins: cryptoCoins, loading: cryptoLoading, error: cryptoError, refetch } = useTopCoins('usd', 50);
+  const { chartData: btcChartData, loading: btcChartLoading } = useCoinMarketChart('bitcoin', 'usd', 30);
   const [selectedCoin, setSelectedCoin] = useState<CoinMarketData | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -61,11 +65,11 @@ export function RatesPageClient() {
           >
             <h1 className="text-4xl md:text-5xl font-bold text-[#001D8D] mb-4 flex items-center justify-center gap-3">
               <Globe className="h-10 w-10" />
-              Global Crypto Market
+              Cryptocurrency Market Data
             </h1>
             <p className="text-xl text-[#001D8D]/80 max-w-4xl mx-auto mb-8 leading-relaxed">
-              Real-time cryptocurrency market data powered by CoinGecko API.
-              Track prices, trends, trading volumes, and market analytics with regular updates.
+              Comprehensive cryptocurrency market data with real-time prices, trends, and analytics.
+              Track top cryptocurrencies, market movements, and trading volumes all in one place.
             </p>
             
             {/* Simple refresh button */}
@@ -82,7 +86,7 @@ export function RatesPageClient() {
           </motion.div>
 
           {/* Error Alert with calculator styling */}
-          {cryptoError && (
+          {cryptoError && !cryptoLoading && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -107,16 +111,63 @@ export function RatesPageClient() {
             </motion.div>
           )}
 
+          {/* Market Overview Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="mb-12"
+          >
+            <div className="max-w-7xl mx-auto">
+              <MarketOverview 
+                coins={cryptoCoins} 
+                btcChartData={btcChartData}
+                loading={cryptoLoading || btcChartLoading} 
+              />
+            </div>
+          </motion.div>
+
+          {/* Trending Coins Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="mb-12"
+          >
+            <div className="max-w-7xl mx-auto">
+              <TrendingCoins 
+                coins={cryptoCoins} 
+                onCoinClick={handleCoinClick}
+                loading={cryptoLoading} 
+              />
+            </div>
+          </motion.div>
+
+          {/* Market Stats Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="mb-12"
+          >
+            <div className="max-w-7xl mx-auto">
+              <MarketStats 
+                coins={cryptoCoins} 
+                loading={cryptoLoading} 
+              />
+            </div>
+          </motion.div>
+
           {/* Market Table - Simplified */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
             className="mb-12"
           >
             <div className="max-w-7xl mx-auto">
               <MarketTable 
-                coins={[]}
+                coins={cryptoCoins}
                 cryptoCoins={cryptoCoins}
                 onCoinClick={handleCoinClick}
                 loading={cryptoLoading}
