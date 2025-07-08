@@ -65,7 +65,6 @@ export function MarketAnalysis({ coins, loading }: MarketAnalysisProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Market Sentiment */}
         <div className={`p-4 rounded-lg ${marketMood.bg} border border-current/20`}>
-        <div className={`p-4 rounded-lg ${marketMood.bg} border border-gray-200`}>
           <div className="flex items-center gap-2 mb-2">
             <Activity className={`h-4 w-4 ${marketMood.color}`} />
             <span className="text-sm font-medium text-gray-700">Настроение рынка</span>
