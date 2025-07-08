@@ -6,21 +6,23 @@ interface AssetData {
   quote: string;
 }
 
-/** Берём уникальный список валют из столбцов base и quote */
+/** Получаем уникальный список валют из столбцов base и quote */
 const fetchAssets = async (): Promise<string[]> => {
   if (!isSupabaseAvailable()) {
     console.warn('⚠️ Supabase not available, using fallback assets');
     // Fallback список валют
-    return ['USDT', 'RUB', 'BTC', 'ETH', 'BNB', 'USDC'].sort();
+    return ['USDT', 'RUB', 'BTC', 'ETH', 'BNB', 'USDC', 'ADA', 'DOT', 'SOL', 'MATIC', 'AVAX', 'XRP', 'DOGE', 'LTC', 'LINK'].sort();
   }
 
   try {
-    console.log('🔄 Fetching assets from exchange_rates table...');
+    console.log('🔄 Fetching assets from kenig_rates table...');
     
     const { data, error } = await supabase
-      .from('exchange_rates')
-      .select('source')
-      .limit(1000); // 423 строк < 1000
+      .from('kenig_rates')
+      .select('base, quote')
+      .not('base', 'is', null)
+      .not('quote', 'is', null)
+      .limit(1000);
 
     if (error) {
       console.error('❌ Error fetching assets:', error);
@@ -28,13 +30,19 @@ const fetchAssets = async (): Promise<string[]> => {
     }
 
     if (!data || data.length === 0) {
-      console.warn('⚠️ No data found in exchange_rates table, using fallback');
+      console.warn('⚠️ No data found in kenig_rates table, using fallback');
       return ['USDT', 'RUB', 'BTC', 'ETH', 'BNB', 'USDC'].sort();
     }
 
-    // Для таблицы exchange_rates у нас есть только источники (kenig, bestchange, energo)
-    // Но мы знаем, что они работают с USDT/RUB парами
-    const assets = ['USDT', 'RUB'].sort();
+    // Извлекаем уникальные валюты из base и quote
+    const assetsSet = new Set<string>();
+    
+    data.forEach((row: AssetData) => {
+      if (row.base) assetsSet.add(row.base);
+      if (row.quote) assetsSet.add(row.quote);
+    });
+    
+    const assets = Array.from(assetsSet).sort();
     
     console.log('✅ Successfully fetched assets:', assets);
     return assets;
@@ -42,7 +50,7 @@ const fetchAssets = async (): Promise<string[]> => {
   } catch (error) {
     console.error('❌ Error in fetchAssets:', error);
     // Возвращаем fallback данные при ошибке
-    return ['USDT', 'RUB', 'BTC', 'ETH', 'BNB', 'USDC'].sort();
+    return ['USDT', 'RUB', 'BTC', 'ETH', 'BNB', 'USDC', 'ADA', 'DOT', 'SOL', 'MATIC', 'AVAX', 'XRP', 'DOGE', 'LTC', 'LINK'].sort();
   }
 };
 
@@ -51,14 +59,14 @@ export function useAssets() {
     refreshInterval: 5 * 60 * 1000, // обновляем раз в 5 мин
     revalidateOnFocus: false,
     revalidateOnReconnect: true,
-    fallbackData: ['USDT', 'RUB'], // Базовые валюты как fallback
+    fallbackData: ['USDT', 'RUB', 'BTC', 'ETH', 'BNB', 'USDC'], // Базовые валюты как fallback
     onError: (error) => {
       console.warn('⚠️ Assets hook error, using fallback data:', error);
     },
   });
 
   return {
-    assets: data ?? ['USDT', 'RUB'],
+    assets: data ?? ['USDT', 'RUB', 'BTC', 'ETH', 'BNB', 'USDC'],
     loading: isLoading,
     error: error?.message ?? null
   };
