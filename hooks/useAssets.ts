@@ -2,6 +2,10 @@ import useSWR from 'swr';
 import { supabase, isSupabaseAvailable } from '@/lib/supabase/client';
 
 /** Получаем список всех доступных валют из базы данных */
+const fetchAssets = async () => {
+  if (!isSupabaseAvailable()) {
+    console.warn('⚠️ Supabase is not available, using fallback data');
+    return ['USDT', 'RUB', 'BTC', 'ETH', 'BNB', 'USDC'].sort();
   }
 
   try {
