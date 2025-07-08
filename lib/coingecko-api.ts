@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 // API key for CoinGecko
-const API_KEY = 'CG-shU9QGkzZMvPXBdgbTkZDmcm';
+const API_KEY = process.env.NEXT_PUBLIC_COINGECKO_API_KEY || 'CG-shU9QGkzZMvPXBdgbTkZDmcm';
 
 // Base URL for CoinGecko API
 const BASE_URL = 'https://api.coingecko.com/api/v3';
@@ -186,7 +186,8 @@ export async function searchCoins(query: string): Promise<any[]> {
 export function useTopCoins(currency: string = 'usd', limit: number = 20, page: number = 1) {
   const [coins, setCoins] = useState<Coin[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null); 
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -195,6 +196,7 @@ export function useTopCoins(currency: string = 'usd', limit: number = 20, page: 
         setError(null);
         const data = await fetchTopCoins(currency, limit, page);
         setCoins(data);
+        setLastUpdated(new Date());
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred');
       } finally {
@@ -203,9 +205,29 @@ export function useTopCoins(currency: string = 'usd', limit: number = 20, page: 
     };
 
     fetchData();
+    
+    // Set up auto-refresh every 5 minutes
+    const refreshInterval = setInterval(fetchData, 5 * 60 * 1000);
+    
+    return () => clearInterval(refreshInterval);
   }, [currency, limit, page]);
 
-  return { coins, loading, error };
+  // Function to manually refresh data
+  const refetch = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await fetchTopCoins(currency, limit, page);
+      setCoins(data);
+      setLastUpdated(new Date());
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An unknown error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { coins, loading, error, lastUpdated, refetch };
 }
 
 // Custom hook for fetching coin details

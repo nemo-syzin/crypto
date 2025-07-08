@@ -2,22 +2,17 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { RefreshCw, Clock, AlertTriangle, TrendingUp, BarChart3, Activity, Target } from 'lucide-react';
+import { RefreshCw, Clock, AlertTriangle, TrendingUp, BarChart3, Activity, Target, Globe } from 'lucide-react';
 import { useTopCoins } from '@/lib/coingecko-api';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useRates } from '@/lib/useRates';
-import { GlobalSummary } from './components/GlobalSummary';
-import { TopMovers } from './components/TopMovers';
 import { MarketTable } from './components/MarketTable';
-import { MarketAnalysis } from './components/MarketAnalysis';
 import { CoinDrawer } from './components/CoinDrawer';
 import { UnifiedVantaBackground } from '@/components/shared/UnifiedVantaBackground';
 import type { CoinMarketData } from '@/lib/coingecko';
 
 export function RatesPageClient() {
-  const { data, loading, error, refetch, calculate4hChange } = useRates();
-  const { coins: cryptoCoins, loading: cryptoLoading, error: cryptoError } = useTopCoins('usd', 20);
+  const { coins: cryptoCoins, loading: cryptoLoading, error: cryptoError, refetch } = useTopCoins('usd', 50);
   const [selectedCoin, setSelectedCoin] = useState<CoinMarketData | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -64,29 +59,30 @@ export function RatesPageClient() {
             transition={{ duration: 0.5 }}
             className="text-center mb-16"
           >
-            <h1 className="text-4xl md:text-5xl font-bold text-[#001D8D] mb-4">
-              Курсы криптовалют в реальном времени
+            <h1 className="text-4xl md:text-5xl font-bold text-[#001D8D] mb-4 flex items-center justify-center gap-3">
+              <Globe className="h-10 w-10" />
+              Global Crypto Market
             </h1>
             <p className="text-xl text-[#001D8D]/80 max-w-4xl mx-auto mb-8 leading-relaxed">
-              Полный анализ криптовалютного рынка с актуальными данными. 
-              Отслеживайте цены, тренды, объемы торгов и рыночную аналитику с регулярными обновлениями.
+              Real-time cryptocurrency market data powered by CoinGecko API.
+              Track prices, trends, trading volumes, and market analytics with regular updates.
             </p>
             
             {/* Simple refresh button */}
             <div className="flex justify-center">
               <button
                 onClick={refetch}
-                disabled={loading}
+                disabled={cryptoLoading}
                 className="bg-gradient-to-r from-[#001D8D] to-blue-600 text-white px-8 py-4 rounded-lg font-semibold hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
-                <RefreshCw className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
-                {loading ? 'Обновление данных...' : 'Обновить данные'}
+                <RefreshCw className={`h-5 w-5 ${cryptoLoading ? 'animate-spin' : ''}`} />
+                {cryptoLoading ? 'Updating data...' : 'Refresh data'}
               </button>
             </div>
           </motion.div>
 
           {/* Error Alert with calculator styling */}
-          {error && (
+          {cryptoError && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -96,14 +92,14 @@ export function RatesPageClient() {
                 <Alert className="bg-red-50 border-red-200">
                   <AlertTriangle className="h-4 w-4 text-red-600" />
                   <AlertDescription className="text-red-800">
-                    <strong>Ошибка загрузки данных:</strong> {error}
+                    <strong>Error loading data:</strong> {cryptoError}
                     <Button 
                       variant="outline" 
                       size="sm" 
                       onClick={refetch}
                       className="ml-4 text-red-800 border-red-300 hover:bg-red-100"
                     >
-                      Попробовать снова
+                      Try again
                     </Button>
                   </AlertDescription>
                 </Alert>
@@ -111,66 +107,19 @@ export function RatesPageClient() {
             </motion.div>
           )}
 
-          {/* Global Summary - Simplified */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="mb-12"
-          >
-            <div className="max-w-7xl mx-auto">
-              <GlobalSummary 
-                global={data?.global || null}
-                fearGreed={data?.fearGreed || null}
-                loading={loading}
-              />
-            </div>
-          </motion.div>
-
-          {/* Market Analysis - Simplified */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="mb-12"
-          >
-            <div className="max-w-7xl mx-auto">
-              <MarketAnalysis 
-                coins={data?.coins || []}
-                loading={loading}
-              />
-            </div>
-          </motion.div>
-
-          {/* Top Movers - Simplified */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="mb-12"
-          >
-            <div className="max-w-7xl mx-auto">
-              <TopMovers 
-                coins={data?.coins || []}
-                calculate4hChange={calculate4hChange}
-                loading={loading}
-              />
-            </div>
-          </motion.div>
-
           {/* Market Table - Simplified */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
+            transition={{ duration: 0.5 }}
             className="mb-12"
           >
             <div className="max-w-7xl mx-auto">
               <MarketTable 
-                coins={data?.coins || []}
-                cryptoCoins={cryptoCoins || []}
+                coins={[]}
+                cryptoCoins={cryptoCoins}
                 onCoinClick={handleCoinClick}
-                loading={loading || cryptoLoading}
+                loading={cryptoLoading}
               />
             </div>
           </motion.div>
