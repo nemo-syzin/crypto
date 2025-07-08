@@ -2,11 +2,15 @@ import useSWR from 'swr';
 import { supabase, isSupabaseAvailable } from '@/lib/supabase/client';
 
 interface AssetData {
-  base: string;
-  quote: string;
+  id: number;
+  currency_code: string;
+  currency_name?: string;
+  sell: number;
+  buy: number;
+  updated_at: string;
 }
 
-/** Берём уникальный список валют из столбцов base и quote */
+/** Получаем список всех доступных валют из базы данных */
 const fetchAssets = async (): Promise<string[]> => {
   if (!isSupabaseAvailable()) {
     console.warn('⚠️ Supabase not available, using fallback assets');
@@ -15,12 +19,14 @@ const fetchAssets = async (): Promise<string[]> => {
   }
 
   try {
-    console.log('🔄 Fetching assets from exchange_rates table...');
+    console.log('🔄 Fetching assets from database...');
     
+    // Получаем все валюты из таблицы с курсами
     const { data, error } = await supabase
       .from('exchange_rates')
-      .select('source')
-      .limit(1000); // 423 строк < 1000
+      .select('currency_code, currency_name')
+      .not('currency_code', 'is', null)
+      .order('currency_code');
 
     if (error) {
       console.error('❌ Error fetching assets:', error);
@@ -28,13 +34,12 @@ const fetchAssets = async (): Promise<string[]> => {
     }
 
     if (!data || data.length === 0) {
-      console.warn('⚠️ No data found in exchange_rates table, using fallback');
+      console.warn('⚠️ No currency data found, using fallback');
       return ['USDT', 'RUB', 'BTC', 'ETH', 'BNB', 'USDC'].sort();
     }
 
-    // Для таблицы exchange_rates у нас есть только источники (kenig, bestchange, energo)
-    // Но мы знаем, что они работают с USDT/RUB парами
-    const assets = ['USDT', 'RUB'].sort();
+    // Извлекаем уникальные коды валют
+    const assets = [...new Set(data.map(item => item.currency_code))].filter(Boolean).sort();
     
     console.log('✅ Successfully fetched assets:', assets);
     return assets;

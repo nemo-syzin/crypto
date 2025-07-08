@@ -3,9 +3,9 @@ import { supabase, isSupabaseAvailable } from '@/lib/supabase/client';
 
 interface ExchangeRateRecord {
   id: number;
-  source: string;
-  usdt_sell_rate: number;
-  usdt_buy_rate: number;
+  currency_code: string;
+  sell: number;
+  buy: number;
   updated_at: string;
 }
 
@@ -17,17 +17,17 @@ interface ExchangeRate {
   source: string;
 }
 
-/** Получаем курс для конкретной валютной пары */
-const fetchExchangeRate = async (fromCurrency: string, toCurrency: string): Promise<ExchangeRate | null> => {
+/** Получаем курс для конкретной валюты */
+const fetchExchangeRate = async (currencyCode: string): Promise<ExchangeRate | null> => {
   if (!isSupabaseAvailable()) {
     console.warn('⚠️ Supabase not available, using fallback rate');
-    // Fallback курс только для USDT/RUB
-    if ((fromCurrency === 'USDT' && toCurrency === 'RUB') || (fromCurrency === 'RUB' && toCurrency === 'USDT')) {
+    // Fallback курс только для USDT
+    if (currencyCode === 'USDT') {
       return {
         sell: 95.50,
         buy: 94.80,
         updated_at: new Date().toISOString(),
-        pair: `${fromCurrency}/${toCurrency}`,
+        pair: `${currencyCode}/RUB`,
         source: 'fallback'
       };
     }
@@ -35,19 +35,13 @@ const fetchExchangeRate = async (fromCurrency: string, toCurrency: string): Prom
   }
 
   try {
-    console.log(`🔄 Fetching exchange rate for ${fromCurrency}/${toCurrency}...`);
+    console.log(`🔄 Fetching exchange rate for ${currencyCode}...`);
     
-    // Для таблицы exchange_rates поддерживаем только USDT/RUB пары
-    if (!((fromCurrency === 'USDT' && toCurrency === 'RUB') || (fromCurrency === 'RUB' && toCurrency === 'USDT'))) {
-      console.warn(`⚠️ Pair ${fromCurrency}/${toCurrency} not supported in exchange_rates table`);
-      return null;
-    }
-    
-    // Получаем курс от kenig (основной источник)
+    // Получаем курс для указанной валюты
     const { data, error } = await supabase
       .from('exchange_rates')
       .select('*')
-      .eq('source', 'kenig')
+      .eq('currency_code', currencyCode)
       .order('updated_at', { ascending: false })
       .limit(1);
 
@@ -57,59 +51,39 @@ const fetchExchangeRate = async (fromCurrency: string, toCurrency: string): Prom
     }
 
     if (!data || data.length === 0) {
-      console.warn(`⚠️ No exchange rate found for ${fromCurrency}/${toCurrency}`);
+      console.warn(`⚠️ No exchange rate found for ${currencyCode}`);
       return null;
     }
 
     const rateData = data[0] as ExchangeRateRecord;
     
-    console.log(`✅ Found exchange rate for ${fromCurrency}/${toCurrency}:`, rateData);
+    console.log(`✅ Found exchange rate for ${currencyCode}:`, rateData);
     
     // Проверяем, что курсы валидны
-    if (!rateData.usdt_sell_rate || !rateData.usdt_buy_rate || 
-        rateData.usdt_sell_rate <= 0 || rateData.usdt_buy_rate <= 0) {
+    if (!rateData.sell || !rateData.buy || 
+        rateData.sell <= 0 || rateData.buy <= 0) {
       console.warn('⚠️ Invalid rate values:', rateData);
       return null;
     }
     
-    // Для USDT/RUB: sell_rate - курс продажи USDT за RUB, buy_rate - курс покупки USDT за RUB
-    if (fromCurrency === 'USDT' && toCurrency === 'RUB') {
-      return {
-        sell: Number(rateData.usdt_sell_rate),
-        buy: Number(rateData.usdt_buy_rate),
-        updated_at: rateData.updated_at,
-        pair: `${fromCurrency}/${toCurrency}`,
-        source: rateData.source
-      };
-    } else if (fromCurrency === 'RUB' && toCurrency === 'USDT') {
-      // Для RUB/USDT инвертируем курсы
-      return {
-        sell: Number((1 / rateData.usdt_buy_rate).toFixed(6)),
-        buy: Number((1 / rateData.usdt_sell_rate).toFixed(6)),
-        updated_at: rateData.updated_at,
-        pair: `${fromCurrency}/${toCurrency}`,
-        source: rateData.source
-      };
-    }
-    
     return {
-      sell: Number(rateData.usdt_sell_rate),
-      buy: Number(rateData.usdt_buy_rate),
+      sell: Number(rateData.sell),
+      buy: Number(rateData.buy),
       updated_at: rateData.updated_at,
-      pair: `${fromCurrency}/${toCurrency}`,
-      source: rateData.source
+      pair: `${currencyCode}/RUB`,
+      source: 'database'
     };
     
   } catch (error) {
     console.error('❌ Error in fetchExchangeRate:', error);
     
-    // Возвращаем fallback только для USDT/RUB
-    if ((fromCurrency === 'USDT' && toCurrency === 'RUB') || (fromCurrency === 'RUB' && toCurrency === 'USDT')) {
+    // Возвращаем fallback только для USDT
+    if (currencyCode === 'USDT') {
       return {
         sell: 95.50,
         buy: 94.80,
         updated_at: new Date().toISOString(),
-        pair: `${fromCurrency}/${toCurrency}`,
+        pair: `${currencyCode}/RUB`,
         source: 'fallback'
       };
     }
@@ -118,10 +92,10 @@ const fetchExchangeRate = async (fromCurrency: string, toCurrency: string): Prom
   }
 };
 
-export function useExchangeRate(fromCurrency: string, toCurrency: string) {
+export function useExchangeRate(currencyCode: string) {
   const { data, error, isLoading, mutate } = useSWR(
-    fromCurrency && toCurrency ? `exchange-rate-${fromCurrency}-${toCurrency}` : null,
-    () => fetchExchangeRate(fromCurrency, toCurrency),
+    currencyCode ? `exchange-rate-${currencyCode}` : null,
+    () => fetchExchangeRate(currencyCode),
     {
       refreshInterval: 30 * 1000, // обновляем каждые 30 секунд
       revalidateOnFocus: false,

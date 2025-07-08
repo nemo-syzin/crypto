@@ -1,19 +1,25 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 
-interface KenigRate {
-  sell: number;
-  buy: number;
-  updated_at: string;
+interface AllRatesData {
+  [currencyCode: string]: {
+    sell: number | null;
+    buy: number | null;
+    updated_at?: string;
+  };
 }
 
 interface AllRates {
-  kenig: { sell: number | null; buy: number | null; updated_at?: string };
-  bestchange: { sell: number | null; buy: number | null; updated_at?: string };
-  energo: { sell: number | null; buy: number | null; updated_at?: string };
+  rates: AllRatesData;
   timestamp: string;
   isFromDatabase: boolean;
   error?: string;
   isFallback?: boolean;
+}
+
+interface SingleRate {
+  sell: number;
+  buy: number;
+  updated_at: string;
 }
 
 // Кэш для предотвращения лишних запросов
@@ -57,7 +63,7 @@ export function useAllRates() {
       }
       setError(null);
       
-      console.log('🔄 Fetching rates from API...');
+      console.log('🔄 Fetching all rates from API...');
       
       const response = await fetch('/api/rates', {
         cache: 'no-cache',
@@ -88,18 +94,6 @@ export function useAllRates() {
         setError(data.error);
       }
       
-      // Ensure we have at least some valid rates
-      const hasValidRates = (
-        (data.kenig?.sell && data.kenig?.buy) ||
-        (data.bestchange?.sell && data.bestchange?.buy) ||
-        (data.energo?.sell && data.energo?.buy)
-      );
-      
-      if (!hasValidRates && !data.isFallback) {
-        console.warn('⚠️ No valid rates found in response:', data);
-        setError('Нет актуальных курсов в базе данных');
-      }
-      
       // Обновляем кэш
       ratesCache = {
         data,
@@ -116,7 +110,7 @@ export function useAllRates() {
       
       setLastUpdated(new Date());
       
-      if (hasValidRates && data.isFromDatabase) {
+      if (data.isFromDatabase) {
         console.log('✅ Successfully loaded rates from database');
         setError(null);
       }
@@ -129,9 +123,11 @@ export function useAllRates() {
       // Set fallback rates only if no data exists
       if (!rates) {
         const fallbackData = {
-          kenig: { sell: 95.50, buy: 94.80, updated_at: new Date().toISOString() },
-          bestchange: { sell: 95.30, buy: 94.90, updated_at: new Date().toISOString() },
-          energo: { sell: 95.20, buy: 94.70, updated_at: new Date().toISOString() },
+          rates: {
+            USDT: { sell: 95.50, buy: 94.80, updated_at: new Date().toISOString() },
+            BTC: { sell: 2800000, buy: 2750000, updated_at: new Date().toISOString() },
+            ETH: { sell: 180000, buy: 175000, updated_at: new Date().toISOString() }
+          },
           timestamp: new Date().toISOString(),
           isFromDatabase: false,
           error: errorMessage,
@@ -183,9 +179,9 @@ export function useAllRates() {
   };
 }
 
-// Enhanced kenig rate hook with stable updates
-export function useKenigRate() {
-  const [rate, setRate] = useState<KenigRate | null>(null);
+// Enhanced single currency rate hook
+export function useKenigRate(currencyCode: string = 'USDT') {
+  const [rate, setRate] = useState<SingleRate | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
@@ -207,7 +203,7 @@ export function useKenigRate() {
       }
       setError(null);
       
-      console.log('🔄 Fetching Kenig rate from API...');
+      console.log(`🔄 Fetching ${currencyCode} rate from API...`);
       
       const response = await fetch('/api/rates', {
         cache: 'no-cache',
@@ -222,28 +218,28 @@ export function useKenigRate() {
       }
       
       const data = await response.json();
-      console.log('📊 Received data for Kenig rate:', data);
+      console.log(`📊 Received data for ${currencyCode} rate:`, data);
       
-      if (data.kenig && data.kenig.sell && data.kenig.buy) {
-        const kenigRate = {
-          sell: Number(data.kenig.sell),
-          buy: Number(data.kenig.buy),
-          updated_at: data.kenig.updated_at || new Date().toISOString()
+      if (data.rates && data.rates[currencyCode] && data.rates[currencyCode].sell && data.rates[currencyCode].buy) {
+        const currencyRate = {
+          sell: Number(data.rates[currencyCode].sell),
+          buy: Number(data.rates[currencyCode].buy),
+          updated_at: data.rates[currencyCode].updated_at || new Date().toISOString()
         };
         
         // Validate that rates are reasonable numbers
-        if (kenigRate.sell > 0 && kenigRate.buy > 0 && kenigRate.sell > kenigRate.buy) {
+        if (currencyRate.sell > 0 && currencyRate.buy > 0 && currencyRate.sell > currencyRate.buy) {
           // Обновляем только если данные изменились
           setRate(prevRate => {
             if (!prevRate || 
-                prevRate.sell !== kenigRate.sell || 
-                prevRate.buy !== kenigRate.buy) {
-              return kenigRate;
+                prevRate.sell !== currencyRate.sell || 
+                prevRate.buy !== currencyRate.buy) {
+              return currencyRate;
             }
             return prevRate;
           });
           
-          console.log('✅ Kenig rate updated successfully:', kenigRate);
+          console.log(`✅ ${currencyCode} rate updated successfully:`, currencyRate);
           
           if (data.isFromDatabase) {
             setError(null);
@@ -255,28 +251,28 @@ export function useKenigRate() {
         }
       } else {
         // Use fallback rate if no valid data
-        console.warn('⚠️ No valid Kenig rate found, using fallback');
+        console.warn(`⚠️ No valid ${currencyCode} rate found, using fallback`);
         if (!rate) {
           setRate({
-            sell: 95.50,
-            buy: 94.80,
+            sell: currencyCode === 'USDT' ? 95.50 : 100,
+            buy: currencyCode === 'USDT' ? 94.80 : 98,
             updated_at: new Date().toISOString()
           });
         }
-        setError('Нет данных о курсах Kenig');
+        setError(`Нет данных о курсах ${currencyCode}`);
       }
       
       setLastUpdated(new Date());
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch kenig rate';
-      console.error('❌ Error fetching Kenig rate:', errorMessage);
+      const errorMessage = err instanceof Error ? err.message : `Failed to fetch ${currencyCode} rate`;
+      console.error(`❌ Error fetching ${currencyCode} rate:`, errorMessage);
       setError(errorMessage);
       
       // Set fallback rate only if no data exists
       if (!rate) {
         setRate({
-          sell: 95.50,
-          buy: 94.80,
+          sell: currencyCode === 'USDT' ? 95.50 : 100,
+          buy: currencyCode === 'USDT' ? 94.80 : 98,
           updated_at: new Date().toISOString()
         });
       }
@@ -284,7 +280,7 @@ export function useKenigRate() {
       setLoading(false);
       fetchingRef.current = false;
     }
-  }, [rate]);
+  }, [rate, currencyCode]);
 
   useEffect(() => {
     // Первоначальная загрузка
