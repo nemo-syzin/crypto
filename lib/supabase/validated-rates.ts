@@ -32,8 +32,8 @@ function validateRateValue(value: any, fieldName: string, min: number = 50, max:
     return { isValid: false, error: `${fieldName} is not a valid number` };
   }
 
-  if (numericValue < min || numericValue > max) {
-    return { isValid: false, error: `${fieldName} out of range (${min}-${max})` };
+  if (numericValue <= 0) {
+    return { isValid: false, error: `${fieldName} must be greater than 0` };
   }
 
   return { isValid: true };
@@ -78,10 +78,7 @@ function validateRateRecord(rate: any): ValidatedKenigRate {
     const sellRate = parseFloat(rate[sellField]);
     const buyRate = parseFloat(rate[buyField]);
     
-    if (sellRate <= buyRate) {
-      validationErrors.push(`Sell rate should be higher than buy rate`);
-      isValid = false;
-    }
+    // Removed the sell > buy validation as some crypto pairs might have different pricing models
   }
 
   const timestamp = rate.updated_at || rate.created_at;

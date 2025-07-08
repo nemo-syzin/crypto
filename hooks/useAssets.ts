@@ -2,114 +2,115 @@ import useSWR from 'swr';
 import { supabase, isSupabaseAvailable } from '@/lib/supabase/client';
 
 /**
- * Берём уникальный список валют из таблицы kenig_rates
- * Извлекаем все уникальные значения из полей base и quote
+ * Fetch all unique base currencies from kenig_rates table
  */
-const fetchAssets = async (): Promise<string[]> => {
+const fetchBases = async (): Promise<string[]> => {
   if (!isSupabaseAvailable()) {
-    console.warn('⚠️ Supabase not available, using fallback assets');
-    // Fallback список валют
+    console.warn('⚠️ Supabase not available, using fallback bases');
     return ['USDT', 'RUB', 'BTC', 'ETH', 'BNB', 'USDC', 'ADA', 'DOT', 'XRP', 'SOL'].sort();
   }
 
   try {
-    console.log('🔄 Fetching assets from kenig_rates table...');
+    console.log('🔄 Fetching base currencies from kenig_rates table...');
     
-    // Извлекаем уникальные валюты из всех таблиц
-    const assetsSet = new Set<string>();
-    
-    // Добавляем базовые валюты USDT и RUB
-    assetsSet.add('USDT');
-    assetsSet.add('RUB');
-    
-    // Получаем все уникальные значения из полей base и quote
-    const { data: baseData, error: baseError } = await supabase
+    const { data, error } = await supabase
       .from('kenig_rates')
       .select('base')
       .not('base', 'is', null);
 
-    if (baseError) {
-      console.warn('⚠️ Error fetching base currencies:', baseError);
-    } else if (baseData && baseData.length > 0) {
-      console.log('✅ Found base currencies:', baseData.length, 'records');
-      
-      // Добавляем все базовые валюты
-      baseData.forEach(row => {
-        if (row.base) {
-          assetsSet.add(row.base);
-        }
-      });
+    if (error) {
+      console.warn('⚠️ Error fetching base currencies:', error);
+      throw error;
     }
     
-    const { data: quoteData, error: quoteError } = await supabase
-      .from('kenig_rates')
-      .select('quote')
-      .not('quote', 'is', null);
-
-    if (quoteError) {
-      console.warn('⚠️ Error fetching quote currencies:', quoteError);
-    } else if (quoteData && quoteData.length > 0) {
-      console.log('✅ Found quote currencies:', quoteData.length, 'records');
-      
-      // Добавляем все котируемые валюты
-      quoteData.forEach(row => {
-        if (row.quote) {
-          assetsSet.add(row.quote);
-        }
-      });
+    if (data && data.length > 0) {
+      console.log('✅ Found base currencies:', data.length, 'records');
+      return [...new Set(data.map(r => r.base))].sort();
     }
     
-    // Проверяем таблицу exchange_rates с новой структурой
-    const { data: currencyData, error: currencyError } = await supabase
-      .from('exchange_rates')
-      .select('currency_code')
-      .not('currency_code', 'is', null);
-
-    if (currencyError) {
-      console.warn('⚠️ Error fetching currency_code:', currencyError);
-    } else if (currencyData && currencyData.length > 0) {
-      console.log('✅ Found currency_code data:', currencyData.length, 'records');
-      
-      // Добавляем все валюты из currency_code
-      currencyData.forEach(row => {
-        if (row.currency_code) {
-          assetsSet.add(row.currency_code);
-        }
-      });
-    }
-    
-    // Если не нашли никаких данных, добавляем базовые криптовалюты
-    if (assetsSet.size <= 2) {
-      ['BTC', 'ETH', 'BNB', 'USDC', 'ADA', 'DOT', 'XRP', 'SOL', 'MATIC', 'AVAX', 
-       'DOGE', 'SHIB', 'LTC', 'LINK', 'UNI', 'ATOM', 'XLM', 'TRX', 'FIL', 'NEAR'].forEach(asset => assetsSet.add(asset));
-    }
-    
-    const assets = Array.from(assetsSet).sort();
-    
-    console.log('✅ Final assets list:', assets);
-    return assets;
+    return ['USDT', 'RUB', 'BTC', 'ETH', 'BNB', 'USDC', 'ADA', 'DOT', 'XRP', 'SOL'].sort();
   } catch (error) {
-    console.error('❌ Error in fetchAssets:', error);
-    // Возвращаем fallback данные при ошибке
+    console.error('❌ Error in fetchBases:', error);
     return ['USDT', 'RUB', 'BTC', 'ETH', 'BNB', 'USDC', 'ADA', 'DOT', 'XRP', 'SOL'].sort();
   }
 };
 
-export function useAssets() {
-  const { data, error, isLoading } = useSWR('assets', fetchAssets, {
-    refreshInterval: 10 * 60 * 1000, // обновляем раз в 10 мин
+/**
+ * Fetch all available quote currencies for a specific base currency
+ */
+const fetchQuotes = async (base: string): Promise<string[]> => {
+  if (!base || !isSupabaseAvailable()) {
+    return [];
+  }
+
+  try {
+    console.log(`🔄 Fetching quote currencies for base ${base}...`);
+    
+    const { data, error } = await supabase
+      .from('kenig_rates')
+      .select('quote')
+      .eq('base', base)
+      .not('quote', 'is', null);
+
+    if (error) {
+      console.warn(`⚠️ Error fetching quote currencies for ${base}:`, error);
+      throw error;
+    }
+    
+    if (data && data.length > 0) {
+      console.log(`✅ Found ${data.length} quote currencies for ${base}`);
+      return [...new Set(data.map(r => r.quote))].sort();
+    }
+    
+    return [];
+  } catch (error) {
+    console.error(`❌ Error in fetchQuotes for ${base}:`, error);
+    return [];
+  }
+};
+
+// Export hooks for base and quote assets
+export const useBaseAssets = () => {
+  const { data, error, isLoading } = useSWR('bases', fetchBases, {
+    refreshInterval: 10 * 60 * 1000, // refresh every 10 minutes
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
-    fallbackData: ['USDT', 'RUB', 'BTC', 'ETH', 'BNB', 'USDC', 'ADA', 'DOT', 'XRP', 'SOL'], // Расширенный список fallback
-    onError: (error) => {
-      console.warn('⚠️ Assets hook error, using fallback data:', error);
-    },
-    dedupingInterval: 60000, // Предотвращаем частые повторные запросы
+    dedupingInterval: 60000,
   });
 
   return {
-    assets: data && data.length > 0 ? data : ['USDT', 'RUB', 'BTC', 'ETH', 'BNB', 'USDC', 'ADA', 'DOT', 'XRP', 'SOL'],
+    bases: data || [],
     loading: isLoading,
     error: error?.message ?? null
+  };
+};
+
+export const useQuoteAssets = (base: string) => {
+  const { data, error, isLoading } = useSWR(
+    base ? `quotes-${base}` : null, 
+    () => fetchQuotes(base),
+    {
+      refreshInterval: 10 * 60 * 1000,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      dedupingInterval: 60000,
+    }
+  );
+
+  return {
+    quotes: data || [],
+    loading: isLoading,
+    error: error?.message ?? null
+  };
+};
+
+// Keep the original useAssets for backward compatibility
+export function useAssets() {
+  const { bases, loading: basesLoading, error: basesError } = useBaseAssets();
+  
+  return {
+    assets: bases,
+    loading: basesLoading,
+    error: basesError
   };
 }
