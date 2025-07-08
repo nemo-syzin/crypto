@@ -1,15 +1,9 @@
 [build]
   command = "npm run build"
-  publish = ".next"
 
 [[plugins]]
-  package = "@netlify/plugin-nextjs"    # офиц. плагин, берёт .next и создаёт функции
+  package = "@netlify/plugin-nextjs"
 
 [build.environment]
   NODE_VERSION = "18"
   NPM_VERSION  = "8"
-
-[[redirects]]
-  from = "/*"
-  to   = "/index.html"
-  status = 200
