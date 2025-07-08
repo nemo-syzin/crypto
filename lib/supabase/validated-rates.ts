@@ -3,8 +3,6 @@ import { supabase, isSupabaseAvailable, getSupabaseStatus } from './client';
 export interface ValidatedKenigRate {
   id: number;
   source: string;
-  base: string | null;
-  quote: string | null;
   sell: number;
   buy: number;
   updated_at: string;
@@ -95,8 +93,6 @@ function validateRateRecord(rate: any): ValidatedKenigRate {
   return {
     id: rate.id || 0,
     source: rate.source || 'unknown',
-    base: rate.base || null,
-    quote: rate.quote || null,
     sell: sellField && isValid ? parseFloat(rate[sellField]) : 0,
     buy: buyField && isValid ? parseFloat(rate[buyField]) : 0,
     updated_at: timestamp || new Date().toISOString(),

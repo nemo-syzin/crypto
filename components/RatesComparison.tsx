@@ -19,16 +19,6 @@ import {
 import { formatDistanceToNow } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
-interface ExchangeData {
-  name: string;
-  sellRate: number | null;
-  buyRate: number | null;
-  updatedAt: string;
-  available: boolean;
-  description: string;
-  priority: number;
-}
-
 export default function RatesComparison() {
   const { rates, loading, error, lastUpdated, refetch } = useAllRates();
   const [countdown, setCountdown] = useState<string>('');
@@ -98,28 +88,23 @@ export default function RatesComparison() {
   // Мемоизированные данные для предотвращения лишних вычислений
   const exchangeData = useMemo(() => {
     if (!rates) return [];
-
-    // Получаем курсы USDT для сравнения
-    const usdtRates = rates.rates['USDT'] || { sell: null, buy: null, updated_at: new Date().toISOString() };
-    const bestchangeRates = { sell: 95.30, buy: 94.90, updated_at: new Date().toISOString() };
-    const energoRates = { sell: 95.20, buy: 94.70, updated_at: new Date().toISOString() };
     
     return [
       {
         name: 'KenigSwap',
-        sellRate: usdtRates.sell,
-        buyRate: usdtRates.buy,
-        updatedAt: usdtRates.updated_at || new Date().toISOString(),
-        available: usdtRates.sell !== null && !isNaN(usdtRates.sell),
+        sellRate: rates.kenig.sell,
+        buyRate: rates.kenig.buy,
+        updatedAt: rates.kenig.updated_at,
+        available: rates.kenig.sell !== null && !isNaN(rates.kenig.sell!),
         description: 'Основной',
         priority: 1
       },
       {
         name: 'BestChange',
-        sellRate: bestchangeRates.sell,
-        buyRate: bestchangeRates.buy,
-        updatedAt: bestchangeRates.updated_at,
-        available: bestchangeRates.sell !== null && !isNaN(bestchangeRates.sell),
+        sellRate: rates.bestchange.sell,
+        buyRate: rates.bestchange.buy,
+        updatedAt: rates.bestchange.updated_at,
+        available: rates.bestchange.sell !== null && !isNaN(rates.bestchange.sell!),
         description: 'Агрегатор',
         priority: 2
       }
@@ -173,9 +158,7 @@ export default function RatesComparison() {
   // Мемоизированный компонент карточки курса
   const renderCompactRateCard = useMemo(() => (exchange: any, type: 'sell' | 'buy', isBest: boolean) => {
     const rate = type === 'sell' ? exchange.sellRate : exchange.buyRate;
-    const kenigRate = type === 'sell' ? 
-      (rates?.rates['USDT']?.sell || null) : 
-      (rates?.rates['USDT']?.buy || null);
+    const kenigRate = type === 'sell' ? rates?.kenig.sell : rates?.kenig.buy;
     const delta = calculateDelta(rate, kenigRate);
     const sparklineData = generateSparklineData(rate);
     const sparklineColor = delta.isPositive ? '#10b981' : '#6b7280';

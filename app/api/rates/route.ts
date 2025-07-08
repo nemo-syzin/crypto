@@ -1,34 +1,13 @@
 import { NextResponse } from 'next/server';
-import { supabase, isSupabaseAvailable } from '@/lib/supabase/client';
+import { getValidatedKenigRates } from '@/lib/supabase/validated-rates';
 
-interface RatesResponse {
-  rates: { [currencyCode: string]: { sell: number | null; buy: number | null; updated_at?: string } };
-  timestamp: string;
-  isFromDatabase: boolean;
-  error?: string;
-  isFallback?: boolean;
-}
-
-interface RatesResponse {
-  rates: { [currencyCode: string]: { sell: number | null; buy: number | null; updated_at?: string } };
-  timestamp: string;
-  isFromDatabase: boolean;
-  error?: string;
-  isFallback?: boolean;
-}
-
-let cache: { data: RatesResponse; timestamp: number } | null = null;
+let cache: { data: any; timestamp: number } | null = null;
 const CACHE_DURATION = 60 * 1000; // Увеличиваем кэш до 1 минуты
 
-const getFallbackData = (): RatesResponse => ({
-  rates: {
-    USDT: { sell: 95.50, buy: 94.80, updated_at: new Date().toISOString() },
-    BTC: { sell: 2800000, buy: 2750000, updated_at: new Date().toISOString() },
-    ETH: { sell: 180000, buy: 175000, updated_at: new Date().toISOString() },
-    BNB: { sell: 25000, buy: 24500, updated_at: new Date().toISOString() },
-    ADA: { sell: 35, buy: 34, updated_at: new Date().toISOString() },
-    DOT: { sell: 450, buy: 440, updated_at: new Date().toISOString() }
-  },
+const getFallbackData = () => ({
+  kenig: { sell: 95.50, buy: 94.80, updated_at: new Date().toISOString() },
+  bestchange: { sell: 95.30, buy: 94.90, updated_at: new Date().toISOString() },
+  energo: { sell: 95.20, buy: 94.70, updated_at: new Date().toISOString() },
   timestamp: new Date().toISOString(),
   isFromDatabase: false,
   isFallback: true
@@ -43,61 +22,52 @@ export async function GET() {
       return NextResponse.json(cache.data);
     }
 
-    // Получаем все курсы из базы данных
-    const { data, error } = await supabase
-      .from('kenig_rates')
-      .select('*')
-      .eq('source', 'kenig')
-      .not('base', 'is', null)
-      .not('quote', 'is', null)
-      .eq('quote', 'RUB')
-      .order('updated_at', { ascending: false });
-
-    if (error) {
-      console.error('❌ Supabase query error:', error);
-      const fallbackData = getFallbackData();
-      fallbackData.error = `Database error: ${error.message} (${error.code})`;
-      return NextResponse.json(fallbackData);
-    }
-
-    if (!data || data.length === 0) {
-      console.warn('⚠️ No data found in kenig_rates table');
-      const fallbackData = getFallbackData();
-      fallbackData.error = 'No exchange rate data found in database';
-      return NextResponse.json(fallbackData);
-    }
-
-    console.log(`📊 Found ${data.length} exchange rate records`);
-
-    // Группируем курсы по валютам (берем последний курс для каждой валюты)
-    const ratesMap: { [currencyCode: string]: { sell: number | null; buy: number | null; updated_at?: string } } = {};
+    console.log('🔄 Fetching fresh rates from database...');
+    const validationResult = await getValidatedKenigRates();
     
-    data.forEach((record) => {
-      if (record.base && record.quote === 'RUB' && record.sell && record.buy) {
-        // Если курс для этой валюты еще не добавлен или текущий курс новее
-        if (!ratesMap[record.base] || 
-            new Date(record.updated_at) > new Date(ratesMap[record.base].updated_at || '')) {
-          ratesMap[record.base] = {
-            sell: Number(record.sell),
-            buy: Number(record.buy),
-            updated_at: record.updated_at
-          };
-        }
-      }
-    });
-
-    const responseData: RatesResponse = {
-      rates: ratesMap,
+    const data = {
+      kenig: { sell: null, buy: null },
+      bestchange: { sell: null, buy: null },
+      energo: { sell: null, buy: null },
       timestamp: new Date().toISOString(),
-      isFromDatabase: true
+      isFromDatabase: validationResult.isFromDatabase,
+      error: validationResult.error,
+      debug: {
+        totalRates: validationResult.totalRates,
+        validRatesCount: validationResult.validRatesCount,
+        invalidRatesCount: validationResult.invalidRatesCount
+      }
     };
 
-    // Update cache
-    cache = { data: responseData, timestamp: now };
+    if (validationResult.hasValidRates) {
+      
+      validationResult.rates.forEach(rate => {
+        if (rate.isValid) {
+          const rateData = {
+            sell: Number(rate.sell),
+            buy: Number(rate.buy),
+            updated_at: rate.updated_at
+          };
+
+          if (rate.source === 'kenig') data.kenig = rateData;
+          else if (rate.source === 'bestchange') data.bestchange = rateData;
+          else if (rate.source === 'energo') data.energo = rateData;
+        } else {
+          console.warn(`⚠️ Invalid rate for ${rate.source}:`, rate.validationErrors);
+        }
+      });
+    } else {
+      console.warn('⚠️ No valid rates found, using fallback data. Error:', validationResult.error);
+      const fallback = getFallbackData();
+      Object.assign(data, fallback);
+    }
+
+    // Update cache only if we have valid data or this is the first request
+    if (validationResult.hasValidRates || !cache) {
+      cache = { data, timestamp: now };
+    }
     
-    console.log(`✅ Successfully loaded rates for ${Object.keys(ratesMap).length} currencies`);
-    return NextResponse.json(responseData);
-    
+    return NextResponse.json(data);
   } catch (error) {
     console.error('❌ API Error in /api/rates:', error);
     const fallbackData = getFallbackData();
