@@ -1,14 +1,6 @@
 import useSWR from 'swr';
 import { supabase, isSupabaseAvailable } from '@/lib/supabase/client';
 
-interface ExchangeRateRecord {
-  id: number;
-  currency_code: string;
-  sell: number;
-  buy: number;
-  updated_at: string;
-}
-
 interface ExchangeRate {
   sell: number;
   buy: number;
@@ -17,17 +9,17 @@ interface ExchangeRate {
   source: string;
 }
 
-/** Получаем курс для конкретной валюты */
-const fetchExchangeRate = async (currencyCode: string): Promise<ExchangeRate | null> => {
+/** Получаем курс для конкретной валютной пары */
+const fetchExchangeRate = async (fromCurrency: string, toCurrency: string = 'RUB'): Promise<ExchangeRate | null> => {
   if (!isSupabaseAvailable()) {
     console.warn('⚠️ Supabase not available, using fallback rate');
-    // Fallback курс только для USDT
-    if (currencyCode === 'USDT') {
+    // Fallback курс только для USDT/RUB
+    if (fromCurrency === 'USDT' && toCurrency === 'RUB') {
       return {
         sell: 95.50,
         buy: 94.80,
         updated_at: new Date().toISOString(),
-        pair: `${currencyCode}/RUB`,
+        pair: `${fromCurrency}/${toCurrency}`,
         source: 'fallback'
       };
     }
@@ -35,13 +27,15 @@ const fetchExchangeRate = async (currencyCode: string): Promise<ExchangeRate | n
   }
 
   try {
-    console.log(`🔄 Fetching exchange rate for ${currencyCode}...`);
+    console.log(`🔄 Fetching exchange rate for ${fromCurrency}/${toCurrency}...`);
     
-    // Получаем курс для указанной валюты
+    // Получаем курс для указанной пары валют
     const { data, error } = await supabase
-      .from('exchange_rates')
+      .from('kenig_rates')
       .select('*')
-      .eq('currency_code', currencyCode)
+      .eq('source', 'kenig')
+      .eq('base', fromCurrency)
+      .eq('quote', toCurrency)
       .order('updated_at', { ascending: false })
       .limit(1);
 
@@ -51,13 +45,13 @@ const fetchExchangeRate = async (currencyCode: string): Promise<ExchangeRate | n
     }
 
     if (!data || data.length === 0) {
-      console.warn(`⚠️ No exchange rate found for ${currencyCode}`);
+      console.warn(`⚠️ No exchange rate found for ${fromCurrency}/${toCurrency}`);
       return null;
     }
 
-    const rateData = data[0] as ExchangeRateRecord;
+    const rateData = data[0];
     
-    console.log(`✅ Found exchange rate for ${currencyCode}:`, rateData);
+    console.log(`✅ Found exchange rate for ${fromCurrency}/${toCurrency}:`, rateData);
     
     // Проверяем, что курсы валидны
     if (!rateData.sell || !rateData.buy || 
@@ -70,7 +64,7 @@ const fetchExchangeRate = async (currencyCode: string): Promise<ExchangeRate | n
       sell: Number(rateData.sell),
       buy: Number(rateData.buy),
       updated_at: rateData.updated_at,
-      pair: `${currencyCode}/RUB`,
+      pair: `${fromCurrency}/${toCurrency}`,
       source: 'database'
     };
     
@@ -78,12 +72,12 @@ const fetchExchangeRate = async (currencyCode: string): Promise<ExchangeRate | n
     console.error('❌ Error in fetchExchangeRate:', error);
     
     // Возвращаем fallback только для USDT
-    if (currencyCode === 'USDT') {
+    if (fromCurrency === 'USDT' && toCurrency === 'RUB') {
       return {
         sell: 95.50,
         buy: 94.80,
         updated_at: new Date().toISOString(),
-        pair: `${currencyCode}/RUB`,
+        pair: `${fromCurrency}/${toCurrency}`,
         source: 'fallback'
       };
     }
@@ -92,10 +86,10 @@ const fetchExchangeRate = async (currencyCode: string): Promise<ExchangeRate | n
   }
 };
 
-export function useExchangeRate(currencyCode: string) {
+export function useExchangeRate(fromCurrency: string, toCurrency: string = 'RUB') {
   const { data, error, isLoading, mutate } = useSWR(
-    currencyCode ? `exchange-rate-${currencyCode}` : null,
-    () => fetchExchangeRate(currencyCode),
+    fromCurrency && toCurrency ? `exchange-rate-${fromCurrency}-${toCurrency}` : null,
+    () => fetchExchangeRate(fromCurrency, toCurrency),
     {
       refreshInterval: 30 * 1000, // обновляем каждые 30 секунд
       revalidateOnFocus: false,

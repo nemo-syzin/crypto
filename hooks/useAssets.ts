@@ -1,15 +1,6 @@
 import useSWR from 'swr';
 import { supabase, isSupabaseAvailable } from '@/lib/supabase/client';
 
-interface AssetData {
-  id: number;
-  currency_code: string;
-  currency_name?: string;
-  sell: number;
-  buy: number;
-  updated_at: string;
-}
-
 /** Получаем список всех доступных валют из базы данных */
 const fetchAssets = async (): Promise<string[]> => {
   if (!isSupabaseAvailable()) {
@@ -21,12 +12,11 @@ const fetchAssets = async (): Promise<string[]> => {
   try {
     console.log('🔄 Fetching assets from database...');
     
-    // Получаем все валюты из таблицы с курсами
+    // Получаем уникальные валюты из столбцов base и quote
     const { data, error } = await supabase
-      .from('exchange_rates')
-      .select('currency_code, currency_name')
-      .not('currency_code', 'is', null)
-      .order('currency_code');
+      .from('kenig_rates')
+      .select('base, quote')
+      .not('base', 'is', null);
 
     if (error) {
       console.error('❌ Error fetching assets:', error);
@@ -34,12 +24,17 @@ const fetchAssets = async (): Promise<string[]> => {
     }
 
     if (!data || data.length === 0) {
-      console.warn('⚠️ No currency data found, using fallback');
+      console.warn('⚠️ No data found in kenig_rates table, using fallback');
       return ['USDT', 'RUB', 'BTC', 'ETH', 'BNB', 'USDC'].sort();
     }
 
-    // Извлекаем уникальные коды валют
-    const assets = [...new Set(data.map(item => item.currency_code))].filter(Boolean).sort();
+    // Извлекаем уникальные валюты из столбцов base и quote
+    const baseValues = data.map(item => item.base).filter(Boolean);
+    const quoteValues = data.map(item => item.quote).filter(Boolean);
+    
+    // Объединяем и удаляем дубликаты
+    const allCurrencies = [...baseValues, ...quoteValues];
+    const assets = [...new Set(allCurrencies)].sort();
     
     console.log('✅ Successfully fetched assets:', assets);
     return assets;

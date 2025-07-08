@@ -22,7 +22,8 @@ export default function ExchangeCalculator() {
   // Получаем курс для выбранной валюты (если это не RUB)
   const shouldFetchRate = fromCurrency !== 'RUB' && toCurrency === 'RUB';
   const { rate, loading: rateLoading, error: rateError, lastUpdated, refetch } = useExchangeRate(
-    shouldFetchRate ? fromCurrency : ''
+    shouldFetchRate ? fromCurrency : '',
+    toCurrency
   );
 
   // Определяем направление обмена

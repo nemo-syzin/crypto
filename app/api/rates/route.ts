@@ -1,14 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabase, isSupabaseAvailable } from '@/lib/supabase/client';
 
-interface ExchangeRateRecord {
-  id: number;
-  currency_code: string;
-  sell: number;
-  buy: number;
-  updated_at: string;
-}
-
 interface RatesResponse {
   rates: { [currencyCode: string]: { sell: number | null; buy: number | null; updated_at?: string } };
   timestamp: string;
@@ -54,19 +46,22 @@ export async function GET() {
 
     // Получаем все курсы из базы данных
     const { data, error } = await supabase
-      .from('exchange_rates')
+      .from('kenig_rates')
       .select('*')
+      .eq('source', 'kenig')
+      .not('base', 'is', null)
+      .not('quote', 'is', null)
       .order('updated_at', { ascending: false });
 
     if (error) {
       console.error('❌ Supabase query error:', error);
       const fallbackData = getFallbackData();
-      fallbackData.error = `Database error: ${error.message}`;
+      fallbackData.error = `Database error: ${error.message} (${error.code})`;
       return NextResponse.json(fallbackData);
     }
 
     if (!data || data.length === 0) {
-      console.warn('⚠️ No data found in exchange_rates table');
+      console.warn('⚠️ No data found in kenig_rates table');
       const fallbackData = getFallbackData();
       fallbackData.error = 'No exchange rate data found in database';
       return NextResponse.json(fallbackData);
@@ -77,12 +72,12 @@ export async function GET() {
     // Группируем курсы по валютам (берем последний курс для каждой валюты)
     const ratesMap: { [currencyCode: string]: { sell: number | null; buy: number | null; updated_at?: string } } = {};
     
-    data.forEach((record: ExchangeRateRecord) => {
-      if (record.currency_code && record.sell && record.buy) {
+    data.forEach((record) => {
+      if (record.base && record.quote === 'RUB' && record.sell && record.buy) {
         // Если курс для этой валюты еще не добавлен или текущий курс новее
-        if (!ratesMap[record.currency_code] || 
-            new Date(record.updated_at) > new Date(ratesMap[record.currency_code].updated_at || '')) {
-          ratesMap[record.currency_code] = {
+        if (!ratesMap[record.base] || 
+            new Date(record.updated_at) > new Date(ratesMap[record.base].updated_at || '')) {
+          ratesMap[record.base] = {
             sell: Number(record.sell),
             buy: Number(record.buy),
             updated_at: record.updated_at
