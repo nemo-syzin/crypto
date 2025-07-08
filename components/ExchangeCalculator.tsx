@@ -188,6 +188,7 @@ export default function ExchangeCalculator() {
   // Check if error is configuration related
   const isConfigurationError = error && (
     error.includes('not configured') || 
+    error.includes('configuration issue') ||
     error.includes('Invalid API key') || 
     error.includes('environment variables')
   );
@@ -214,10 +215,16 @@ export default function ExchangeCalculator() {
       {error && !isConfigurationError && (
         <div className="error-toast">
           <strong>Ошибка загрузки курсов:</strong> {error}
-          <br />
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <div className="text-sm mt-2 block space-y-2">
+            <p>Для подключения к Supabase необходимо:</p>
+            <ol className="list-decimal pl-5 space-y-1">
+              <li>Создать проект на <a href="https://supabase.com" target="_blank" rel="noopener noreferrer" className="underline">Supabase</a></li>
+              <li>Скопировать URL и Anon Key из настроек проекта (Project Settings → API)</li>
+              <li>Создать файл .env.local в корне проекта</li>
+              <li>Добавить в него переменные NEXT_PUBLIC_SUPABASE_URL и NEXT_PUBLIC_SUPABASE_ANON_KEY с вашими значениями</li>
+              <li>Перезапустить сервер разработки</li>
+            </ol>
+          </div>
             onClick={refetch}
             className="mt-2 text-red-800 border-red-300 hover:bg-red-100"
           >
