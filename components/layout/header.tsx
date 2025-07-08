@@ -71,6 +71,12 @@ const Header = () => {
               Rates
             </Link>
             <Link 
+              href="/crypto" 
+              className="text-[#001D8D] hover:opacity-80 transition-colors duration-200"
+            >
+              Crypto
+            </Link>
+            <Link 
               href="/about" 
               className="text-[#001D8D] hover:opacity-80 transition-colors duration-200"
             >
@@ -193,6 +199,12 @@ const Header = () => {
                     className="p-2 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors"
                   >
                     Rates
+                  </Link>
+                  <Link 
+                    href="/crypto" 
+                    className="p-2 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors"
+                  >
+                    Crypto
                   </Link>
                   <Link 
                     href="/about" 
