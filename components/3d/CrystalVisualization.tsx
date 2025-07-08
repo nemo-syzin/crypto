@@ -94,7 +94,7 @@ function StrategicCrystal({ onFaceClick, hoveredFace, setHoveredFace }: {
   const autoRotateRef = useRef(true);
   
   useEffect(() => {
-    setIsMobile(window.innerWidth < 768);
+    setIsMobile(typeof window !== 'undefined' && window.innerWidth < 768);
   }, []);
 
   // Auto-rotation with smooth lerp
