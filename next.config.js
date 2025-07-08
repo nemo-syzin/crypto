@@ -57,6 +57,9 @@ const nextConfig = {
     optimizePackageImports: ['lucide-react', 'framer-motion']
   },
   webpack: (config, { isServer }) => {
+    // Fix for Supabase realtime-js critical dependency warning
+    config.module.exprContextCritical = false;
+    
     config.resolve.alias = {
       ...config.resolve.alias,
       '@': require('path').resolve(__dirname, '.'),
