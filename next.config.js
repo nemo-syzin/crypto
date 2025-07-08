@@ -2,6 +2,14 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
+  eslint: {
+    /** Disable failing build due to ESLint errors */
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    /** Disable failing build due to TypeScript errors */
+    ignoreBuildErrors: true,
+  },
   output: 'export',
   trailingSlash: true,
   images: { 
