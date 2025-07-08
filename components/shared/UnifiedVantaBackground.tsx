@@ -115,12 +115,7 @@ export function UnifiedVantaBackground({
                 
                 console.log('✅ p5.js loaded and assigned to window.p5');
                 
-                // Increased delay to ensure p5.js is fully ready
-                return new Promise(resolve => {
-                  setTimeout(() => {
-                    resolve(P5Constructor);
-                  }, 1500);
-                });
+                return P5Constructor;
               }).catch(error => {
                 console.warn('⚠️ Failed to load p5.js:', error);
                 hasP5LoadFailed = true;
@@ -132,6 +127,9 @@ export function UnifiedVantaBackground({
             if (p5LoadPromise) {
               await p5LoadPromise;
             }
+            
+            // Add explicit delay after p5.js is loaded but before Vanta initialization
+            await new Promise(resolve => setTimeout(resolve, 1500));
             
             // Double-check that p5 is available and properly initialized
             if (!(window as any).p5 || !p5Instance) {
