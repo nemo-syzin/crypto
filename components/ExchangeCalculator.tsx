@@ -226,9 +226,13 @@ export default function ExchangeCalculator() {
             </ol>
           </div>
           <Button
-          <Button
+            variant="outline" 
+            size="sm"
             onClick={refetch}
             className="mt-2 text-red-800 border-red-300 hover:bg-red-100"
+          >
+            Повторить загрузку
+          </Button>
           >
             Повторить загрузку
           </Button>
