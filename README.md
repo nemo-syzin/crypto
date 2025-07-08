@@ -1,152 +1,166 @@
-# CryptoExchange - USDT to RUB Exchange Platform
+# KenigSwap - Криптовалютная биржа
 
-Современная платформа для обмена USDT на рубли с актуальными курсами и безопасными транзакциями.
+Современная платформа для обмена криптовалют с фокусом на USDT/RUB пары.
 
 ## 🚀 Быстрый старт
 
 ### Локальная разработка
 
-1. **Клонируйте репозиторий:**
+1. **Клонируйте репозиторий**
 ```bash
 git clone <your-repo-url>
-cd cryptoexchange
+cd kenigswap
 ```
 
-2. **Установите зависимости:**
+2. **Установите зависимости**
 ```bash
-npm install
+npm ci
 ```
 
-3. **Настройте переменные окружения:**
+3. **Настройте переменные окружения**
 ```bash
 cp .env.example .env.local
 ```
-Заполните `.env.local` вашими данными Supabase.
 
-4. **Запустите сервер разработки:**
+Заполните `.env.local` вашими реальными значениями:
+- `NEXT_PUBLIC_SUPABASE_URL` - URL вашего Supabase проекта
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Публичный ключ Supabase
+- `COINGECKO_API_KEY` - API ключ CoinGecko (бесплатный)
+
+4. **Запустите проект**
 ```bash
 npm run dev
 ```
 
 Откройте [http://localhost:3000](http://localhost:3000) в браузере.
 
-## 🔧 Настройка Supabase
-
-### 1. Создание проекта
-1. Зарегистрируйтесь на [supabase.com](https://supabase.com)
-2. Создайте новый проект
-3. Скопируйте URL проекта и anon ключ
-
-### 2. Настройка базы данных
-Выполните SQL миграцию из файла `supabase/migrations/20250617163540_smooth_feather.sql`:
-
-```sql
--- Создание таблицы курсов обмена
-CREATE TABLE IF NOT EXISTS exchange_rates (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  source text NOT NULL,
-  usdt_sell_rate decimal(10,4) NOT NULL,
-  usdt_buy_rate decimal(10,4) NOT NULL,
-  created_at timestamptz DEFAULT now(),
-  is_active boolean DEFAULT true,
-  metadata jsonb DEFAULT '{}'::jsonb
-);
-
--- Включение Row Level Security
-ALTER TABLE exchange_rates ENABLE ROW LEVEL SECURITY;
-
--- Политики безопасности
-CREATE POLICY "Anyone can read exchange rates"
-  ON exchange_rates FOR SELECT TO public USING (true);
-
-CREATE POLICY "Authenticated users can insert rates"
-  ON exchange_rates FOR INSERT TO authenticated WITH CHECK (true);
-
-CREATE POLICY "Authenticated users can update rates"
-  ON exchange_rates FOR UPDATE TO authenticated USING (true);
-
--- Индексы для производительности
-CREATE INDEX IF NOT EXISTS idx_exchange_rates_active 
-  ON exchange_rates (source, is_active, created_at DESC);
-
-CREATE INDEX IF NOT EXISTS idx_exchange_rates_created_at 
-  ON exchange_rates (created_at DESC);
-```
-
-### 3. Добавление тестовых данных
-```sql
--- Вставка начальных курсов
-INSERT INTO exchange_rates (source, usdt_sell_rate, usdt_buy_rate) VALUES
-('kenig', 93.50, 92.00),
-('bestchange', 93.20, 91.80),
-('energo', 93.00, 91.50);
-```
-
 ## 📦 Деплой
 
-### Vercel (Рекомендуется)
-1. Подключите репозиторий к [Vercel](https://vercel.com)
-2. Добавьте переменные окружения в настройках проекта
-3. Деплой произойдет автоматически
+### Netlify (рекомендуется)
 
-### Netlify
-1. Подключите репозиторий к [Netlify](https://netlify.com)
-2. Настройте команды сборки:
-   - Build command: `npm run build`
-   - Publish directory: `.next`
-3. Добавьте переменные окружения
+1. **Подключите репозиторий к Netlify**
+   - Зайдите на [netlify.com](https://netlify.com)
+   - Нажмите "New site from Git"
+   - Выберите ваш репозиторий
 
-### Railway
-1. Подключите репозиторий к [Railway](https://railway.app)
-2. Добавьте переменные окружения
-3. Деплой произойдет автоматически
+2. **Настройте переменные окружения в Netlify**
+   - Перейдите в Site settings → Environment variables
+   - Добавьте все переменные из `.env.example`
 
-## 🛠️ Технологии
+3. **Деплой произойдет автоматически**
+   - Build command: `npm ci && npm run build`
+   - Publish directory: `out`
 
-- **Frontend:** Next.js 14, React 18, TypeScript
-- **Styling:** Tailwind CSS, Framer Motion
-- **UI Components:** Radix UI, Shadcn/ui
-- **Database:** Supabase (PostgreSQL)
-- **Deployment:** Vercel/Netlify/Railway
+### Vercel
+
+1. **Подключите к Vercel**
+```bash
+npx vercel
+```
+
+2. **Настройте переменные окружения**
+   - В dashboard Vercel добавьте переменные из `.env.example`
+
+## 🗄️ База данных
+
+### Настройка Supabase
+
+1. **Создайте проект в Supabase**
+   - Зайдите на [supabase.com](https://supabase.com)
+   - Создайте новый проект
+
+2. **Выполните миграции**
+   - Перейдите в SQL Editor в Supabase Dashboard
+   - Выполните SQL из файла `supabase/migrations/20250707161120_autumn_fountain.sql`
+
+3. **Получите ключи API**
+   - Settings → API
+   - Скопируйте URL и anon public key
+
+## 🔧 Конфигурация
+
+### CoinGecko API
+
+Для работы страницы курсов нужен API ключ CoinGecko:
+
+1. Зарегистрируйтесь на [coingecko.com](https://www.coingecko.com/en/api/pricing)
+2. Получите бесплатный API ключ
+3. Добавьте его в переменные окружения как `COINGECKO_API_KEY`
 
 ## 📁 Структура проекта
 
 ```
 ├── app/                    # Next.js App Router
-│   ├── exchange/          # Страница обмена
-│   ├── rates/             # Страница курсов
+│   ├── (main)/            # Основные страницы
+│   ├── api/               # API routes
 │   └── globals.css        # Глобальные стили
 ├── components/            # React компоненты
-│   ├── ui/               # UI компоненты
-│   ├── home/             # Компоненты главной страницы
-│   ├── layout/           # Компоненты макета
+│   ├── ui/               # UI компоненты (shadcn/ui)
 │   └── shared/           # Общие компоненты
 ├── lib/                  # Утилиты и хуки
-│   ├── hooks/            # React хуки
-│   ├── supabase/         # Supabase интеграция
-│   └── utils.ts          # Вспомогательные функции
-└── supabase/             # Supabase конфигурация
-    └── migrations/       # SQL миграции
+├── supabase/            # Миграции базы данных
+└── public/              # Статические файлы
 ```
 
-## 🔍 Основные функции
+## 🛠️ Технологии
 
-- ✅ Калькулятор обмена USDT ⟷ RUB
-- ✅ Сравнение курсов разных обменников
-- ✅ Автоматическое обновление курсов каждые 30 секунд
-- ✅ Интеграция с Supabase для хранения курсов
-- ✅ Адаптивный дизайн для всех устройств
-- ✅ Анимации и интерактивные элементы
+- **Framework**: Next.js 14 (App Router)
+- **Styling**: Tailwind CSS
+- **UI Components**: shadcn/ui
+- **Database**: Supabase (PostgreSQL)
+- **Animations**: Framer Motion
+- **3D Graphics**: Three.js, React Three Fiber
+- **Icons**: Lucide React
+- **Deployment**: Netlify/Vercel
+
+## 📊 Функциональность
+
+- ✅ Калькулятор обмена криптовалют
+- ✅ Сравнение курсов в реальном времени
+- ✅ Страница с актуальными курсами
+- ✅ Интерактивная 3D визуализация
+- ✅ Адаптивный дизайн
+- ✅ Темная/светлая тема
+- ✅ SEO оптимизация
+
+## 🔒 Безопасность
+
+- Row Level Security (RLS) в Supabase
+- Валидация данных на клиенте и сервере
+- Защищенные API endpoints
+- HTTPS принудительно
+
+## 📈 Производительность
+
+- Static Site Generation (SSG)
+- Оптимизация изображений
+- Code splitting
+- Lazy loading компонентов
+- Кэширование API запросов
 
 ## 🐛 Отладка
 
-Для диагностики проблем с Supabase используйте:
-- `/debug-supabase` - Комплексная диагностика подключения
+### Проблемы с Supabase
+```bash
+# Проверьте переменные окружения
+echo $NEXT_PUBLIC_SUPABASE_URL
+echo $NEXT_PUBLIC_SUPABASE_ANON_KEY
+```
+
+### Проблемы с CoinGecko API
+```bash
+# Проверьте API ключ
+echo $COINGECKO_API_KEY
+```
+
+## 📞 Поддержка
+
+Если возникли проблемы:
+1. Проверьте переменные окружения
+2. Убедитесь что Supabase настроен правильно
+3. Проверьте логи в браузере (F12)
+4. Проверьте логи деплоя в Netlify/Vercel
 
 ## 📄 Лицензия
 
-MIT License - см. файл LICENSE для деталей.
-
-## 🤝 Поддержка
-
-Если у вас есть вопросы или проблемы, создайте issue в репозитории.
+MIT License
