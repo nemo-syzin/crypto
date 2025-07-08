@@ -129,7 +129,7 @@ export default function ExchangeCalculator() {
 
   const isCalculationDisabled = !hasValidRates || loading || !!error;
   const numericAmount = parseAmount(amount);
-  const result = calculateResult;
+  const result = calculateResult();
 
   // Мемоизированные функции отображения
   const getResultDisplay = useMemo((): string => {
@@ -226,13 +226,8 @@ export default function ExchangeCalculator() {
             </ol>
           </div>
           <Button
-            variant="outline" 
-            size="sm"
             onClick={refetch}
             className="mt-2 text-red-800 border-red-300 hover:bg-red-100"
-          >
-            Повторить загрузку
-          </Button>
           >
             Повторить загрузку
           </Button>
