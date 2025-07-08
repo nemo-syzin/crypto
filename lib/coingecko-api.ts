@@ -1,0 +1,271 @@
+import { useState, useEffect } from 'react';
+
+// API key for CoinGecko
+const API_KEY = 'CG-shU9QGkzZMvPXBdgbTkZDmcm';
+
+// Base URL for CoinGecko API
+const BASE_URL = 'https://api.coingecko.com/api/v3';
+
+// Types for API responses
+export interface Coin {
+  id: string;
+  symbol: string;
+  name: string;
+  image: string;
+  current_price: number;
+  market_cap: number;
+  market_cap_rank: number;
+  fully_diluted_valuation: number | null;
+  total_volume: number;
+  high_24h: number;
+  low_24h: number;
+  price_change_24h: number;
+  price_change_percentage_24h: number;
+  price_change_percentage_7d_in_currency: number;
+  price_change_percentage_1h_in_currency: number;
+  market_cap_change_24h: number;
+  market_cap_change_percentage_24h: number;
+  circulating_supply: number;
+  total_supply: number | null;
+  max_supply: number | null;
+  ath: number;
+  ath_change_percentage: number;
+  ath_date: string;
+  atl: number;
+  atl_change_percentage: number;
+  atl_date: string;
+  last_updated: string;
+}
+
+export interface CoinDetail {
+  id: string;
+  symbol: string;
+  name: string;
+  description: {
+    en: string;
+  };
+  image: {
+    thumb: string;
+    small: string;
+    large: string;
+  };
+  market_data: {
+    current_price: {
+      [key: string]: number;
+    };
+    market_cap: {
+      [key: string]: number;
+    };
+    total_volume: {
+      [key: string]: number;
+    };
+    price_change_percentage_24h: number;
+    price_change_percentage_7d: number;
+    price_change_percentage_30d: number;
+  };
+  links: {
+    homepage: string[];
+    blockchain_site: string[];
+    official_forum_url: string[];
+    chat_url: string[];
+    twitter_screen_name: string;
+    telegram_channel_identifier: string;
+    subreddit_url: string;
+    repos_url: {
+      github: string[];
+    };
+  };
+}
+
+export interface MarketChart {
+  prices: [number, number][];
+  market_caps: [number, number][];
+  total_volumes: [number, number][];
+}
+
+// Function to fetch top cryptocurrencies
+export async function fetchTopCoins(
+  currency: string = 'usd',
+  limit: number = 20,
+  page: number = 1
+): Promise<Coin[]> {
+  try {
+    const response = await fetch(
+      `${BASE_URL}/coins/markets?vs_currency=${currency}&order=market_cap_desc&per_page=${limit}&page=${page}&sparkline=false&price_change_percentage=1h,24h,7d`,
+      {
+        headers: {
+          'x-cg-demo-api-key': API_KEY,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Error fetching top coins: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Failed to fetch top coins:', error);
+    throw error;
+  }
+}
+
+// Function to fetch detailed information about a specific coin
+export async function fetchCoinDetails(coinId: string): Promise<CoinDetail> {
+  try {
+    const response = await fetch(`${BASE_URL}/coins/${coinId}?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false`, {
+      headers: {
+        'x-cg-demo-api-key': API_KEY,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error fetching coin details: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(`Failed to fetch details for coin ${coinId}:`, error);
+    throw error;
+  }
+}
+
+// Function to fetch historical market data for a coin
+export async function fetchCoinMarketChart(
+  coinId: string,
+  currency: string = 'usd',
+  days: number = 7
+): Promise<MarketChart> {
+  try {
+    const response = await fetch(
+      `${BASE_URL}/coins/${coinId}/market_chart?vs_currency=${currency}&days=${days}`,
+      {
+        headers: {
+          'x-cg-demo-api-key': API_KEY,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Error fetching market chart: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(`Failed to fetch market chart for coin ${coinId}:`, error);
+    throw error;
+  }
+}
+
+// Function to search for coins
+export async function searchCoins(query: string): Promise<any[]> {
+  try {
+    const response = await fetch(`${BASE_URL}/search?query=${query}`, {
+      headers: {
+        'x-cg-demo-api-key': API_KEY,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error searching coins: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.coins || [];
+  } catch (error) {
+    console.error('Failed to search coins:', error);
+    throw error;
+  }
+}
+
+// Custom hook for fetching top coins
+export function useTopCoins(currency: string = 'usd', limit: number = 20, page: number = 1) {
+  const [coins, setCoins] = useState<Coin[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await fetchTopCoins(currency, limit, page);
+        setCoins(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [currency, limit, page]);
+
+  return { coins, loading, error };
+}
+
+// Custom hook for fetching coin details
+export function useCoinDetails(coinId: string) {
+  const [coinDetails, setCoinDetails] = useState<CoinDetail | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!coinId) {
+      setLoading(false);
+      return;
+    }
+
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await fetchCoinDetails(coinId);
+        setCoinDetails(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [coinId]);
+
+  return { coinDetails, loading, error };
+}
+
+// Custom hook for fetching market chart data
+export function useCoinMarketChart(coinId: string, currency: string = 'usd', days: number = 7) {
+  const [chartData, setChartData] = useState<MarketChart | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!coinId) {
+      setLoading(false);
+      return;
+    }
+
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await fetchCoinMarketChart(coinId, currency, days);
+        setChartData(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [coinId, currency, days]);
+
+  return { chartData, loading, error };
+}
