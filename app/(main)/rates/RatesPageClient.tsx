@@ -167,7 +167,7 @@ export function RatesPageClient() {
           >
             <div className="max-w-7xl mx-auto">
               <MarketTable 
-                coins={cryptoCoins}
+                coins={cryptoCoins as unknown as CoinMarketData[]}
                 cryptoCoins={cryptoCoins}
                 onCoinClick={handleCoinClick}
                 loading={cryptoLoading}
