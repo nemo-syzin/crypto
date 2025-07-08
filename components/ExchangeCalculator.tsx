@@ -158,9 +158,14 @@ export default function ExchangeCalculator() {
     if (assetsError) {
       return `Ошибка загрузки валют: ${assetsError}`;
     }
+    
+    // Если валюты одинаковые
+    if (fromCurrency === toCurrency) {
+      return `Выберите разные валюты для обмена`;
+    }
 
     if (!isPairSupported) {
-      return `Валютная пара ${fromCurrency}/${toCurrency} не поддерживается. Попробуйте другую пару.`;
+      return `Валютная пара ${fromCurrency}/${toCurrency} временно не поддерживается. Попробуйте другую пару.`;
     }
 
     if (!hasValidRates && rate === null && !loading) {
@@ -215,8 +220,13 @@ export default function ExchangeCalculator() {
             size="sm" 
             onClick={refetch}
             className="mt-2 text-red-800 border-red-300 hover:bg-red-100"
-          >
-            Попробовать снова
+          <div className="text-sm text-[#001D8D]/80 leading-relaxed space-y-2">
+            <p>
+              <strong className="text-[#001D8D]">Доступные валютные пары:</strong> поддерживаются обмены между различными криптовалютами и рублями. Курсы обновляются каждые 30 секунд из базы данных.
+            </p>
+            <p>
+              Для пар криптовалюта/криптовалюта курсы рассчитываются через кросс-курсы к рублю.
+            </p>
           </Button>
         </div>
       )}
