@@ -221,7 +221,7 @@ export default function ExchangeCalculator() {
             onClick={refetch}
             className="mt-2 text-red-800 border-red-300 hover:bg-red-100"
           >
-            Попробовать снова
+            Повторить загрузку
           </Button>
         </div>
       )}
@@ -406,12 +406,7 @@ export default function ExchangeCalculator() {
                 <Info className="h-4 w-4 text-[#001D8D]/70" />
               </div>
               <div className="text-sm text-[#001D8D]/80 leading-relaxed">
-                <strong className="text-[#001D8D]">Доступные валютные пары:</strong> поддерживаются обмены между различными криптовалютами и рублями. Курсы обновляются каждые 30 секунд из базы данных.
-                <div className="mt-2 space-y-2">
-                  <p>
-                    Для пар криптовалюта/криптовалюта курсы рассчитываются через кросс-курсы к рублю.
-                  </p>
-                </div>
+                <strong className="text-[#001D8D]">Доступные валютные пары:</strong> поддерживаются обмены между различными криптовалютами и рублями. Курсы обновляются каждые 30 секунд из базы данных kenig_rates.
               </div>
             </div>
           </div>
