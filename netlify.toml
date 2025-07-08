@@ -1,9 +1,9 @@
 [build]
-  command = "npm run build"      # next build → standalone
-  publish = ".next"              # публикуем .next, а не out
+  command = "npm run build"
+  publish = ".next"
 
 [[plugins]]
-  package = "@netlify/next"      # офиц. плагин, берёт .next и создаёт функции
+  package = "@netlify/plugin-nextjs"    # офиц. плагин, берёт .next и создаёт функции
 
 [build.environment]
   NODE_VERSION = "18"
