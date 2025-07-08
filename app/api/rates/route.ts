@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';   // ⬅️  запрет SSG / Static Export
+
 import { NextResponse } from 'next/server';
 import { getValidatedKenigRates } from '@/lib/supabase/validated-rates';
 

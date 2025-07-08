@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';   // ⬅️  запрет SSG / Static Export
+
 import { NextRequest, NextResponse } from 'next/server';
 
 // Cache for API responses

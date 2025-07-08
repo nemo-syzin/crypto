@@ -10,10 +10,7 @@ const nextConfig = {
     /** Disable failing build due to TypeScript errors */
     ignoreBuildErrors: true,
   },
-  output: 'export',
-  trailingSlash: true,
   images: { 
-    unoptimized: true,
     remotePatterns: [
       {
         protocol: "https",

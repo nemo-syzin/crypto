@@ -1,21 +1,15 @@
 [build]
-  publish = "out"
-  command = "npm ci && npm run build"
+  command = "npm run build"      # next build → standalone
+  publish = ".next"              # публикуем .next, а не out
+
+[[plugins]]
+  package = "@netlify/next"      # офиц. плагин, берёт .next и создаёт функции
 
 [build.environment]
   NODE_VERSION = "18"
-  NPM_VERSION = "8"
+  NPM_VERSION  = "8"
 
 [[redirects]]
   from = "/*"
-  to = "/index.html"
+  to   = "/index.html"
   status = 200
-
-[context.production.environment]
-  NODE_ENV = "production"
-
-[context.deploy-preview.environment]
-  NODE_ENV = "production"
-
-[context.branch-deploy.environment]
-  NODE_ENV = "production"
