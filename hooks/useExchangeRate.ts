@@ -21,6 +21,31 @@ const fetchExchangeRate = async (from: string, to: string): Promise<ExchangeRate
   try {
     console.log(`🔄 Fetching exchange rate for ${from}/${to}...`);
     
+    // For USDT-RUB and RUB-USDT pairs, specifically use source 'kenig'
+    if ((from === 'USDT' && to === 'RUB') || (from === 'RUB' && to === 'USDT')) {
+      const { data, error } = await supabase
+        .from('kenig_rates')
+        .select('sell,buy,updated_at')
+        .eq('source', 'kenig')
+        .eq('base', from)
+        .eq('quote', to)
+        .limit(1)
+        .single();
+
+      if (error) {
+        console.warn(`⚠️ Error fetching kenig exchange rate for ${from}/${to}:`, error);
+        throw error;
+      }
+      
+      console.log(`✅ Found kenig exchange rate for ${from}/${to}:`, data);
+      
+      return { 
+        ...data, 
+        pair: `${from}/${to}`, 
+        source: 'kenig' 
+      };
+    }
+    
     const { data, error } = await supabase
       .from('kenig_rates')
       .select('sell,buy,updated_at')
