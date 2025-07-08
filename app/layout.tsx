@@ -8,6 +8,7 @@ import Footer from '@/components/layout/footer';
 export const metadata: Metadata = {
   title: 'KenigSwap - USDT to RUB Exchange Platform',
   description: 'A modern crypto exchange platform specializing in USDT to RUB exchanges with competitive rates.',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
 };
 
 export default function RootLayout({
