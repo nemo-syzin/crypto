@@ -225,6 +225,8 @@ export default function ExchangeCalculator() {
               <li>Перезапустить сервер разработки</li>
             </ol>
           </div>
+          <Button
+          <Button
             onClick={refetch}
             className="mt-2 text-red-800 border-red-300 hover:bg-red-100"
           >
