@@ -11,6 +11,16 @@ interface RateRow {
   quote: string;
 }
 
+// Интерфейс для строки из таблицы kenig_rates
+interface RateRow {
+  sell: number;
+  buy: number;
+  updated_at: string;
+  source: string;
+  base: string;
+  quote: string;
+}
+
 interface ExchangeRate {
   sell: number;
   buy: number;
@@ -22,89 +32,90 @@ interface ExchangeRate {
 /**
  * Fetch exchange rate for a specific currency pair directly from kenig_rates table
  */
-const fetchExchangeRate = async (from: string, to: string): Promise<ExchangeRate> => {
+const fetchExchangeRate = async (fromCurrency: string, toCurrency: string): Promise<ExchangeRate> => {
   if (!isSupabaseAvailable()) {
     console.warn('⚠️ Supabase not available, cannot fetch exchange rate');
     throw new Error('Supabase connection not available');
   }
 
   try {
-    console.log(`🔄 Fetching exchange rate for ${from}/${to}...`);
+    console.log(`🔄 Fetching exchange rate for ${fromCurrency}/${toCurrency}...`);
     
-    // For USDT-RUB and RUB-USDT pairs, specifically use source 'kenig'
-    // Пробуем найти прямую пару (from/to)
+    // Пробуем найти прямую пару (fromCurrency/toCurrency)
     const { data: directData, error: directError } = await supabase
       .from('kenig_rates')
       .select('sell,buy,updated_at,source,base,quote')
       .eq('source', 'kenig')
-      .eq('base', from)
-      .eq('quote', to)
+      .eq('base', fromCurrency)
+      .eq('quote', toCurrency)
       .limit(1);
 
-    // Также пробуем найти обратную пару (to/from)
+    // Также пробуем найти обратную пару (toCurrency/fromCurrency)
     const { data: reverseData, error: reverseError } = await supabase
         .from('kenig_rates')
         .select('sell,buy,updated_at,source,base,quote')
         .eq('source', 'kenig')
-        .eq('base', to)
-        .eq('quote', from)
+        .eq('base', toCurrency)
+        .eq('quote', fromCurrency)
         .limit(1);
 
     // Проверяем, какие данные у нас есть
     let rateRow: RateRow | null = null;
+    let isReversePair = false;
     let error = null;
     
     if (directData && directData.length > 0) {
       // Если есть прямая пара, используем ее
       rateRow = directData[0];
       error = directError;
-      console.log(`✅ Found direct exchange rate for ${from}/${to}:`, rateRow);
+      console.log(`✅ Found direct exchange rate for ${fromCurrency}/${toCurrency}:`, rateRow);
     } else if (reverseData && reverseData.length > 0) {
       // Если есть обратная пара, используем ее
       rateRow = reverseData[0];
+      isReversePair = true;
       error = reverseError;
-      console.log(`✅ Found reverse exchange rate for ${to}/${from}:`, rateRow);
+      console.log(`✅ Found reverse exchange rate for ${toCurrency}/${fromCurrency}:`, rateRow);
     } else {
       // Ищем альтернативные пары через промежуточную валюту (например, через USDT или RUB)
       const intermediaries = ['USDT', 'RUB', 'BTC', 'ETH'];
       
       for (const inter of intermediaries) {
         // Пропускаем, если промежуточная валюта совпадает с from или to
-        if (inter === from || inter === to) continue;
+        if (inter === fromCurrency || inter === toCurrency) continue;
         
-        console.log(`🔍 Trying to find rate through ${inter} for ${from}/${to}...`);
+        console.log(`🔍 Trying to find rate through ${inter} for ${fromCurrency}/${toCurrency}...`);
         
-        // Ищем пару from -> inter
+        // Ищем пару fromCurrency -> inter
         const { data: firstLegData } = await supabase
           .from('kenig_rates')
           .select('sell,buy,updated_at,source,base,quote')
           .eq('source', 'kenig')
-          .or(`base.eq.${from},quote.eq.${from}`)
+          .or(`base.eq.${fromCurrency},quote.eq.${fromCurrency}`)
           .or(`base.eq.${inter},quote.eq.${inter}`)
           .limit(10);
         
-        // Ищем пару inter -> to
+        // Ищем пару inter -> toCurrency
         const { data: secondLegData } = await supabase
           .from('kenig_rates')
           .select('sell,buy,updated_at,source,base,quote')
           .eq('source', 'kenig')
           .or(`base.eq.${inter},quote.eq.${inter}`)
-          .or(`base.eq.${to},quote.eq.${to}`)
+          .or(`base.eq.${toCurrency},quote.eq.${toCurrency}`)
           .limit(10);
         
         if (firstLegData?.length > 0 && secondLegData?.length > 0) {
-          console.log(`🔄 Found potential path through ${inter}: ${from} -> ${inter} -> ${to}`);
+          console.log(`🔄 Found potential path through ${inter}: ${fromCurrency} -> ${inter} -> ${toCurrency}`);
           console.log(`First leg options:`, firstLegData);
           console.log(`Second leg options:`, secondLegData);
           
-          // Находим прямую пару from -> inter
+          // Находим прямую пару fromCurrency -> inter
           const firstLeg = firstLegData.find(
-            row => (row.base === from && row.quote === inter) || (row.base === inter && row.quote === from)
+            row => (row.base === fromCurrency && row.quote === inter) || (row.base === inter && row.quote === fromCurrency)
           );
           
-          // Находим прямую пару inter -> to
+          // Находим прямую пару inter -> toCurrency
           const secondLeg = secondLegData.find(
-            row => (row.base === inter && row.quote === to) || (row.base === to && row.quote === inter)
+            row => (row.base === inter && row.quote === toCurrency) || (row.base === toCurrency && row.quote === inter)
           );
           
           if (firstLeg && secondLeg) {
@@ -113,6 +124,8 @@ const fetchExchangeRate = async (from: string, to: string): Promise<ExchangeRate
             // Используем первую найденную пару как основную
             // В будущем здесь можно реализовать расчет составного курса
             rateRow = firstLeg;
+            // Проверяем, не обратная ли это пара
+            isReversePair = (firstLeg.base === inter && firstLeg.quote === fromCurrency);
             break;
           }
         }
@@ -120,36 +133,47 @@ const fetchExchangeRate = async (from: string, to: string): Promise<ExchangeRate
     }
     
     if (error) {
-      console.warn(`⚠️ Error fetching exchange rate for ${from}/${to}:`, error);
+      console.warn(`⚠️ Error fetching exchange rate for ${fromCurrency}/${toCurrency}:`, error);
       throw new Error(`Ошибка загрузки курса: ${error?.message || 'Неизвестная ошибка'}`);
     }
     
     if (!rateRow) {
-      throw new Error(`Курс для пары ${from}/${to} не найден`);
+      throw new Error(`Курс для пары ${fromCurrency}/${toCurrency} не найден`);
     }
     
-    // Определяем, какой курс использовать (sell или buy) в зависимости от направления обмена
-    // Определяем, какой курс использовать на основе того, какую валюту отдает пользователь
-    const pickedRate = 
-      fromCurrency === rateRow.quote ? Number(rateRow.sell) :
-      fromCurrency === rateRow.base  ? Number(rateRow.buy)  :
-      null;
+    // Определяем, какой курс использовать на основе направления обмена
+    let pickedRate: number | null = null;
     
-    // Если валюты в обратном порядке, инвертируем курс
-    const isReversePair = (rateRow.base === to && rateRow.quote === from);
-    const finalRate = isReversePair && pickedRate ? 1 / pickedRate : pickedRate;
+    if (isReversePair) {
+      // Для обратной пары (toCurrency/fromCurrency)
+      // Если отдаем fromCurrency, то это как покупка toCurrency (используем buy)
+      // Если получаем toCurrency, то это как продажа fromCurrency (используем sell)
+      pickedRate = Number(rateRow.buy);
+    } else {
+      // Для прямой пары (fromCurrency/toCurrency)
+      // Если отдаем fromCurrency, то это как продажа fromCurrency (используем sell)
+      // Если получаем toCurrency, то это как покупка fromCurrency (используем buy)
+      pickedRate = Number(rateRow.sell);
+    }
     
-    console.log(`🔄 Using ${fromCurrency === rateRow.quote ? 'SELL' : 'BUY'} rate for ${from}/${to}: ${finalRate} (${isReversePair ? 'inverted' : 'direct'})`);
+    // Проверяем, нужно ли инвертировать курс
+    let finalRate = pickedRate;
+    if (isReversePair) {
+      // Для обратной пары нужно инвертировать курс
+      finalRate = pickedRate && pickedRate !== 0 ? 1 / pickedRate : null;
+    }
+    
+    console.log(`🔄 Using ${isReversePair ? 'BUY (inverted)' : 'SELL'} rate for ${fromCurrency}/${toCurrency}: ${finalRate} (${isReversePair ? 'inverted' : 'direct'})`);
     
     return { 
-      sell: finalRate,
-      buy: finalRate,
+      sell: finalRate || 0,
+      buy: finalRate || 0,
       updated_at: rateRow.updated_at,
-      pair: `${from}/${to}`, 
+      pair: `${fromCurrency}/${toCurrency}`, 
       source: rateRow.source 
     };
   } catch (error) {
-    console.error(`❌ Error in fetchExchangeRate for ${from}/${to}:`, error);
+    console.error(`❌ Error in fetchExchangeRate for ${fromCurrency}/${toCurrency}:`, error);
     throw error;
   }
 };
@@ -161,8 +185,8 @@ export function useExchangeRate(fromCurrency: string, toCurrency: string) {
       // If same currency, return rate of 1
       if (fromCurrency === toCurrency) {
         return {
-          sell: 1.0,
-          buy: 1.0,
+          sell: 1,
+          buy: 1,
           updated_at: new Date().toISOString(),
           pair: `${fromCurrency}/${toCurrency}`,
           source: 'system'
@@ -176,7 +200,7 @@ export function useExchangeRate(fromCurrency: string, toCurrency: string) {
       refreshInterval: 30 * 1000, // refresh every 30 seconds
       revalidateOnFocus: false,
       revalidateOnReconnect: true,
-      dedupingInterval: 5000,
+      dedupingInterval: 10000,
       shouldRetryOnError: true,
       errorRetryCount: 3,
       onError: (error) => {
