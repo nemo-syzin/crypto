@@ -1,9 +1,6 @@
 import useSWR from 'swr';
 import { supabase, isSupabaseAvailable } from '@/lib/supabase/client';
 
-// Список источников, которые нужно исключить
-const EXCLUDED_SOURCES = ['bestchange', 'energo'];
-
 interface ExchangeRate {
   sell: number;
   buy: number;
@@ -25,47 +22,31 @@ const fetchExchangeRate = async (from: string, to: string): Promise<ExchangeRate
     console.log(`🔄 Fetching exchange rate for ${from}/${to}...`);
     
     // For USDT-RUB and RUB-USDT pairs, specifically use source 'kenig'
-    if ((from === 'USDT' && to === 'RUB') || (from === 'RUB' && to === 'USDT')) {
-      const { data, error, count } = await supabase
-        .from('kenig_rates')
-        .select('sell,buy,updated_at')
-        .eq('source', 'kenig')
-        .eq('base', from)
-        .eq('quote', to)
-        .limit(1);
-
-      if (error) {
-        console.warn(`⚠️ Error fetching kenig exchange rate for ${from}/${to}:`, error.message);
-        throw new Error(`Ошибка загрузки курса: ${error.message}`);
-      }
-      
-      if (!data || data.length === 0) {
-        throw new Error(`Курс для пары ${from}/${to} не найден`);
-      }
-      
-      console.log(`✅ Found kenig exchange rate for ${from}/${to}:`, data[0]);
-      
-      return { 
-        ...data[0], 
-        pair: `${from}/${to}`, 
-        source: 'kenig' 
-      };
-    }
-    
-    // Для всех остальных пар, исключаем нежелательные источники
-    const query = supabase
+    // Сначала пробуем найти прямую пару (from/to)
+    let { data, error } = await supabase
       .from('kenig_rates')
-      .select('sell,buy,updated_at')
+      .select('sell,buy,updated_at,source,base,quote')
+      .eq('source', 'kenig')
       .eq('base', from)
-      .eq('quote', to);
-    
-    // Добавляем фильтр для исключения нежелательных источников
-    if (EXCLUDED_SOURCES.length > 0) {
-      query.not('source', 'in', `(${EXCLUDED_SOURCES.join(',')})`);
+      .eq('quote', to)
+      .limit(1);
+
+    // Если прямая пара не найдена, пробуем обратную пару (to/from)
+    if (!data || data.length === 0) {
+      const reverseQuery = await supabase
+        .from('kenig_rates')
+        .select('sell,buy,updated_at,source,base,quote')
+        .eq('source', 'kenig')
+        .eq('base', to)
+        .eq('quote', from)
+        .limit(1);
+      
+      if (reverseQuery.data && reverseQuery.data.length > 0) {
+        data = reverseQuery.data;
+        error = reverseQuery.error;
+      }
     }
     
-    const { data, error, count } = await query.limit(1);
-
     if (error) {
       console.warn(`⚠️ Error fetching exchange rate for ${from}/${to}:`, error.message);
       throw new Error(`Ошибка загрузки курса: ${error.message}`);
@@ -77,10 +58,23 @@ const fetchExchangeRate = async (from: string, to: string): Promise<ExchangeRate
     
     console.log(`✅ Found exchange rate for ${from}/${to}:`, data[0]);
     
+    // Определяем, какой курс использовать (sell или buy) в зависимости от направления обмена
+    const rateRow = data[0];
+    
+    // Определяем, какой курс использовать на основе того, какую валюту отдает пользователь
+    const pickedRate = 
+      fromCurrency === rateRow.quote ? Number(rateRow.sell) :
+      fromCurrency === rateRow.base  ? Number(rateRow.buy)  :
+      null;
+    
+    console.log(`🔄 Using ${fromCurrency === rateRow.quote ? 'SELL' : 'BUY'} rate for ${from}/${to}: ${pickedRate}`);
+    
     return { 
-      ...data[0], 
+      sell: pickedRate,
+      buy: pickedRate,
+      updated_at: rateRow.updated_at,
       pair: `${from}/${to}`, 
-      source: 'kenig' 
+      source: rateRow.source 
     };
   } catch (error) {
     console.error(`❌ Error in fetchExchangeRate for ${from}/${to}:`, error);
@@ -95,8 +89,8 @@ export function useExchangeRate(fromCurrency: string, toCurrency: string) {
       // If same currency, return rate of 1
       if (fromCurrency === toCurrency) {
         return {
-          sell: 1,
-          buy: 1,
+          sell: 1.0,
+          buy: 1.0,
           updated_at: new Date().toISOString(),
           pair: `${fromCurrency}/${toCurrency}`,
           source: 'system'
