@@ -9,7 +9,20 @@ const hasValidEnvVars = !!(supabaseUrl && supabaseAnonKey &&
 
 export const supabase = createClient(
   supabaseUrl || 'https://placeholder.supabase.co',
-  supabaseAnonKey || 'placeholder-key'
+  supabaseAnonKey || 'placeholder-key',
+  {
+    auth: {
+      persistSession: false
+    },
+    global: {
+      fetch: (url, options = {}) => {
+        return fetch(url, {
+          ...options,
+          signal: AbortSignal.timeout(10000), // 10 second timeout
+        });
+      },
+    },
+  }
 );
 
 export const isSupabaseAvailable = () => hasValidEnvVars;

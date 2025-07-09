@@ -1,5 +1,32 @@
 import { supabase, isSupabaseAvailable, getSupabaseStatus } from './client';
 
+// Retry utility function
+async function withRetry<T>(
+  operation: () => Promise<T>,
+  maxRetries: number = 3,
+  delay: number = 1000
+): Promise<T> {
+  let lastError: Error;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await operation();
+    } catch (error) {
+      lastError = error as Error;
+      console.warn(`⚠️ Attempt ${attempt}/${maxRetries} failed:`, error);
+      
+      if (attempt === maxRetries) {
+        throw lastError;
+      }
+      
+      // Wait before retrying, with exponential backoff
+      await new Promise(resolve => setTimeout(resolve, delay * attempt));
+    }
+  }
+  
+  throw lastError!;
+}
+
 export interface ValidatedKenigRate {
   id: number;
   source: string;
@@ -125,10 +152,18 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
   try {
     console.log('🔄 Querying kenig_rates table...');
     
-    const { data, error } = await supabase
-      .from('kenig_rates')
-      .select('*')
-      .order('updated_at', { ascending: false });
+    const { data, error } = await withRetry(async () => {
+      const result = await supabase
+        .from('kenig_rates')
+        .select('*')
+        .order('updated_at', { ascending: false });
+      
+      if (result.error) {
+        throw new Error(`Supabase query error: ${result.error.message}`);
+      }
+      
+      return result;
+    }, 3, 1000);
 
     if (error) {
       console.error('❌ Supabase query error:', error);
