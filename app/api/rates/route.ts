@@ -3,6 +3,9 @@ export const dynamic = 'force-dynamic';   // ⬅️  запрет SSG / Static E
 import { NextResponse } from 'next/server';
 import { getValidatedKenigRates } from '@/lib/supabase/validated-rates';
 
+// List of sources to exclude
+const EXCLUDED_SOURCES = ['bestchange', 'energo'];
+
 let cache: { data: any; timestamp: number } | null = null;
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache to reduce database load
 const STALE_CACHE_DURATION = 30 * 60 * 1000; // 30 minutes for stale cache
@@ -71,16 +74,20 @@ export async function GET(request: Request) {
     if (validationResult && validationResult.hasValidRates) {
       
       validationResult.rates.forEach(rate => {
-        if (rate.isValid) {
+        // Only use rates from non-excluded sources
+        if (rate.isValid && !EXCLUDED_SOURCES.includes(rate.source)) {
           const rateData = {
             sell: Number(rate.sell),
             buy: Number(rate.buy),
+            rate: Number(rate.sell), // Add rate field for consistency
             updated_at: rate.updated_at
           };
 
           if (rate.source === 'kenig') data.kenig = rateData;
-          else if (rate.source === 'bestchange') data.bestchange = rateData;
-          else if (rate.source === 'energo') data.energo = rateData;
+          // We still include bestchange and energo in the response for reference,
+          // but they won't be used in the exchange calculator
+          else if (rate.source === 'bestchange' && !EXCLUDED_SOURCES.includes('bestchange')) data.bestchange = rateData;
+          else if (rate.source === 'energo' && !EXCLUDED_SOURCES.includes('energo')) data.energo = rateData;
         } else {
           console.warn(`⚠️ Invalid rate for ${rate.source}:`, rate.validationErrors);
         }

@@ -10,20 +10,27 @@ export interface ExchangeRate {
 
 const fetchExchangeRate = async (
   from: string,
-  to: string
+  to: string,
+  excludedSources = ['bestchange', 'energo']
 ): Promise<ExchangeRate | null> => {
   if (!isSupabaseAvailable() || !supabase) {
     throw new Error('Supabase not configured');
   }
 
-  // 1. пытаемся найти прямую пару base = from, quote = to
-  const { data: direct } = await supabase
+  // 1. пытаемся найти прямую пару base = from, quote = to, исключая нежелательные источники
+  const directQuery = supabase
     .from('kenig_rates')
     .select('sell,buy,updated_at')
     .eq('base', from)
     .eq('quote', to)
-    .order('updated_at', { ascending: false })
-    .limit(1);
+    .order('updated_at', { ascending: false });
+  
+  // Добавляем фильтр по источникам, если есть исключения
+  if (excludedSources && excludedSources.length > 0) {
+    directQuery.not('source', 'in', excludedSources);
+  }
+  
+  const { data: direct } = await directQuery.limit(1);
 
   if (direct && direct.length) {
     const { buy, updated_at } = direct[0];
@@ -31,14 +38,20 @@ const fetchExchangeRate = async (
     return { rate: Number(buy), updated_at, pair: `${from}/${to}` };
   }
 
-  // 2. если прямой нет – ищем обратную base = to, quote = from
-  const { data: reverse } = await supabase
+  // 2. если прямой нет – ищем обратную base = to, quote = from, также исключая нежелательные источники
+  const reverseQuery = supabase
     .from('kenig_rates')
     .select('sell,updated_at')
     .eq('base', to)
     .eq('quote', from)
-    .order('updated_at', { ascending: false })
-    .limit(1);
+    .order('updated_at', { ascending: false });
+  
+  // Добавляем фильтр по источникам, если есть исключения
+  if (excludedSources && excludedSources.length > 0) {
+    reverseQuery.not('source', 'in', excludedSources);
+  }
+  
+  const { data: reverse } = await reverseQuery.limit(1);
 
   if (reverse && reverse.length) {
     const { sell, updated_at } = reverse[0];

@@ -1,5 +1,8 @@
 import { supabase, isSupabaseAvailable, getSupabaseStatus } from './client';
 
+// List of sources to exclude
+const EXCLUDED_SOURCES = ['bestchange', 'energo'];
+
 // Cache for validated rates to reduce database load
 let ratesCache: { result: RateValidationResult; timestamp: number } | null = null;
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
@@ -192,7 +195,10 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
     }
 
     const validatedRates = data.map(validateRateRecord);
-    const validRates = validatedRates.filter(rate => rate.isValid);
+    // Filter out excluded sources and keep only valid rates
+    const validRates = validatedRates.filter(rate => 
+      rate.isValid && !EXCLUDED_SOURCES.includes(rate.source)
+    );
 
     console.log(`✅ Validation complete: ${validRates.length}/${validatedRates.length} rates are valid`);
 
@@ -203,6 +209,15 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
         source: r.source,
         errors: r.validationErrors
       })));
+    }
+    
+    // Log excluded sources for debugging
+    const excludedRates = validatedRates.filter(rate => 
+      rate.isValid && EXCLUDED_SOURCES.includes(rate.source)
+    );
+    if (excludedRates.length > 0) {
+      console.log(`ℹ️ Excluded ${excludedRates.length} rates from sources:`, 
+        EXCLUDED_SOURCES.join(', '));
     }
 
     // Log structure of first record for debugging
