@@ -1,4 +1,4 @@
-import { supabase, isSupabaseAvailable, getSupabaseStatus } from './client';
+import { supabase, isSupabaseAvailable, getSupabaseStatus, testSupabaseConnection } from './client';
 
 export interface ValidatedKenigRate {
   id: number;
@@ -19,6 +19,7 @@ export interface RateValidationResult {
   lastUpdated: Date;
   isFromDatabase: boolean;
   error?: string;
+  connectionStatus?: 'connected' | 'failed' | 'timeout' | 'not_configured';
 }
 
 function validateRateValue(value: any, fieldName: string, min: number = 50, max: number = 200): { isValid: boolean; error?: string } {
@@ -118,13 +119,41 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
       invalidRatesCount: 0,
       lastUpdated: new Date(),
       isFromDatabase: false,
+      connectionStatus: 'not_configured',
       error: `Supabase configuration issue: URL=${status.hasUrl ? 'OK' : 'MISSING'}, KEY=${status.hasKey ? 'OK' : 'MISSING'}`
     };
   }
 
+  // Test connection first
+  console.log('🔗 Testing Supabase connection...');
+  const connectionTest = await testSupabaseConnection();
+  if (!connectionTest.success) {
+    console.error('❌ Supabase connection test failed:', connectionTest.error);
+    
+    let connectionStatus: 'failed' | 'timeout' = 'failed';
+    if (connectionTest.error?.includes('timeout') || connectionTest.error?.includes('AbortError')) {
+      connectionStatus = 'timeout';
+    }
+    
+    return {
+      rates: [],
+      hasValidRates: false,
+      totalRates: 0,
+      validRatesCount: 0,
+      invalidRatesCount: 0,
+      lastUpdated: new Date(),
+      isFromDatabase: false,
+      connectionStatus,
+      error: `Connection failed: ${connectionTest.error}`
+    };
+  }
   try {
     console.log('🔄 Querying kenig_rates table...');
     
+    if (!supabase) {
+      throw new Error('Supabase client not initialized');
+    }
+
     const { data, error } = await supabase
       .from('kenig_rates')
       .select('*')
@@ -147,6 +176,7 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
         invalidRatesCount: 0,
         lastUpdated: new Date(),
         isFromDatabase: true,
+        connectionStatus: 'connected',
         error: 'No exchange rate data found in kenig_rates table'
       };
     }
@@ -177,7 +207,8 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
       validRatesCount: validRates.length,
       invalidRatesCount: validatedRates.length - validRates.length,
       lastUpdated: new Date(),
-      isFromDatabase: true
+      isFromDatabase: true,
+      connectionStatus: 'connected'
     };
 
   } catch (error) {
@@ -185,11 +216,19 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
     
     // Enhanced error handling to capture specific Supabase error messages
     let errorMessage = 'Unknown database error';
+    let connectionStatus: 'failed' | 'timeout' = 'failed';
     
     if (error && typeof error === 'object') {
       // Handle Supabase error objects
       if ('message' in error && typeof error.message === 'string') {
         errorMessage = error.message;
+        if (errorMessage.includes('fetch failed') || errorMessage.includes('other side closed')) {
+          connectionStatus = 'failed';
+          errorMessage = 'Database connection failed. Please check if your Supabase project is active and accessible.';
+        } else if (errorMessage.includes('timeout') || errorMessage.includes('AbortError')) {
+          connectionStatus = 'timeout';
+          errorMessage = 'Database connection timeout. Please try again.';
+        }
       } else if ('error' in error && typeof error.error === 'string') {
         errorMessage = error.error;
       } else if ('details' in error && typeof error.details === 'string') {
@@ -201,6 +240,13 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
       errorMessage = error;
     } else if (error instanceof Error) {
       errorMessage = error.message;
+      if (errorMessage.includes('fetch failed') || errorMessage.includes('other side closed')) {
+        connectionStatus = 'failed';
+        errorMessage = 'Database connection failed. Please check if your Supabase project is active and accessible.';
+      } else if (errorMessage.includes('timeout') || errorMessage.includes('AbortError')) {
+        connectionStatus = 'timeout';
+        errorMessage = 'Database connection timeout. Please try again.';
+      }
     }
 
     return {
@@ -211,6 +257,7 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
       invalidRatesCount: 0,
       lastUpdated: new Date(),
       isFromDatabase: false,
+      connectionStatus,
       error: errorMessage
     };
   }

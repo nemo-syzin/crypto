@@ -125,6 +125,13 @@ export default function ExchangeCalculator() {
     error.includes('environment variables')
   );
 
+  // Check if connection error
+  const isConnectionError = error && (
+    error.includes('connection failed') ||
+    error.includes('fetch failed') ||
+    error.includes('other side closed') ||
+    error.includes('timeout')
+  );
   // Memoized calculations
   const isPairSupported = useMemo(() => {
     return !!rate || (fromCurrency === toCurrency);
@@ -214,8 +221,34 @@ export default function ExchangeCalculator() {
         </Alert>
       )}
 
+      {/* Connection Error Alert */}
+      {isConnectionError && !isConfigurationError && (
+        <Alert className="bg-red-50 border-red-200">
+          <AlertTriangle className="h-4 w-4 text-red-600" />
+          <AlertDescription className="text-red-800">
+            <strong>Проблема с подключением к базе данных:</strong>
+            <br />
+            {error}
+            <br />
+            <span className="text-sm mt-2 block">
+              Возможные причины: проект Supabase приостановлен, проблемы с сетью, или временные неполадки сервиса.
+              <br />
+              Проверьте статус вашего проекта в <a href="https://supabase.com/dashboard" target="_blank" rel="noopener noreferrer" className="text-red-600 underline">панели Supabase</a>.
+            </span>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={refetch}
+              className="mt-2 text-red-800 border-red-300 hover:bg-red-100"
+            >
+              <RefreshCw className="h-3 w-3 mr-1" />
+              Повторить подключение
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )}
       {/* Other Errors Alert */}
-      {error && !isConfigurationError && (
+      {error && !isConfigurationError && !isConnectionError && (
         <div className="error-toast">
           <strong>Ошибка загрузки курсов:</strong> {error}
           <br />
