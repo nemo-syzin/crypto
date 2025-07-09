@@ -11,6 +11,16 @@ const hasValidEnvVars = !!(supabaseUrl && supabaseAnonKey &&
   supabaseUrl !== 'https://your-project-id.supabase.co' && 
   supabaseAnonKey !== 'your-anon-public-key-here');
 
+// Log configuration status early
+if (!hasValidEnvVars) {
+  console.error(
+    '\n⛔ Supabase is NOT configured.\n' +
+    'Please check NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY ' +
+    'in your .env.local file or host environment variables.\n' +
+    'Copy .env.example to .env.local and fill in your Supabase credentials.\n'
+  );
+}
+
 export const isSupabaseAvailable = () => hasValidEnvVars;
 
 export const getSupabaseStatus = () => {
@@ -20,46 +30,41 @@ export const getSupabaseStatus = () => {
     isConfigured: hasValidEnvVars,
     url: supabaseUrl,
   };
-  
-  if (!status.isConfigured) {
-    console.error(
-      '⛔ Supabase НЕ сконфигурирован.\n' +
-      'Проверьте NEXT_PUBLIC_SUPABASE_URL и NEXT_PUBLIC_SUPABASE_ANON_KEY ' +
-      'в .env.local или в переменных окружения хоста.'
-    );
-  }
-  
+    
   return status;
 };
 
-export const supabase = createClient(
-  supabaseUrl || 'https://placeholder.supabase.co',
-  supabaseAnonKey || 'placeholder-key',
-  hasValidEnvVars ? {
-    auth: { persistSession: false }, // Disable session persistence to reduce overhead
-    global: {
-      fetch: (url, options = {}) => {
-        // Add timeout to prevent hanging connections
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), CONNECTION_TIMEOUT);
-        
-        const fetchPromise = fetch(url, {
-          ...options,
-          signal: controller.signal,
-          headers: {
-            ...options.headers,
-            'Cache-Control': 'no-cache', // Prevent caching issues
+// Create Supabase client only if environment variables are properly configured
+export const supabase = hasValidEnvVars 
+  ? createClient(
+      supabaseUrl as string,
+      supabaseAnonKey as string,
+      {
+        auth: { persistSession: false }, // Disable session persistence to reduce overhead
+        global: {
+          fetch: (url, options = {}) => {
+            // Add timeout to prevent hanging connections
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), CONNECTION_TIMEOUT);
+            
+            const fetchPromise = fetch(url, {
+              ...options,
+              signal: controller.signal,
+              headers: {
+                ...options.headers,
+                'Cache-Control': 'no-cache', // Prevent caching issues
+              },
+            });
+            
+            // Clear timeout when fetch completes
+            fetchPromise.finally(() => clearTimeout(timeoutId));
+            
+            return fetchPromise;
           },
-        });
-        
-        // Clear timeout when fetch completes
-        fetchPromise.finally(() => clearTimeout(timeoutId));
-        
-        return fetchPromise;
-      },
-    },
-  } : {}
-);
+        },
+      }
+    )
+  : null; // Return null if environment variables are not properly configured
 
 // Helper function to retry failed operations with exponential backoff
 export async function withRetry<T>(

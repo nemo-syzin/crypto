@@ -40,7 +40,20 @@ const fetchBases = async (): Promise<string[]> => {
  */
 const fetchQuotes = async (base: string): Promise<string[]> => {
   if (!base || !isSupabaseAvailable()) {
-    return [];
+    // Return fallback quotes for all bases when Supabase is not available
+    const fallbackQuotes = {
+      'USDT': ['RUB', 'BTC', 'ETH', 'ADA', 'BNB', 'DOT', 'XRP', 'SOL'],
+      'RUB': ['USDT', 'BTC', 'ETH', 'ADA', 'BNB'],
+      'BTC': ['USDT', 'RUB', 'ETH', 'ADA'],
+      'ETH': ['USDT', 'RUB', 'BTC', 'ADA'],
+      'ADA': ['USDT', 'RUB', 'BTC', 'ETH'],
+      'BNB': ['USDT', 'RUB'],
+      'DOT': ['USDT', 'RUB'],
+      'XRP': ['USDT', 'RUB'],
+      'SOL': ['USDT', 'RUB']
+    };
+    
+    return (fallbackQuotes[base as keyof typeof fallbackQuotes] || []).sort();
   }
 
   try {
