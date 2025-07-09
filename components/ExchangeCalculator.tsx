@@ -130,18 +130,12 @@ export default function ExchangeCalculator() {
     return !!rate || (fromCurrency === toCurrency);
   }, [rate, fromCurrency, toCurrency]);
 
-  const hasValidRate = useMemo(() => {
-    return rate && typeof rate.sell === 'number' && !isNaN(rate.sell) && rate.sell > 0;
-  }, [rate]);
+  const hasValidRate = useMemo(() => rate && 
+    typeof rate.sell === 'number' && !isNaN(rate.sell) && rate.sell > 0, [rate]);
 
   const isCalculationDisabled = !hasValidRate || loading || !!error;
   const numericAmount = parseAmount(amount);
-  
-  // Упрощенный расчет результата - просто умножаем на курс
-  const result = useMemo(() => {
-    if (!hasValidRate || numericAmount <= 0) return 0;
-    return numericAmount * rate!.sell;
-  }, [hasValidRate, numericAmount, rate]);
+  const result = calculateResult();
 
   // Memoized display functions
   const getResultDisplay = useMemo((): string => {
@@ -169,11 +163,11 @@ export default function ExchangeCalculator() {
 
   const getHintText = useMemo((): string => {
     if (basesError) {
-      return `Ошибка загрузки валют: ${basesError}. Попробуйте обновить страницу.`;
+      return `Ошибка загрузки валют: ${basesError}`;
     }
     
     if (quotesError) {
-      return `Ошибка загрузки валют для ${fromCurrency}: ${quotesError}. Попробуйте выбрать другую валюту.`;
+      return `Ошибка загрузки валют для ${fromCurrency}: ${quotesError}`;
     }
     
     // If currencies are the same
@@ -186,22 +180,17 @@ export default function ExchangeCalculator() {
     }
 
     if (!isPairSupported) {
-      return `Валютная пара ${fromCurrency}/${toCurrency} не поддерживается. Выберите другую пару.`;
+      return `Валютная пара ${fromCurrency}/${toCurrency} не поддерживается. Попробуйте другую пару.`;
     }
 
     if (!hasValidRate && rate === null && !loading) {
-      return `Курс для пары ${fromCurrency}/${toCurrency} не найден в базе данных. Выберите другую пару.`;
+      return `Курс для пары ${fromCurrency}/${toCurrency} не найден. Попробуйте другую пару.`;
     }
-    
+
     // Show rate for supported pair
     if (rate) {
-      // Определяем, какой тип курса используется (покупка или продажа)
-      const rateType = rate.source === 'system' ? '' : 
-                      (rate.sell === rate.buy ? '' : 
-                      `(${fromCurrency === 'RUB' ? 'покупка' : 'продажа'} ${fromCurrency})`);
-      
       const formattedRate = formatRate(rate.sell, toCurrency);
-      return `Курс обмена ${fromCurrency}/${toCurrency}: ${formattedRate} ${rateType}`;
+      return `Курс обмена ${fromCurrency}/${toCurrency}: ${formattedRate}`;
     }
 
     return `Введите количество ${fromCurrency} для обмена на ${toCurrency}`;
@@ -373,19 +362,10 @@ export default function ExchangeCalculator() {
           {/* Current Rate Display */}
           {hasValidRate && rate && (
             <div className="rates-container">
-              <h4 className="font-semibold text-[#001D8D] mb-3">
-                Текущий курс {fromCurrency}/{toCurrency}
-                {rate.source !== 'system' && (
-                  <span className="text-sm font-normal ml-2 text-[#001D8D]/70">
-                    (источник: {rate.source})
-                  </span>
-                )}
-              </h4>
+              <h4 className="font-semibold text-[#001D8D] mb-3">Текущий курс {fromCurrency}/{toCurrency}</h4>
               <div className="grid grid-cols-1 gap-4">
                 <div className="text-center">
-                  <div className="text-sm text-[#001D8D]/70 mb-1">
-                    {fromCurrency === 'RUB' ? 'Курс покупки' : 'Курс продажи'} {fromCurrency}
-                  </div>
+                  <div className="text-sm text-[#001D8D]/70 mb-1">Курс обмена</div>
                   <div className="rate-value">{formatRate(rate.sell, toCurrency)}</div>
                 </div>
               </div>
@@ -412,11 +392,11 @@ export default function ExchangeCalculator() {
           {/* Info about available pairs */}
           <div className="border-t border-gray-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 px-6 py-4 rounded-lg">
             <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 mt-1">
+              <div className="flex-shrink-0 mt-0.5">
                 <Info className="h-4 w-4 text-[#001D8D]/70" />
               </div>
               <div className="text-sm text-[#001D8D]/80 leading-relaxed">
-                <strong className="text-[#001D8D]">Доступные валютные пары:</strong> поддерживаются обмены между различными криптовалютами и фиатными валютами. Курсы обновляются каждые 30 секунд из базы данных. <span className="text-blue-600">Используются только курсы от источника "kenig".</span>
+                <strong className="text-[#001D8D]">Доступные валютные пары:</strong> поддерживаются обмены между различными криптовалютами и фиатными валютами. Курсы обновляются каждые 30 секунд из базы данных kenig_rates.
               </div>
             </div>
           </div>

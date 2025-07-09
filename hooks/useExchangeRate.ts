@@ -22,59 +22,49 @@ const fetchExchangeRate = async (from: string, to: string): Promise<ExchangeRate
     console.log(`🔄 Fetching exchange rate for ${from}/${to}...`);
     
     // For USDT-RUB and RUB-USDT pairs, specifically use source 'kenig'
-    // Сначала пробуем найти прямую пару (from/to)
-    let { data, error } = await supabase
+    if ((from === 'USDT' && to === 'RUB') || (from === 'RUB' && to === 'USDT')) {
+      const { data, error } = await supabase
+        .from('kenig_rates')
+        .select('sell,buy,updated_at')
+        .eq('source', 'kenig')
+        .eq('base', from)
+        .eq('quote', to)
+        .limit(1)
+        .single();
+
+      if (error) {
+        console.warn(`⚠️ Error fetching kenig exchange rate for ${from}/${to}:`, error);
+        throw error;
+      }
+      
+      console.log(`✅ Found kenig exchange rate for ${from}/${to}:`, data);
+      
+      return { 
+        ...data, 
+        pair: `${from}/${to}`, 
+        source: 'kenig' 
+      };
+    }
+    
+    const { data, error } = await supabase
       .from('kenig_rates')
-      .select('sell,buy,updated_at,source,base,quote')
-      .eq('source', 'kenig')
+      .select('sell,buy,updated_at')
       .eq('base', from)
       .eq('quote', to)
-      .limit(1);
+      .limit(1)
+      .single();
 
-    // Если прямая пара не найдена, пробуем обратную пару (to/from)
-    if (!data || data.length === 0) {
-      const reverseQuery = await supabase
-        .from('kenig_rates')
-        .select('sell,buy,updated_at,source,base,quote')
-        .eq('source', 'kenig')
-        .eq('base', to)
-        .eq('quote', from)
-        .limit(1);
-      
-      if (reverseQuery.data && reverseQuery.data.length > 0) {
-        data = reverseQuery.data;
-        error = reverseQuery.error;
-      }
-    }
-    
     if (error) {
-      console.warn(`⚠️ Error fetching exchange rate for ${from}/${to}:`, error.message);
-      throw new Error(`Ошибка загрузки курса: ${error.message}`);
+      console.warn(`⚠️ Error fetching exchange rate for ${from}/${to}:`, error);
+      throw error;
     }
     
-    if (!data || data.length === 0) {
-      throw new Error(`Курс для пары ${from}/${to} не найден`);
-    }
-    
-    console.log(`✅ Found exchange rate for ${from}/${to}:`, data[0]);
-    
-    // Определяем, какой курс использовать (sell или buy) в зависимости от направления обмена
-    const rateRow = data[0];
-    
-    // Определяем, какой курс использовать на основе того, какую валюту отдает пользователь
-    const pickedRate = 
-      fromCurrency === rateRow.quote ? Number(rateRow.sell) :
-      fromCurrency === rateRow.base  ? Number(rateRow.buy)  :
-      null;
-    
-    console.log(`🔄 Using ${fromCurrency === rateRow.quote ? 'SELL' : 'BUY'} rate for ${from}/${to}: ${pickedRate}`);
+    console.log(`✅ Found exchange rate for ${from}/${to}:`, data);
     
     return { 
-      sell: pickedRate,
-      buy: pickedRate,
-      updated_at: rateRow.updated_at,
+      ...data, 
       pair: `${from}/${to}`, 
-      source: rateRow.source 
+      source: 'kenig' 
     };
   } catch (error) {
     console.error(`❌ Error in fetchExchangeRate for ${from}/${to}:`, error);
@@ -89,8 +79,8 @@ export function useExchangeRate(fromCurrency: string, toCurrency: string) {
       // If same currency, return rate of 1
       if (fromCurrency === toCurrency) {
         return {
-          sell: 1.0,
-          buy: 1.0,
+          sell: 1,
+          buy: 1,
           updated_at: new Date().toISOString(),
           pair: `${fromCurrency}/${toCurrency}`,
           source: 'system'
@@ -104,9 +94,8 @@ export function useExchangeRate(fromCurrency: string, toCurrency: string) {
       refreshInterval: 30 * 1000, // refresh every 30 seconds
       revalidateOnFocus: false,
       revalidateOnReconnect: true,
-      dedupingInterval: 10000,
-      shouldRetryOnError: true,
-      errorRetryCount: 3,
+      dedupingInterval: 5000,
+      shouldRetryOnError: false,
       onError: (error) => {
         console.warn('⚠️ Exchange rate hook error:', error);
       },
