@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  swcMinify: true,
   eslint: {
     /** Disable failing build due to ESLint errors */
     ignoreDuringBuilds: true,
@@ -11,11 +12,6 @@ const nextConfig = {
   },
   images: { 
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "coin-images.coingecko.com",
-        pathname: "/**",
-      },
       {
         protocol: "https",
         hostname: "cdn.brandfetch.io",
@@ -53,14 +49,10 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "assets.coingecko.com",
+        hostname: "coin-images.coingecko.com",
         pathname: "/**",
       }
     ],
-    domains: [
-      "coin-images.coingecko.com",
-      "assets.coingecko.com"
-    ]
   },
   // Optimize bundle size
   experimental: {
