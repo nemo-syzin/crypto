@@ -9,8 +9,7 @@ import { TinySparkline } from '@/components/ui/tiny-sparkline';
 import { useAllRates } from '@/lib/hooks/rates';
 import { 
   TrendingUp, 
-  RefreshCw,
-// const EXCLUDED_SOURCES = ['bestchange', 'energo'];
+  RefreshCw, 
   AlertTriangle, 
   Settings, 
   ArrowRightLeft, 
@@ -89,7 +88,7 @@ export default function RatesComparison() {
   // Мемоизированные данные для предотвращения лишних вычислений
   const exchangeData = useMemo(() => {
     if (!rates) return [];
-
+    
     return [
       {
         name: 'KenigSwap',
@@ -100,7 +99,7 @@ export default function RatesComparison() {
         description: 'Основной',
         priority: 1
       },
-      /* {
+      {
         name: 'BestChange',
         sellRate: rates.bestchange.sell,
         buyRate: rates.bestchange.buy,
@@ -108,7 +107,7 @@ export default function RatesComparison() {
         available: rates.bestchange.sell !== null && !isNaN(rates.bestchange.sell!),
         description: 'Агрегатор',
         priority: 2
-      } */
+      }
     ];
   }, [rates]);
 

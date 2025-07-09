@@ -1,90 +1,166 @@
-# KenigSwap
+# KenigSwap - Криптовалютная биржа
 
-A modern cryptocurrency exchange platform specializing in USDT to RUB exchanges with competitive rates.
+Современная платформа для обмена криптовалют с фокусом на USDT/RUB пары.
 
-## Features
+## 🚀 Быстрый старт
 
-- Real-time exchange rates
-- Secure transactions
-- Multi-currency support
-- Market analysis and trends
-- User-friendly interface
+### Локальная разработка
 
-## Getting Started
+1. **Клонируйте репозиторий**
+```bash
+git clone <your-repo-url>
+cd kenigswap
+```
 
-### Prerequisites
+2. **Установите зависимости**
+```bash
+npm ci
+```
 
-- Node.js 18.0.0 or higher
-- npm 8.0.0 or higher
+3. **Настройте переменные окружения**
+```bash
+cp .env.example .env.local
+```
 
-### Installation
+Заполните `.env.local` вашими реальными значениями:
+- `NEXT_PUBLIC_SUPABASE_URL` - URL вашего Supabase проекта
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Публичный ключ Supabase
+- `COINGECKO_API_KEY` - API ключ CoinGecko (бесплатный)
 
-1. Clone the repository
-   ```bash
-   git clone https://github.com/yourusername/kenigswap.git
-   cd kenigswap
-   ```
-
-2. Install dependencies
-   ```bash
-   npm install
-   ```
-
-### Environment Variables
-
-For the application to work properly, you need to set up environment variables:
-
-1. Copy the example environment file to create your local configuration:
-   ```bash
-   cp .env.example .env.local
-   ```
-
-2. Fill in the required values in `.env.local`:
-   - `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Get these from Supabase → Project Settings → API
-   - `COINGECKO_API_KEY`: Get this from CoinGecko API pricing page
-
-**Note:** Without proper Supabase configuration, the application will run in fallback mode with mock exchange rates. This is useful for development but not recommended for production.
-
-### Development
-
-Start the development server:
-
+4. **Запустите проект**
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
+Откройте [http://localhost:3000](http://localhost:3000) в браузере.
 
-### Build
+## 📦 Деплой
 
-Build the application for production:
+### Netlify (рекомендуется)
 
+1. **Подключите репозиторий к Netlify**
+   - Зайдите на [netlify.com](https://netlify.com)
+   - Нажмите "New site from Git"
+   - Выберите ваш репозиторий
+
+2. **Настройте переменные окружения в Netlify**
+   - Перейдите в Site settings → Environment variables
+   - Добавьте все переменные из `.env.example`
+
+3. **Деплой произойдет автоматически**
+   - Build command: `npm ci && npm run build`
+   - Publish directory: `out`
+
+### Vercel
+
+1. **Подключите к Vercel**
 ```bash
-npm run build
+npx vercel
 ```
 
-### Deployment
+2. **Настройте переменные окружения**
+   - В dashboard Vercel добавьте переменные из `.env.example`
 
-The application can be deployed to Netlify or other hosting platforms.
+## 🗄️ База данных
 
-## Project Structure
+### Настройка Supabase
 
-- `app/` - Next.js application routes and pages
-- `components/` - Reusable UI components
-- `lib/` - Utility functions and API clients
-- `public/` - Static assets
-- `supabase/` - Supabase migrations and configuration
+1. **Создайте проект в Supabase**
+   - Зайдите на [supabase.com](https://supabase.com)
+   - Создайте новый проект
 
-## Technologies
+2. **Выполните миграции**
+   - Перейдите в SQL Editor в Supabase Dashboard
+   - Выполните SQL из файла `supabase/migrations/20250707161120_autumn_fountain.sql`
 
-- Next.js
-- React
-- Tailwind CSS
-- Supabase
-- shadcn/ui
-- Framer Motion
-- Three.js (for 3D visualizations)
+3. **Получите ключи API**
+   - Settings → API
+   - Скопируйте URL и anon public key
 
-## License
+## 🔧 Конфигурация
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+### CoinGecko API
+
+Для работы страницы курсов нужен API ключ CoinGecko:
+
+1. Зарегистрируйтесь на [coingecko.com](https://www.coingecko.com/en/api/pricing)
+2. Получите бесплатный API ключ
+3. Добавьте его в переменные окружения как `COINGECKO_API_KEY`
+
+## 📁 Структура проекта
+
+```
+├── app/                    # Next.js App Router
+│   ├── (main)/            # Основные страницы
+│   ├── api/               # API routes
+│   └── globals.css        # Глобальные стили
+├── components/            # React компоненты
+│   ├── ui/               # UI компоненты (shadcn/ui)
+│   └── shared/           # Общие компоненты
+├── lib/                  # Утилиты и хуки
+├── supabase/            # Миграции базы данных
+└── public/              # Статические файлы
+```
+
+## 🛠️ Технологии
+
+- **Framework**: Next.js 14 (App Router)
+- **Styling**: Tailwind CSS
+- **UI Components**: shadcn/ui
+- **Database**: Supabase (PostgreSQL)
+- **Animations**: Framer Motion
+- **3D Graphics**: Three.js, React Three Fiber
+- **Icons**: Lucide React
+- **Deployment**: Netlify/Vercel
+
+## 📊 Функциональность
+
+- ✅ Калькулятор обмена криптовалют
+- ✅ Сравнение курсов в реальном времени
+- ✅ Страница с актуальными курсами
+- ✅ Интерактивная 3D визуализация
+- ✅ Адаптивный дизайн
+- ✅ Темная/светлая тема
+- ✅ SEO оптимизация
+
+## 🔒 Безопасность
+
+- Row Level Security (RLS) в Supabase
+- Валидация данных на клиенте и сервере
+- Защищенные API endpoints
+- HTTPS принудительно
+
+## 📈 Производительность
+
+- Static Site Generation (SSG)
+- Оптимизация изображений
+- Code splitting
+- Lazy loading компонентов
+- Кэширование API запросов
+
+## 🐛 Отладка
+
+### Проблемы с Supabase
+```bash
+# Проверьте переменные окружения
+echo $NEXT_PUBLIC_SUPABASE_URL
+echo $NEXT_PUBLIC_SUPABASE_ANON_KEY
+```
+
+### Проблемы с CoinGecko API
+```bash
+# Проверьте API ключ
+echo $COINGECKO_API_KEY
+```
+
+## 📞 Поддержка
+
+Если возникли проблемы:
+1. Проверьте переменные окружения
+2. Убедитесь что Supabase настроен правильно
+3. Проверьте логи в браузере (F12)
+4. Проверьте логи деплоя в Netlify/Vercel
+
+## 📄 Лицензия
+
+MIT License

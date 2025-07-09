@@ -115,7 +115,7 @@ async function fetchWithRetry(url: string, headers: HeadersInit, maxRetries: num
       console.log(`🔄 Attempt ${attempt}/${maxRetries} - Fetching: ${url}`);
       
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000); // Increased timeout to 15 seconds
+      const timeoutId = setTimeout(() => controller.abort(), 8000); // Reduced timeout to 8 seconds
       
       const response = await fetch(url, {
         headers: {
@@ -142,8 +142,7 @@ async function fetchWithRetry(url: string, headers: HeadersInit, maxRetries: num
                               errorMessage.toLowerCase().includes('enotfound') ||
                               errorMessage.toLowerCase().includes('econnrefused') ||
                               errorMessage.toLowerCase().includes('timeout') ||
-                              errorMessage.toLowerCase().includes('aborted') ||
-                              errorMessage.toLowerCase().includes('aborterror');
+                              errorMessage.toLowerCase().includes('aborted');
       
       // Don't retry on the last attempt or if it's not a retryable error
       if (attempt === maxRetries || !isRetryableError) {
@@ -151,7 +150,7 @@ async function fetchWithRetry(url: string, headers: HeadersInit, maxRetries: num
       }
       
       // Progressive backoff with jitter for network errors
-      const baseDelay = Math.pow(2, attempt - 1) * 2000; // Further increased base delay
+      const baseDelay = Math.pow(2, attempt - 1) * 1500; // Increased base delay
       const jitter = Math.random() * 1000;
       const delay = baseDelay + jitter;
       

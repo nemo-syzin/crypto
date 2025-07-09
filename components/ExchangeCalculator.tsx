@@ -35,8 +35,18 @@ export default function ExchangeCalculator() {
   // Memoized functions to prevent unnecessary rerenders
   const parseAmount = useMemo(() => (value: string): number => {
     const parsed = parseFloat(value);
-    return isNaN(parsed) || parsed < 0 ? 0 : parsed;
+    return isNaN(parsed) ? 0 : parsed;
   }, []);
+
+  const calculateResult = useMemo(() => (): number => {
+    const numericAmount = parseAmount(amount);
+    if (!rate || numericAmount <= 0) return 0;
+    
+    // Check if rates are valid numbers
+    const sellRate = typeof rate.sell === 'number' && !isNaN(rate.sell) ? rate.sell : null;
+    
+    return sellRate ? numericAmount * sellRate : 0;
+  }, [amount, rate, parseAmount]);
 
   const toggleDirection = () => {
     // Only toggle if both currencies are selected and they're a valid pair
@@ -54,7 +64,7 @@ export default function ExchangeCalculator() {
   // Memoized formatting functions
   const formatCurrency = useMemo(() => (value: number, currency: string): string => {
     if (value === 0) return '';
-
+    
     if (currency === 'RUB') {
       return new Intl.NumberFormat('ru-RU', {
         style: 'currency',
@@ -62,7 +72,7 @@ export default function ExchangeCalculator() {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       }).format(value);
-    } else { 
+    } else {
       // For cryptocurrencies use different decimal places based on value
       const decimals = value < 1 ? 6 : value < 100 ? 4 : 2;
       return new Intl.NumberFormat('en-US', {
@@ -74,7 +84,7 @@ export default function ExchangeCalculator() {
 
   const formatRate = useMemo(() => (rateValue: number | null, currency: string = 'RUB'): string => {
     if (!rateValue || isNaN(rateValue)) return '—';
-
+    
     if (currency === 'RUB') {
       return new Intl.NumberFormat('ru-RU', {
         style: 'currency',
@@ -82,7 +92,7 @@ export default function ExchangeCalculator() {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       }).format(rateValue);
-    } else { 
+    } else {
       const decimals = rateValue < 1 ? 6 : rateValue < 100 ? 4 : 2;
       return new Intl.NumberFormat('en-US', {
         minimumFractionDigits: 2,
@@ -113,7 +123,7 @@ export default function ExchangeCalculator() {
     error.includes('not configured') || 
     error.includes('Invalid API key') || 
     error.includes('environment variables')
-  ); 
+  );
 
   // Memoized calculations
   const isPairSupported = useMemo(() => {
@@ -121,21 +131,17 @@ export default function ExchangeCalculator() {
   }, [rate, fromCurrency, toCurrency]);
 
   const hasValidRate = useMemo(() => {
-    return rate && typeof rate.rate === 'number' && !isNaN(rate.rate) && rate.rate > 0;
+    return rate && typeof rate.sell === 'number' && !isNaN(rate.sell) && rate.sell > 0;
   }, [rate]);
 
   const isCalculationDisabled = !hasValidRate || loading || !!error;
-  
   const numericAmount = parseAmount(amount);
   
-  // Calculate result directly using the rate
-  const calculateResult = useMemo((): number => {
-    const numericAmount = parseAmount(amount);
-    if (!rate || numericAmount <= 0) return 0;
-    return numericAmount * rate.rate;     // «сколько получу»
-  }, [numericAmount, rate]);
-  
-  const result = calculateResult;
+  // Упрощенный расчет результата - просто умножаем на курс
+  const result = useMemo(() => {
+    if (!hasValidRate || numericAmount <= 0) return 0;
+    return numericAmount * rate!.sell;
+  }, [hasValidRate, numericAmount, rate]);
 
   // Memoized display functions
   const getResultDisplay = useMemo((): string => {
@@ -143,7 +149,7 @@ export default function ExchangeCalculator() {
     if (!isPairSupported) return 'Данная валютная пара не поддерживается';
     if (!hasValidRate) return 'Курсы недоступны';
     if (amount === '' || numericAmount <= 0) return '';
-
+    
     return formatCurrency(result, toCurrency);
   }, [loading, isPairSupported, hasValidRate, amount, numericAmount, result, toCurrency, formatCurrency]);
 
@@ -151,7 +157,7 @@ export default function ExchangeCalculator() {
     if (basesLoading || quotesLoading) return 'Загрузка валют...';
     if (loading) return 'Загрузка курсов...';
     if (!toCurrency) return 'Выберите валюту получения';
-    if (!isPairSupported) return 'Выберите другую валютную пару';
+    if (!isPairSupported) return 'Выберите поддерживаемую валютную пару';
     if (!hasValidRate) return 'Ожидание актуальных курсов...';
     if (amount === '' || numericAmount <= 0) return 'Введите сумму для обмена';
     
@@ -159,7 +165,7 @@ export default function ExchangeCalculator() {
     const toAmount = formatCurrency(result, toCurrency);
     
     return `Обменять ${fromAmount} → ${toAmount}`;
-  }, [basesLoading, quotesLoading, loading, isPairSupported, hasValidRate, amount, numericAmount, fromCurrency, toCurrency, result, formatCurrency]); 
+  }, [basesLoading, quotesLoading, loading, isPairSupported, hasValidRate, amount, numericAmount, fromCurrency, toCurrency, result, formatCurrency]);
 
   const getHintText = useMemo((): string => {
     if (basesError) {
@@ -194,10 +200,10 @@ export default function ExchangeCalculator() {
                       (rate.sell === rate.buy ? '' : 
                       `(${fromCurrency === 'RUB' ? 'покупка' : 'продажа'} ${fromCurrency})`);
       
-      const formattedRate = formatRate(rate.rate, toCurrency);
+      const formattedRate = formatRate(rate.sell, toCurrency);
       return `Курс обмена ${fromCurrency}/${toCurrency}: ${formattedRate} ${rateType}`;
     }
-    
+
     return `Введите количество ${fromCurrency} для обмена на ${toCurrency}`;
   }, [basesError, quotesError, isPairSupported, hasValidRate, rate, loading, fromCurrency, toCurrency, formatRate]);
 
@@ -206,7 +212,7 @@ export default function ExchangeCalculator() {
       {/* Configuration Error Alert */}
       {isConfigurationError && (
         <Alert className="bg-orange-50 border-orange-200">
-          <Settings className="h-4 w-4 text-orange-600 flex-shrink-0" />
+          <Settings className="h-4 w-4 text-orange-600" />
           <AlertDescription className="text-orange-800">
             <strong>Требуется настройка:</strong>
             <br />
@@ -222,7 +228,7 @@ export default function ExchangeCalculator() {
       {/* Other Errors Alert */}
       {error && !isConfigurationError && (
         <div className="error-toast">
-          <strong>Ошибка загрузки курсов:</strong> {error.includes('не найден') ? error : `${error}. Попробуйте выбрать другую валютную пару.`}
+          <strong>Ошибка загрузки курсов:</strong> {error}
           <br />
           <Button 
             variant="outline" 
@@ -230,7 +236,7 @@ export default function ExchangeCalculator() {
             onClick={refetch}
             className="mt-2 text-red-800 border-red-300 hover:bg-red-100"
           >
-            Обновить курсы
+            Повторить загрузку
           </Button>
         </div>
       )}
@@ -238,7 +244,7 @@ export default function ExchangeCalculator() {
       {/* Main Calculator */}
       <div className="calculator-container">
         <CardHeader className="pb-6">
-          <CardTitle className="flex items-center justify-between flex-wrap gap-2">
+          <CardTitle className="flex items-center justify-between">
             <span className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600">
                 <Calculator className="h-5 w-5 text-white" />
@@ -246,7 +252,7 @@ export default function ExchangeCalculator() {
               <span className="text-[#001D8D] text-xl font-bold">
                 Калькулятор обмена KenigSwap
               </span>
-            </span> 
+            </span>
             <button
               onClick={refetch}
               disabled={loading}
@@ -254,7 +260,7 @@ export default function ExchangeCalculator() {
             >
               <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
               {lastUpdated && (
-                <span className="timestamp whitespace-nowrap">
+                <span className="timestamp">
                   {lastUpdated.toLocaleTimeString('ru-RU')}
                 </span>
               )}
@@ -262,7 +268,7 @@ export default function ExchangeCalculator() {
           </CardTitle>
         </CardHeader>
         
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-8">
           {/* From Currency Selection */}
           <div className="space-y-3">
             <Label htmlFor="fromCurrency" className="text-[#001D8D] font-semibold text-base">
@@ -270,7 +276,7 @@ export default function ExchangeCalculator() {
             </Label>
             <Select 
               value={fromCurrency} 
-              onValueChange={handleFromCurrencyChange} 
+              onValueChange={handleFromCurrencyChange}
               disabled={basesLoading}
             >
               <SelectTrigger className="input-field">
@@ -278,7 +284,7 @@ export default function ExchangeCalculator() {
               </SelectTrigger>
               <SelectContent>
                 {bases.map((base) => (
-                  <SelectItem key={base} value={base}> 
+                  <SelectItem key={base} value={base}>
                     {base}
                   </SelectItem>
                 ))}
@@ -293,7 +299,7 @@ export default function ExchangeCalculator() {
             </Label>
             <input
               id="amount"
-              type="text" 
+              type="text"
               value={amount}
               onChange={handleAmountChange}
               placeholder={`100 ${fromCurrency}`}
@@ -301,7 +307,7 @@ export default function ExchangeCalculator() {
               className={`input-field ${error ? 'border-red-300' : ''}`}
             />
             <div className="hint-text">
-              {getHintText} 
+              {getHintText}
             </div>
           </div>
 
@@ -310,7 +316,7 @@ export default function ExchangeCalculator() {
             <button
               onClick={toggleDirection}
               disabled={isCalculationDisabled || basesLoading || quotesLoading || !toCurrency}
-              className="swap-button" 
+              className="swap-button"
             >
               <ArrowUpDown className="h-5 w-5 text-blue-600" />
             </button>
@@ -324,7 +330,7 @@ export default function ExchangeCalculator() {
             <Select 
               value={toCurrency} 
               onValueChange={setToCurrency}
-              disabled={quotesLoading || !fromCurrency} 
+              disabled={quotesLoading || !fromCurrency}
             >
               <SelectTrigger className="input-field">
                 <SelectValue placeholder="Выберите валюту получения" />
@@ -344,7 +350,7 @@ export default function ExchangeCalculator() {
             <Label htmlFor="result" className="text-[#001D8D] font-semibold text-base">
               Получите {toCurrency || ''}
             </Label>
-            <div className={`input-field bg-gray-50 ${isAnimating ? 'result-animation' : ''}`}> 
+            <div className={`input-field bg-gray-50 ${isAnimating ? 'result-animation' : ''}`}>
               <div className="text-[#001D8D] font-semibold">
                 {getResultDisplay || (amount === '' ? 'Результат появится здесь' : '')}
               </div>
@@ -356,7 +362,7 @@ export default function ExchangeCalculator() {
 
           {/* Loading State */}
           {loading && !rate && (
-            <div className="flex items-center justify-center py-6">
+            <div className="flex items-center justify-center py-8">
               <div className="flex items-center gap-3 text-[#001D8D]">
                 <RefreshCw className="h-5 w-5 animate-spin" />
                 <span className="font-medium">Загрузка актуальных курсов...</span>
@@ -365,7 +371,7 @@ export default function ExchangeCalculator() {
           )}
 
           {/* Current Rate Display */}
-          {hasValidRate && rate && rate.source !== 'fallback' && (
+          {hasValidRate && rate && (
             <div className="rates-container">
               <h4 className="font-semibold text-[#001D8D] mb-3">
                 Текущий курс {fromCurrency}/{toCurrency}
@@ -380,11 +386,11 @@ export default function ExchangeCalculator() {
                   <div className="text-sm text-[#001D8D]/70 mb-1">
                     {fromCurrency === 'RUB' ? 'Курс покупки' : 'Курс продажи'} {fromCurrency}
                   </div>
-                  <div className="rate-value">{formatRate(rate.rate, toCurrency)}</div>
+                  <div className="rate-value">{formatRate(rate.sell, toCurrency)}</div>
                 </div>
               </div>
               <div className="text-center mt-3">
-                <div className="text-xs text-[#001D8D]/50"> 
+                <div className="text-xs text-[#001D8D]/50">
                   Обновлено: {new Date(rate.updated_at).toLocaleString('ru-RU')}
                 </div>
               </div>
@@ -393,7 +399,7 @@ export default function ExchangeCalculator() {
 
           {/* Exchange Button */}
           <button 
-            className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 ${  
+            className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 ${
               isCalculationDisabled || amount === '' || numericAmount <= 0 || !toCurrency
                 ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                 : 'bg-gradient-to-r from-[#001D8D] to-blue-600 text-white hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]'
@@ -407,7 +413,7 @@ export default function ExchangeCalculator() {
           <div className="border-t border-gray-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 px-6 py-4 rounded-lg">
             <div className="flex items-start gap-3">
               <div className="flex-shrink-0 mt-1">
-                <Info className="h-4 w-4 text-[#001D8D]/70 flex-shrink-0" />
+                <Info className="h-4 w-4 text-[#001D8D]/70" />
               </div>
               <div className="text-sm text-[#001D8D]/80 leading-relaxed">
                 <strong className="text-[#001D8D]">Доступные валютные пары:</strong> поддерживаются обмены между различными криптовалютами и фиатными валютами. Курсы обновляются каждые 30 секунд из базы данных. <span className="text-blue-600">Используются только курсы от источника "kenig".</span>

@@ -3,12 +3,8 @@ export const dynamic = 'force-dynamic';   // ⬅️  запрет SSG / Static E
 import { NextResponse } from 'next/server';
 import { getValidatedKenigRates } from '@/lib/supabase/validated-rates';
 
-// List of sources to exclude
-const EXCLUDED_SOURCES = ['bestchange', 'energo'];
-
 let cache: { data: any; timestamp: number } | null = null;
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache to reduce database load
-const STALE_CACHE_DURATION = 30 * 60 * 1000; // 30 minutes for stale cache
+const CACHE_DURATION = 60 * 1000; // Увеличиваем кэш до 1 минуты
 
 const getFallbackData = () => ({
   kenig: { sell: 95.50, buy: 94.80, updated_at: new Date().toISOString() },
@@ -16,46 +12,20 @@ const getFallbackData = () => ({
   energo: { sell: 95.20, buy: 94.70, updated_at: new Date().toISOString() },
   timestamp: new Date().toISOString(),
   isFromDatabase: false,
-  isFallback: true,
-  error: 'Using fallback data due to database connectivity issues'
+  isFallback: true
 });
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
     const now = Date.now();
     
     // Check cache first
     if (cache && (now - cache.timestamp) < CACHE_DURATION) {
-      console.log('📦 Serving cached data');
       return NextResponse.json(cache.data);
     }
-    
-    // Check if we have stale cache that can be used in case of errors
-    const hasStaleCache = cache && (now - cache.timestamp) < STALE_CACHE_DURATION;
 
     console.log('🔄 Fetching fresh rates from database...');
-    
-    let validationResult;
-    try {
-      // Add timeout to the entire operation
-      validationResult = await Promise.race([
-        getValidatedKenigRates(),
-        new Promise<never>((_, reject) => {
-          setTimeout(() => reject(new Error('Database query timeout after 15 seconds')), 15000);
-        })
-      ]);
-    } catch (error) {
-      console.error('❌ Database query failed:', error);
-      if (hasStaleCache) {
-        console.log('📦 Using stale cache due to database error');
-        return NextResponse.json({ 
-          ...cache!.data, 
-          isStale: true, 
-          error: `Database error: ${error instanceof Error ? error.message : 'Unknown error'}. Check your Supabase configuration in .env.local.`
-        });
-      }
-      throw error; // Re-throw to be caught by the outer try/catch
-    }
+    const validationResult = await getValidatedKenigRates();
     
     const data = {
       kenig: { sell: null, buy: null },
@@ -71,74 +41,39 @@ export async function GET(request: Request) {
       }
     };
 
-    if (validationResult && validationResult.hasValidRates) {
+    if (validationResult.hasValidRates) {
       
       validationResult.rates.forEach(rate => {
-        // Only use rates from non-excluded sources
-        if (rate.isValid && !EXCLUDED_SOURCES.includes(rate.source)) {
+        if (rate.isValid) {
           const rateData = {
             sell: Number(rate.sell),
             buy: Number(rate.buy),
-            rate: Number(rate.sell), // Add rate field for consistency
             updated_at: rate.updated_at
           };
 
           if (rate.source === 'kenig') data.kenig = rateData;
-          // We still include bestchange and energo in the response for reference,
-          // but they won't be used in the exchange calculator
-          else if (rate.source === 'bestchange' && !EXCLUDED_SOURCES.includes('bestchange')) data.bestchange = rateData;
-          else if (rate.source === 'energo' && !EXCLUDED_SOURCES.includes('energo')) data.energo = rateData;
+          else if (rate.source === 'bestchange') data.bestchange = rateData;
+          else if (rate.source === 'energo') data.energo = rateData;
         } else {
           console.warn(`⚠️ Invalid rate for ${rate.source}:`, rate.validationErrors);
         }
       });
-      
-      // Update cache with successful data
-      cache = { data, timestamp: now };
-      console.log('✅ Successfully fetched and cached fresh data');
-    } else if (validationResult) {
+    } else {
       console.warn('⚠️ No valid rates found, using fallback data. Error:', validationResult.error);
       const fallback = getFallbackData();
-      fallback.error = validationResult.error || 'No valid rates available';
       Object.assign(data, fallback);
-      
-      // Only update cache if we don't have any cached data
-      if (!cache) {
-        cache = { data, timestamp: now };
-      }
-    } else {
-      // This should not happen, but just in case
-      console.warn('⚠️ Validation result is undefined, using fallback data');
-      const fallback = getFallbackData();
-      fallback.error = 'Unexpected error: validation result is undefined';
-      Object.assign(data, fallback);
-      cache = { data, timestamp: now };
     }
 
+    // Update cache only if we have valid data or this is the first request
+    if (validationResult.hasValidRates || !cache) {
+      cache = { data, timestamp: now };
+    }
+    
     return NextResponse.json(data);
   } catch (error) {
     console.error('❌ API Error in /api/rates:', error);
-    
-    // If we have cached data, return it even if it's stale
-    if (cache) {
-      console.log('📦 Returning stale cached data due to error');
-      const staleData = { 
-        ...cache.data, 
-        error: `Database error: ${error instanceof Error ? error.message : 'Unknown error'}. Showing cached data.`,
-        isStale: true 
-      };
-      return NextResponse.json(staleData);
-    }
-    
-    // Log detailed error information
-    console.error('❌ Detailed error:', {
-      message: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined,
-      cause: error instanceof Error ? (error as any).cause : undefined
-    });
-    
     const fallbackData = getFallbackData();
-    fallbackData.error = `API request failed: ${error instanceof Error ? error.message : 'Unknown error'}`;
+    fallbackData.error = error instanceof Error ? error.message : 'API request failed';
     return NextResponse.json(fallbackData);
   }
 }
