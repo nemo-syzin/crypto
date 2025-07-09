@@ -1,6 +1,9 @@
 import useSWR from 'swr';
 import { supabase, isSupabaseAvailable } from '@/lib/supabase/client';
 
+// Список источников, которые нужно исключить
+const EXCLUDED_SOURCES = ['bestchange', 'energo'];
+
 interface ExchangeRate {
   sell: number;
   buy: number;
@@ -23,46 +26,59 @@ const fetchExchangeRate = async (from: string, to: string): Promise<ExchangeRate
     
     // For USDT-RUB and RUB-USDT pairs, specifically use source 'kenig'
     if ((from === 'USDT' && to === 'RUB') || (from === 'RUB' && to === 'USDT')) {
-      const { data, error } = await supabase
+      const { data, error, count } = await supabase
         .from('kenig_rates')
         .select('sell,buy,updated_at')
         .eq('source', 'kenig')
         .eq('base', from)
         .eq('quote', to)
-        .limit(1)
-        .single();
+        .limit(1);
 
       if (error) {
-        console.warn(`⚠️ Error fetching kenig exchange rate for ${from}/${to}:`, error);
-        throw error;
+        console.warn(`⚠️ Error fetching kenig exchange rate for ${from}/${to}:`, error.message);
+        throw new Error(`Ошибка загрузки курса: ${error.message}`);
       }
       
-      console.log(`✅ Found kenig exchange rate for ${from}/${to}:`, data);
+      if (!data || data.length === 0) {
+        throw new Error(`Курс для пары ${from}/${to} не найден`);
+      }
+      
+      console.log(`✅ Found kenig exchange rate for ${from}/${to}:`, data[0]);
       
       return { 
-        ...data, 
+        ...data[0], 
         pair: `${from}/${to}`, 
         source: 'kenig' 
       };
     }
     
-    const { data, error } = await supabase
+    // Для всех остальных пар, исключаем нежелательные источники
+    const query = supabase
       .from('kenig_rates')
       .select('sell,buy,updated_at')
       .eq('base', from)
-      .eq('quote', to)
-      .limit(1)
-      .single();
-
-    if (error) {
-      console.warn(`⚠️ Error fetching exchange rate for ${from}/${to}:`, error);
-      throw error;
+      .eq('quote', to);
+    
+    // Добавляем фильтр для исключения нежелательных источников
+    if (EXCLUDED_SOURCES.length > 0) {
+      query.not('source', 'in', `(${EXCLUDED_SOURCES.join(',')})`);
     }
     
-    console.log(`✅ Found exchange rate for ${from}/${to}:`, data);
+    const { data, error, count } = await query.limit(1);
+
+    if (error) {
+      console.warn(`⚠️ Error fetching exchange rate for ${from}/${to}:`, error.message);
+      throw new Error(`Ошибка загрузки курса: ${error.message}`);
+    }
+    
+    if (!data || data.length === 0) {
+      throw new Error(`Курс для пары ${from}/${to} не найден`);
+    }
+    
+    console.log(`✅ Found exchange rate for ${from}/${to}:`, data[0]);
     
     return { 
-      ...data, 
+      ...data[0], 
       pair: `${from}/${to}`, 
       source: 'kenig' 
     };
@@ -94,8 +110,9 @@ export function useExchangeRate(fromCurrency: string, toCurrency: string) {
       refreshInterval: 30 * 1000, // refresh every 30 seconds
       revalidateOnFocus: false,
       revalidateOnReconnect: true,
-      dedupingInterval: 5000,
-      shouldRetryOnError: false,
+      dedupingInterval: 10000,
+      shouldRetryOnError: true,
+      errorRetryCount: 3,
       onError: (error) => {
         console.warn('⚠️ Exchange rate hook error:', error);
       },

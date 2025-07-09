@@ -163,11 +163,11 @@ export default function ExchangeCalculator() {
 
   const getHintText = useMemo((): string => {
     if (basesError) {
-      return `Ошибка загрузки валют: ${basesError}`;
+      return `Ошибка загрузки валют: ${basesError}. Попробуйте обновить страницу.`;
     }
     
     if (quotesError) {
-      return `Ошибка загрузки валют для ${fromCurrency}: ${quotesError}`;
+      return `Ошибка загрузки валют для ${fromCurrency}: ${quotesError}. Попробуйте выбрать другую валюту.`;
     }
     
     // If currencies are the same
@@ -180,11 +180,11 @@ export default function ExchangeCalculator() {
     }
 
     if (!isPairSupported) {
-      return `Валютная пара ${fromCurrency}/${toCurrency} не поддерживается. Попробуйте другую пару.`;
+      return `Валютная пара ${fromCurrency}/${toCurrency} не поддерживается. Выберите другую пару.`;
     }
 
     if (!hasValidRate && rate === null && !loading) {
-      return `Курс для пары ${fromCurrency}/${toCurrency} не найден. Попробуйте другую пару.`;
+      return `Курс для пары ${fromCurrency}/${toCurrency} не найден в базе данных. Выберите другую пару.`;
     }
 
     // Show rate for supported pair
@@ -392,11 +392,11 @@ export default function ExchangeCalculator() {
           {/* Info about available pairs */}
           <div className="border-t border-gray-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 px-6 py-4 rounded-lg">
             <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 mt-0.5">
+              <div className="flex-shrink-0 mt-1">
                 <Info className="h-4 w-4 text-[#001D8D]/70" />
               </div>
               <div className="text-sm text-[#001D8D]/80 leading-relaxed">
-                <strong className="text-[#001D8D]">Доступные валютные пары:</strong> поддерживаются обмены между различными криптовалютами и фиатными валютами. Курсы обновляются каждые 30 секунд из базы данных kenig_rates.
+                <strong className="text-[#001D8D]">Доступные валютные пары:</strong> поддерживаются обмены между различными криптовалютами и фиатными валютами. Курсы обновляются каждые 30 секунд из базы данных kenig_rates. <span className="text-blue-600">Используются только курсы от источника "kenig".</span>
               </div>
             </div>
           </div>

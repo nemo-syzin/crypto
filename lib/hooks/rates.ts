@@ -1,5 +1,8 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 
+// Список источников, которые нужно исключить
+const EXCLUDED_SOURCES = ['bestchange', 'energo'];
+
 interface KenigRate {
   sell: number;
   buy: number;
@@ -76,13 +79,13 @@ export function useAllRates() {
       
       // Validate that we have actual rate data
       if (!data || typeof data !== 'object') {
-        throw new Error('Invalid response format');
+        throw new Error('Неверный формат ответа API');
       }
       
       // Check if this is fallback data
       if (data.isFallback) {
         console.warn('⚠️ Received fallback data from API');
-        setError('Используются тестовые данные - проверьте подключение к базе данных');
+        setError('Используются тестовые данные. Проверьте подключение к базе данных.');
       } else if (data.error) {
         console.warn('⚠️ API returned error:', data.error);
         setError(data.error);
@@ -90,14 +93,15 @@ export function useAllRates() {
       
       // Ensure we have at least some valid rates
       const hasValidRates = (
-        (data.kenig?.sell && data.kenig?.buy) ||
-        (data.bestchange?.sell && data.bestchange?.buy) ||
-        (data.energo?.sell && data.energo?.buy)
+        (data.kenig?.sell && data.kenig?.buy)
+        // Исключаем нежелательные источники
+        // (data.bestchange?.sell && data.bestchange?.buy) ||
+        // (data.energo?.sell && data.energo?.buy)
       );
       
       if (!hasValidRates && !data.isFallback) {
         console.warn('⚠️ No valid rates found in response:', data);
-        setError('Нет актуальных курсов в базе данных');
+        setError('Нет актуальных курсов в базе данных от источника "kenig"');
       }
       
       // Обновляем кэш
@@ -118,13 +122,24 @@ export function useAllRates() {
       
       if (hasValidRates && data.isFromDatabase) {
         console.log('✅ Successfully loaded rates from database');
-        setError(null);
+        
+        // Проверяем, есть ли курсы от источника kenig
+        if (data.kenig?.sell && data.kenig?.buy) {
+          setError(null);
+        } else {
+          setError('Курсы от источника "kenig" не найдены');
+        }
       }
       
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch rates';
       console.error('❌ Error fetching rates:', errorMessage);
       setError(errorMessage);
+
+      // Добавляем более информативное сообщение об ошибке
+      if (errorMessage.includes('JSON object requested')) {
+        setError('Ошибка загрузки курсов: проблема с форматом данных в базе. Возможно, найдено несколько строк вместо одной.');
+      }
       
       // Set fallback rates only if no data exists
       if (!rates) {
@@ -132,7 +147,7 @@ export function useAllRates() {
           kenig: { sell: 95.50, buy: 94.80, updated_at: new Date().toISOString() },
           bestchange: { sell: 95.30, buy: 94.90, updated_at: new Date().toISOString() },
           energo: { sell: 95.20, buy: 94.70, updated_at: new Date().toISOString() },
-          timestamp: new Date().toISOString(),
+          timestamp: new Date().toISOString(), 
           isFromDatabase: false,
           error: errorMessage,
           isFallback: true
