@@ -125,13 +125,6 @@ export default function ExchangeCalculator() {
     error.includes('environment variables')
   );
 
-  // Check if connection error
-  const isConnectionError = error && (
-    error.includes('connection failed') ||
-    error.includes('fetch failed') ||
-    error.includes('other side closed') ||
-    error.includes('timeout')
-  );
   // Memoized calculations
   const isPairSupported = useMemo(() => {
     return !!rate || (fromCurrency === toCurrency);
@@ -170,11 +163,11 @@ export default function ExchangeCalculator() {
 
   const getHintText = useMemo((): string => {
     if (basesError) {
-      return `Ошибка загрузки валют: ${basesError}`;
+      return `Ошибка загрузки валют: ${basesError}. Попробуйте обновить страницу.`;
     }
     
     if (quotesError) {
-      return `Ошибка загрузки валют для ${fromCurrency}: ${quotesError}`;
+      return `Ошибка загрузки валют для ${fromCurrency}: ${quotesError}. Попробуйте выбрать другую валюту.`;
     }
     
     // If currencies are the same
@@ -187,11 +180,11 @@ export default function ExchangeCalculator() {
     }
 
     if (!isPairSupported) {
-      return `Валютная пара ${fromCurrency}/${toCurrency} не поддерживается`;
+      return `Валютная пара ${fromCurrency}/${toCurrency} не поддерживается. Выберите другую пару.`;
     }
 
     if (!hasValidRate && rate === null && !loading) {
-      return `Курс для пары ${fromCurrency}/${toCurrency} не найден`;
+      return `Курс для пары ${fromCurrency}/${toCurrency} не найден в базе данных. Выберите другую пару.`;
     }
 
     // Show rate for supported pair
@@ -221,34 +214,8 @@ export default function ExchangeCalculator() {
         </Alert>
       )}
 
-      {/* Connection Error Alert */}
-      {isConnectionError && !isConfigurationError && (
-        <Alert className="bg-red-50 border-red-200">
-          <AlertTriangle className="h-4 w-4 text-red-600" />
-          <AlertDescription className="text-red-800">
-            <strong>Проблема с подключением к базе данных:</strong>
-            <br />
-            {error}
-            <br />
-            <span className="text-sm mt-2 block">
-              Возможные причины: проект Supabase приостановлен, проблемы с сетью, или временные неполадки сервиса.
-              <br />
-              Проверьте статус вашего проекта в <a href="https://supabase.com/dashboard" target="_blank" rel="noopener noreferrer" className="text-red-600 underline">панели Supabase</a>.
-            </span>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={refetch}
-              className="mt-2 text-red-800 border-red-300 hover:bg-red-100"
-            >
-              <RefreshCw className="h-3 w-3 mr-1" />
-              Повторить подключение
-            </Button>
-          </AlertDescription>
-        </Alert>
-      )}
       {/* Other Errors Alert */}
-      {error && !isConfigurationError && !isConnectionError && (
+      {error && !isConfigurationError && (
         <div className="error-toast">
           <strong>Ошибка загрузки курсов:</strong> {error}
           <br />
@@ -428,10 +395,8 @@ export default function ExchangeCalculator() {
               <div className="flex-shrink-0 mt-1">
                 <Info className="h-4 w-4 text-[#001D8D]/70" />
               </div>
-              <div className="text-sm text-[#001D8D]/80 leading-relaxed space-y-1">
-                <p><strong className="text-[#001D8D]">Доступные валютные пары:</strong> поддерживаются обмены между различными криптовалютами и фиатными валютами.</p>
-                <p>Курсы обновляются каждые 30 секунд из базы данных. <span className="text-blue-600">Используются только курсы от источника "kenig".</span></p>
-                <p className="text-xs text-[#001D8D]/60">Поддерживаются прямые и обратные пары, например USDT/RUB и RUB/USDT.</p>
+              <div className="text-sm text-[#001D8D]/80 leading-relaxed">
+                <strong className="text-[#001D8D]">Доступные валютные пары:</strong> поддерживаются обмены между различными криптовалютами и фиатными валютами. Курсы обновляются каждые 30 секунд из базы данных kenig_rates. <span className="text-blue-600">Используются только курсы от источника "kenig".</span>
               </div>
             </div>
           </div>

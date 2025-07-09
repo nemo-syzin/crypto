@@ -12,8 +12,7 @@ const getFallbackData = () => ({
   energo: { sell: 95.20, buy: 94.70, updated_at: new Date().toISOString() },
   timestamp: new Date().toISOString(),
   isFromDatabase: false,
-  isFallback: true,
-  connectionStatus: 'failed'
+  isFallback: true
 });
 
 export async function GET() {
@@ -34,7 +33,6 @@ export async function GET() {
       energo: { sell: null, buy: null },
       timestamp: new Date().toISOString(),
       isFromDatabase: validationResult.isFromDatabase,
-      connectionStatus: validationResult.connectionStatus,
       error: validationResult.error,
       debug: {
         totalRates: validationResult.totalRates,
@@ -61,14 +59,8 @@ export async function GET() {
         }
       });
     } else {
-      const errorType = validationResult.connectionStatus === 'timeout' ? 'Connection timeout' :
-                       validationResult.connectionStatus === 'failed' ? 'Connection failed' :
-                       validationResult.connectionStatus === 'not_configured' ? 'Not configured' :
-                       'No valid rates';
-      
-      console.warn(`⚠️ ${errorType}, using fallback data. Error:`, validationResult.error);
+      console.warn('⚠️ No valid rates found, using fallback data. Error:', validationResult.error);
       const fallback = getFallbackData();
-      fallback.connectionStatus = validationResult.connectionStatus || 'failed';
       Object.assign(data, fallback);
     }
 
@@ -82,18 +74,6 @@ export async function GET() {
     console.error('❌ API Error in /api/rates:', error);
     const fallbackData = getFallbackData();
     fallbackData.error = error instanceof Error ? error.message : 'API request failed';
-    
-    // Determine connection status from error
-    if (error instanceof Error) {
-      if (error.message.includes('fetch failed') || error.message.includes('other side closed')) {
-        fallbackData.connectionStatus = 'failed';
-        fallbackData.error = 'Database connection failed. Please check if your Supabase project is active.';
-      } else if (error.message.includes('timeout') || error.message.includes('AbortError')) {
-        fallbackData.connectionStatus = 'timeout';
-        fallbackData.error = 'Database connection timeout. Please try again.';
-      }
-    }
-    
     return NextResponse.json(fallbackData);
   }
 }
