@@ -121,7 +121,7 @@ export default function ExchangeCalculator() {
   }, [rate, fromCurrency, toCurrency]);
 
   const hasValidRate = useMemo(() => {
-    return rate && typeof rate.sell === 'number' && !isNaN(rate.sell) && rate.sell > 0;
+    return rate && typeof rate.rate === 'number' && !isNaN(rate.rate) && rate.rate > 0;
   }, [rate]);
 
   const isCalculationDisabled = !hasValidRate || loading || !!error;
@@ -194,7 +194,7 @@ export default function ExchangeCalculator() {
                       (rate.sell === rate.buy ? '' : 
                       `(${fromCurrency === 'RUB' ? 'покупка' : 'продажа'} ${fromCurrency})`);
       
-      const formattedRate = formatRate(rate.sell, toCurrency);
+      const formattedRate = formatRate(rate.rate, toCurrency);
       return `Курс обмена ${fromCurrency}/${toCurrency}: ${formattedRate} ${rateType}`;
     }
     
@@ -380,7 +380,7 @@ export default function ExchangeCalculator() {
                   <div className="text-sm text-[#001D8D]/70 mb-1">
                     {fromCurrency === 'RUB' ? 'Курс покупки' : 'Курс продажи'} {fromCurrency}
                   </div>
-                  <div className="rate-value">{formatRate(rate.sell, toCurrency)}</div>
+                  <div className="rate-value">{formatRate(rate.rate, toCurrency)}</div>
                 </div>
               </div>
               <div className="text-center mt-3">
