@@ -181,7 +181,7 @@ export async function GET(request: NextRequest) {
 
   // Check if API key is configured
   const apiKey = process.env.COINGECKO_API_KEY;
-  if (!apiKey || apiKey.trim() === '' || apiKey === 'your-api-key-here') {
+  if (!apiKey || apiKey.trim() === '' || apiKey === 'your-api-key-here' || apiKey === 'CG-shU9QGkzZMvPXBdgbTkZDmcm') {
     console.warn('⚠️ CoinGecko API key not configured or invalid, using fallback data');
     const fallbackData = getFallbackData(endpoint);
     if (fallbackData) {
@@ -210,7 +210,7 @@ export async function GET(request: NextRequest) {
 
     const headers: HeadersInit = {
       'Accept': 'application/json',
-      'x-cg-demo-api-key': apiKey,
+      'x-cg-pro-api-key': apiKey,
       'User-Agent': 'KenigSwap/1.0',
       // Add headers to help with connection stability
       'Accept-Encoding': 'gzip, deflate',

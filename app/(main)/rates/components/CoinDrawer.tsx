@@ -10,6 +10,15 @@ import { Button } from '@/components/ui/button';
 import { TrendingUp, TrendingDown, X, Activity, Star, Globe, Info, DollarSign, BarChart3, Clock, Zap } from 'lucide-react';
 import type { CoinMarketData } from '@/lib/coingecko';
 
+// Функция для проверки и исправления URL изображений
+const getSafeImageUrl = (url: string): string => {
+  // Заменяем coin-images.coingecko.com на assets.coingecko.com
+  if (url && url.includes('coin-images.coingecko.com')) {
+    return url.replace('coin-images.coingecko.com', 'assets.coingecko.com');
+  }
+  return url;
+};
+
 interface CoinDrawerProps {
   coin: CoinMarketData | null;
   open: boolean;
@@ -100,7 +109,7 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
             <div className="flex items-center gap-4">
               <div className="relative">
                 <Image
-                  src={coin.image} 
+                  src={getSafeImageUrl(coin.image)} 
                   alt={coin.name}
                   width={48}
                   height={48}

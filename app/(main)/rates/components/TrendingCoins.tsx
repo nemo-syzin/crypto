@@ -7,6 +7,15 @@ import { Badge } from '@/components/ui/badge';
 import { TrendingUp, TrendingDown, Star, Flame, Zap, Crown } from 'lucide-react';
 import type { Coin } from '@/lib/coingecko-api';
 
+// Функция для проверки и исправления URL изображений
+const getSafeImageUrl = (url: string): string => {
+  // Заменяем coin-images.coingecko.com на assets.coingecko.com
+  if (url && url.includes('coin-images.coingecko.com')) {
+    return url.replace('coin-images.coingecko.com', 'assets.coingecko.com');
+  }
+  return url;
+};
+
 interface TrendingCoinsProps {
   coins: Coin[];
   onCoinClick: (coin: any) => void;
@@ -69,7 +78,7 @@ export function TrendingCoins({ coins, onCoinClick, loading }: TrendingCoinsProp
     >
       <div className="relative">
         <Image 
-          src={coin.image} 
+          src={getSafeImageUrl(coin.image)} 
           alt={coin.name}
           width={32}
           height={32}

@@ -9,6 +9,15 @@ import { TrendingUp, TrendingDown, ChevronUp, ChevronDown, BarChart3, Activity, 
 import type { CoinMarketData } from '@/lib/coingecko';
 import type { Coin } from '@/lib/coingecko-api';
 
+// Функция для проверки и исправления URL изображений
+const getSafeImageUrl = (url: string): string => {
+  // Заменяем coin-images.coingecko.com на assets.coingecko.com
+  if (url && url.includes('coin-images.coingecko.com')) {
+    return url.replace('coin-images.coingecko.com', 'assets.coingecko.com');
+  }
+  return url;
+};
+
 interface MarketTableProps {
   coins: CoinMarketData[];
   cryptoCoins?: Coin[];
@@ -292,7 +301,7 @@ export function MarketTable({ coins, cryptoCoins = [], onCoinClick, loading }: M
                 <td className="py-4 px-2">
                   <div className="flex items-center gap-3">
                     <Image
-                      src={coin.image} 
+                      src={getSafeImageUrl(coin.image)} 
                       alt={`${coin.name} logo`}
                       width={32}
                       height={32}

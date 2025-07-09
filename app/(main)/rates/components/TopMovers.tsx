@@ -6,6 +6,15 @@ import { Badge } from '@/components/ui/badge';
 import { TrendingUp, TrendingDown, Clock } from 'lucide-react';
 import type { CoinMarketData } from '@/lib/coingecko';
 
+// Функция для проверки и исправления URL изображений
+const getSafeImageUrl = (url: string): string => {
+  // Заменяем coin-images.coingecko.com на assets.coingecko.com
+  if (url && url.includes('coin-images.coingecko.com')) {
+    return url.replace('coin-images.coingecko.com', 'assets.coingecko.com');
+  }
+  return url;
+};
+
 interface TopMoversProps {
   coins: CoinMarketData[];
   calculate4hChange: (coinId: string, currentPrice: number) => number | null;
@@ -77,7 +86,7 @@ export function TopMovers({ coins, calculate4hChange, loading }: TopMoversProps)
       <div key={coin.id} className="flex items-center justify-between p-4 rounded-lg hover:bg-gray-50 transition-colors">
         <div className="flex items-center gap-3">
           <Image 
-            src={coin.image} 
+            src={getSafeImageUrl(coin.image)} 
             alt={coin.name}
             width={32}
             height={32}

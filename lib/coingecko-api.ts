@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 // API key for CoinGecko
-const API_KEY = 'CG-shU9QGkzZMvPXBdgbTkZDmcm';
+const API_KEY = process.env.NEXT_PUBLIC_COINGECKO_API_KEY || 'CG-shU9QGkzZMvPXBdgbTkZDmcm';
 
 // Base URL for CoinGecko API
 const BASE_URL = 'https://api.coingecko.com/api/v3';
@@ -85,20 +85,22 @@ export interface MarketChart {
 
 // Function to fetch top cryptocurrencies
 export async function fetchTopCoins(
-  currency: string = 'usd',
-  limit: number = 20,
+  currency: string = 'usd', 
+  limit: number = 20, 
   page: number = 1
 ): Promise<Coin[]> {
   try {
-    const response = await fetch(
-      `${BASE_URL}/coins/markets?vs_currency=${currency}&order=market_cap_desc&per_page=${limit}&page=${page}&sparkline=false&price_change_percentage=1h,24h,7d`,
-      {
-        headers: {
-          'x-cg-demo-api-key': API_KEY,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+    // Использовать наш прокси API вместо прямого вызова CoinGecko
+    const params = new URLSearchParams({
+      vs_currency: currency,
+      order: 'market_cap_desc',
+      per_page: limit.toString(),
+      page: page.toString(),
+      sparkline: 'false',
+      price_change_percentage: '1h,24h,7d'
+    });
+    
+    const response = await fetch(`/api/coingecko?endpoint=/coins/markets&params=${params.toString()}`);
 
     if (!response.ok) {
       throw new Error(`Error fetching top coins: ${response.status}`);
