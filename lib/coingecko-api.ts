@@ -221,7 +221,6 @@ export async function fetchTrendingCoins(): Promise<any> {
     console.error('Failed to fetch trending coins:', error);
     throw error;
   }
-  }
 }
 
 // Custom hook for fetching top coins
