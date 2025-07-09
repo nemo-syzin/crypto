@@ -212,12 +212,15 @@ const fetchExchangeRate = async (fromCurrency: string, toCurrency: string): Prom
     
     // Cache the result
     ratesCache.set(cacheKey, {
-      sell: finalRate || 0,
-      buy: finalRate || 0,
-      updated_at: rateRow.updated_at,
-      pair: `${fromCurrency}/${toCurrency}`, 
-      source: rateRow.source 
-    };
+      data: {
+        sell: finalRate || 0,
+        buy: finalRate || 0,
+        updated_at: rateRow.updated_at,
+        pair: `${fromCurrency}/${toCurrency}`, 
+        source: rateRow.source 
+      },
+      timestamp: now
+    });
     
     // Return the result
     return result;
