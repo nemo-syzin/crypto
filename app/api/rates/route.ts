@@ -8,28 +8,13 @@ const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache to reduce database load
 const STALE_CACHE_DURATION = 30 * 60 * 1000; // 30 minutes for stale cache
 
 const getFallbackData = () => ({
-  kenig: { 
-    sell: 95.50, 
-    buy: 94.80, 
-    rate: 95.50, // Add rate field for compatibility
-    updated_at: new Date().toISOString() 
-  },
-  bestchange: { 
-    sell: 95.30, 
-    buy: 94.90, 
-    rate: 95.30, 
-    updated_at: new Date().toISOString() 
-  },
-  energo: { 
-    sell: 95.20, 
-    buy: 94.70, 
-    rate: 95.20, 
-    updated_at: new Date().toISOString() 
-  },
+  kenig: { sell: 95.50, buy: 94.80, updated_at: new Date().toISOString() },
+  bestchange: { sell: 95.30, buy: 94.90, updated_at: new Date().toISOString() },
+  energo: { sell: 95.20, buy: 94.70, updated_at: new Date().toISOString() },
   timestamp: new Date().toISOString(),
   isFromDatabase: false,
   isFallback: true,
-  error: 'Using fallback data. To use real rates, copy .env.example to .env.local and fill in your Supabase credentials.'
+  error: 'Using fallback data due to database connectivity issues'
 });
 
 export async function GET(request: Request) {
@@ -86,11 +71,10 @@ export async function GET(request: Request) {
     if (validationResult && validationResult.hasValidRates) {
       
       validationResult.rates.forEach(rate => {
-        if (rate && rate.isValid) {
+        if (rate.isValid) {
           const rateData = {
             sell: Number(rate.sell),
             buy: Number(rate.buy),
-            rate: Number(rate.sell), // Add rate field for compatibility
             updated_at: rate.updated_at
           };
 
