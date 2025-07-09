@@ -2,15 +2,6 @@ import useSWR from 'swr';
 import { supabase, isSupabaseAvailable } from '@/lib/supabase/client';
 
 // Интерфейс для строки из таблицы kenig_rates
-interface RateRow {
-  sell: number;
-  buy: number;
-  updated_at: string;
-  source: string;
-  base: string;
-  quote: string;
-}
-
 // Интерфейс для строки из таблицы kenig_rates
 interface RateRow {
   sell: number;
@@ -44,12 +35,15 @@ const fetchExchangeRate = async (fromCurrency: string, toCurrency: string): Prom
     console.log(`🔄 Fetching exchange rate for ${fromCurrency}/${toCurrency}...`);
     
     // Шаг 1: Пробуем найти прямую пару (from/to)
+    let from = fromCurrency;
+    let to = toCurrency;
+    
     const { data: directData, error: directError } = await supabase
       .from('kenig_rates')
       .select('sell,buy,updated_at,source,base,quote')
       .eq('source', 'kenig')
-      .eq('base', fromCurrency)
-      .eq('quote', toCurrency)
+      .eq('base', from)
+      .eq('quote', to)
       .limit(1);
 
     // Шаг 2: Пробуем найти обратную пару (to/from)
@@ -57,8 +51,8 @@ const fetchExchangeRate = async (fromCurrency: string, toCurrency: string): Prom
         .from('kenig_rates')
         .select('sell,buy,updated_at,source,base,quote')
         .eq('source', 'kenig')
-        .eq('base', toCurrency)
-        .eq('quote', fromCurrency)
+        .eq('base', to)
+        .eq('quote', from)
         .limit(1);
 
     // Проверяем, какие данные у нас есть
@@ -82,11 +76,11 @@ const fetchExchangeRate = async (fromCurrency: string, toCurrency: string): Prom
       // Шаг 4: Ищем альтернативные пары через промежуточную валюту
       const intermediaries = ['USDT', 'RUB', 'BTC', 'ETH'];
       
-      for (const inter of intermediaries) {
+      for (const inter of intermediaries.filter(i => i !== from && i !== to)) {
         // Пропускаем, если промежуточная валюта совпадает с from или to
-        if (inter === fromCurrency || inter === toCurrency) continue;
+        if (inter === from || inter === to) continue;
         
-        console.log(`🔍 Trying to find rate through ${inter} for ${fromCurrency}/${toCurrency}...`);
+        console.log(`🔍 Trying to find rate through ${inter} for ${from}/${to}...`);
         
         // Ищем пару fromCurrency -> inter
         const { data: firstLegData, error: firstLegError } = await supabase
@@ -145,12 +139,12 @@ const fetchExchangeRate = async (fromCurrency: string, toCurrency: string): Prom
     }
     
     if (error) {
-      console.warn(`⚠️ Database error fetching exchange rate for ${from}/${to}:`, error);
-      throw new Error(`Ошибка загрузки курса из базы данных: ${error?.message || 'Неизвестная ошибка'}`);
+      console.warn(`⚠️ Database error fetching exchange rate for ${fromCurrency}/${toCurrency}:`, error);
+      throw new Error(`Ошибка загрузки курса из базы данных: ${error.message || 'Неизвестная ошибка'}`);
     }
     
     if (!rateRow) {
-      throw new Error(`Курс для пары ${from}/${to} не найден в базе данных`);
+      throw new Error(`Курс для пары ${fromCurrency}/${toCurrency} не найден в базе данных`);
     }
     
     // Шаг 5: Определяем, какой курс использовать на основе направления обмена
@@ -170,11 +164,11 @@ const fetchExchangeRate = async (fromCurrency: string, toCurrency: string): Prom
     // Шаг 6: Проверяем, нужно ли инвертировать курс
     let finalRate = pickedRate;
     if (isReversePair) {
-      // Для обратной пары нужно инвертировать курс
-      finalRate = pickedRate && pickedRate !== 0 ? 1 / pickedRate : 0;
+      // Для обратной пары нужно инвертировать курс (1/x)
+      finalRate = pickedRate !== null && pickedRate !== 0 ? 1 / pickedRate : 0;
     }
     
-    console.log(`🔄 Final rate for ${from}/${to}: ${finalRate} (${isReversePair ? 'inverted from ' + rateRow.base + '/' + rateRow.quote : 'direct'})`);
+    console.log(`🔄 Final rate for ${fromCurrency}/${toCurrency}: ${finalRate} (${isReversePair ? 'inverted from ' + rateRow.base + '/' + rateRow.quote : 'direct'})`);
     
     return { 
       sell: finalRate || 0,
@@ -188,8 +182,9 @@ const fetchExchangeRate = async (fromCurrency: string, toCurrency: string): Prom
     
     // Добавляем более информативное сообщение об ошибке
     if (error instanceof Error) {
-      if (error.message.includes('JSON object requested')) {
-        throw new Error(`Ошибка в базе данных: найдено несколько записей для пары ${from}/${to}. Проверьте уникальность записей.`);
+      const errorMsg = error.message;
+      if (errorMsg.includes('JSON object requested')) {
+        throw new Error(`Ошибка в базе данных: найдено несколько записей для пары ${fromCurrency}/${toCurrency}. Проверьте уникальность записей.`);
       }
     }
     
@@ -219,9 +214,9 @@ export function useExchangeRate(fromCurrency: string, toCurrency: string) {
       refreshInterval: 30 * 1000, // refresh every 30 seconds
       revalidateOnFocus: false,
       revalidateOnReconnect: true,
-      dedupingInterval: 5000,
+      dedupingInterval: 10000, // Увеличено до 10 секунд для уменьшения нагрузки
       shouldRetryOnError: true,
-      errorRetryCount: 2,
+      errorRetryCount: 3, // Увеличено до 3 попыток
       onError: (error) => {
         console.warn('⚠️ Exchange rate hook error:', error);
       },
@@ -231,7 +226,7 @@ export function useExchangeRate(fromCurrency: string, toCurrency: string) {
   return {
     rate: data,
     loading: isLoading,
-    error: error ? (error.message || `Валютная пара ${fromCurrency}/${toCurrency} не поддерживается`) : null,
+    error: error ? (error.message || `Курс для пары ${fromCurrency}/${toCurrency} не найден`) : null,
     lastUpdated: data ? new Date(data.updated_at) : null,
     refetch: mutate
   };
