@@ -129,16 +129,13 @@ export default function ExchangeCalculator() {
   const numericAmount = parseAmount(amount);
   
   // Calculate result directly using the rate
-  const result = useMemo(() => {
-    if (!hasValidRate || numericAmount <= 0) return 0;
-    return numericAmount * rate.sell;
-  }, [hasValidRate, numericAmount, rate]);
+  const calculateResult = useMemo((): number => {
+    const numericAmount = parseAmount(amount);
+    if (!rate || numericAmount <= 0) return 0;
+    return numericAmount * rate.rate;     // «сколько получу»
+  }, [numericAmount, rate]);
   
-  // Упрощенный расчет результата - просто умножаем на курс
-  const result = useMemo(() => {
-    if (!hasValidRate || numericAmount <= 0) return 0;
-    return numericAmount * rate!.sell;
-  }, [hasValidRate, numericAmount, rate]);
+  const result = calculateResult;
 
   // Memoized display functions
   const getResultDisplay = useMemo((): string => {
