@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { RefreshCw, AlertTriangle, Globe, PieChart, BarChart3, TrendingUp, TrendingDown, DollarSign, Clock, Info } from 'lucide-react';
 import { useTopCoins, useCoinMarketChart } from '@/lib/coingecko-api';
@@ -17,8 +17,22 @@ import type { CoinMarketData } from '@/lib/coingecko';
 export function RatesPageClient() {
   const { coins: cryptoCoins, loading: cryptoLoading, error: cryptoError, refetch } = useTopCoins('usd', 50);
   const { chartData: btcChartData, loading: btcChartLoading } = useCoinMarketChart('bitcoin', 'usd', 30);
+  const [retryCount, setRetryCount] = useState(0);
   const [selectedCoin, setSelectedCoin] = useState<CoinMarketData | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // Автоматически повторять запрос при ошибке, но не более 3 раз
+  useEffect(() => {
+    if (cryptoError && retryCount < 3) {
+      const timer = setTimeout(() => {
+        console.log(`🔄 Автоматическая повторная попытка загрузки данных (${retryCount + 1}/3)...`);
+        refetch();
+        setRetryCount(prev => prev + 1);
+      }, 5000); // Повторять каждые 5 секунд
+      
+      return () => clearTimeout(timer);
+    }
+  }, [cryptoError, retryCount, refetch]);
 
   const handleCoinClick = (coin: CoinMarketData) => {
     setSelectedCoin(coin);
@@ -89,21 +103,24 @@ export function RatesPageClient() {
           {cryptoError && !cryptoLoading && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              animate={{ opacity: 1, y: 0, transition: { duration: 0.3 } }}
               className="mb-8 max-w-5xl mx-auto"
             >
-              <div className="calculator-container">
-                <Alert className="bg-red-50 border-red-200">
+              <div className="calculator-container border-red-300">
+                <Alert className="bg-red-50 border-red-200 text-red-800">
                   <AlertTriangle className="h-4 w-4 text-red-600" />
                   <AlertDescription className="text-red-800">
-                    <strong>Error loading data:</strong> {cryptoError}
+                    <strong>Ошибка загрузки данных:</strong> {cryptoError}
+                    <div className="mt-2 text-sm">
+                      Проверьте, что ваш API-ключ CoinGecko правильно настроен в переменных окружения.
+                    </div>
                     <Button 
                       variant="outline" 
                       size="sm" 
                       onClick={refetch}
-                      className="ml-4 text-red-800 border-red-300 hover:bg-red-100"
+                      className="mt-3 text-red-800 border-red-300 hover:bg-red-100"
                     >
-                      Try again
+                      Повторить попытку
                     </Button>
                   </AlertDescription>
                 </Alert>
@@ -114,7 +131,7 @@ export function RatesPageClient() {
           {/* Market Overview Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            animate={{ opacity: 1, y: 0, transition: { duration: 0.3 } }}
             transition={{ duration: 0.5, delay: 0.1 }}
             className="mb-12"
           >
@@ -130,7 +147,7 @@ export function RatesPageClient() {
           {/* Trending Coins Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            animate={{ opacity: 1, y: 0, transition: { duration: 0.3 } }}
             transition={{ duration: 0.5, delay: 0.2 }}
             className="mb-12"
           >
@@ -146,7 +163,7 @@ export function RatesPageClient() {
           {/* Market Stats Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            animate={{ opacity: 1, y: 0, transition: { duration: 0.3 } }}
             transition={{ duration: 0.5, delay: 0.3 }}
             className="mb-12"
           >
@@ -161,7 +178,7 @@ export function RatesPageClient() {
           {/* Market Table - Simplified */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            animate={{ opacity: 1, y: 0, transition: { duration: 0.3 } }}
             transition={{ duration: 0.5, delay: 0.4 }}
             className="mb-12"
           >

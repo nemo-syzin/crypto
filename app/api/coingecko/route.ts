@@ -1,10 +1,11 @@
 export const dynamic = 'force-dynamic';   // ⬅️  запрет SSG / Static Export
 
 import { NextRequest, NextResponse } from 'next/server';
+import { headers } from 'next/headers';
 
 // Cache for API responses
 let cache: Map<string, { data: any; timestamp: number }> = new Map();
-const CACHE_DURATION = 60 * 1000; // 60 seconds cache duration
+const CACHE_DURATION = 30 * 1000; // 30 seconds cache duration
 
 function getCachedData(key: string): any | null {
   const cached = cache.get(key);
@@ -181,8 +182,10 @@ export async function GET(request: NextRequest) {
 
   // Check if API key is configured
   const apiKey = process.env.COINGECKO_API_KEY;
-  if (!apiKey || apiKey.trim() === '' || apiKey === 'your-api-key-here' || apiKey === 'CG-shU9QGkzZMvPXBdgbTkZDmcm') {
-    console.warn('⚠️ CoinGecko API key not configured or invalid, using fallback data');
+  
+  // Проверяем, что ключ API существует и не является значением по умолчанию
+  if (!apiKey || apiKey.trim() === '' || apiKey === 'your-api-key-here' || apiKey.length < 10) {
+    console.warn(`⚠️ CoinGecko API key not configured or invalid: "${apiKey}", using fallback data`);
     const fallbackData = getFallbackData(endpoint);
     if (fallbackData) {
       // Cache fallback data briefly to avoid repeated warnings
@@ -202,6 +205,8 @@ export async function GET(request: NextRequest) {
 
   try {
     const baseUrl = 'https://api.coingecko.com/api/v3';
+    const headersList = headers();
+    const userAgent = headersList.get('user-agent') || 'KenigSwap/1.0';
     
     let url = `${baseUrl}${endpoint}`;
     if (params) {
@@ -211,7 +216,7 @@ export async function GET(request: NextRequest) {
     const headers: HeadersInit = {
       'Accept': 'application/json',
       'x-cg-pro-api-key': apiKey,
-      'User-Agent': 'KenigSwap/1.0',
+      'User-Agent': userAgent,
       // Add headers to help with connection stability
       'Accept-Encoding': 'gzip, deflate',
       'DNT': '1',
@@ -220,6 +225,17 @@ export async function GET(request: NextRequest) {
     console.log(`🔄 Fetching CoinGecko data from: ${endpoint}`);
 
     const response = await fetchWithRetry(url, headers);
+    
+    // Проверяем статус ответа
+    if (response.status === 429) {
+      console.error('❌ CoinGecko API rate limit exceeded');
+      const fallbackData = getFallbackData(endpoint);
+      if (fallbackData) {
+        console.warn('⚠️ Rate limit exceeded, using fallback data');
+        setCachedData(cacheKey, fallbackData);
+        return NextResponse.json(fallbackData);
+      }
+    }
 
     if (!response.ok) {
       const errorText = await response.text().catch(() => 'Unable to read error response');
@@ -237,8 +253,8 @@ export async function GET(request: NextRequest) {
       if (response.status === 401) {
         return NextResponse.json(
           { 
-            error: 'Invalid CoinGecko API key',
-            message: 'Your CoinGecko API key is invalid. Please check your COINGECKO_API_KEY environment variable.',
+            error: `Invalid CoinGecko API key: ${apiKey.substring(0, 5)}...`,
+            message: 'Your CoinGecko API key is invalid or expired. Please check your COINGECKO_API_KEY environment variable.',
             fallback: true
           },
           { status: 401 }
@@ -264,8 +280,14 @@ export async function GET(request: NextRequest) {
     
     // Cache the successful response
     setCachedData(cacheKey, data);
-
-    console.log(`✅ CoinGecko data fetched successfully for: ${endpoint}`);
+    
+    // Логируем успешный ответ с информацией о количестве данных
+    if (Array.isArray(data)) {
+      console.log(`✅ CoinGecko data fetched successfully for: ${endpoint} (${data.length} items)`);
+    } else {
+      console.log(`✅ CoinGecko data fetched successfully for: ${endpoint}`);
+    }
+    
     return NextResponse.json(data);
   } catch (error) {
     console.error('❌ CoinGecko API proxy error:', error);
@@ -280,7 +302,7 @@ export async function GET(request: NextRequest) {
     
     // Provide specific error messages based on error type
     let errorMessage = 'CoinGecko API is currently unavailable';
-    let statusCode = 503;
+    let statusCode = 503; // Service Unavailable
     
     if (error instanceof Error) {
       const errorMsg = error.message.toLowerCase();
@@ -296,8 +318,8 @@ export async function GET(request: NextRequest) {
       } else if (errorMsg.includes('timeout') || errorMsg.includes('aborted')) {
         errorMessage = 'Request to CoinGecko API timed out. The service may be experiencing high load. The application will continue to work with fallback data.';
         statusCode = 504; // Gateway Timeout
-      } else if (errorMsg.includes('unauthorized') || errorMsg.includes('401')) {
-        errorMessage = 'Invalid CoinGecko API key. Please verify your COINGECKO_API_KEY environment variable.';
+      } else if (errorMsg.includes('unauthorized') || errorMsg.includes('401') || errorMsg.includes('invalid api key')) {
+        errorMessage = `Invalid CoinGecko API key: "${apiKey}". Please verify your COINGECKO_API_KEY environment variable.`;
         statusCode = 401;
       }
     }
@@ -305,7 +327,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       { 
         error: 'Failed to fetch data from CoinGecko',
-        message: errorMessage,
+        message: `${errorMessage} (API Key: ${apiKey.substring(0, 5)}...)`,
         retryAfter: 30,
         fallback: true,
         suggestion: 'The application will continue to work with cached or fallback data. This error is typically temporary and will resolve automatically.'
