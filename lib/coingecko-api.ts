@@ -215,12 +215,8 @@ export async function fetchTrendingCoins(): Promise<any> {
     if (!response.ok) {
       throw new Error(`Error fetching trending coins: ${response.status}`);
     }
-  }
+
     return await response.json();
-  } catch (error) {
-    console.error('Failed to fetch trending coins:', error);
-    throw error;
-}
 
 // Custom hook for fetching top coins
 export function useTopCoins(currency: string = 'usd', limit: number = 20, page: number = 1) {
