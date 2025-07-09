@@ -1,7 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
   eslint: {
     /** Disable failing build due to ESLint errors */
     ignoreDuringBuilds: true,
@@ -12,6 +11,11 @@ const nextConfig = {
   },
   images: { 
     remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "coin-images.coingecko.com",
+        pathname: "/**",
+      },
       {
         protocol: "https",
         hostname: "cdn.brandfetch.io",
@@ -53,17 +57,14 @@ const nextConfig = {
         pathname: "/**",
       }
     ],
+    domains: [
+      "coin-images.coingecko.com",
+      "assets.coingecko.com"
+    ]
   },
   // Optimize bundle size
   experimental: {
     optimizePackageImports: ['lucide-react', 'framer-motion']
-  },
-  // Force reload of configuration
-  onDemandEntries: {
-    // period (in ms) where the server will keep pages in the buffer
-    maxInactiveAge: 10 * 1000,
-    // number of pages that should be kept simultaneously without being disposed
-    pagesBufferLength: 1,
   },
   webpack: (config, { isServer }) => {
     // Fix for Supabase realtime-js critical dependency warning
