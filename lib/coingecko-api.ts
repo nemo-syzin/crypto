@@ -113,14 +113,19 @@ export async function fetchTopCoins(
   }
 }
 
+// Функция для получения заголовков API
+function getApiHeaders(): HeadersInit {
+  return {
+    'x-cg-pro-api-key': API_KEY,
+    'Content-Type': 'application/json',
+  };
+}
+
 // Function to fetch detailed information about a specific coin
 export async function fetchCoinDetails(coinId: string): Promise<CoinDetail> {
   try {
     const response = await fetch(`${BASE_URL}/coins/${coinId}?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false`, {
-      headers: {
-        'x-cg-demo-api-key': API_KEY,
-        'Content-Type': 'application/json',
-      },
+      headers: getApiHeaders(),
     });
 
     if (!response.ok) {
@@ -143,12 +148,7 @@ export async function fetchCoinMarketChart(
   try {
     const response = await fetch(
       `${BASE_URL}/coins/${coinId}/market_chart?vs_currency=${currency}&days=${days}`,
-      {
-        headers: {
-          'x-cg-demo-api-key': API_KEY,
-          'Content-Type': 'application/json',
-        },
-      }
+      { headers: getApiHeaders() }
     );
 
     if (!response.ok) {
@@ -165,12 +165,10 @@ export async function fetchCoinMarketChart(
 // Function to search for coins
 export async function searchCoins(query: string): Promise<any[]> {
   try {
-    const response = await fetch(`${BASE_URL}/search?query=${query}`, {
-      headers: {
-        'x-cg-demo-api-key': API_KEY,
-        'Content-Type': 'application/json',
-      },
-    });
+    const response = await fetch(
+      `${BASE_URL}/search?query=${query}`, 
+      { headers: getApiHeaders() }
+    );
 
     if (!response.ok) {
       throw new Error(`Error searching coins: ${response.status}`);
@@ -187,12 +185,10 @@ export async function searchCoins(query: string): Promise<any[]> {
 // Function to fetch global market data
 export async function fetchGlobalData(): Promise<any> {
   try {
-    const response = await fetch(`${BASE_URL}/global`, {
-      headers: {
-        'x-cg-demo-api-key': API_KEY,
-        'Content-Type': 'application/json',
-      },
-    });
+    const response = await fetch(
+      `${BASE_URL}/global`, 
+      { headers: getApiHeaders() }
+    );
 
     if (!response.ok) {
       throw new Error(`Error fetching global data: ${response.status}`);
@@ -208,12 +204,10 @@ export async function fetchGlobalData(): Promise<any> {
 // Function to fetch trending coins
 export async function fetchTrendingCoins(): Promise<any> {
   try {
-    const response = await fetch(`${BASE_URL}/search/trending`, {
-      headers: {
-        'x-cg-demo-api-key': API_KEY,
-        'Content-Type': 'application/json',
-      },
-    });
+    const response = await fetch(
+      `${BASE_URL}/search/trending`, 
+      { headers: getApiHeaders() }
+    );
 
     if (!response.ok) {
       throw new Error(`Error fetching trending coins: ${response.status}`);
@@ -232,17 +226,33 @@ export function useTopCoins(currency: string = 'usd', limit: number = 20, page: 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null); 
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
+        console.log(`🔄 Fetching top coins (${currency}, limit: ${limit}, page: ${page})...`);
         const data = await fetchTopCoins(currency, limit, page);
         setCoins(data);
         setLastUpdated(new Date());
+        setRetryCount(0); // Сбрасываем счетчик повторных попыток при успехе
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+        const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+        console.error(`❌ Error fetching top coins: ${errorMessage}`);
+        setError(errorMessage);
+        
+        // Автоматически повторяем запрос при ошибке, но не более 3 раз
+        if (retryCount < 3) {
+          const retryDelay = Math.pow(2, retryCount) * 1000; // Экспоненциальная задержка
+          console.log(`⏱️ Retrying in ${retryDelay/1000}s (attempt ${retryCount + 1}/3)...`);
+          
+          setTimeout(() => {
+            setRetryCount(prev => prev + 1);
+            fetchData();
+          }, retryDelay);
+        }
       } finally {
         setLoading(false);
       }
@@ -253,17 +263,21 @@ export function useTopCoins(currency: string = 'usd', limit: number = 20, page: 
     // Set up auto-refresh every 5 minutes
     const refreshInterval = setInterval(fetchData, 5 * 60 * 1000);
     
-    return () => clearInterval(refreshInterval);
-  }, [currency, limit, page]);
+    return () => {
+      clearInterval(refreshInterval);
+    };
+  }, [currency, limit, page, retryCount]);
 
   // Function to manually refresh data
   const refetch = async () => {
     try {
       setLoading(true);
       setError(null);
+      console.log(`🔄 Manually refreshing top coins data...`);
       const data = await fetchTopCoins(currency, limit, page);
       setCoins(data);
       setLastUpdated(new Date());
+      setRetryCount(0); // Сбрасываем счетчик повторных попыток при ручном обновлении
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unknown error occurred');
     } finally {
@@ -279,6 +293,7 @@ export function useCoinDetails(coinId: string) {
   const [coinDetails, setCoinDetails] = useState<CoinDetail | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     if (!coinId) {
@@ -289,18 +304,33 @@ export function useCoinDetails(coinId: string) {
     const fetchData = async () => {
       try {
         setLoading(true);
-        setError(null);
+        setError(null);        
+        console.log(`🔄 Fetching coin details for ${coinId}...`);
         const data = await fetchCoinDetails(coinId);
         setCoinDetails(data);
+        setRetryCount(0); // Сбрасываем счетчик повторных попыток при успехе
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+        const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+        console.error(`❌ Error fetching coin details: ${errorMessage}`);
+        setError(errorMessage);
+        
+        // Автоматически повторяем запрос при ошибке, но не более 3 раз
+        if (retryCount < 3) {
+          const retryDelay = Math.pow(2, retryCount) * 1000; // Экспоненциальная задержка
+          console.log(`⏱️ Retrying in ${retryDelay/1000}s (attempt ${retryCount + 1}/3)...`);
+          
+          setTimeout(() => {
+            setRetryCount(prev => prev + 1);
+            fetchData();
+          }, retryDelay);
+        }
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [coinId]);
+  }, [coinId, retryCount]);
 
   return { coinDetails, loading, error };
 }
@@ -310,7 +340,8 @@ export function useCoinMarketChart(coinId: string, currency: string = 'usd', day
   const [chartData, setChartData] = useState<MarketChart | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);  
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     if (!coinId) {
@@ -321,12 +352,27 @@ export function useCoinMarketChart(coinId: string, currency: string = 'usd', day
     const fetchData = async () => {
       try {
         setLoading(true);
-        setError(null);
+        setError(null);        
+        console.log(`🔄 Fetching market chart for ${coinId} (${currency}, ${days} days)...`);
         const data = await fetchCoinMarketChart(coinId, currency, days);
         setChartData(data);
         setLastUpdated(new Date());
+        setRetryCount(0); // Сбрасываем счетчик повторных попыток при успехе
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+        const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+        console.error(`❌ Error fetching market chart: ${errorMessage}`);
+        setError(errorMessage);
+        
+        // Автоматически повторяем запрос при ошибке, но не более 3 раз
+        if (retryCount < 3) {
+          const retryDelay = Math.pow(2, retryCount) * 1000; // Экспоненциальная задержка
+          console.log(`⏱️ Retrying in ${retryDelay/1000}s (attempt ${retryCount + 1}/3)...`);
+          
+          setTimeout(() => {
+            setRetryCount(prev => prev + 1);
+            fetchData();
+          }, retryDelay);
+        }
       } finally {
         setLoading(false);
       }
@@ -337,17 +383,21 @@ export function useCoinMarketChart(coinId: string, currency: string = 'usd', day
     // Set up auto-refresh every 15 minutes for chart data
     const refreshInterval = setInterval(fetchData, 15 * 60 * 1000);
     
-    return () => clearInterval(refreshInterval);
-  }, [coinId, currency, days]);
+    return () => {
+      clearInterval(refreshInterval);
+    };
+  }, [coinId, currency, days, retryCount]);
 
   // Function to manually refresh data
   const refetch = async () => {
     try {
       setLoading(true);
       setError(null);
+      console.log(`🔄 Manually refreshing market chart data...`);
       const data = await fetchCoinMarketChart(coinId, currency, days);
       setChartData(data);
       setLastUpdated(new Date());
+      setRetryCount(0); // Сбрасываем счетчик повторных попыток при ручном обновлении
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unknown error occurred');
     } finally {
@@ -363,18 +413,34 @@ export function useGlobalData() {
   const [globalData, setGlobalData] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);  
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        setError(null);
+        setError(null);        
+        console.log(`🔄 Fetching global market data...`);
         const data = await fetchGlobalData();
         setGlobalData(data);
         setLastUpdated(new Date());
+        setRetryCount(0); // Сбрасываем счетчик повторных попыток при успехе
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+        const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+        console.error(`❌ Error fetching global data: ${errorMessage}`);
+        setError(errorMessage);
+        
+        // Автоматически повторяем запрос при ошибке, но не более 3 раз
+        if (retryCount < 3) {
+          const retryDelay = Math.pow(2, retryCount) * 1000; // Экспоненциальная задержка
+          console.log(`⏱️ Retrying in ${retryDelay/1000}s (attempt ${retryCount + 1}/3)...`);
+          
+          setTimeout(() => {
+            setRetryCount(prev => prev + 1);
+            fetchData();
+          }, retryDelay);
+        }
       } finally {
         setLoading(false);
       }
@@ -385,17 +451,21 @@ export function useGlobalData() {
     // Set up auto-refresh every 5 minutes
     const refreshInterval = setInterval(fetchData, 5 * 60 * 1000);
     
-    return () => clearInterval(refreshInterval);
-  }, []);
+    return () => {
+      clearInterval(refreshInterval);
+    };
+  }, [retryCount]);
 
   // Function to manually refresh data
   const refetch = async () => {
     try {
       setLoading(true);
       setError(null);
+      console.log(`🔄 Manually refreshing global market data...`);
       const data = await fetchGlobalData();
       setGlobalData(data);
       setLastUpdated(new Date());
+      setRetryCount(0); // Сбрасываем счетчик повторных попыток при ручном обновлении
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unknown error occurred');
     } finally {
@@ -411,18 +481,34 @@ export function useTrendingCoins() {
   const [trendingCoins, setTrendingCoins] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);  
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        setError(null);
+        setError(null);        
+        console.log(`🔄 Fetching trending coins...`);
         const data = await fetchTrendingCoins();
         setTrendingCoins(data);
         setLastUpdated(new Date());
+        setRetryCount(0); // Сбрасываем счетчик повторных попыток при успехе
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+        const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+        console.error(`❌ Error fetching trending coins: ${errorMessage}`);
+        setError(errorMessage);
+        
+        // Автоматически повторяем запрос при ошибке, но не более 3 раз
+        if (retryCount < 3) {
+          const retryDelay = Math.pow(2, retryCount) * 1000; // Экспоненциальная задержка
+          console.log(`⏱️ Retrying in ${retryDelay/1000}s (attempt ${retryCount + 1}/3)...`);
+          
+          setTimeout(() => {
+            setRetryCount(prev => prev + 1);
+            fetchData();
+          }, retryDelay);
+        }
       } finally {
         setLoading(false);
       }
@@ -433,17 +519,21 @@ export function useTrendingCoins() {
     // Set up auto-refresh every 10 minutes
     const refreshInterval = setInterval(fetchData, 10 * 60 * 1000);
     
-    return () => clearInterval(refreshInterval);
-  }, []);
+    return () => {
+      clearInterval(refreshInterval);
+    };
+  }, [retryCount]);
 
   // Function to manually refresh data
   const refetch = async () => {
     try {
       setLoading(true);
       setError(null);
+      console.log(`🔄 Manually refreshing trending coins data...`);
       const data = await fetchTrendingCoins();
       setTrendingCoins(data);
       setLastUpdated(new Date());
+      setRetryCount(0); // Сбрасываем счетчик повторных попыток при ручном обновлении
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unknown error occurred');
     } finally {
