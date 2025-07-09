@@ -1,7 +1,10 @@
 import useSWR from 'swr';
 import { supabase, isSupabaseAvailable } from '@/lib/supabase/client';
 
-// Интерфейс для строки из таблицы kenig_rates
+// Cache for exchange rates to reduce database load
+const ratesCache = new Map<string, { data: ExchangeRate; timestamp: number }>();
+const CACHE_DURATION = 60 * 1000; // 1 minute cache
+
 // Интерфейс для строки из таблицы kenig_rates
 interface RateRow {
   sell: number;
@@ -20,6 +23,7 @@ interface ExchangeRate {
   source: string;
 }
 
+// Improved error handling with retries
 /**
  * Fetch exchange rate for a specific currency pair directly from kenig_rates table
  * This function has been enhanced to handle both direct and reverse pairs,
@@ -27,6 +31,17 @@ interface ExchangeRate {
  */
 const fetchExchangeRate = async (fromCurrency: string, toCurrency: string): Promise<ExchangeRate> => {
   if (!isSupabaseAvailable()) {
+    console.warn('⚠️ Supabase not available, using fallback rate');
+    return {
+      sell: 1,
+      buy: 1,
+      updated_at: new Date().toISOString(),
+      pair: `${fromCurrency}/${toCurrency}`,
+      source: 'fallback'
+    };
+  }
+  
+  if (!supabase) {
     console.warn('⚠️ Supabase not available, cannot fetch exchange rate');
     throw new Error('Supabase connection not available');
   }
@@ -34,6 +49,17 @@ const fetchExchangeRate = async (fromCurrency: string, toCurrency: string): Prom
   try {
     console.log(`🔄 Fetching exchange rate for ${fromCurrency}/${toCurrency}...`);
     
+    // Check cache first
+    const cacheKey = `${fromCurrency}-${toCurrency}`;
+    const cachedRate = ratesCache.get(cacheKey);
+    const now = Date.now();
+    
+    if (cachedRate && (now - cachedRate.timestamp) < CACHE_DURATION) {
+      console.log(`📦 Using cached rate for ${fromCurrency}/${toCurrency}`);
+      return cachedRate.data;
+    }
+    
+    // If same currency, return rate of 1
     // Шаг 1: Пробуем найти прямую пару (from/to)
     let from = fromCurrency;
     let to = toCurrency;
@@ -41,6 +67,7 @@ const fetchExchangeRate = async (fromCurrency: string, toCurrency: string): Prom
     const { data: directData, error: directError } = await supabase
       .from('kenig_rates')
       .select('sell,buy,updated_at,source,base,quote')
+      .timeout(5000) // 5 second timeout
       .eq('source', 'kenig')
       .eq('base', from)
       .eq('quote', to)
@@ -50,6 +77,7 @@ const fetchExchangeRate = async (fromCurrency: string, toCurrency: string): Prom
     const { data: reverseData, error: reverseError } = await supabase
         .from('kenig_rates')
         .select('sell,buy,updated_at,source,base,quote')
+        .timeout(5000) // 5 second timeout
         .eq('source', 'kenig')
         .eq('base', to)
         .eq('quote', from)
@@ -70,6 +98,7 @@ const fetchExchangeRate = async (fromCurrency: string, toCurrency: string): Prom
       // Если есть обратная пара, используем ее
       rateRow = reverseData[0];
       isReversePair = true;
+      from = to; // Swap for logging
       error = reverseError;
       console.log(`✅ Found reverse exchange rate for ${to}/${from}: ${rateRow.sell}/${rateRow.buy}`);
     } else {
@@ -86,6 +115,7 @@ const fetchExchangeRate = async (fromCurrency: string, toCurrency: string): Prom
         const { data: firstLegData, error: firstLegError } = await supabase
           .from('kenig_rates')
           .select('sell,buy,updated_at,source,base,quote')
+          .timeout(5000) // 5 second timeout
           .eq('source', 'kenig')
           .or(`and(base.eq.${from},quote.eq.${inter}),and(base.eq.${inter},quote.eq.${from})`)
           .limit(10);
@@ -94,6 +124,7 @@ const fetchExchangeRate = async (fromCurrency: string, toCurrency: string): Prom
         const { data: secondLegData, error: secondLegError } = await supabase
           .from('kenig_rates')
           .select('sell,buy,updated_at,source,base,quote')
+          .timeout(5000) // 5 second timeout
           .eq('source', 'kenig')
           .or(`and(base.eq.${inter},quote.eq.${to}),and(base.eq.${to},quote.eq.${inter})`)
           .limit(10);
@@ -144,7 +175,7 @@ const fetchExchangeRate = async (fromCurrency: string, toCurrency: string): Prom
     }
     
     if (!rateRow) {
-      throw new Error(`Курс для пары ${fromCurrency}/${toCurrency} не найден в базе данных`);
+      throw new Error(`Курс для пары ${fromCurrency}/${toCurrency} не найден`);
     }
     
     // Шаг 5: Определяем, какой курс использовать на основе направления обмена
@@ -170,13 +201,26 @@ const fetchExchangeRate = async (fromCurrency: string, toCurrency: string): Prom
     
     console.log(`🔄 Final rate for ${fromCurrency}/${toCurrency}: ${finalRate} (${isReversePair ? 'inverted from ' + rateRow.base + '/' + rateRow.quote : 'direct'})`);
     
-    return { 
+    // Create result object
+    const result = { 
       sell: finalRate || 0,
       buy: finalRate || 0,
       updated_at: rateRow.updated_at,
       pair: `${fromCurrency}/${toCurrency}`, 
       source: rateRow.source 
     };
+    
+    // Cache the result
+    ratesCache.set(cacheKey, {
+      sell: finalRate || 0,
+      buy: finalRate || 0,
+      updated_at: rateRow.updated_at,
+      pair: `${fromCurrency}/${toCurrency}`, 
+      source: rateRow.source 
+    };
+    
+    // Return the result
+    return result;
   } catch (error) {
     console.error(`❌ Error in fetchExchangeRate for ${fromCurrency}/${toCurrency}:`, error);
     
@@ -186,6 +230,15 @@ const fetchExchangeRate = async (fromCurrency: string, toCurrency: string): Prom
       if (errorMsg.includes('JSON object requested')) {
         throw new Error(`Ошибка в базе данных: найдено несколько записей для пары ${fromCurrency}/${toCurrency}. Проверьте уникальность записей.`);
       }
+      
+      // Network errors should return a fallback rate
+      if (errorMsg.includes('fetch failed') || 
+          errorMsg.includes('socket') || 
+          errorMsg.includes('timeout') || 
+          errorMsg.includes('abort')) {
+        console.warn('⚠️ Network error, returning fallback rate');
+        return createFallbackRate(fromCurrency, toCurrency);
+      }
     }
     
     throw error;
@@ -193,6 +246,17 @@ const fetchExchangeRate = async (fromCurrency: string, toCurrency: string): Prom
 };
 
 export function useExchangeRate(fromCurrency: string, toCurrency: string) {
+  // If same currency, return rate of 1 immediately without SWR
+  if (fromCurrency === toCurrency) {
+    return {
+      rate: { sell: 1, buy: 1, updated_at: new Date().toISOString(), pair: `${fromCurrency}/${toCurrency}`, source: 'system' },
+      loading: false,
+      error: null,
+      lastUpdated: new Date(),
+      refetch: () => Promise.resolve()
+    };
+  }
+  
   const { data, error, isLoading, mutate } = useSWR(
     fromCurrency && toCurrency ? `exchange-rate-${fromCurrency}-${toCurrency}` : null,
     () => {
@@ -209,7 +273,7 @@ export function useExchangeRate(fromCurrency: string, toCurrency: string) {
       
       // Otherwise fetch from database
       return fetchExchangeRate(fromCurrency, toCurrency);
-    },
+    }, 
     {
       refreshInterval: 30 * 1000, // refresh every 30 seconds
       revalidateOnFocus: false,
@@ -217,7 +281,8 @@ export function useExchangeRate(fromCurrency: string, toCurrency: string) {
       dedupingInterval: 10000, // Увеличено до 10 секунд для уменьшения нагрузки
       shouldRetryOnError: true,
       errorRetryCount: 3, // Увеличено до 3 попыток
-      onError: (error) => {
+      errorRetryInterval: 5000, // 5 seconds between retries
+      onError: (error: any) => {
         console.warn('⚠️ Exchange rate hook error:', error);
       },
     }
@@ -229,5 +294,16 @@ export function useExchangeRate(fromCurrency: string, toCurrency: string) {
     error: error ? (error.message || `Курс для пары ${fromCurrency}/${toCurrency} не найден`) : null,
     lastUpdated: data ? new Date(data.updated_at) : null,
     refetch: mutate
+  };
+}
+
+// Create a fallback rate for when the database is unavailable
+function createFallbackRate(fromCurrency: string, toCurrency: string): ExchangeRate {
+  return {
+    sell: 1, // Default fallback rate
+    buy: 1,
+    updated_at: new Date().toISOString(),
+    pair: `${fromCurrency}/${toCurrency}`,
+    source: 'fallback'
   };
 }

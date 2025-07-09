@@ -4,7 +4,8 @@ import { NextResponse } from 'next/server';
 import { getValidatedKenigRates } from '@/lib/supabase/validated-rates';
 
 let cache: { data: any; timestamp: number } | null = null;
-const CACHE_DURATION = 5 * 60 * 1000; // Increase cache to 5 minutes to reduce database load
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache to reduce database load
+const STALE_CACHE_DURATION = 30 * 60 * 1000; // 30 minutes for stale cache
 
 const getFallbackData = () => ({
   kenig: { sell: 95.50, buy: 94.80, updated_at: new Date().toISOString() },
@@ -16,7 +17,7 @@ const getFallbackData = () => ({
   error: 'Using fallback data due to database connectivity issues'
 });
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const now = Date.now();
     
@@ -25,16 +26,29 @@ export async function GET() {
       console.log('📦 Serving cached data');
       return NextResponse.json(cache.data);
     }
+    
+    // Check if we have stale cache that can be used in case of errors
+    const hasStaleCache = cache && (now - cache.timestamp) < STALE_CACHE_DURATION;
 
     console.log('🔄 Fetching fresh rates from database...');
     
-    // Add timeout to the entire operation
-    const validationResult = await Promise.race([
-      getValidatedKenigRates(),
-      new Promise<never>((_, reject) => 
-        setTimeout(() => reject(new Error('Database query timeout after 15 seconds')), 15000)
-      )
-    ]);
+    let validationResult;
+    try {
+      // Add timeout to the entire operation
+      validationResult = await Promise.race([
+        getValidatedKenigRates(),
+        new Promise<never>((_, reject) => 
+          setTimeout(() => reject(new Error('Database query timeout after 15 seconds')), 15000)
+        )
+      ]);
+    } catch (error) {
+      console.error('❌ Database query failed:', error);
+      if (hasStaleCache) {
+        console.log('📦 Using stale cache due to database error');
+        return NextResponse.json({ ...cache!.data, isStale: true, error: `Database error: ${error instanceof Error ? error.message : 'Unknown error'}` });
+      }
+      throw error; // Re-throw to be caught by the outer try/catch
+    }
     
     const data = {
       kenig: { sell: null, buy: null },
@@ -50,7 +64,7 @@ export async function GET() {
       }
     };
 
-    if (validationResult.hasValidRates) {
+    if (validationResult && validationResult.hasValidRates) {
       
       validationResult.rates.forEach(rate => {
         if (rate.isValid) {
@@ -71,7 +85,7 @@ export async function GET() {
       // Update cache with successful data
       cache = { data, timestamp: now };
       console.log('✅ Successfully fetched and cached fresh data');
-    } else {
+    } else if (validationResult) {
       console.warn('⚠️ No valid rates found, using fallback data. Error:', validationResult.error);
       const fallback = getFallbackData();
       fallback.error = validationResult.error || 'No valid rates available';
@@ -81,6 +95,13 @@ export async function GET() {
       if (!cache) {
         cache = { data, timestamp: now };
       }
+    } else {
+      // This should not happen, but just in case
+      console.warn('⚠️ Validation result is undefined, using fallback data');
+      const fallback = getFallbackData();
+      fallback.error = 'Unexpected error: validation result is undefined';
+      Object.assign(data, fallback);
+      cache = { data, timestamp: now };
     }
 
     return NextResponse.json(data);
@@ -89,7 +110,7 @@ export async function GET() {
     
     // If we have cached data, return it even if it's stale
     if (cache) {
-      console.log('🔄 Returning stale cached data due to error');
+      console.log('📦 Returning stale cached data due to error');
       const staleData = { 
         ...cache.data, 
         error: `Database error: ${error instanceof Error ? error.message : 'Unknown error'}. Showing cached data.`,
@@ -98,8 +119,15 @@ export async function GET() {
       return NextResponse.json(staleData);
     }
     
+    // Log detailed error information
+    console.error('❌ Detailed error:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      cause: error instanceof Error ? (error as any).cause : undefined
+    });
+    
     const fallbackData = getFallbackData();
-    fallbackData.error = error instanceof Error ? error.message : 'API request failed';
+    fallbackData.error = `API request failed: ${error instanceof Error ? error.message : 'Unknown error'}`;
     return NextResponse.json(fallbackData);
   }
 }

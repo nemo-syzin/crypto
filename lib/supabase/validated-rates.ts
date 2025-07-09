@@ -1,5 +1,9 @@
 import { supabase, isSupabaseAvailable, getSupabaseStatus } from './client';
 
+// Cache for validated rates to reduce database load
+let ratesCache: { result: RateValidationResult; timestamp: number } | null = null;
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
 // Retry utility function
 async function withRetry<T>(
   operation: () => Promise<T>,
@@ -128,16 +132,19 @@ function validateRateRecord(rate: any): ValidatedKenigRate {
 export async function getValidatedKenigRates(): Promise<RateValidationResult> {
   const status = getSupabaseStatus();
   
-  console.log('🔍 Checking Supabase configuration:', {
-    hasUrl: status.hasUrl,
-    hasKey: status.hasKey,
-    isConfigured: status.isConfigured,
-    url: status.url?.substring(0, 30) + '...'
-  });
+  console.log('🔍 Checking Supabase configuration status:', 
+    status.isConfigured ? 'OK' : 'NOT CONFIGURED');
+  
+  // Check cache first
+  const now = Date.now();
+  if (ratesCache && (now - ratesCache.timestamp) < CACHE_DURATION) {
+    console.log('📦 Using cached rates validation result');
+    return ratesCache.result;
+  }
   
   if (!isSupabaseAvailable()) {
     console.warn('⚠️ Supabase not available:', status);
-    return {
+    const result = {
       rates: [],
       hasValidRates: false,
       totalRates: 0,
@@ -147,23 +154,22 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
       isFromDatabase: false,
       error: `Supabase configuration issue: URL=${status.hasUrl ? 'OK' : 'MISSING'}, KEY=${status.hasKey ? 'OK' : 'MISSING'}`
     };
+    
+    // Cache the result even if Supabase is not available
+    ratesCache = { result, timestamp: now };
+    return result;
   }
 
   try {
-    console.log('🔄 Querying kenig_rates table...');
+    console.log('🔄 Querying kenig_rates table with timeout...');
     
-    const { data, error } = await withRetry(async () => {
-      const result = await supabase
-        .from('kenig_rates')
-        .select('*')
-        .order('updated_at', { ascending: false });
-      
-      if (result.error) {
-        throw new Error(`Supabase query error: ${result.error.message}`);
-      }
-      
-      return result;
-    }, 3, 1000);
+    // Add timeout to the entire operation
+    const queryPromise = queryRatesWithRetry();
+    const timeoutPromise = new Promise<never>((_, reject) => 
+      setTimeout(() => reject(new Error('Database query timeout after 15 seconds')), 15000)
+    );
+    
+    const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
 
     if (error) {
       console.error('❌ Supabase query error:', error);
@@ -173,7 +179,7 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
     console.log('📊 Raw data from Supabase kenig_rates table:', data);
 
     if (!data || data.length === 0) {
-      console.warn('⚠️ No data found in kenig_rates table');
+      console.warn('⚠️ No data found in kenig_rates table, using empty result');
       return {
         rates: [],
         hasValidRates: false,
@@ -205,7 +211,7 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
       console.log('📋 First record structure:', Object.keys(data[0]));
     }
 
-    return {
+    const result = {
       rates: validatedRates,
       hasValidRates: validRates.length > 0,
       totalRates: validatedRates.length,
@@ -214,6 +220,10 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
       lastUpdated: new Date(),
       isFromDatabase: true
     };
+    
+    // Cache successful result
+    ratesCache = { result, timestamp: now };
+    return result;
 
   } catch (error) {
     console.error('❌ Error in getValidatedKenigRates:', error);
@@ -236,7 +246,7 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
       errorMessage = error;
     } else if (error instanceof Error) {
       errorMessage = error.message;
-    }
+    } 
 
     return {
       rates: [],
@@ -248,5 +258,33 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
       isFromDatabase: false,
       error: errorMessage
     };
+  }
+}
+
+// Helper function to query rates with retry logic
+async function queryRatesWithRetry() {
+  // Try up to 3 times with exponential backoff
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      console.log(`🔄 Query attempt ${attempt + 1}/3...`);
+      
+      const result = await supabase
+        .from('kenig_rates')
+        .select('*')
+        .order('updated_at', { ascending: false });
+      
+      return result;
+    } catch (error) {
+      console.warn(`⚠️ Query attempt ${attempt + 1} failed:`, error);
+      
+      if (attempt < 2) {
+        // Exponential backoff with jitter
+        const delay = Math.min(1000 * Math.pow(2, attempt), 5000) + Math.random() * 1000;
+        console.log(`⏱️ Retrying in ${Math.round(delay)}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      } else {
+        throw error;
+      }
+    }
   }
 }
