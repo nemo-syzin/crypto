@@ -217,6 +217,10 @@ export async function fetchTrendingCoins(): Promise<any> {
     }
 
     return await response.json();
+  } catch (error) {
+    console.error('Failed to fetch trending coins:', error);
+    throw error;
+  }
   }
 }
 
