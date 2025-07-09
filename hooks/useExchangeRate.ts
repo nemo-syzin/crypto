@@ -1,6 +1,16 @@
 import useSWR from 'swr';
 import { supabase, isSupabaseAvailable } from '@/lib/supabase/client';
 
+// Интерфейс для строки из таблицы kenig_rates
+interface RateRow {
+  sell: number;
+  buy: number;
+  updated_at: string;
+  source: string;
+  base: string;
+  quote: string;
+}
+
 interface ExchangeRate {
   sell: number;
   buy: number;
@@ -22,8 +32,8 @@ const fetchExchangeRate = async (from: string, to: string): Promise<ExchangeRate
     console.log(`🔄 Fetching exchange rate for ${from}/${to}...`);
     
     // For USDT-RUB and RUB-USDT pairs, specifically use source 'kenig'
-    // Сначала пробуем найти прямую пару (from/to)
-    let { data, error } = await supabase
+    // Пробуем найти прямую пару (from/to)
+    const { data: directData, error: directError } = await supabase
       .from('kenig_rates')
       .select('sell,buy,updated_at,source,base,quote')
       .eq('source', 'kenig')
@@ -31,47 +41,109 @@ const fetchExchangeRate = async (from: string, to: string): Promise<ExchangeRate
       .eq('quote', to)
       .limit(1);
 
-    // Если прямая пара не найдена, пробуем обратную пару (to/from)
-    if (!data || data.length === 0) {
-      const reverseQuery = await supabase
+    // Также пробуем найти обратную пару (to/from)
+    const { data: reverseData, error: reverseError } = await supabase
         .from('kenig_rates')
         .select('sell,buy,updated_at,source,base,quote')
         .eq('source', 'kenig')
         .eq('base', to)
         .eq('quote', from)
         .limit(1);
+
+    // Проверяем, какие данные у нас есть
+    let rateRow: RateRow | null = null;
+    let error = null;
+    
+    if (directData && directData.length > 0) {
+      // Если есть прямая пара, используем ее
+      rateRow = directData[0];
+      error = directError;
+      console.log(`✅ Found direct exchange rate for ${from}/${to}:`, rateRow);
+    } else if (reverseData && reverseData.length > 0) {
+      // Если есть обратная пара, используем ее
+      rateRow = reverseData[0];
+      error = reverseError;
+      console.log(`✅ Found reverse exchange rate for ${to}/${from}:`, rateRow);
+    } else {
+      // Ищем альтернативные пары через промежуточную валюту (например, через USDT или RUB)
+      const intermediaries = ['USDT', 'RUB', 'BTC', 'ETH'];
       
-      if (reverseQuery.data && reverseQuery.data.length > 0) {
-        data = reverseQuery.data;
-        error = reverseQuery.error;
+      for (const inter of intermediaries) {
+        // Пропускаем, если промежуточная валюта совпадает с from или to
+        if (inter === from || inter === to) continue;
+        
+        console.log(`🔍 Trying to find rate through ${inter} for ${from}/${to}...`);
+        
+        // Ищем пару from -> inter
+        const { data: firstLegData } = await supabase
+          .from('kenig_rates')
+          .select('sell,buy,updated_at,source,base,quote')
+          .eq('source', 'kenig')
+          .or(`base.eq.${from},quote.eq.${from}`)
+          .or(`base.eq.${inter},quote.eq.${inter}`)
+          .limit(10);
+        
+        // Ищем пару inter -> to
+        const { data: secondLegData } = await supabase
+          .from('kenig_rates')
+          .select('sell,buy,updated_at,source,base,quote')
+          .eq('source', 'kenig')
+          .or(`base.eq.${inter},quote.eq.${inter}`)
+          .or(`base.eq.${to},quote.eq.${to}`)
+          .limit(10);
+        
+        if (firstLegData?.length > 0 && secondLegData?.length > 0) {
+          console.log(`🔄 Found potential path through ${inter}: ${from} -> ${inter} -> ${to}`);
+          console.log(`First leg options:`, firstLegData);
+          console.log(`Second leg options:`, secondLegData);
+          
+          // Находим прямую пару from -> inter
+          const firstLeg = firstLegData.find(
+            row => (row.base === from && row.quote === inter) || (row.base === inter && row.quote === from)
+          );
+          
+          // Находим прямую пару inter -> to
+          const secondLeg = secondLegData.find(
+            row => (row.base === inter && row.quote === to) || (row.base === to && row.quote === inter)
+          );
+          
+          if (firstLeg && secondLeg) {
+            console.log(`✅ Found complete path through ${inter}!`);
+            
+            // Используем первую найденную пару как основную
+            // В будущем здесь можно реализовать расчет составного курса
+            rateRow = firstLeg;
+            break;
+          }
+        }
       }
     }
     
     if (error) {
-      console.warn(`⚠️ Error fetching exchange rate for ${from}/${to}:`, error.message);
-      throw new Error(`Ошибка загрузки курса: ${error.message}`);
+      console.warn(`⚠️ Error fetching exchange rate for ${from}/${to}:`, error);
+      throw new Error(`Ошибка загрузки курса: ${error?.message || 'Неизвестная ошибка'}`);
     }
     
-    if (!data || data.length === 0) {
+    if (!rateRow) {
       throw new Error(`Курс для пары ${from}/${to} не найден`);
     }
     
-    console.log(`✅ Found exchange rate for ${from}/${to}:`, data[0]);
-    
     // Определяем, какой курс использовать (sell или buy) в зависимости от направления обмена
-    const rateRow = data[0];
-    
     // Определяем, какой курс использовать на основе того, какую валюту отдает пользователь
     const pickedRate = 
       fromCurrency === rateRow.quote ? Number(rateRow.sell) :
       fromCurrency === rateRow.base  ? Number(rateRow.buy)  :
       null;
     
-    console.log(`🔄 Using ${fromCurrency === rateRow.quote ? 'SELL' : 'BUY'} rate for ${from}/${to}: ${pickedRate}`);
+    // Если валюты в обратном порядке, инвертируем курс
+    const isReversePair = (rateRow.base === to && rateRow.quote === from);
+    const finalRate = isReversePair && pickedRate ? 1 / pickedRate : pickedRate;
+    
+    console.log(`🔄 Using ${fromCurrency === rateRow.quote ? 'SELL' : 'BUY'} rate for ${from}/${to}: ${finalRate} (${isReversePair ? 'inverted' : 'direct'})`);
     
     return { 
-      sell: pickedRate,
-      buy: pickedRate,
+      sell: finalRate,
+      buy: finalRate,
       updated_at: rateRow.updated_at,
       pair: `${from}/${to}`, 
       source: rateRow.source 
@@ -104,7 +176,7 @@ export function useExchangeRate(fromCurrency: string, toCurrency: string) {
       refreshInterval: 30 * 1000, // refresh every 30 seconds
       revalidateOnFocus: false,
       revalidateOnReconnect: true,
-      dedupingInterval: 10000,
+      dedupingInterval: 5000,
       shouldRetryOnError: true,
       errorRetryCount: 3,
       onError: (error) => {
