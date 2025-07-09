@@ -49,7 +49,7 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "coin-images.coingecko.com",
+        hostname: "assets.coingecko.com",
         pathname: "/**",
       }
     ],
@@ -57,6 +57,13 @@ const nextConfig = {
   // Optimize bundle size
   experimental: {
     optimizePackageImports: ['lucide-react', 'framer-motion']
+  },
+  // Force reload of configuration
+  onDemandEntries: {
+    // period (in ms) where the server will keep pages in the buffer
+    maxInactiveAge: 10 * 1000,
+    // number of pages that should be kept simultaneously without being disposed
+    pagesBufferLength: 1,
   },
   webpack: (config, { isServer }) => {
     // Fix for Supabase realtime-js critical dependency warning
