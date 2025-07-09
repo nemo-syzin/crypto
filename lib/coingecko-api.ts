@@ -215,6 +215,8 @@ export async function fetchTrendingCoins(): Promise<any> {
     if (!response.ok) {
       throw new Error(`Error fetching trending coins: ${response.status}`);
     }
+  }
+}
 // Custom hook for fetching top coins
 export function useTopCoins(currency: string = 'usd', limit: number = 20, page: number = 1) {
   const [coins, setCoins] = useState<Coin[]>([]);
