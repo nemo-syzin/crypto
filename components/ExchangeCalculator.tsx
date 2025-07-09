@@ -170,11 +170,11 @@ export default function ExchangeCalculator() {
 
   const getHintText = useMemo((): string => {
     if (basesError) {
-      return `Ошибка загрузки валют: ${basesError}. Попробуйте обновить страницу.`;
+      return `Ошибка загрузки валют: ${basesError}`;
     }
     
     if (quotesError) {
-      return `Ошибка загрузки валют для ${fromCurrency}: ${quotesError}. Попробуйте выбрать другую валюту.`;
+      return `Ошибка загрузки валют для ${fromCurrency}: ${quotesError}`;
     }
     
     // If currencies are the same
@@ -187,11 +187,11 @@ export default function ExchangeCalculator() {
     }
 
     if (!isPairSupported) {
-      return `Валютная пара ${fromCurrency}/${toCurrency} не поддерживается. Выберите другую пару.`;
+      return `Валютная пара ${fromCurrency}/${toCurrency} не поддерживается`;
     }
 
     if (!hasValidRate && rate === null && !loading) {
-      return `Курс для пары ${fromCurrency}/${toCurrency} не найден в базе данных. Выберите другую пару.`;
+      return `Курс для пары ${fromCurrency}/${toCurrency} не найден`;
     }
 
     // Show rate for supported pair
@@ -428,8 +428,10 @@ export default function ExchangeCalculator() {
               <div className="flex-shrink-0 mt-1">
                 <Info className="h-4 w-4 text-[#001D8D]/70" />
               </div>
-              <div className="text-sm text-[#001D8D]/80 leading-relaxed">
-                <strong className="text-[#001D8D]">Доступные валютные пары:</strong> поддерживаются обмены между различными криптовалютами и фиатными валютами. Курсы обновляются каждые 30 секунд из базы данных kenig_rates. <span className="text-blue-600">Используются только курсы от источника "kenig".</span>
+              <div className="text-sm text-[#001D8D]/80 leading-relaxed space-y-1">
+                <p><strong className="text-[#001D8D]">Доступные валютные пары:</strong> поддерживаются обмены между различными криптовалютами и фиатными валютами.</p>
+                <p>Курсы обновляются каждые 30 секунд из базы данных. <span className="text-blue-600">Используются только курсы от источника "kenig".</span></p>
+                <p className="text-xs text-[#001D8D]/60">Поддерживаются прямые и обратные пары, например USDT/RUB и RUB/USDT.</p>
               </div>
             </div>
           </div>

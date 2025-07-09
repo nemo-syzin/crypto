@@ -1,8 +1,9 @@
 import useSWR from 'swr';
 import { supabase, isSupabaseAvailable } from '@/lib/supabase/client';
 
-// Список источников, которые нужно исключить
-const EXCLUDED_SOURCES = ['bestchange', 'energo'];
+// Список источников, которые нужно использовать и исключить
+const PREFERRED_SOURCE = 'kenig';
+const EXCLUDED_SOURCES = ['bestchange', 'energo']; 
 
 interface ExchangeRate {
   sell: number;
@@ -25,11 +26,11 @@ const fetchExchangeRate = async (from: string, to: string): Promise<ExchangeRate
     console.log(`🔄 Fetching exchange rate for ${from}/${to}...`);
     
     // For USDT-RUB and RUB-USDT pairs, specifically use source 'kenig'
-    if ((from === 'USDT' && to === 'RUB') || (from === 'RUB' && to === 'USDT')) {
+    if ((from === 'USDT' && to === 'RUB') || (from === 'RUB' && to === 'USDT')) {      
       const { data, error, count } = await supabase
         .from('kenig_rates')
         .select('sell,buy,updated_at')
-        .eq('source', 'kenig')
+        .eq('source', PREFERRED_SOURCE)
         .eq('base', from)
         .eq('quote', to)
         .limit(1);
@@ -48,21 +49,17 @@ const fetchExchangeRate = async (from: string, to: string): Promise<ExchangeRate
       return { 
         ...data[0], 
         pair: `${from}/${to}`, 
-        source: 'kenig' 
+        source: PREFERRED_SOURCE 
       };
     }
     
-    // Для всех остальных пар, исключаем нежелательные источники
+    // Для всех остальных пар, сначала пробуем найти по предпочтительному источнику
     const query = supabase
       .from('kenig_rates')
       .select('sell,buy,updated_at')
+      .eq('source', PREFERRED_SOURCE)
       .eq('base', from)
       .eq('quote', to);
-    
-    // Добавляем фильтр для исключения нежелательных источников
-    if (EXCLUDED_SOURCES.length > 0) {
-      query.not('source', 'in', `(${EXCLUDED_SOURCES.join(',')})`);
-    }
     
     const { data, error, count } = await query.limit(1);
 
@@ -80,7 +77,7 @@ const fetchExchangeRate = async (from: string, to: string): Promise<ExchangeRate
     return { 
       ...data[0], 
       pair: `${from}/${to}`, 
-      source: 'kenig' 
+      source: PREFERRED_SOURCE 
     };
   } catch (error) {
     console.error(`❌ Error in fetchExchangeRate for ${from}/${to}:`, error);
@@ -95,8 +92,8 @@ export function useExchangeRate(fromCurrency: string, toCurrency: string) {
       // If same currency, return rate of 1
       if (fromCurrency === toCurrency) {
         return {
-          sell: 1,
-          buy: 1,
+          sell: 1.0,
+          buy: 1.0,
           updated_at: new Date().toISOString(),
           pair: `${fromCurrency}/${toCurrency}`,
           source: 'system'
@@ -109,10 +106,10 @@ export function useExchangeRate(fromCurrency: string, toCurrency: string) {
     {
       refreshInterval: 30 * 1000, // refresh every 30 seconds
       revalidateOnFocus: false,
-      revalidateOnReconnect: true,
+      revalidateOnReconnect: false,
       dedupingInterval: 10000,
       shouldRetryOnError: true,
-      errorRetryCount: 3,
+      errorRetryCount: 2,
       onError: (error) => {
         console.warn('⚠️ Exchange rate hook error:', error);
       },
