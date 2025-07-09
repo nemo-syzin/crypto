@@ -1,7 +1,14 @@
 [build]
   command = "npm run build"
-
+  publish = ".next"
 
 [build.environment]
-  NODE_VERSION = "18"
-  NPM_VERSION  = "8"
+  NETLIFY_NEXT_PLUGIN_SKIP = "true"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[context.production.environment]
+  NEXT_PUBLIC_SUPABASE_URL = ""
+  NEXT_PUBLIC_SUPABASE_ANON_KEY = ""
+  COINGECKO_API_KEY = ""

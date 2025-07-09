@@ -37,15 +37,19 @@ export async function GET(request: Request) {
       // Add timeout to the entire operation
       validationResult = await Promise.race([
         getValidatedKenigRates(),
-        new Promise<never>((_, reject) => 
-          setTimeout(() => reject(new Error('Database query timeout after 15 seconds')), 15000)
-        )
+        new Promise<never>((_, reject) => {
+          setTimeout(() => reject(new Error('Database query timeout after 15 seconds')), 15000);
+        })
       ]);
     } catch (error) {
       console.error('❌ Database query failed:', error);
       if (hasStaleCache) {
         console.log('📦 Using stale cache due to database error');
-        return NextResponse.json({ ...cache!.data, isStale: true, error: `Database error: ${error instanceof Error ? error.message : 'Unknown error'}` });
+        return NextResponse.json({ 
+          ...cache!.data, 
+          isStale: true, 
+          error: `Database error: ${error instanceof Error ? error.message : 'Unknown error'}. Check your Supabase configuration in .env.local.`
+        });
       }
       throw error; // Re-throw to be caught by the outer try/catch
     }

@@ -132,8 +132,7 @@ function validateRateRecord(rate: any): ValidatedKenigRate {
 export async function getValidatedKenigRates(): Promise<RateValidationResult> {
   const status = getSupabaseStatus();
   
-  console.log('🔍 Checking Supabase configuration status:', 
-    status.isConfigured ? 'OK' : 'NOT CONFIGURED');
+  console.log('🔍 Checking Supabase configuration status:', status.isConfigured ? 'OK' : 'NOT CONFIGURED');
   
   // Check cache first
   const now = Date.now();
@@ -143,7 +142,7 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
   }
   
   if (!isSupabaseAvailable()) {
-    console.warn('⚠️ Supabase not available:', status);
+    console.warn('⚠️ Supabase not available. Please check your environment variables.');
     const result = {
       rates: [],
       hasValidRates: false,
@@ -152,7 +151,7 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
       invalidRatesCount: 0,
       lastUpdated: new Date(),
       isFromDatabase: false,
-      error: `Supabase configuration issue: URL=${status.hasUrl ? 'OK' : 'MISSING'}, KEY=${status.hasKey ? 'OK' : 'MISSING'}`
+      error: `Supabase configuration issue: URL=${status.hasUrl ? 'OK' : 'MISSING'}, KEY=${status.hasKey ? 'OK' : 'MISSING'}. Please copy .env.example to .env.local and fill in your Supabase credentials.`
     };
     
     // Cache the result even if Supabase is not available

@@ -7,9 +7,30 @@ const MAX_RETRIES = 3; // Maximum number of retries for failed requests
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-const hasValidEnvVars = !!(supabaseUrl && supabaseAnonKey && 
+const hasValidEnvVars = !!(supabaseUrl && supabaseAnonKey &&
   supabaseUrl !== 'https://your-project-id.supabase.co' && 
   supabaseAnonKey !== 'your-anon-public-key-here');
+
+export const isSupabaseAvailable = () => hasValidEnvVars;
+
+export const getSupabaseStatus = () => {
+  const status = {
+    hasUrl: !!(supabaseUrl && supabaseUrl !== 'https://your-project-id.supabase.co'),
+    hasKey: !!(supabaseAnonKey && supabaseAnonKey !== 'your-anon-public-key-here'),
+    isConfigured: hasValidEnvVars,
+    url: supabaseUrl,
+  };
+  
+  if (!status.isConfigured) {
+    console.error(
+      '⛔ Supabase НЕ сконфигурирован.\n' +
+      'Проверьте NEXT_PUBLIC_SUPABASE_URL и NEXT_PUBLIC_SUPABASE_ANON_KEY ' +
+      'в .env.local или в переменных окружения хоста.'
+    );
+  }
+  
+  return status;
+};
 
 export const supabase = createClient(
   supabaseUrl || 'https://placeholder.supabase.co',
@@ -39,24 +60,6 @@ export const supabase = createClient(
     },
   } : {}
 );
-
-export const isSupabaseAvailable = () => hasValidEnvVars;
-
-export const getSupabaseStatus = () => {
-  const status = {
-  hasUrl: !!(supabaseUrl && supabaseUrl !== 'https://your-project-id.supabase.co'),
-  hasKey: !!(supabaseAnonKey && supabaseAnonKey !== 'your-anon-public-key-here'),
-  isConfigured: hasValidEnvVars,
-  url: supabaseUrl,
-  };
-  
-  console.log('Supabase status:', {
-    ...status,
-    url: status.url ? `${status.url.substring(0, 15)}...` : 'undefined',
-  });
-  
-  return status;
-};
 
 // Helper function to retry failed operations with exponential backoff
 export async function withRetry<T>(
