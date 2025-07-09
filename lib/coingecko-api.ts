@@ -124,9 +124,15 @@ function getApiHeaders(): HeadersInit {
 // Function to fetch detailed information about a specific coin
 export async function fetchCoinDetails(coinId: string): Promise<CoinDetail> {
   try {
-    const response = await fetch(`${BASE_URL}/coins/${coinId}?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false`, {
-      headers: getApiHeaders(),
+    const params = new URLSearchParams({
+      localization: 'false',
+      tickers: 'false',
+      market_data: 'true',
+      community_data: 'false',
+      developer_data: 'false'
     });
+    
+    const response = await fetch(`/api/coingecko?endpoint=/coins/${coinId}&params=${params.toString()}`);
 
     if (!response.ok) {
       throw new Error(`Error fetching coin details: ${response.status}`);
@@ -146,10 +152,12 @@ export async function fetchCoinMarketChart(
   days: number = 7
 ): Promise<MarketChart> {
   try {
-    const response = await fetch(
-      `${BASE_URL}/coins/${coinId}/market_chart?vs_currency=${currency}&days=${days}`,
-      { headers: getApiHeaders() }
-    );
+    const params = new URLSearchParams({
+      vs_currency: currency,
+      days: days.toString()
+    });
+    
+    const response = await fetch(`/api/coingecko?endpoint=/coins/${coinId}/market_chart&params=${params.toString()}`);
 
     if (!response.ok) {
       throw new Error(`Error fetching market chart: ${response.status}`);
@@ -165,10 +173,11 @@ export async function fetchCoinMarketChart(
 // Function to search for coins
 export async function searchCoins(query: string): Promise<any[]> {
   try {
-    const response = await fetch(
-      `${BASE_URL}/search?query=${query}`, 
-      { headers: getApiHeaders() }
-    );
+    const params = new URLSearchParams({
+      query: query
+    });
+    
+    const response = await fetch(`/api/coingecko?endpoint=/search&params=${params.toString()}`);
 
     if (!response.ok) {
       throw new Error(`Error searching coins: ${response.status}`);
@@ -185,10 +194,7 @@ export async function searchCoins(query: string): Promise<any[]> {
 // Function to fetch global market data
 export async function fetchGlobalData(): Promise<any> {
   try {
-    const response = await fetch(
-      `${BASE_URL}/global`, 
-      { headers: getApiHeaders() }
-    );
+    const response = await fetch(`/api/coingecko?endpoint=/global`);
 
     if (!response.ok) {
       throw new Error(`Error fetching global data: ${response.status}`);
@@ -204,22 +210,11 @@ export async function fetchGlobalData(): Promise<any> {
 // Function to fetch trending coins
 export async function fetchTrendingCoins(): Promise<any> {
   try {
-    const response = await fetch(
-      `${BASE_URL}/search/trending`, 
-      { headers: getApiHeaders() }
-    );
+    const response = await fetch(`/api/coingecko?endpoint=/search/trending`);
 
     if (!response.ok) {
       throw new Error(`Error fetching trending coins: ${response.status}`);
     }
-
-    return await response.json();
-  } catch (error) {
-    console.error('Failed to fetch trending coins:', error);
-    throw error;
-  }
-}
-
 // Custom hook for fetching top coins
 export function useTopCoins(currency: string = 'usd', limit: number = 20, page: number = 1) {
   const [coins, setCoins] = useState<Coin[]>([]);

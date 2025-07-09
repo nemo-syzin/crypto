@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';   // ⬅️  запрет SSG / Static Export
 
 import { NextRequest, NextResponse } from 'next/server';
-import { headers } from 'next/headers';
+import { headers as getHeaders } from 'next/headers';
 
 // Cache for API responses
 let cache: Map<string, { data: any; timestamp: number }> = new Map();
@@ -205,7 +205,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const baseUrl = 'https://api.coingecko.com/api/v3';
-    const headersList = headers();
+    const headersList = getHeaders();
     const userAgent = headersList.get('user-agent') || 'KenigSwap/1.0';
     
     let url = `${baseUrl}${endpoint}`;
