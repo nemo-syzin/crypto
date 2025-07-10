@@ -40,12 +40,8 @@ export default function ExchangeCalculator() {
 
   const calculateResult = useMemo(() => (): number => {
     const numericAmount = parseAmount(amount);
-    if (!rate || numericAmount <= 0) return 0;
-    
-    // Check if rates are valid numbers
-    const sellRate = typeof rate.sell === 'number' && !isNaN(rate.sell) ? rate.sell : null;
-    
-    return sellRate ? numericAmount * sellRate : 0;
+    if (rate === 0 || numericAmount <= 0) return 0;
+    return numericAmount * rate;
   }, [amount, rate, parseAmount]);
 
   const toggleDirection = () => {
@@ -127,11 +123,10 @@ export default function ExchangeCalculator() {
 
   // Memoized calculations
   const isPairSupported = useMemo(() => {
-    return !!rate || (fromCurrency === toCurrency);
+    return rate !== 0 || (fromCurrency === toCurrency);
   }, [rate, fromCurrency, toCurrency]);
 
-  const hasValidRate = useMemo(() => rate && 
-    typeof rate.sell === 'number' && !isNaN(rate.sell) && rate.sell > 0, [rate]);
+  const hasValidRate = useMemo(() => rate > 0, [rate]);
 
   const isCalculationDisabled = !hasValidRate || loading || !!error;
   const numericAmount = parseAmount(amount);
@@ -183,13 +178,13 @@ export default function ExchangeCalculator() {
       return `Валютная пара ${fromCurrency}/${toCurrency} не поддерживается. Попробуйте другую пару.`;
     }
 
-    if (!hasValidRate && rate === null && !loading) {
+    if (!hasValidRate && rate === 0 && !loading) {
       return `Курс для пары ${fromCurrency}/${toCurrency} не найден. Попробуйте другую пару.`;
     }
 
     // Show rate for supported pair
     if (rate) {
-      const formattedRate = formatRate(rate.sell, toCurrency);
+      const formattedRate = formatRate(rate, toCurrency);
       return `Курс обмена ${fromCurrency}/${toCurrency}: ${formattedRate}`;
     }
 
@@ -213,18 +208,18 @@ export default function ExchangeCalculator() {
           </AlertDescription>
         </Alert>
       )}
-
+      {hasValidRate && rate > 0 && (
       {/* Other Errors Alert */}
       {error && !isConfigurationError && (
         <div className="error-toast">
           <strong>Ошибка загрузки курсов:</strong> {error}
           <br />
-          <Button 
+              <div className="rate-value">{formatRate(rate, toCurrency)}</div>
             variant="outline" 
             size="sm" 
             onClick={refetch}
             className="mt-2 text-red-800 border-red-300 hover:bg-red-100"
-          >
+              Обновлено: {lastUpdated ? lastUpdated.toLocaleString('ru-RU') : 'Недавно'}
             Повторить загрузку
           </Button>
         </div>

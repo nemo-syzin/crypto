@@ -63,7 +63,7 @@ export default function RatesComparison() {
     isPositive: boolean; 
     color: string 
   } => {
-    if (!rate || !kenigRate || isNaN(rate) || isNaN(kenigRate)) {
+    if (rate === null || kenigRate === null || isNaN(rate) || isNaN(kenigRate)) {
       return { delta: 0, isPositive: false, color: 'text-gray-400' };
     }
     
@@ -92,19 +92,19 @@ export default function RatesComparison() {
     return [
       {
         name: 'KenigSwap',
-        sellRate: rates.kenig.sell,
-        buyRate: rates.kenig.buy,
+        sellRate: rates.kenig?.sell || null,
+        buyRate: rates.kenig?.buy || null,
         updatedAt: rates.kenig.updated_at,
-        available: rates.kenig.sell !== null && !isNaN(rates.kenig.sell!),
+        available: rates.kenig?.sell !== null && !isNaN(rates.kenig?.sell || 0),
         description: 'Основной',
         priority: 1
       },
       {
         name: 'BestChange',
-        sellRate: rates.bestchange.sell,
-        buyRate: rates.bestchange.buy,
+        sellRate: rates.bestchange?.sell || null,
+        buyRate: rates.bestchange?.buy || null,
         updatedAt: rates.bestchange.updated_at,
-        available: rates.bestchange.sell !== null && !isNaN(rates.bestchange.sell!),
+        available: rates.bestchange?.sell !== null && !isNaN(rates.bestchange?.sell || 0),
         description: 'Агрегатор',
         priority: 2
       }
