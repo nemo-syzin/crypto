@@ -6,107 +6,91 @@ interface ExchangeRate {
   buy: number;
   updated_at: string;
   pair: string;
-  source: string;
+  source: 'derived' | 'kenig';
 }
 
 /**
- * Fetch exchange rate for a specific currency pair directly from kenig_rates table
+ * Получить курс для пары (base/quote) из таблицы kenig_rates
+ * приоритет: 1) derived  2) kenig
+ * для RUB⇄USDT — всегда kenig
  */
-const fetchExchangeRate = async (from: string, to: string): Promise<ExchangeRate> => {
+const fetchExchangeRate = async (base: string, quote: string): Promise<ExchangeRate> => {
   if (!isSupabaseAvailable()) {
-    console.warn('⚠️ Supabase not available, cannot fetch exchange rate');
-    throw new Error('Supabase connection not available');
+    throw new Error('Supabase connection is not configured');
   }
 
-  try {
-    console.log(`🔄 Fetching exchange rate for ${from}/${to}...`);
-    
-    // For USDT-RUB and RUB-USDT pairs, specifically use source 'kenig'
-    if ((from === 'USDT' && to === 'RUB') || (from === 'RUB' && to === 'USDT')) {
-      const { data, error } = await supabase
-        .from('kenig_rates')
-        .select('sell,buy,updated_at')
-        .eq('source', 'kenig')
-        .eq('base', from)
-        .eq('quote', to)
-        .limit(1)
-        .single();
+  console.log(`🔄  Fetching rate ${base}/${quote}`);
 
-      if (error) {
-        console.warn(`⚠️ Error fetching kenig exchange rate for ${from}/${to}:`, error);
-        throw error;
-      }
-      
-      console.log(`✅ Found kenig exchange rate for ${from}/${to}:`, data);
-      
-      return { 
-        ...data, 
-        pair: `${from}/${to}`, 
-        source: 'kenig' 
-      };
-    }
-    
-    const { data, error } = await supabase
-      .from('kenig_rates')
-      .select('sell,buy,updated_at')
-      .eq('base', from)
-      .eq('quote', to)
-      .limit(1)
-      .single();
+  // --- какие источники запрашиваем
+  const preferKenig = (base === 'USDT' && quote === 'RUB') ||
+                      (base === 'RUB'  && quote === 'USDT');
 
-    if (error) {
-      console.warn(`⚠️ Error fetching exchange rate for ${from}/${to}:`, error);
-      throw error;
-    }
-    
-    console.log(`✅ Found exchange rate for ${from}/${to}:`, data);
-    
-    return { 
-      ...data, 
-      pair: `${from}/${to}`, 
-      source: 'kenig' 
-    };
-  } catch (error) {
-    console.error(`❌ Error in fetchExchangeRate for ${from}/${to}:`, error);
-    throw error;
+  const sources = preferKenig ? ['kenig'] : ['derived', 'kenig'];
+
+  // --- запрос без .single() (чтобы не ловить 406)
+  const { data, error } = await supabase
+    .from('kenig_rates')
+    .select('sell,buy,updated_at,source')
+    .in('source', sources)
+    .eq('base',  base)
+    .eq('quote', quote)
+    .order('updated_at', { ascending: false });
+
+  if (error) throw error;
+  if (!data || data.length === 0) {
+    throw new Error(`no rate for ${base}/${quote}`);
   }
+
+  // --- выбираем нужный источник
+  const row =
+    data.find(r => r.source === 'derived') ??
+    data.find(r => r.source === 'kenig');
+
+  if (!row) {
+    throw new Error(`no acceptable source for ${base}/${quote}`);
+  }
+
+  return {
+    ...row,
+    pair:   `${base}/${quote}`,
+    source: row.source as 'derived' | 'kenig',
+  };
 };
 
+/**
+ * React-хука для получения курса
+ */
 export function useExchangeRate(fromCurrency: string, toCurrency: string) {
   const { data, error, isLoading, mutate } = useSWR(
-    fromCurrency && toCurrency ? `exchange-rate-${fromCurrency}-${toCurrency}` : null,
+    fromCurrency && toCurrency ? `rate-${fromCurrency}-${toCurrency}` : null,
     () => {
-      // If same currency, return rate of 1
       if (fromCurrency === toCurrency) {
+        const now = new Date().toISOString();
         return {
           sell: 1,
           buy: 1,
-          updated_at: new Date().toISOString(),
+          updated_at: now,
           pair: `${fromCurrency}/${toCurrency}`,
-          source: 'system'
+          source: 'derived' as const,
         };
       }
-      
-      // Otherwise fetch from database
       return fetchExchangeRate(fromCurrency, toCurrency);
     },
     {
-      refreshInterval: 30 * 1000, // refresh every 30 seconds
+      refreshInterval: 30_000,
       revalidateOnFocus: false,
       revalidateOnReconnect: true,
-      dedupingInterval: 5000,
+      dedupingInterval: 5_000,
       shouldRetryOnError: false,
-      onError: (error) => {
-        console.warn('⚠️ Exchange rate hook error:', error);
-      },
-    }
+      onError: (e) => console.warn('⚠️  useExchangeRate:', e),
+    },
   );
 
   return {
     rate: data,
     loading: isLoading,
-    error: error ? (error.message || 'Валютная пара не поддерживается') : null,
+    error: error ? (error.message || 'Курс недоступен') : null,
     lastUpdated: data ? new Date(data.updated_at) : null,
-    refetch: mutate
+    refetch: mutate,
   };
 }
