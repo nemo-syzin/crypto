@@ -107,13 +107,13 @@ const Header = () => {
                     onClick={() => setPolicyDropdownOpen(false)}
                   >
                     Условия использования
-                    <Link href="/login">Sign In</Link>
+                  </Link>
                   <Link 
                     href="/policy/privacy" 
                     className="block px-4 py-3 text-sm text-[#001D8D] hover:bg-[#001D8D]/5 transition-colors"
                     onClick={() => setPolicyDropdownOpen(false)}
                   >
-                    <Link href="/get-started">Get Started</Link>
+                    Политика конфиденциальности
                   </Link>
                 </div>
               )}
