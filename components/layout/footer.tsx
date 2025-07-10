@@ -73,7 +73,15 @@ const Footer = () => {
                       Связаться с менеджером
                     </a>
                   </li>
-                </ul>
+                © {new Date().getFullYear()} KenigSwap. All rights reserved.
+              </div>
+              <div className="flex items-center gap-4 mt-4 md:mt-0">
+                <Link href="/login" className="text-sm text-gray-500 hover:text-[#001D8D]">
+                  Sign In
+                </Link>
+                <Link href="/get-started" className="text-sm text-gray-500 hover:text-[#001D8D]">
+                  Get Started
+                </Link>
               </div>
             </div>
           </div>

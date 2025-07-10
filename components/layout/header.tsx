@@ -107,13 +107,13 @@ const Header = () => {
                     onClick={() => setPolicyDropdownOpen(false)}
                   >
                     Условия использования
-                  </Link>
+                    <Link href="/login">Sign In</Link>
                   <Link 
                     href="/policy/privacy" 
                     className="block px-4 py-3 text-sm text-[#001D8D] hover:bg-[#001D8D]/5 transition-colors"
                     onClick={() => setPolicyDropdownOpen(false)}
                   >
-                    Политика конфиденциальности
+                    <Link href="/get-started">Get Started</Link>
                   </Link>
                 </div>
               )}
@@ -146,14 +146,14 @@ const Header = () => {
               variant="ghost"
               className="text-[#001D8D] hover:bg-[#001D8D]/10"
             >
-              <Link href="/login">Login</Link>
+              <Link href="/login">Sign In</Link>
             </Button>
             
             <Button 
               asChild 
               className="bg-[#001D8D] hover:opacity-90 text-white font-medium"
             >
-              <Link href="/register">Get Started</Link>
+              <Link href="/get-started">Get Started</Link>
             </Button>
           </div>
 

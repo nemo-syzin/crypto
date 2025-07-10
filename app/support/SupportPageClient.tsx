@@ -689,7 +689,7 @@ export function SupportPageClient() {
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                       <Button className="bg-white text-[#001D8D] hover:bg-gray-100 px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
                         <MessageCircle className="h-5 w-5 mr-2" />
-                        Начать чат
+                        <Link href="/login">Начать чат</Link>
                       </Button>
                       <Button className="border-2 border-white/30 text-white hover:bg-white/10 px-8 py-4 text-lg font-semibold transition-all duration-300">
                         <Phone className="h-5 w-5 mr-2" />

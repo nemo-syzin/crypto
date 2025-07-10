@@ -521,7 +521,7 @@ export function AboutPageClient() {
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                       <button className="bg-white text-[#001D8D] hover:bg-gray-100 px-8 py-4 rounded-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
                         <CheckCircle className="h-5 w-5 mr-2 inline" />
-                        Начать обмен
+                        <Link href="/login">Начать обмен</Link>
                       </button>
                       <button className="border-2 border-white/30 text-white hover:bg-white/10 px-8 py-4 rounded-lg font-semibold transition-all duration-300">
                         <Users className="h-5 w-5 mr-2 inline" />
