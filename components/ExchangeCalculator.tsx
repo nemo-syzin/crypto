@@ -208,18 +208,18 @@ export default function ExchangeCalculator() {
           </AlertDescription>
         </Alert>
       )}
-      {hasValidRate && rate > 0 && (
+
       {/* Other Errors Alert */}
       {error && !isConfigurationError && (
         <div className="error-toast">
           <strong>Ошибка загрузки курсов:</strong> {error}
           <br />
-              <div className="rate-value">{formatRate(rate, toCurrency)}</div>
+          <Button 
             variant="outline" 
             size="sm" 
             onClick={refetch}
             className="mt-2 text-red-800 border-red-300 hover:bg-red-100"
-              Обновлено: {lastUpdated ? lastUpdated.toLocaleString('ru-RU') : 'Недавно'}
+          >
             Повторить загрузку
           </Button>
         </div>
@@ -361,12 +361,12 @@ export default function ExchangeCalculator() {
               <div className="grid grid-cols-1 gap-4">
                 <div className="text-center">
                   <div className="text-sm text-[#001D8D]/70 mb-1">Курс обмена</div>
-                  <div className="rate-value">{formatRate(rate.sell, toCurrency)}</div>
+                  <div className="rate-value">{formatRate(rate, toCurrency)}</div>
                 </div>
               </div>
               <div className="text-center mt-3">
                 <div className="text-xs text-[#001D8D]/50">
-                  Обновлено: {new Date(rate.updated_at).toLocaleString('ru-RU')}
+                  Обновлено: {lastUpdated ? lastUpdated.toLocaleString('ru-RU') : 'Недавно'}
                 </div>
               </div>
             </div>
