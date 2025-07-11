@@ -142,7 +142,8 @@ async function fetchWithRetry(url: string, headers: HeadersInit, maxRetries: num
                               errorMessage.toLowerCase().includes('enotfound') ||
                               errorMessage.toLowerCase().includes('econnrefused') ||
                               errorMessage.toLowerCase().includes('timeout') ||
-                              errorMessage.toLowerCase().includes('aborted');
+                              errorMessage.toLowerCase().includes('aborted') ||
+                              errorMessage.toLowerCase().includes('503');
       
       // Don't retry on the last attempt or if it's not a retryable error
       if (attempt === maxRetries || !isRetryableError) {
@@ -237,6 +238,16 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    if (response.status === 503) {
+      console.error('❌ CoinGecko API service unavailable (503)');
+      const fallbackData = getFallbackData(endpoint);
+      if (fallbackData) {
+        console.warn('⚠️ Service unavailable, using fallback data');
+        setCachedData(cacheKey, fallbackData);
+        return NextResponse.json(fallbackData);
+      }
+    }
+
     if (!response.ok) {
       const errorText = await response.text().catch(() => 'Unable to read error response');
       console.error(`❌ CoinGecko API error: ${response.status} ${response.statusText}`, errorText);
@@ -270,6 +281,18 @@ export async function GET(request: NextRequest) {
             fallback: true
           },
           { status: 429 }
+        );
+      }
+
+      if (response.status === 503) {
+        return NextResponse.json(
+          { 
+            error: 'Service unavailable',
+            message: 'CoinGecko API is temporarily unavailable. Please try again later.',
+            retryAfter: 30,
+            fallback: true
+          },
+          { status: 503 }
         );
       }
 
