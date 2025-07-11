@@ -197,7 +197,7 @@ export default function ExchangePage() {
   </Link>
 
   <Link
-    href="/about"                                   // ← при необходимости измените URL
+    href="/about"  /* при необходимости замените маршрут */
     className="border-2 border-[#001D8D]/30 text-[#001D8D] hover:bg-[#001D8D]/10 px-8 py-4 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2"
   >
     <ArrowRight className="h-5 w-5" />
