@@ -672,7 +672,7 @@ const UnifiedMainSection = () => {
                 </p>
                 
                 <div className="space-y-4">
-                  <Link href="/get-started">
+                  <Link href="/register">
                     <Button 
                       size="lg" 
                       className="w-full mb-4 bg-[#001D8D] hover:bg-[#001D8D]/90 text-white font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
@@ -689,7 +689,7 @@ const UnifiedMainSection = () => {
                 </div>
                 
                 <div className="mt-8 text-center text-sm text-[#001D8D]/60">
-                  Уже есть аккаунт? <Link href="/login" className="text-[#001D8D] hover:underline">Войти в систему</Link>
+                  Уже есть аккаунт? <Link href="/login" className="text-[#001D8D] hover:underline">Войти</Link>
                 </div>
               </motion.div>
             </div>

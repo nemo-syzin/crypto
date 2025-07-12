@@ -146,14 +146,14 @@ const Header = () => {
               variant="ghost"
               className="text-[#001D8D] hover:bg-[#001D8D]/10"
             >
-              <Link href="/login">Sign In</Link>
+              <Link href="/login">Login</Link>
             </Button>
             
             <Button 
               asChild 
               className="bg-[#001D8D] hover:opacity-90 text-white font-medium"
             >
-              <Link href="/get-started">Get Started</Link>
+              <Link href="/register">Get Started</Link>
             </Button>
           </div>
 

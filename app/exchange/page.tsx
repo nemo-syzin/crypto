@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import Link from 'next/link';
 import { 
   Card, 
   CardContent, 
@@ -187,23 +186,18 @@ export default function ExchangePage() {
                 </div>
               </div>
 
-             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-  <Link
-    href="/login"
-    className="bg-[#001D8D] text-white hover:bg-[#001D8D]/90 px-8 py-4 rounded-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
-  >
-    <TrendingUp className="h-5 w-5" />
-    Начать обмен сейчас
-  </Link>
-
-  <Link
-    href="/about"  /* при необходимости замените маршрут */
-    className="border-2 border-[#001D8D]/30 text-[#001D8D] hover:bg-[#001D8D]/10 px-8 py-4 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2"
-  >
-    <ArrowRight className="h-5 w-5" />
-    Узнать больше о сервисе
-  </Link>
-</div>
+              {/* CTA Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <button className="bg-[#001D8D] text-white hover:bg-[#001D8D]/90 px-8 py-4 rounded-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+                  <TrendingUp className="h-5 w-5 mr-2 inline" />
+                  Начать обмен сейчас
+                </button>
+                <button className="border-2 border-[#001D8D]/30 text-[#001D8D] hover:bg-[#001D8D]/10 px-8 py-4 rounded-lg font-semibold transition-all duration-300">
+                  <ArrowRight className="h-5 w-5 mr-2 inline" />
+                  Узнать больше о сервисе
+                </button>
+              </div>
+            </motion.div>
 
             {/* Main Exchange Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -429,7 +423,7 @@ export default function ExchangePage() {
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <button className="bg-white text-[#001D8D] hover:bg-gray-100 px-8 py-4 rounded-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
                     <TrendingUp className="h-5 w-5" />
-                    <Link href="/login">Начать обмен сейчас</Link>
+                    Начать обмен сейчас
                   </button>
                   <button className="border-2 border-white/30 text-white hover:bg-white/10 px-8 py-4 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2">
                     <ArrowRight className="h-5 w-5" />

@@ -192,7 +192,7 @@ export function PricingPageClient() {
                       }`}
                       variant={plan.popular ? 'default' : 'outline'}
                     >
-                      <Link href="/get-started">Начать бесплатно</Link>
+                      {plan.price === '0' ? 'Начать бесплатно' : 'Выбрать план'}
                     </Button>
                     
                     <div className="space-y-3">
