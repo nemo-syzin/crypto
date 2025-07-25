@@ -162,18 +162,7 @@ const partners = [
 ];
 
 const UnifiedMainSection = () => {
-  const controls = useAnimation();
-  const [ref, inView] = useInView({
-    threshold: 0.1,
-    triggerOnce: true,
-  });
   const [activeTab, setActiveTab] = useState('office');
-
-  useEffect(() => {
-    if (inView) {
-      controls.start('visible');
-    }
-  }, [controls, inView]);
 
   const containerVariants = {
     hidden: {},
@@ -296,10 +285,10 @@ const UnifiedMainSection = () => {
             </div>
 
             <motion.div
-              ref={ref}
               variants={containerVariants}
               initial="hidden"
-              animate={controls}
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.1 }}
               className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-24"
             >
               {features.map((feature, index) => (
