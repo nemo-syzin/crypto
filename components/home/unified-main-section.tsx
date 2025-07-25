@@ -220,19 +220,12 @@ const UnifiedMainSection = () => {
   const PartnerLogo = ({ partner, index }: { partner: typeof partners[0]; index: number }) => {
     return (
       <div
-        className="flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200 hover:border-[#001D8D]/30 hover:shadow-lg transition-all duration-300 hover:scale-105 flex-shrink-0 mx-2"
-        className="flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200 hover:border-[#001D8D]/30 hover:shadow-lg transition-all duration-300 hover:scale-105 flex-shrink-0 mx-4"
-        style={{
-          width: '72px',
-          height: '72px',
-          minWidth: '72px',
-          maxWidth: '72px'
-        }}
+        className="flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200 hover:border-[#001D8D]/30 hover:shadow-lg transition-all duration-300 hover:scale-105 flex-shrink-0 mx-4 w-16 h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 xl:w-28 xl:h-28"
       >
         <img
           src={partner.logo}
           alt={`${partner.name} - Криптовалютная биржа`}
-          className="w-9 h-9 object-contain"
+          className="w-8 h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 xl:w-12 xl:h-12 object-contain"
           loading={index < 6 ? "eager" : "lazy"}
           onError={(e) => {
             const target = e.currentTarget as HTMLImageElement;
