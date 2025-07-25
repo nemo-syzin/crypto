@@ -37,7 +37,7 @@ export interface Coin {
   last_updated: string;
 }
 
-interface CoinDetail {
+export interface CoinDetail {
   id: string;
   symbol: string;
   name: string;
@@ -84,7 +84,7 @@ export interface MarketChart {
 }
 
 // Function to fetch top cryptocurrencies
-async function fetchTopCoins(
+export async function fetchTopCoins(
   currency: string = 'usd', 
   limit: number = 20, 
   page: number = 1
@@ -122,7 +122,7 @@ function getApiHeaders(): HeadersInit {
 }
 
 // Function to fetch detailed information about a specific coin
-async function fetchCoinDetails(coinId: string): Promise<CoinDetail> {
+export async function fetchCoinDetails(coinId: string): Promise<CoinDetail> {
   try {
     const params = new URLSearchParams({
       localization: 'false',
@@ -146,7 +146,7 @@ async function fetchCoinDetails(coinId: string): Promise<CoinDetail> {
 }
 
 // Function to fetch historical market data for a coin
-async function fetchCoinMarketChart(
+export async function fetchCoinMarketChart(
   coinId: string,
   currency: string = 'usd',
   days: number = 7
@@ -171,7 +171,7 @@ async function fetchCoinMarketChart(
 }
 
 // Function to search for coins
-async function searchCoins(query: string): Promise<any[]> {
+export async function searchCoins(query: string): Promise<any[]> {
   try {
     const params = new URLSearchParams({
       query: query
@@ -192,7 +192,7 @@ async function searchCoins(query: string): Promise<any[]> {
 }
 
 // Function to fetch global market data
-async function fetchGlobalData(): Promise<any> {
+export async function fetchGlobalData(): Promise<any> {
   try {
     const response = await fetch(`/api/coingecko?endpoint=/global`);
 
@@ -208,7 +208,7 @@ async function fetchGlobalData(): Promise<any> {
 }
 
 // Function to fetch trending coins
-async function fetchTrendingCoins(): Promise<any> {
+export async function fetchTrendingCoins(): Promise<any> {
   try {
     const response = await fetch(`/api/coingecko?endpoint=/search/trending`);
 
@@ -292,7 +292,7 @@ export function useTopCoins(currency: string = 'usd', limit: number = 20, page: 
 }
 
 // Custom hook for fetching coin details
-function useCoinDetails(coinId: string) {
+export function useCoinDetails(coinId: string) {
   const [coinDetails, setCoinDetails] = useState<CoinDetail | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -412,7 +412,7 @@ export function useCoinMarketChart(coinId: string, currency: string = 'usd', day
 }
 
 // Custom hook for fetching global market data
-function useGlobalData() {
+export function useGlobalData() {
   const [globalData, setGlobalData] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -480,7 +480,7 @@ function useGlobalData() {
 }
 
 // Custom hook for fetching trending coins
-function useTrendingCoins() {
+export function useTrendingCoins() {
   const [trendingCoins, setTrendingCoins] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);

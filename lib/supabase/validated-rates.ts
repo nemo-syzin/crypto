@@ -1,6 +1,6 @@
 import { supabase, isSupabaseAvailable, getSupabaseStatus } from './client';
 
-interface ValidatedKenigRate {
+export interface ValidatedKenigRate {
   id: number;
   source: string;
   sell: number;
@@ -10,7 +10,7 @@ interface ValidatedKenigRate {
   validationErrors: string[];
 }
 
-interface RateValidationResult {
+export interface RateValidationResult {
   rates: ValidatedKenigRate[];
   hasValidRates: boolean;
   totalRates: number;

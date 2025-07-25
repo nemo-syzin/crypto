@@ -105,7 +105,7 @@ export const useQuoteAssets = (base: string) => {
 };
 
 // Keep the original useAssets for backward compatibility
-function useAssets() {
+export function useAssets() {
   const { bases, loading: basesLoading, error: basesError } = useBaseAssets();
   
   return {

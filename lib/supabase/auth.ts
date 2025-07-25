@@ -9,7 +9,7 @@ export const supabaseAuth = createClient(
   supabaseAnonKey || 'placeholder-key'
 );
 
-const isAuthAvailable = () => isSupabaseAvailable();
+export const isAuthAvailable = () => isSupabaseAvailable();
 
 export type UserProfile = {
   id: string;
@@ -91,7 +91,7 @@ export async function uploadAvatar(userId: string, file: File): Promise<string |
   }
 }
 
-async function logUserActivity(userId: string, action: string, details?: any): Promise<void> {
+export async function logUserActivity(userId: string, action: string, details?: any): Promise<void> {
   if (!isAuthAvailable()) return;
   
   try {
@@ -198,7 +198,7 @@ export async function enableTwoFactorAuth(userId: string): Promise<{ success: bo
   }
 }
 
-async function verifyTwoFactorToken(userId: string, token: string): Promise<boolean> {
+export async function verifyTwoFactorToken(userId: string, token: string): Promise<boolean> {
   if (!isAuthAvailable()) return false;
   
   try {
