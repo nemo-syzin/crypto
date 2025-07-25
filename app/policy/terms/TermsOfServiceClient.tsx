@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
+import dynamic from 'next/dynamic';
 import { 
   FileText, 
   Users, 
@@ -23,8 +24,16 @@ import {
   Globe,
   Mail
 } from 'lucide-react';
-import { UnifiedVantaBackground } from '@/components/shared/UnifiedVantaBackground';
 import { TableOfContents } from '@/components/ui/table-of-contents';
+
+// Динамический импорт 3D-фона с отключенным SSR для улучшения производительности
+const UnifiedVantaBackground = dynamic(
+  () => import('@/components/shared/UnifiedVantaBackground').then(mod => ({ default: mod.UnifiedVantaBackground })),
+  { 
+    ssr: false,
+    loading: () => <div className="absolute inset-0 bg-gradient-to-br from-slate-50 to-blue-50" />
+  }
+);
 
 interface PolicySection {
   id: string;

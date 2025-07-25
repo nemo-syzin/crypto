@@ -2,17 +2,26 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import dynamic from 'next/dynamic';
 import { RefreshCw, AlertTriangle, Globe, PieChart, BarChart3, TrendingUp, TrendingDown, DollarSign, Clock, Info } from 'lucide-react';
 import { useTopCoins, useCoinMarketChart } from '@/lib/coingecko-api';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { MarketTable } from './components/MarketTable';
 import { CoinDrawer } from './components/CoinDrawer';
-import { UnifiedVantaBackground } from '@/components/shared/UnifiedVantaBackground';
 import { MarketOverview } from './components/MarketOverview';
 import { TrendingCoins } from './components/TrendingCoins';
 import { MarketStats } from './components/MarketStats';
 import type { CoinMarketData } from '@/lib/coingecko';
+
+// Динамический импорт 3D-фона с отключенным SSR для улучшения производительности
+const UnifiedVantaBackground = dynamic(
+  () => import('@/components/shared/UnifiedVantaBackground').then(mod => ({ default: mod.UnifiedVantaBackground })),
+  { 
+    ssr: false,
+    loading: () => <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-100" />
+  }
+);
 
 export function RatesPageClient() {
   const { coins: cryptoCoins, loading: cryptoLoading, error: cryptoError, refetch } = useTopCoins('usd', 50);
@@ -48,6 +57,7 @@ export function RatesPageClient() {
     <div className="min-h-screen bg-white relative overflow-hidden">
       {/* Background matching calculator style */}
       <section className="relative py-20 bg-gradient-to-b from-white via-blue-50/10 to-blue-100/20 overflow-hidden">
+        {/* Оптимизированный фон */}
         <div className="absolute inset-0 opacity-15">
           <UnifiedVantaBackground 
             type="topology"

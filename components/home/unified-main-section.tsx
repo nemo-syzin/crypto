@@ -4,6 +4,7 @@ import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import Image from 'next/image';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
@@ -20,7 +21,15 @@ import {
   Zap
 } from 'lucide-react';
 import Marquee from 'react-fast-marquee';
-import { UnifiedVantaBackground } from '@/components/shared/UnifiedVantaBackground';
+
+// Динамический импорт 3D-фона с отключенным SSR для улучшения производительности
+const UnifiedVantaBackground = dynamic(
+  () => import('@/components/shared/UnifiedVantaBackground').then(mod => ({ default: mod.UnifiedVantaBackground })),
+  { 
+    ssr: false,
+    loading: () => <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-100" />
+  }
+);
 
 // Данные для секций
 const features = [
@@ -112,8 +121,8 @@ const onlineSteps = [
   }
 ];
 
-// ✅ РАСШИРЕННЫЙ МАССИВ ПАРТНЕРОВ - дублируем для заполнения полноэкранного режима
-const basePartners = [
+// Оптимизированный массив партнеров без дублирования
+const partners = [
   {
     name: "Bitcoin",
     logo: "https://res.coinpaper.com/coinpaper/bitcoin_btc_logo_e68b8dbb0c.svg"
@@ -150,13 +159,6 @@ const basePartners = [
     name: "Dogecoin",
     logo: "https://res.coinpaper.com/coinpaper/dogecoin_doge_logo_477144b3df.svg"
   }
-];
-
-// ✅ СОЗДАЕМ РАСШИРЕННЫЙ МАССИВ для заполнения широких экранов
-const partners = [
-  ...basePartners,
-  ...basePartners, // Дублируем для заполнения
-  ...basePartners  // Еще раз дублируем для очень широких экранов
 ];
 
 const UnifiedMainSection = () => {
@@ -251,13 +253,11 @@ const UnifiedMainSection = () => {
   };
 
   // ✅ УЛУЧШЕННЫЙ КОМПОНЕНТ ЛОГОТИПА ПАРТНЕРА - адаптивные размеры
-  const PartnerLogo = ({ partner, index }: { partner: typeof basePartners[0]; index: number }) => {
+  const PartnerLogo = ({ partner, index }: { partner: typeof partners[0]; index: number }) => {
     return (
       <div
-        key={`${partner.name}-${index}`}
         className="flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200 hover:border-[#001D8D]/30 hover:shadow-lg transition-all duration-300 hover:scale-105 flex-shrink-0 mx-2"
         style={{
-          // ✅ Адаптивные размеры для разных экранов
           width: '72px',
           height: '72px',
           minWidth: '72px',
@@ -270,7 +270,6 @@ const UnifiedMainSection = () => {
           className="w-9 h-9 object-contain"
           loading={index < 6 ? "eager" : "lazy"}
           onError={(e) => {
-            // ✅ Graceful fallback - скрываем сломанные изображения
             const target = e.currentTarget as HTMLImageElement;
             const container = target.parentElement;
             if (container) {
@@ -284,21 +283,21 @@ const UnifiedMainSection = () => {
 
   return (
     <section className="relative py-20 bg-gradient-to-b from-white via-blue-50/10 to-blue-100/20 overflow-hidden">
-      {/*  ДВУХЦВЕТНЫЙ ФОН - ОРАНЖЕВЫЙ + СИНИЙ */}
+      {/* Оптимизированный 3D-фон с отложенной загрузкой */}
       <div className="absolute inset-0 opacity-15">
         <UnifiedVantaBackground 
           type="topology"
-          color={0x94bdff}           //  ОСНОВНОЙ ЦВЕТ 
-          color2={0xFF6B35}          //  ДОПОЛНЯЮЩИЙ ЦВЕТ -эффектов)
-          backgroundColor={0xffffff}  //  Белый фон
-          points={15}                 // Еще больше точек для богатства
-          maxDistance={20}            //  Увеличено с 1 до 20 для правильной работы
-          spacing={10}                //  Еще плотнее сетка
-          showDots={true}             // Показать точки
-          speed={1.4}                 // ⚡ Быстрее анимация
-          mouseControls={true}        //  Реакция на мышь
-          touchControls={true}        //  Реакция на касания
-          forceAnimate={true}         //  Принудительная анимация
+          color={0x94bdff}
+          color2={0xFF6B35}
+          backgroundColor={0xffffff}
+          points={15}
+          maxDistance={20}
+          spacing={10}
+          showDots={true}
+          speed={1.4}
+          mouseControls={true}
+          touchControls={true}
+          forceAnimate={true}
         />
       </div>
 
@@ -526,26 +525,21 @@ const UnifiedMainSection = () => {
               </p>
             </motion.div>
 
-            {/* ✅ ТОЛЬКО ДВЕ ЛЕНТЫ - БЕЗ ПРОПУСКОВ НА ЛЮБЫХ ЭКРАНАХ */}
+            {/* Оптимизированные ленты партнеров */}
             <div className="relative mb-12 overflow-hidden">
-              {/* ✅ Первая лента - слева направо с увеличенной скоростью */}
+              {/* Первая лента - слева направо */}
               <div className="mb-6">
                 <Marquee
                   gradient={false}
-                  speed={60} // Увеличена скорость
+                  speed={60}
                   pauseOnHover={true}
                   className="py-4"
-                  style={{ 
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0px' // Убираем промежутки
-                  }}
                 >
                   {partners
                     .filter(partner => partner.logo && partner.name)
                     .map((partner, index) => (
                       <PartnerLogo 
-                        key={`main-${partner.name}-${index}`}
+                        key={`${partner.name}-${index}`}
                         partner={partner} 
                         index={index} 
                       />
@@ -553,27 +547,20 @@ const UnifiedMainSection = () => {
                 </Marquee>
               </div>
 
-              {/* ✅ Вторая лента - справа налево с другой скоростью */}
+              {/* Вторая лента - справа налево */}
               <div>
                 <Marquee
                   gradient={false}
-                  speed={45} // Другая скорость для визуального разнообразия
+                  speed={45}
                   direction="right"
                   pauseOnHover={true}
                   className="py-4"
-                  style={{ 
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0px' // Убираем промежутки
-                  }}
                 >
                   {partners
                     .filter(partner => partner.logo && partner.name)
-                    .slice()
-                    .reverse()
                     .map((partner, index) => (
                       <PartnerLogo 
-                        key={`secondary-${partner.name}-${index}`}
+                        key={`reverse-${partner.name}-${index}`}
                         partner={partner} 
                         index={index} 
                       />
