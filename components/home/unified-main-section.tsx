@@ -19,7 +19,6 @@ import {
   TrendingUp,
   Zap
 } from 'lucide-react';
-import Marquee from 'react-fast-marquee';
 import { UnifiedVantaBackground } from '@/components/shared/UnifiedVantaBackground';
 
 // Данные для секций
@@ -528,57 +527,15 @@ const UnifiedMainSection = () => {
 
             {/* ✅ ТОЛЬКО ДВЕ ЛЕНТЫ - БЕЗ ПРОПУСКОВ НА ЛЮБЫХ ЭКРАНАХ */}
             <div className="relative mb-12 overflow-hidden">
-              {/* ✅ Первая лента - слева направо с увеличенной скоростью */}
-              <div className="mb-6">
-                <Marquee
-                  gradient={false}
-                  speed={60} // Увеличена скорость
-                  pauseOnHover={true}
-                  className="py-4"
-                  style={{ 
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0px' // Убираем промежутки
-                  }}
-                >
-                  {partners
-                    .filter(partner => partner.logo && partner.name)
-                    .map((partner, index) => (
-                      <PartnerLogo 
-                        key={`main-${partner.name}-${index}`}
-                        partner={partner} 
-                        index={index} 
-                      />
-                    ))}
-                </Marquee>
-              </div>
-
-              {/* ✅ Вторая лента - справа налево с другой скоростью */}
-              <div>
-                <Marquee
-                  gradient={false}
-                  speed={45} // Другая скорость для визуального разнообразия
-                  direction="right"
-                  pauseOnHover={true}
-                  className="py-4"
-                  style={{ 
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0px' // Убираем промежутки
-                  }}
-                >
-                  {partners
-                    .filter(partner => partner.logo && partner.name)
-                    .slice()
-                    .reverse()
-                    .map((partner, index) => (
-                      <PartnerLogo 
-                        key={`secondary-${partner.name}-${index}`}
-                        partner={partner} 
-                        index={index} 
-                      />
-                    ))}
-                </Marquee>
+              {/* Simplified static grid instead of marquee */}
+              <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-9 gap-4 justify-items-center">
+                {basePartners.map((partner, index) => (
+                  <PartnerLogo 
+                    key={`${partner.name}-${index}`}
+                    partner={partner} 
+                    index={index} 
+                  />
+                ))}
               </div>
             </div>
 
