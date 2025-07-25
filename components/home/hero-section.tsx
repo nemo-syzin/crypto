@@ -2,8 +2,17 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
-import { UnifiedVantaBackground } from '@/components/shared/UnifiedVantaBackground';
+
+// Динамический импорт 3D-фона с отключенным SSR для улучшения производительности
+const UnifiedVantaBackground = dynamic(
+  () => import('@/components/shared/UnifiedVantaBackground').then(mod => ({ default: mod.UnifiedVantaBackground })),
+  { 
+    ssr: false,
+    loading: () => <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-100" />
+  }
+);
 
 const HeroSection = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -12,23 +21,23 @@ const HeroSection = () => {
     setIsMounted(true);
   }, []);
 
-  if (!isMounted) return null;
-
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden bg-white">
-      <div className="absolute inset-0 z-0 opacity-100">
-        <UnifiedVantaBackground 
-          type="globe"
-          color={0x01278f}
-          color2={0x01278f}     
-          backgroundColor={0xffffff} 
-          scale={1.0}
-          size={1}
-          mouseControls={true}
-          touchControls={true}
-          gyroControls={false}
-        />
-      </div>
+      {isMounted && (
+        <div className="absolute inset-0 z-0 opacity-100">
+          <UnifiedVantaBackground 
+            type="globe"
+            color={0x01278f}
+            color2={0x01278f}     
+            backgroundColor={0xffffff} 
+            scale={1.0}
+            size={1}
+            mouseControls={true}
+            touchControls={true}
+            gyroControls={false}
+          />
+        </div>
+      )}
 
       {/* Очень тонкий градиентный переход к следующему разделу */}
       <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-b from-transparent to-blue-50/20 z-5" />
