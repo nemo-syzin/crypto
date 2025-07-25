@@ -356,13 +356,19 @@ export default function ExchangeCalculator() {
 
           {/* Current Rate Display */}
           {hasValidRate && rate && (
-            <div className="text-sm text-[#001D8D]/70 mt-2">
-              Курс обмена {fromCurrency}/{toCurrency}: {formatRate(rate, toCurrency)}
-              {lastUpdated && (
-                <span className="text-xs text-[#001D8D]/50 ml-2">
-                  (обновлено: {lastUpdated.toLocaleTimeString('ru-RU')})
-                </span>
-              )}
+            <div className="rates-container">
+              <h4 className="font-semibold text-[#001D8D] mb-3">Текущий курс {fromCurrency}/{toCurrency}</h4>
+              <div className="grid grid-cols-1 gap-4">
+                <div className="text-center">
+                  <div className="text-sm text-[#001D8D]/70 mb-1">Курс обмена</div>
+                  <div className="rate-value">{formatRate(rate, toCurrency)}</div>
+                </div>
+              </div>
+              <div className="text-center mt-3">
+                <div className="text-xs text-[#001D8D]/50">
+                  Обновлено: {lastUpdated ? lastUpdated.toLocaleString('ru-RU') : 'Недавно'}
+                </div>
+              </div>
             </div>
           )}
 
@@ -378,6 +384,17 @@ export default function ExchangeCalculator() {
             {getExchangeButtonText}
           </button>
 
+          {/* Info about available pairs */}
+          <div className="border-t border-gray-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 px-6 py-4 rounded-lg">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0 mt-0.5">
+                <Info className="h-4 w-4 text-[#001D8D]/70" />
+              </div>
+              <div className="text-sm text-[#001D8D]/80 leading-relaxed">
+                <strong className="text-[#001D8D]">Доступные валютные пары:</strong> поддерживаются обмены между различными криптовалютами и фиатными валютами. Курсы обновляются каждые 30 секунд из базы данных kenig_rates.
+              </div>
+            </div>
+          </div>
         </CardContent>
       </div>
     </div>

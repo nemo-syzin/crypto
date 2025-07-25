@@ -56,21 +56,9 @@ const nextConfig = {
   },
   // Optimize bundle size
   experimental: {
-    optimizePackageImports: ['lucide-react', 'framer-motion', 'date-fns', '@radix-ui/react-accordion', '@radix-ui/react-dialog', '@radix-ui/react-label', '@radix-ui/react-select', '@radix-ui/react-slot', '@radix-ui/react-tabs', '@radix-ui/react-toast']
+    optimizePackageImports: ['lucide-react', 'framer-motion']
   },
   webpack: (config, { isServer }) => {
-    // Bundle analyzer
-    if (process.env.ANALYZE === 'true') {
-      const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
-      config.plugins.push(
-        new BundleAnalyzerPlugin({
-          analyzerMode: 'static',
-          openAnalyzer: false,
-          reportFilename: isServer ? '../analyze/server.html' : './analyze/client.html'
-        })
-      );
-    }
-
     // Fix for Supabase realtime-js critical dependency warning
     config.module.exprContextCritical = false;
     
