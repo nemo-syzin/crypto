@@ -31,7 +31,7 @@ export interface CoinMarketData {
   last_updated: string;
 }
 
-export interface GlobalMarketData {
+interface GlobalMarketData {
   data: {
     active_cryptocurrencies: number;
     upcoming_icos: number;
@@ -52,7 +52,7 @@ export interface GlobalMarketData {
   };
 }
 
-export interface FearGreedData {
+interface FearGreedData {
   value: string;
   value_classification: string;
   timestamp: string;
@@ -805,7 +805,7 @@ function getFallbackGlobalData(): GlobalMarketData {
 }
 
 // Enhanced hooks with better error handling and fallback data
-export function useMarket(limit: number = 20) {
+function useMarket(limit: number = 20) {
   const { data, error, isLoading, mutate } = useSWR<CoinMarketData[]>(
     `market-data-${limit}`,
     () => getTopCoins(limit),
@@ -836,7 +836,7 @@ export function useMarket(limit: number = 20) {
   };
 }
 
-export function useGlobal() {
+function useGlobal() {
   const { data, error, isLoading, mutate } = useSWR<GlobalMarketData>(
     'global-market-data',
     getGlobalMarketData,
@@ -896,4 +896,4 @@ function useCoinHistory(coinId: string, days: number = 1) {
 }
 
 // Export functions for direct use
-export { getTopCoins, getGlobalMarketData, getCoinHistory };
+;

@@ -184,7 +184,7 @@ export function useAllRates() {
 }
 
 // Enhanced kenig rate hook with stable updates
-export function useKenigRate() {
+function useKenigRate() {
   const [rate, setRate] = useState<KenigRate | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
