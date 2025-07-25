@@ -167,38 +167,13 @@ const UnifiedMainSection = () => {
     threshold: 0.1,
     triggerOnce: true,
   });
-
-  // Отдельные контроллеры для анимации шагов
-  const officeStepsControls = useAnimation();
-  const onlineStepsControls = useAnimation();
-  const [officeStepsRef, officeStepsInView] = useInView({
-    threshold: 0.1,
-    triggerOnce: true,
-  });
-  const [onlineStepsRef, onlineStepsInView] = useInView({
-    threshold: 0.1,
-    triggerOnce: true,
-  });
+  const [activeTab, setActiveTab] = useState('office');
 
   useEffect(() => {
     if (inView) {
       controls.start('visible');
     }
   }, [controls, inView]);
-
-  // Анимация для шагов офиса
-  useEffect(() => {
-    if (officeStepsInView) {
-      officeStepsControls.start('visible');
-    }
-  }, [officeStepsControls, officeStepsInView]);
-
-  // Анимация для онлайн шагов
-  useEffect(() => {
-    if (onlineStepsInView) {
-      onlineStepsControls.start('visible');
-    }
-  }, [onlineStepsControls, onlineStepsInView]);
 
   const containerVariants = {
     hidden: {},
@@ -364,7 +339,7 @@ const UnifiedMainSection = () => {
             </div>
 
             <div className="calculator-container mb-16">
-              <Tabs defaultValue="office" className="w-full">
+              <Tabs defaultValue="office" onValueChange={setActiveTab} className="w-full">
                 <TabsList className="grid w-full grid-cols-2 mb-8 bg-white/90 backdrop-blur-sm border border-[#001D8D]/10">
                   <TabsTrigger value="office" className="text-[#001D8D]">
                     <Building2 className="w-4 h-4 mr-2" />
@@ -378,10 +353,9 @@ const UnifiedMainSection = () => {
 
                 <TabsContent value="office">
                   <motion.div
-                    ref={officeStepsRef}
                     variants={stepsContainerVariants}
                     initial="hidden"
-                    animate={officeStepsControls}
+                    animate={activeTab === 'office' ? 'visible' : 'hidden'}
                     className="space-y-6"
                   >
                     {officeSteps.map((step, index) => (
@@ -407,32 +381,17 @@ const UnifiedMainSection = () => {
                           </motion.div>
                           <div className="flex-1">
                             <div className="flex justify-between items-start">
-                              <motion.h3 
-                                className="text-xl font-bold text-[#001D8D] mb-2 group-hover:text-blue-600 transition-colors duration-300"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ delay: 0.2 }}
-                              >
+                              <h3 className="text-xl font-bold text-[#001D8D] mb-2 group-hover:text-blue-600 transition-colors duration-300">
                                 {step.title}
-                              </motion.h3>
-                              <motion.div 
-                                className="flex items-center text-sm text-[#001D8D]/70"
-                                initial={{ opacity: 0, x: 10 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: 0.3 }}
-                              >
+                              </h3>
+                              <div className="flex items-center text-sm text-[#001D8D]/70">
                                 <Clock className="w-4 h-4 mr-1" />
                                 {step.time}
-                              </motion.div>
+                              </div>
                             </div>
-                            <motion.p 
-                              className="text-[#001D8D]/70 leading-relaxed"
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              transition={{ delay: 0.4 }}
-                            >
+                            <p className="text-[#001D8D]/70 leading-relaxed">
                               {step.description}
-                            </motion.p>
+                            </p>
                           </div>
                         </div>
                       </motion.div>
@@ -442,10 +401,9 @@ const UnifiedMainSection = () => {
 
                 <TabsContent value="online">
                   <motion.div
-                    ref={onlineStepsRef}
                     variants={stepsContainerVariants}
                     initial="hidden"
-                    animate={onlineStepsControls}
+                    animate={activeTab === 'online' ? 'visible' : 'hidden'}
                     className="space-y-6"
                   >
                     {onlineSteps.map((step, index) => (
@@ -471,32 +429,17 @@ const UnifiedMainSection = () => {
                           </motion.div>
                           <div className="flex-1">
                             <div className="flex justify-between items-start">
-                              <motion.h3 
-                                className="text-xl font-bold text-[#001D8D] mb-2 group-hover:text-blue-600 transition-colors duration-300"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ delay: 0.2 }}
-                              >
+                              <h3 className="text-xl font-bold text-[#001D8D] mb-2 group-hover:text-blue-600 transition-colors duration-300">
                                 {step.title}
-                              </motion.h3>
-                              <motion.div 
-                                className="flex items-center text-sm text-[#001D8D]/70"
-                                initial={{ opacity: 0, x: 10 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: 0.3 }}
-                              >
+                              </h3>
+                              <div className="flex items-center text-sm text-[#001D8D]/70">
                                 <Clock className="w-4 h-4 mr-1" />
                                 {step.time}
-                              </motion.div>
+                              </div>
                             </div>
-                            <motion.p 
-                              className="text-[#001D8D]/70 leading-relaxed"
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              transition={{ delay: 0.4 }}
-                            >
+                            <p className="text-[#001D8D]/70 leading-relaxed">
                               {step.description}
-                            </motion.p>
+                            </p>
                           </div>
                         </div>
                       </motion.div>
