@@ -1,63 +1,83 @@
-# Build outputs
-.next/
-dist/
-out/
+# Документация и README файлы
+*.md
+README*
+CHANGELOG*
+CONTRIBUTING*
+LICENSE*
 
-# Dependencies
-node_modules/
+# Изображения и медиа
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.ico
+*.webp
 
-# Environment files
-.env.local
-.env.production
-
-# Logs
+# Отчеты и логи
+knip-report.txt
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+coverage/
+.nyc_output/
 
-# Cache directories
-.cache/
-.parcel-cache/
+# Конфигурационные файлы для CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+.circleci/
+azure-pipelines.yml
 
-# IDE files
+# Документация проекта
+docs/
+documentation/
+DEPLOYMENT.md
+OPTIMIZATION_REPORT.md
+
+# Тестовые и отладочные страницы
+app/debug-*/
+app/test-*/
+app/**/debug*
+app/**/test*
+
+# Конфигурационные файлы деплоя
+vercel.json
+netlify.toml
+railway.json
+docker-compose.yml
+Dockerfile*
+
+# Файлы IDE и редакторов
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
 
-# OS files
-.DS_Store
-Thumbs.db
+# Временные файлы
+.tmp/
+temp/
+tmp/
 
-# Temporary files
-*.tmp
-*.temp
+# Файлы сборки (кроме критичных)
+.next/
+dist/
+build/
+out/
 
-# Supabase migrations (too many duplicates)
-supabase/migrations/20250617*
-supabase/migrations/20250619*
-supabase/migrations/20250624*
-supabase/migrations/20250625*
-supabase/migrations/20250626*
-supabase/migrations/20250627*
-supabase/migrations/20250707*
-supabase/migrations/20250708*
-supabase/migrations/20250709*
+# Файлы пакетных менеджеров
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
 
-# Documentation files
-README.md
-*.md
-
-# Config files (rarely change)
-.eslintrc.json
-postcss.config.js
-tailwind.config.ts
-tsconfig.json
+# Файлы типов (автогенерируемые)
 next-env.d.ts
 
-# Optimization reports
-knip-report.txt
-optimization-report.md
-knip-analysis.json
+# Конфигурации линтеров
+.eslintrc*
+.prettierrc*
+.stylelintrc*
 
-# Static assets that don't need code analysis
-public/brand/
+# Конфигурации для разработки
+tsconfig.json
+postcss.config.js
+tailwind.config.ts
