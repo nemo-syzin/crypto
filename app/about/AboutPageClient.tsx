@@ -30,7 +30,8 @@ import {
   Clock,
   Building2,
   Rocket,
-  Diamond
+  Diamond,
+  Info
 } from 'lucide-react';
 import { CrystalVisualization } from '@/components/3d/CrystalVisualization';
 import Image from 'next/image';
@@ -502,6 +503,74 @@ export function AboutPageClient() {
 
               {/* Manifesto Strip Component */}
               <ManifestoStrip values={manifestoValues} />
+            </motion.div>
+
+            {/* FAQ Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+              className="max-w-6xl mx-auto"
+            >
+              <div className="text-center mb-12">
+                <div className="inline-flex items-center gap-2 bg-[#001D8D]/10 text-[#001D8D] px-6 py-3 rounded-full text-lg mb-8 font-medium">
+                  <Info className="h-6 w-6" />
+                  Часто задаваемые вопросы
+                </div>
+                <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-4">
+                  Ответы на популярные вопросы
+                </h2>
+                <p className="text-xl text-[#001D8D]/70 max-w-3xl mx-auto">
+                  Мы собрали ответы на наиболее популярные вопросы о нашем сервисе и подходе к работе
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-6">
+                  <div className="bg-white/95 backdrop-blur-sm rounded-xl p-6 border border-[#001D8D]/10">
+                    <h3 className="text-lg font-bold text-[#001D8D] mb-3">
+                      Как долго работает KenigSwap?
+                    </h3>
+                    <p className="text-[#001D8D]/70 leading-relaxed">
+                      Мы работаем на рынке криптовалютных услуг уже несколько лет, накопив значительный опыт 
+                      и завоевав доверие тысяч клиентов. Наша команда постоянно развивается и совершенствует сервис.
+                    </p>
+                  </div>
+
+                  <div className="bg-white/95 backdrop-blur-sm rounded-xl p-6 border border-[#001D8D]/10">
+                    <h3 className="text-lg font-bold text-[#001D8D] mb-3">
+                      Какие гарантии безопасности вы предоставляете?
+                    </h3>
+                    <p className="text-[#001D8D]/70 leading-relaxed">
+                      Мы строго соблюдаем все требования AML/KYC, используем многоуровневую систему защиты 
+                      и современные технологии шифрования. Все операции проходят через защищенные каналы.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  <div className="bg-white/95 backdrop-blur-sm rounded-xl p-6 border border-[#001D8D]/10">
+                    <h3 className="text-lg font-bold text-[#001D8D] mb-3">
+                      Как вы обеспечиваете лучшие курсы?
+                    </h3>
+                    <p className="text-[#001D8D]/70 leading-relaxed">
+                      Мы постоянно мониторим рынок и используем передовые алгоритмы для анализа курсов. 
+                      Наша цель - предоставить клиентам максимально выгодные условия обмена.
+                    </p>
+                  </div>
+
+                  <div className="bg-white/95 backdrop-blur-sm rounded-xl p-6 border border-[#001D8D]/10">
+                    <h3 className="text-lg font-bold text-[#001D8D] mb-3">
+                      Планируете ли вы расширение услуг?
+                    </h3>
+                    <p className="text-[#001D8D]/70 leading-relaxed">
+                      Да, мы постоянно работаем над расширением линейки услуг и улучшением существующих. 
+                      В планах добавление новых валютных пар и инновационных решений для клиентов.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </motion.div>
 
             {/* CTA Section */}
