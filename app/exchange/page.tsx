@@ -332,9 +332,9 @@ export default function ExchangePage() {
                 </div>
               </div>
               
-              <div className="relative">
+              <div className="relative flex items-center justify-center">
                 {/* 🎯 КОНТЕЙНЕР БЕЗ ОРАНЖЕВОЙ ЗАЛИВКИ */}
-                <div className="relative" style={{ 
+                <div className="relative mx-auto" style={{ 
                   width: '560px',     
                   height: '560px',   
                   maxWidth: '100%'     
