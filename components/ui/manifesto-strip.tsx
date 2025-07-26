@@ -46,11 +46,11 @@ export function ManifestoStrip({ values, className = "" }: ManifestoStripProps) 
         </div>
 
         {/* Блоки ценностей */}
-        <div className="relative flex h-full">
+        <div className="relative flex h-full overflow-x-auto md:overflow-x-hidden">
           {values.map((value, index) => (
             <motion.div
               key={value.id}
-              className="relative cursor-pointer group transition-all duration-500 ease-out"
+              className="relative cursor-pointer group transition-all duration-500 ease-out flex-shrink-0 min-w-[160px] sm:min-w-[180px] md:min-w-[200px]"
               style={{ 
                 width: getBlockWidth(value.priority),
                 backgroundColor: activeValue === value.id ? value.color : 'transparent'
@@ -81,7 +81,7 @@ export function ManifestoStrip({ values, className = "" }: ManifestoStripProps) 
 
                 {/* Заголовок */}
                 <motion.h3 
-                  className="text-xs md:text-base font-semibold text-white leading-tight"
+                  className="text-xs sm:text-sm md:text-base font-semibold text-white leading-tight"
                   animate={{ 
                     opacity: activeValue === value.id ? 1 : 0.8,
                     y: activeValue === value.id ? -2 : 0
