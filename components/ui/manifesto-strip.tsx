@@ -66,7 +66,7 @@ export function ManifestoStrip({ values, className = "" }: ManifestoStripProps) 
               )}
 
               {/* Контент блока */}
-              <div className="flex flex-col items-center justify-center h-full p-4 text-center">
+              <div className="flex flex-col items-center justify-center h-full px-2 py-4 text-center md:p-4">
                 {/* Номер */}
                 <motion.div 
                   className="text-3xl md:text-4xl font-bold text-white/90 mb-2 font-mono tracking-wider"
@@ -81,7 +81,7 @@ export function ManifestoStrip({ values, className = "" }: ManifestoStripProps) 
 
                 {/* Заголовок */}
                 <motion.h3 
-                  className="text-sm md:text-base font-semibold text-white leading-tight"
+                  className="text-xs md:text-base font-semibold text-white leading-tight"
                   animate={{ 
                     opacity: activeValue === value.id ? 1 : 0.8,
                     y: activeValue === value.id ? -2 : 0
