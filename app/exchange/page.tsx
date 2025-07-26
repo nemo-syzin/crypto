@@ -170,7 +170,7 @@ export default function ExchangePage() {
               className="text-center mb-12"
             >
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-[#001D8D]">
-                Профессиональный обмен криптовалют
+                Профессиональный <span className="bg-gradient-to-r from-[#001D8D] to-blue-600 bg-clip-text text-transparent">обмен</span> криптовалют
               </h1>
             </motion.div>
 
