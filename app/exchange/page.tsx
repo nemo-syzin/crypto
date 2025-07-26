@@ -172,38 +172,6 @@ export default function ExchangePage() {
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-[#001D8D]">
                 Профессиональный обмен криптовалют
               </h1>
-              
-              {/* Trust indicators */}
-              <div className="flex flex-wrap justify-center items-center gap-8 text-sm text-[#001D8D]/70 mb-8">
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-600" />
-                  <span>Лицензированный обменник</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-blue-600" />
-                  <span>Полная безопасность</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-purple-600" />
-                  <span>Обмен за 15 минут</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-orange-600" />
-                  <span>Лучшие курсы на рынке</span>
-                </div>
-              </div>
-
-              {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <button className="bg-[#001D8D] text-white hover:bg-[#001D8D]/90 px-8 py-4 rounded-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
-                  <TrendingUp className="h-5 w-5 mr-2 inline" />
-                  Начать обмен сейчас
-                </button>
-                <button className="border-2 border-[#001D8D]/30 text-[#001D8D] hover:bg-[#001D8D]/10 px-8 py-4 rounded-lg font-semibold transition-all duration-300">
-                  <ArrowRight className="h-5 w-5 mr-2 inline" />
-                  Узнать больше о сервисе
-                </button>
-              </div>
             </motion.div>
 
             {/* Main Exchange Section */}
