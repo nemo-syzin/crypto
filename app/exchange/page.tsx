@@ -172,10 +172,6 @@ export default function ExchangePage() {
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-[#001D8D]">
                 Профессиональный обмен криптовалют
               </h1>
-              <p className="text-xl md:text-2xl text-[#001D8D]/80 max-w-4xl mx-auto leading-relaxed mb-8">
-                Получите лучшие курсы обмена с полной прозрачностью и гарантией безопасности. 
-                Мы предлагаем конкурентные цены и надежный сервис для всех ваших потребностей в обмене криптовалют.
-              </p>
               
               {/* Trust indicators */}
               <div className="flex flex-wrap justify-center items-center gap-8 text-sm text-[#001D8D]/70 mb-8">
