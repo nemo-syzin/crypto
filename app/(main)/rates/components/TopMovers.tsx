@@ -17,11 +17,10 @@ const getSafeImageUrl = (url: string): string => {
 
 interface TopMoversProps {
   coins: CoinMarketData[];
-  calculate4hChange: (coinId: string, currentPrice: number) => number | null;
   loading?: boolean;
 }
 
-export function TopMovers({ coins, calculate4hChange, loading }: TopMoversProps) {
+export function TopMovers({ coins, loading }: TopMoversProps) {
   if (loading) {
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -78,9 +77,7 @@ export function TopMovers({ coins, calculate4hChange, loading }: TopMoversProps)
   };
 
   const renderCoinRow = (coin: CoinMarketData, isGainer: boolean) => {
-    const change4h = calculate4hChange(coin.id, coin.current_price);
     const change24h = coin.price_change_percentage_24h;
-    const change1h = coin.price_change_percentage_1h_in_currency || 0;
     
     return (
       <div key={coin.id} className="flex items-center justify-between p-4 rounded-lg hover:bg-gray-50 transition-colors">
@@ -110,26 +107,6 @@ export function TopMovers({ coins, calculate4hChange, loading }: TopMoversProps)
           >
             {isGainer ? '+' : ''}{change24h.toFixed(2)}%
           </Badge>
-          
-          <div className="flex flex-col gap-1 text-xs text-gray-500">
-            {change1h !== 0 && (
-              <div className="flex items-center gap-1">
-                <span>1ч:</span>
-                <span className={change1h >= 0 ? 'text-green-600' : 'text-red-600'}>
-                  {change1h >= 0 ? '+' : ''}{change1h.toFixed(2)}%
-                </span>
-              </div>
-            )}
-            {change4h !== null && (
-              <div className="flex items-center gap-1">
-                <Clock className="h-3 w-3" />
-                <span>4ч:</span>
-                <span className={change4h >= 0 ? 'text-green-600' : 'text-red-600'}>
-                  {change4h >= 0 ? '+' : ''}{change4h.toFixed(2)}%
-                </span>
-              </div>
-            )}
-          </div>
         </div>
       </div>
     );

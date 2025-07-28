@@ -21,8 +21,6 @@ export interface Coin {
   low_24h: number;
   price_change_24h: number;
   price_change_percentage_24h: number;
-  price_change_percentage_7d_in_currency: number;
-  price_change_percentage_1h_in_currency: number;
   market_cap_change_24h: number;
   market_cap_change_percentage_24h: number;
   circulating_supply: number;
@@ -60,7 +58,6 @@ export interface CoinDetail {
       [key: string]: number;
     };
     price_change_percentage_24h: number;
-    price_change_percentage_7d: number;
     price_change_percentage_30d: number;
   };
   links: {
@@ -97,7 +94,7 @@ export async function fetchTopCoins(
       per_page: limit.toString(),
       page: page.toString(),
       sparkline: 'false',
-      price_change_percentage: '1h,24h,7d'
+      price_change_percentage: '24h'
     });
     
     const response = await fetch(`/api/coingecko?endpoint=/coins/markets&params=${params.toString()}`);
