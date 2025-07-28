@@ -253,12 +253,12 @@ export function TermsOfServiceClient() {
       <UnifiedVantaBackground />
       
       <div className="relative z-10">
-        <div className="container mx-auto px-4 py-12">
+        <div className="container mx-auto px-4 py-20">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-center mb-12"
+            className="text-center mb-12 mt-8"
           >
             <div className="flex items-center justify-center mb-6">
               <div className="p-4 bg-blue-500/10 rounded-2xl backdrop-blur-sm border border-blue-200/20">
