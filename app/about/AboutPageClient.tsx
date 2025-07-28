@@ -228,7 +228,7 @@ export function AboutPageClient() {
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5 }}
                 viewport={{ once: true }}
-                className="space-y-6"
+                className="space-y-6 order-1 lg:order-1"
               >
                 <div className="inline-flex items-center gap-2 bg-[#001D8D]/10 text-[#001D8D] px-4 py-2 rounded-full text-sm font-medium">
                   <Shield className="h-4 w-4" />
@@ -284,7 +284,7 @@ export function AboutPageClient() {
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5 }}
                 viewport={{ once: true }}
-                className="flex items-center justify-center"
+                className="flex items-center justify-center order-2 lg:order-2"
               >
                 <div className="relative mx-auto" style={{ 
                   width: '480px', 
@@ -328,7 +328,7 @@ export function AboutPageClient() {
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5 }}
                 viewport={{ once: true }}
-                className="flex items-center justify-center"
+                className="flex items-center justify-center order-2 lg:order-1"
               >
                 <div className="relative w-full max-w-lg aspect-square">
                   <Image
@@ -353,7 +353,7 @@ export function AboutPageClient() {
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5 }}
                 viewport={{ once: true }}
-                className="space-y-6"
+                className="space-y-6 order-1 lg:order-2"
               >
                 <div className="inline-flex items-center gap-2 bg-[#001D8D]/10 text-[#001D8D] px-4 py-2 rounded-full text-sm font-medium">
                   <Target className="h-4 w-4" />
@@ -419,7 +419,7 @@ export function AboutPageClient() {
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5 }}
                 viewport={{ once: true }}
-                className="flex items-center"
+                className="flex items-center order-1 lg:order-1"
               >
                 <div className="space-y-6">
                   <div className="inline-flex items-center gap-2 bg-purple-100 text-purple-700 px-4 py-2 rounded-full text-sm font-medium">
@@ -478,7 +478,7 @@ export function AboutPageClient() {
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5 }}
                 viewport={{ once: true }}
-                className="flex items-center justify-center"
+                className="flex items-center justify-center order-2 lg:order-2"
               >
                 <div className="relative w-full max-w-lg aspect-square">
                   <Image
