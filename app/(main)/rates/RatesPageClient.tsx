@@ -75,11 +75,11 @@ export function RatesPageClient() {
           >
             <h1 className="text-4xl md:text-5xl font-bold text-[#001D8D] mb-4 flex items-center justify-center gap-3">
               <Globe className="h-10 w-10" />
-              Cryptocurrency Market Data
+              Рыночные данные криптовалют
             </h1>
             <p className="text-xl text-[#001D8D]/80 max-w-4xl mx-auto mb-8 leading-relaxed">
-              Comprehensive cryptocurrency market data with real-time prices, trends, and analytics.
-              Track top cryptocurrencies, market movements, and trading volumes all in one place.
+              Комплексные рыночные данные криптовалют с актуальными ценами, трендами и аналитикой.
+              Отслеживайте топ криптовалюты, движения рынка и объемы торгов в одном месте.
             </p>
             
             {/* Simple refresh button */}
@@ -90,7 +90,7 @@ export function RatesPageClient() {
                 className="bg-gradient-to-r from-[#001D8D] to-blue-600 text-white px-8 py-4 rounded-lg font-semibold hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 <RefreshCw className={`h-5 w-5 ${cryptoLoading ? 'animate-spin' : ''}`} />
-                {cryptoLoading ? 'Updating data...' : 'Refresh data'}
+                {cryptoLoading ? 'Обновление данных...' : 'Обновить данные'}
               </button>
             </div>
           </motion.div>

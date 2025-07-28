@@ -160,10 +160,10 @@ export function TrendingCoins({ coins, onCoinClick, loading }: TrendingCoinsProp
         <div className="p-2 rounded-lg bg-gradient-to-br from-yellow-500 to-orange-600">
           <Star className="h-5 w-5 text-white" />
         </div>
-        <h3 className="text-xl font-bold text-[#001D8D]">Trending Cryptocurrencies</h3>
+        <h3 className="text-xl font-bold text-[#001D8D]">Трендовые криптовалюты</h3>
         <Badge variant="outline" className="ml-auto text-xs">
           <Flame className="h-3 w-3 mr-1" />
-          Hot
+          Горячие
         </Badge>
       </div>
 
@@ -174,7 +174,7 @@ export function TrendingCoins({ coins, onCoinClick, loading }: TrendingCoinsProp
             <div className="p-1.5 rounded-lg bg-gradient-to-br from-green-500 to-green-600">
               <TrendingUp className="h-4 w-4 text-white" />
             </div>
-            <h4 className="font-semibold text-[#001D8D]">Top Performers</h4>
+            <h4 className="font-semibold text-[#001D8D]">Лидеры роста</h4>
           </div>
           <div className="space-y-2">
             {topPerformers.map((coin, index) => renderCoinItem(coin, index))}
@@ -187,7 +187,7 @@ export function TrendingCoins({ coins, onCoinClick, loading }: TrendingCoinsProp
             <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600">
               <Zap className="h-4 w-4 text-white" />
             </div>
-            <h4 className="font-semibold text-[#001D8D]">Highest Volume</h4>
+            <h4 className="font-semibold text-[#001D8D]">Наибольший объем</h4>
           </div>
           <div className="space-y-2">
             {mostVolume.map((coin, index) => renderCoinItem(coin, index, true))}
@@ -200,7 +200,7 @@ export function TrendingCoins({ coins, onCoinClick, loading }: TrendingCoinsProp
             <div className="p-1.5 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600">
               <Flame className="h-4 w-4 text-white" />
             </div>
-            <h4 className="font-semibold text-[#001D8D]">Biggest Movers</h4>
+            <h4 className="font-semibold text-[#001D8D]">Наибольшие движения</h4>
           </div>
           <div className="space-y-2">
             {biggestMovers.map((coin, index) => renderCoinItem(coin, index))}
@@ -215,7 +215,7 @@ export function TrendingCoins({ coins, onCoinClick, loading }: TrendingCoinsProp
             <div className="text-lg font-bold text-green-600">
               {topPerformers[0]?.price_change_percentage_24h.toFixed(1)}%
             </div>
-            <div className="text-sm text-green-800">Best Performer</div>
+            <div className="text-sm text-green-800">Лучший результат</div>
             <div className="text-xs text-green-600">{topPerformers[0]?.symbol.toUpperCase()}</div>
           </div>
 
@@ -223,7 +223,7 @@ export function TrendingCoins({ coins, onCoinClick, loading }: TrendingCoinsProp
             <div className="text-lg font-bold text-blue-600">
               {formatVolume(mostVolume[0]?.total_volume || 0)}
             </div>
-            <div className="text-sm text-blue-800">Highest Volume</div>
+            <div className="text-sm text-blue-800">Наибольший объем</div>
             <div className="text-xs text-blue-600">{mostVolume[0]?.symbol.toUpperCase()}</div>
           </div>
 
@@ -231,7 +231,7 @@ export function TrendingCoins({ coins, onCoinClick, loading }: TrendingCoinsProp
             <div className="text-lg font-bold text-purple-600">
               {Math.abs(biggestMovers[0]?.price_change_percentage_24h || 0).toFixed(1)}%
             </div>
-            <div className="text-sm text-purple-800">Biggest Move</div>
+            <div className="text-sm text-purple-800">Наибольшее движение</div>
             <div className="text-xs text-purple-600">{biggestMovers[0]?.symbol.toUpperCase()}</div>
           </div>
         </div>

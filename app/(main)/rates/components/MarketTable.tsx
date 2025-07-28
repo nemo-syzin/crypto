@@ -192,13 +192,13 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
           <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600">
             <Globe className="h-5 w-5 text-white" />
           </div>
-          <h3 className="text-xl font-bold text-[#001D8D]">Global Crypto Market</h3>
+          <h3 className="text-xl font-bold text-[#001D8D]">Глобальный крипторынок</h3>
         </div>
         <div className="flex items-center gap-3">
           <div className="relative">
             <input
               type="text"
-              placeholder="Search coins..."
+              placeholder="Поиск монет..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="py-2 px-3 pr-10 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -207,11 +207,11 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
           </div>
           <Badge variant="outline" className="text-xs">
             <Activity className="h-3 w-3 mr-1" />
-            Live data
+            Данные в реальном времени
           </Badge>
           <Button variant="outline" size="sm" className="text-xs flex items-center gap-1">
             <Download className="h-3 w-3" />
-            Export
+            Экспорт
           </Button>
         </div>
       </div>
@@ -221,27 +221,27 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
           <thead className="sticky top-0 bg-white/95 backdrop-blur-sm">
             <tr className="border-b border-[#001D8D]/10 text-sm">
               <th className="text-left py-3 px-2" scope="col">
-                <SortButton field="market_cap_rank">Rank</SortButton>
+                <SortButton field="market_cap_rank">Ранг</SortButton>
               </th>
-              <th className="text-left py-3 px-2" scope="col">Name</th>
-              <th className="text-center py-3 px-2 hidden md:table-cell" scope="col">Trend</th>
+              <th className="text-left py-3 px-2" scope="col">Название</th>
+              <th className="text-center py-3 px-2 hidden md:table-cell" scope="col">Тренд</th>
               <th className="text-right py-3 px-2" scope="col">
-                <SortButton field="current_price">Price</SortButton>
+                <SortButton field="current_price">Цена</SortButton>
               </th>
               <th className="text-right py-3 px-2" scope="col">
-                <SortButton field="price_change_percentage_24h">24h %</SortButton>
+                <SortButton field="price_change_percentage_24h">24ч %</SortButton>
               </th>
               <th className="text-right py-3 px-2 hidden md:table-cell" scope="col">
-                <SortButton field="price_change_percentage_7d_in_currency">7d %</SortButton>
+                <SortButton field="price_change_percentage_7d_in_currency">7д %</SortButton>
               </th>
               <th className="text-right py-3 px-2" scope="col">
-                <SortButton field="market_cap">Market Cap</SortButton>
+                <SortButton field="market_cap">Капитализация</SortButton>
               </th>
               <th className="text-right py-3 px-2 hidden md:table-cell" scope="col">
-                <SortButton field="total_volume">Volume (24h)</SortButton>
+                <SortButton field="total_volume">Объем (24ч)</SortButton>
               </th>
               <th className="text-right py-3 px-2 hidden lg:table-cell" scope="col">
-                <SortButton field="circulating_supply">Circulating Supply</SortButton>
+                <SortButton field="circulating_supply">В обращении</SortButton>
               </th>
             </tr>
           </thead>
@@ -253,7 +253,7 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
                 className="border-b border-gray-100 hover:bg-[#001D8D]/5 cursor-pointer transition-colors group"
                 role="button"
                 tabIndex={0}
-                aria-label={`View details for ${coin.name}`}
+                aria-label={`Просмотр деталей для ${coin.name}`}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
@@ -328,7 +328,7 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
                     <div>{formatSupply(coin.circulating_supply)} {coin.symbol.toUpperCase()}</div>
                     {coin.max_supply && (
                       <div className="text-xs text-[#001D8D]/50">
-                        Max: {formatSupply(coin.max_supply)}
+                        Макс: {formatSupply(coin.max_supply)}
                       </div>
                     )}
                   </div>
@@ -343,9 +343,9 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
       {totalPages > 1 && (
         <div className="mt-6 flex items-center justify-between">
           <div className="text-sm text-[#001D8D]/70 flex items-center gap-2">
-            <span>Showing</span>
+            <span>Показано</span>
             <strong>{(page - 1) * itemsPerPage + 1}-{Math.min(page * itemsPerPage, sortedCoins.length)}</strong>
-            <span>of</span>
+            <span>из</span>
             <strong>{sortedCoins.length}</strong>
           </div>
           <div className="flex items-center gap-2">
@@ -356,7 +356,7 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
               disabled={page === 1}
               className="text-[#001D8D]"
             >
-              Previous
+              Назад
             </Button>
             {Array.from({ length: totalPages }).map((_, i) => (
               <Button
@@ -376,7 +376,7 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
               disabled={page === totalPages}
               className="text-[#001D8D]"
             >
-              Next
+              Далее
             </Button>
           </div>
         </div>
@@ -387,30 +387,30 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-2">
             <Globe className="h-3 w-3" />
-            <span>Data provided by CoinGecko API</span>
+            <span>Данные предоставлены CoinGecko API</span>
           </div>
           
           <div className="flex items-center gap-2">
             <Activity className="h-3 w-3" />
-            <span>Showing {filteredCoins.length} of {coins.length} coins</span>
+            <span>Показано {filteredCoins.length} из {coins.length} монет</span>
           </div>
         </div>
         
         <div className="flex items-start gap-4">
           <div className="flex items-center gap-1">
             <Info className="h-3 w-3 text-blue-500" />
-            <span>Data updates every 5 minutes</span>
+            <span>Данные обновляются каждые 5 минут</span>
           </div>
           
           <div className="flex items-center gap-1">
             <Filter className="h-3 w-3 text-purple-500" />
-            <span>Sorted by: {sortField === 'market_cap_rank' ? 'rank' : 
-              sortField === 'current_price' ? 'price' : 
-              sortField === 'price_change_percentage_24h' ? '24h change' : 
-              sortField === 'price_change_percentage_7d_in_currency' ? '7d change' : 
-              sortField === 'market_cap' ? 'market cap' : 
-              sortField === 'total_volume' ? 'volume' : 
-              sortField === 'circulating_supply' ? 'supply' : 'rank'}</span>
+            <span>Сортировка: {sortField === 'market_cap_rank' ? 'ранг' : 
+              sortField === 'current_price' ? 'цена' : 
+              sortField === 'price_change_percentage_24h' ? 'изменение 24ч' : 
+              sortField === 'price_change_percentage_7d_in_currency' ? 'изменение 7д' : 
+              sortField === 'market_cap' ? 'капитализация' : 
+              sortField === 'total_volume' ? 'объем' : 
+              sortField === 'circulating_supply' ? 'в обращении' : 'ранг'}</span>
           </div>
         </div>
       </div>
@@ -420,16 +420,16 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
         <div className="flex items-start gap-3">
           <Info className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
           <div>
-            <h5 className="font-semibold text-blue-900 mb-2">Table Information</h5>
+            <h5 className="font-semibold text-blue-900 mb-2">Информация о таблице</h5>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 text-xs text-blue-800">
-              <div>• <strong>Rank</strong>: Position by market capitalization</div>
-              <div>• <strong>Price</strong>: Current price in USD</div>
-              <div>• <strong>24h %</strong>: Price change in the last 24 hours</div>
-              <div>• <strong>7d %</strong>: Price change in the last 7 days</div>
-              <div>• <strong>Market Cap</strong>: Total market value</div>
-              <div>• <strong>Volume (24h)</strong>: Trading volume in 24 hours</div>
-              <div>• <strong>Circulating Supply</strong>: Number of coins in circulation</div>
-              <div>• <strong>Max Supply</strong>: Maximum possible number of coins</div>
+              <div>• <strong>Ранг</strong>: Позиция по рыночной капитализации</div>
+              <div>• <strong>Цена</strong>: Текущая цена в USD</div>
+              <div>• <strong>24ч %</strong>: Изменение цены за последние 24 часа</div>
+              <div>• <strong>7д %</strong>: Изменение цены за последние 7 дней</div>
+              <div>• <strong>Капитализация</strong>: Общая рыночная стоимость</div>
+              <div>• <strong>Объем (24ч)</strong>: Объем торгов за 24 часа</div>
+              <div>• <strong>В обращении</strong>: Количество монет в обращении</div>
+              <div>• <strong>Макс. предложение</strong>: Максимально возможное количество монет</div>
             </div>
           </div>
         </div>

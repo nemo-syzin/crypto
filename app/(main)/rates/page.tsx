@@ -2,27 +2,27 @@ import { Metadata } from 'next';
 import { RatesPageClient } from './RatesPageClient';
 
 export const metadata: Metadata = {
-  title: 'Crypto Rates – KenigSwap',
-  description: 'Real-time cryptocurrency rates, market data, and analysis. Track top cryptocurrencies, market trends, and Fear & Greed Index.',
-  keywords: ['cryptocurrency', 'crypto rates', 'bitcoin', 'ethereum', 'market data', 'fear greed index', 'coingecko', 'live prices'],
+  title: 'Курсы криптовалют – KenigSwap',
+  description: 'Актуальные курсы криптовалют, рыночные данные и аналитика в реальном времени. Отслеживайте топ криптовалюты, рыночные тренды и индекс страха и жадности.',
+  keywords: ['криптовалюты', 'курсы криптовалют', 'биткоин', 'эфириум', 'рыночные данные', 'индекс страха и жадности', 'актуальные цены'],
   openGraph: {
-    title: 'Crypto Rates – KenigSwap',
-    description: 'Real-time cryptocurrency rates and market analysis powered by CoinGecko',
+    title: 'Курсы криптовалют – KenigSwap',
+    description: 'Актуальные курсы криптовалют и рыночная аналитика на базе CoinGecko',
     type: 'website',
-    locale: 'en_US',
+    locale: 'ru_RU',
     images: [
       {
         url: '/og-rates.png',
         width: 1200,
         height: 630,
-        alt: 'KenigSwap Crypto Rates',
+        alt: 'KenigSwap Курсы криптовалют',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Crypto Rates – KenigSwap',
-    description: 'Real-time cryptocurrency rates and market analysis',
+    title: 'Курсы криптовалют – KenigSwap',
+    description: 'Актуальные курсы криптовалют и рыночная аналитика',
     images: ['/og-rates.png'],
   },
   robots: {

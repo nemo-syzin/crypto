@@ -77,9 +77,9 @@ export function MarketStats({ coins, loading }: MarketStatsProps) {
         <div className="p-2 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-600">
           <BarChart3 className="h-5 w-5 text-white" />
         </div>
-        <h3 className="text-xl font-bold text-[#001D8D]">Market Analysis</h3>
+        <h3 className="text-xl font-bold text-[#001D8D]">Анализ рынка</h3>
         <Badge variant="outline" className="ml-auto text-xs">
-          Top {coins.length} coins
+          Топ {coins.length} монет
         </Badge>
       </div>
 
@@ -88,13 +88,13 @@ export function MarketStats({ coins, loading }: MarketStatsProps) {
         <div className={`p-4 rounded-lg ${getMarketMood.bg} border border-current/20`}>
           <div className="flex items-center gap-2 mb-2">
             <Activity className={`h-4 w-4 ${getMarketMood.color}`} />
-            <span className="text-sm font-medium text-gray-700">Market Sentiment</span>
+            <span className="text-sm font-medium text-gray-700">Настроение рынка</span>
           </div>
           <div className={`text-2xl font-bold ${getMarketMood.color} mb-1`}>
             {getMarketMood.mood}
           </div>
           <div className="text-sm text-gray-600">
-            {gainers.length} gainers, {losers.length} losers
+            {gainers.length} растут, {losers.length} падают
           </div>
         </div>
 
@@ -102,7 +102,7 @@ export function MarketStats({ coins, loading }: MarketStatsProps) {
         <div className="p-4 rounded-lg bg-blue-50 border border-blue-200">
           <div className="flex items-center gap-2 mb-2">
             <TrendingUp className="h-4 w-4 text-blue-600" />
-            <span className="text-sm font-medium text-gray-700">Average Change</span>
+            <span className="text-sm font-medium text-gray-700">Среднее изменение</span>
           </div>
           <div className={`text-2xl font-bold mb-1 ${
             avgChange24h >= 0 ? 'text-green-600' : 'text-red-600'
@@ -110,7 +110,7 @@ export function MarketStats({ coins, loading }: MarketStatsProps) {
             {avgChange24h >= 0 ? '+' : ''}{avgChange24h.toFixed(2)}%
           </div>
           <div className="text-sm text-gray-600">
-            Last 24 hours
+            За последние 24 часа
           </div>
         </div>
 
@@ -118,13 +118,13 @@ export function MarketStats({ coins, loading }: MarketStatsProps) {
         <div className="p-4 rounded-lg bg-purple-50 border border-purple-200">
           <div className="flex items-center gap-2 mb-2">
             <PieChart className="h-4 w-4 text-purple-600" />
-            <span className="text-sm font-medium text-gray-700">Turnover Ratio</span>
+            <span className="text-sm font-medium text-gray-700">Коэффициент оборота</span>
           </div>
           <div className="text-2xl font-bold text-purple-600 mb-1">
             {((totalVolume / totalMarketCap) * 100).toFixed(1)}%
           </div>
           <div className="text-sm text-gray-600">
-            Volume/Market Cap
+            Объем/Капитализация
           </div>
         </div>
 
@@ -132,26 +132,26 @@ export function MarketStats({ coins, loading }: MarketStatsProps) {
         <div className="p-4 rounded-lg bg-orange-50 border border-orange-200">
           <div className="flex items-center gap-2 mb-2">
             <Zap className="h-4 w-4 text-orange-600" />
-            <span className="text-sm font-medium text-gray-700">High Volatility</span>
+            <span className="text-sm font-medium text-gray-700">Высокая волатильность</span>
           </div>
           <div className="text-2xl font-bold text-orange-600 mb-1">
             {highVolatility.length}
           </div>
           <div className="text-sm text-gray-600">
-            Coins with >5% change
+            Монет с изменением >5%
           </div>
         </div>
       </div>
       
       {/* Additional Market Insights */}
       <div className="mt-6 pt-6 border-t border-gray-100">
-        <h4 className="text-lg font-semibold text-[#001D8D] mb-4">Market Insights</h4>
+        <h4 className="text-lg font-semibold text-[#001D8D] mb-4">Рыночная аналитика</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Gainers vs Losers */}
           <div className="p-4 bg-white rounded-lg border border-gray-200">
             <div className="flex items-center justify-between mb-3">
-              <div className="text-sm font-medium text-gray-700">Gainers vs Losers</div>
-              <Badge variant="outline" className="text-xs">24h</Badge>
+              <div className="text-sm font-medium text-gray-700">Растущие против падающих</div>
+              <Badge variant="outline" className="text-xs">24ч</Badge>
             </div>
             
             <div className="relative h-4 bg-gray-100 rounded-full overflow-hidden mb-2">
@@ -164,11 +164,11 @@ export function MarketStats({ coins, loading }: MarketStatsProps) {
             <div className="flex justify-between text-xs text-gray-600">
               <div className="flex items-center">
                 <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
-                <span>Gainers: {gainers.length} ({((gainers.length / coins.length) * 100).toFixed(0)}%)</span>
+                <span>Растут: {gainers.length} ({((gainers.length / coins.length) * 100).toFixed(0)}%)</span>
               </div>
               <div className="flex items-center">
                 <div className="w-2 h-2 bg-gray-300 rounded-full mr-1"></div>
-                <span>Losers: {losers.length} ({((losers.length / coins.length) * 100).toFixed(0)}%)</span>
+                <span>Падают: {losers.length} ({((losers.length / coins.length) * 100).toFixed(0)}%)</span>
               </div>
             </div>
           </div>
@@ -176,23 +176,23 @@ export function MarketStats({ coins, loading }: MarketStatsProps) {
           {/* Market Health */}
           <div className="p-4 bg-white rounded-lg border border-gray-200">
             <div className="flex items-center justify-between mb-3">
-              <div className="text-sm font-medium text-gray-700">Market Health</div>
+              <div className="text-sm font-medium text-gray-700">Здоровье рынка</div>
               <div className={`px-2 py-0.5 rounded text-xs ${
                 avgChange24h > 3 ? 'bg-green-100 text-green-800' :
                 avgChange24h > 0 ? 'bg-green-50 text-green-600' :
                 avgChange24h > -3 ? 'bg-red-50 text-red-600' :
                 'bg-red-100 text-red-800'
               }`}>
-                {avgChange24h > 3 ? 'Very Healthy' :
-                 avgChange24h > 0 ? 'Healthy' :
-                 avgChange24h > -3 ? 'Cautious' :
-                 'Unhealthy'}
+                {avgChange24h > 3 ? 'Очень здоровый' :
+                 avgChange24h > 0 ? 'Здоровый' :
+                 avgChange24h > -3 ? 'Осторожный' :
+                 'Нездоровый'}
               </div>
             </div>
             
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-600">Volatility</span>
+                <span className="text-xs text-gray-600">Волатильность</span>
                 <div className="flex items-center">
                   {Array.from({ length: 5 }).map((_, i) => (
                     <div 
@@ -208,7 +208,7 @@ export function MarketStats({ coins, loading }: MarketStatsProps) {
               </div>
               
               <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-600">Liquidity</span>
+                <span className="text-xs text-gray-600">Ликвидность</span>
                 <div className="flex items-center">
                   {Array.from({ length: 5 }).map((_, i) => (
                     <div 
@@ -224,7 +224,7 @@ export function MarketStats({ coins, loading }: MarketStatsProps) {
               </div>
               
               <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-600">Market Breadth</span>
+                <span className="text-xs text-gray-600">Широта рынка</span>
                 <div className="flex items-center">
                   {Array.from({ length: 5 }).map((_, i) => (
                     <div 

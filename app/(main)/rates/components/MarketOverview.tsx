@@ -98,7 +98,7 @@ export function MarketOverview({ coins, btcChartData, loading }: MarketOverviewP
             <DollarSign className="h-5 w-5 text-white" />
           </div>
           <span className="text-sm font-medium text-[#001D8D]/70">
-            Total Market Cap
+            Общая капитализация
           </span>
         </div>
         <div className="text-3xl font-bold text-[#001D8D] mb-2">
@@ -125,7 +125,7 @@ export function MarketOverview({ coins, btcChartData, loading }: MarketOverviewP
             <Bitcoin className="h-5 w-5 text-white" />
           </div>
           <span className="text-sm font-medium text-[#001D8D]/70">
-            BTC Dominance
+            Доминирование BTC
           </span>
         </div>
         <div className="text-3xl font-bold text-[#001D8D] mb-2">
@@ -139,9 +139,9 @@ export function MarketOverview({ coins, btcChartData, loading }: MarketOverviewP
         {btcChartData && btcPriceData.length > 0 && (
           <div className="mt-4 pt-4 border-t border-gray-100">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-[#001D8D]/60">BTC 30-day trend</span>
+              <span className="text-xs text-[#001D8D]/60">BTC тренд 30 дней</span>
               <Badge variant="outline" className="text-xs">
-                {btcPriceData[btcPriceData.length - 1] > btcPriceData[0] ? 'Bullish' : 'Bearish'}
+                {btcPriceData[btcPriceData.length - 1] > btcPriceData[0] ? 'Бычий' : 'Медвежий'}
               </Badge>
             </div>
             <div className="h-10 flex items-end">
@@ -175,19 +175,19 @@ export function MarketOverview({ coins, btcChartData, loading }: MarketOverviewP
             <PieChart className="h-5 w-5 text-white" />
           </div>
           <span className="text-sm font-medium text-[#001D8D]/70">
-            24h Trading Volume
+            Объем торгов 24ч
           </span>
         </div>
         <div className="text-3xl font-bold text-[#001D8D] mb-2">
           {formatLargeNumber(totalVolume)}
         </div>
         <div className="text-sm text-[#001D8D]/70">
-          Volume/Market Cap: {((totalVolume / totalMarketCap) * 100).toFixed(1)}%
+          Объем/Капитализация: {((totalVolume / totalMarketCap) * 100).toFixed(1)}%
         </div>
         
         {/* Volume distribution */}
         <div className="mt-4 pt-4 border-t border-gray-100">
-          <div className="text-xs text-[#001D8D]/60 mb-2">Volume distribution (Top 5)</div>
+          <div className="text-xs text-[#001D8D]/60 mb-2">Распределение объема (Топ 5)</div>
           <div className="space-y-2">
             {coins.slice(0, 5).map((coin) => (
               <div key={coin.id} className="flex items-center justify-between text-xs">
