@@ -229,42 +229,7 @@ export function AboutPageClient() {
               viewport={{ once: true }}
               className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
             >
-              {/* Видео слева на больших экранах, сверху на мобильных */}
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5 }}
-                viewport={{ once: true }}
-                className="flex items-center justify-center"
-              >
-                <div className="relative mx-auto" style={{ 
-                  width: '480px', 
-                  height: '560px',
-                  maxWidth: '100%'
-                }}>
-                  <video
-                    src="https://assets.revolut.com/published-assets-v3/a1cbc33c-6662-4f29-ab7b-2c4e1b4e781f/7989b735-2247-485a-b3c4-67680b1974f2.mp4"
-                    className="w-full h-full object-cover rounded-lg shadow-2xl"
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    preload="metadata"
-                    aria-label="Professional crypto service demonstration"
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      objectPosition: 'center bottom',
-                      border: 'none',
-                      outline: 'none',
-                      borderRadius: '8px'
-                    }}
-                  />
-                </div>
-              </motion.div>
-              
-              {/* Текст справа на больших экранах, снизу на мобильных */}
+              {/* Текст слева на больших экранах, сверху на мобильных */}
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 whileInView={{ opacity: 1, x: 0 }}
@@ -317,6 +282,41 @@ export function AboutPageClient() {
                       <p className="text-sm text-[#001D8D]/70">Официальная регистрация и лицензии</p>
                     </div>
                   </div>
+                </div>
+              </motion.div>
+              
+              {/* Видео справа на больших экранах, снизу на мобильных */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5 }}
+                viewport={{ once: true }}
+                className="flex items-center justify-center"
+              >
+                <div className="relative mx-auto" style={{ 
+                  width: '480px', 
+                  height: '560px',
+                  maxWidth: '100%'
+                }}>
+                  <video
+                    src="https://assets.revolut.com/published-assets-v3/a1cbc33c-6662-4f29-ab7b-2c4e1b4e781f/7989b735-2247-485a-b3c4-67680b1974f2.mp4"
+                    className="w-full h-full object-cover rounded-lg shadow-2xl"
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    preload="metadata"
+                    aria-label="Professional crypto service demonstration"
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      objectPosition: 'center bottom',
+                      border: 'none',
+                      outline: 'none',
+                      borderRadius: '8px'
+                    }}
+                  />
                 </div>
               </motion.div>
             </motion.div>
