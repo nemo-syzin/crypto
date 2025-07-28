@@ -322,9 +322,34 @@ export function AboutPageClient() {
               viewport={{ once: true }}
               className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
             >
-              {/* Текст слева на больших экранах, сверху на мобильных */}
+              {/* Изображение слева на больших экранах, снизу на мобильных */}
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5 }}
+                viewport={{ once: true }}
+                className="flex items-center justify-center"
+              >
+                <div className="relative w-full max-w-lg aspect-square">
+                  <Image
+                    src="https://assets.revolut.com/published-assets-v3/73aa49ec-f611-485f-9cc6-b57e3801240f/6a85f8bd-2664-4414-aeec-4d05e476f61b.png"
+                    alt="Our Mission - Professional crypto service"
+                    fill
+                    className="object-contain"
+                    priority
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    style={{
+                      border: 'none',
+                      outline: 'none',
+                      boxShadow: 'none'
+                    }}
+                  />
+                </div>
+              </motion.div>
+
+              {/* Текст справа на больших экранах, сверху на мобильных */}
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5 }}
                 viewport={{ once: true }}
@@ -376,31 +401,6 @@ export function AboutPageClient() {
                       <p className="text-sm text-[#001D8D]/70">Участие в инновационном развитии финансовой системы</p>
                     </div>
                   </div>
-                </div>
-              </motion.div>
-
-              {/* Изображение справа на больших экранах, снизу на мобильных */}
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5 }}
-                viewport={{ once: true }}
-                className="flex items-center justify-center"
-              >
-                <div className="relative w-full max-w-lg aspect-square">
-                  <Image
-                    src="https://assets.revolut.com/published-assets-v3/73aa49ec-f611-485f-9cc6-b57e3801240f/6a85f8bd-2664-4414-aeec-4d05e476f61b.png"
-                    alt="Our Mission - Professional crypto service"
-                    fill
-                    className="object-contain"
-                    priority
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    style={{
-                      border: 'none',
-                      outline: 'none',
-                      boxShadow: 'none'
-                    }}
-                  />
                 </div>
               </motion.div>
             </motion.div>
