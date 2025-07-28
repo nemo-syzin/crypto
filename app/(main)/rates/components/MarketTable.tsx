@@ -382,39 +382,6 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
         </div>
       )}
       
-      {/* Table footer with info */}
-      <div className="mt-4 pt-4 border-t border-gray-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-xs text-gray-500">
-        <div className="flex flex-wrap items-center gap-4">
-          <div className="flex items-center gap-2">
-            <Globe className="h-3 w-3" />
-            <span>Данные предоставлены CoinGecko API</span>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <Activity className="h-3 w-3" />
-            <span>Показано {filteredCoins.length} из {coins.length} монет</span>
-          </div>
-        </div>
-        
-        <div className="flex items-start gap-4">
-          <div className="flex items-center gap-1">
-            <Info className="h-3 w-3 text-blue-500" />
-            <span>Данные обновляются каждые 5 минут</span>
-          </div>
-          
-          <div className="flex items-center gap-1">
-            <Filter className="h-3 w-3 text-purple-500" />
-            <span>Сортировка: {sortField === 'market_cap_rank' ? 'ранг' : 
-              sortField === 'current_price' ? 'цена' : 
-              sortField === 'price_change_percentage_24h' ? 'изменение 24ч' : 
-              sortField === 'price_change_percentage_7d_in_currency' ? 'изменение 7д' : 
-              sortField === 'market_cap' ? 'капитализация' : 
-              sortField === 'total_volume' ? 'объем' : 
-              sortField === 'circulating_supply' ? 'в обращении' : 'ранг'}</span>
-          </div>
-        </div>
-      </div>
-      
       {/* Table Legend */}
       <div className="mt-6 p-4 bg-blue-50/50 rounded-lg border border-blue-100 text-sm">
         <div className="flex items-start gap-3">
