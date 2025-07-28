@@ -130,229 +130,209 @@ export function AboutPageClient() {
       number: '06',
       title: 'Долгосрочное партнерство',
       description: 'Наш подход к сотрудничеству основан на честности и взаимном доверии. Мы рассматриваем клиентов как партнёров, вместе с которыми достигаем долгосрочного успеха и развития. Строим отношения на годы, а не на разовые сделки.',
-          {/* Video Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
-            className="flex justify-center"
-          >
-            <div className="relative mx-auto" style={{ 
-              width: '480px', 
-              height: '560px',
-              maxWidth: '100%'
-            }}>
-              <video
-                src="https://assets.revolut.com/published-assets-v3/a1cbc33c-6662-4f29-ab7b-2c4e1b4e781f/7989b735-2247-485a-b3c4-67680b1974f2.mp4"
-                className="w-full h-full object-cover rounded-lg shadow-2xl"
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="metadata"
-                aria-label="Professional crypto service demonstration"
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  objectPosition: 'center bottom',
-                  border: 'none',
-                  outline: 'none',
-                  borderRadius: '8px'
-                }}
-              />
+      priority: 6,
+      color: '#dc2626'
+    }
+  ];
+
+  if (!isMounted) {
+    return null;
+  }
+
+  return (
+    <div className="min-h-screen bg-white relative overflow-hidden">
+      {/* Background */}
+      <section className="relative py-20 bg-gradient-to-b from-white via-blue-50/10 to-blue-100/20 overflow-hidden">
+        {/* Оптимизированный фон */}
+        {isMounted && (
+          <div className="absolute inset-0 opacity-15">
+            <UnifiedVantaBackground 
+              type="topology"
+              color={0x94bdff}
+              color2={0xFF6B35}
               backgroundColor={0xffffff}
-          </motion.div>
+              points={15}
               maxDistance={20}
-          {/* Mission Section - Наша миссия */}
+              spacing={16}
               showDots={true}
               speed={1.4}
               mouseControls={true}
               touchControls={true}
               forceAnimate={true}
-            className="max-w-4xl mx-auto text-center"
+            />
           </div>
-            <div className="inline-flex items-center gap-2 bg-[#001D8D]/10 text-[#001D8D] px-4 py-2 rounded-full text-sm font-medium mb-6">
-              <Target className="h-4 w-4" />
-              Наша миссия
-            </div>
-            
-            <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-6">
-              Наша миссия
-            </h2>
-            
-            <p className="text-lg text-[#001D8D]/80 leading-relaxed mb-8">
-              Мы помогаем бизнесу и частным клиентам безопасно и эффективно совершать финансовые операции 
-              любой сложности, снижая издержки и способствуя преодолению экономических и операционных барьеров. 
-              Мы стремимся участвовать в инновационной трансформации глобальной финансовой системы, предоставляя 
-              возможность каждому сосредоточиться на своих целях, оставив финансовую логистику профессионалам.
-            </p>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
-              <div className="text-center">
-                <div className="bg-blue-100 p-3 rounded-lg inline-flex mb-3">
-                  <Shield className="h-6 w-6 text-blue-600" />
-                </div>
-                <h4 className="font-semibold text-[#001D8D] mb-2">Безопасные операции</h4>
-                <p className="text-sm text-[#001D8D]/70">Снижение рисков и обеспечение безопасности</p>
-              </div>
-              
-              <div className="text-center">
-                <div className="bg-green-100 p-3 rounded-lg inline-flex mb-3">
-                  <TrendingUp className="h-6 w-6 text-green-600" />
-                </div>
-                <h4 className="font-semibold text-[#001D8D] mb-2">Снижение издержек</h4>
-                <p className="text-sm text-[#001D8D]/70">Оптимизация финансовых процессов</p>
-              </div>
-              
-              <div className="text-center">
-                <div className="bg-purple-100 p-3 rounded-lg inline-flex mb-3">
-                  <Globe className="h-6 w-6 text-purple-600" />
-                </div>
-                <h4 className="font-semibold text-[#001D8D] mb-2">Глобальная трансформация</h4>
-                <p className="text-sm text-[#001D8D]/70">Участие в инновационном развитии финансовой системы</p>
-              </div>
-            </div>
-          </motion.div>
-                <div className="bg-blue-100 p-3 rounded-lg inline-flex mb-3">
-                  <div className="flex items-start gap-3">
-                    <div className="bg-purple-100 p-2 rounded-lg">
-                      <Award className="h-5 w-5 text-purple-600" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-[#001D8D]">Профессиональная команда</h4>
-                      <p className="text-sm text-[#001D8D]/70">Эксперты в области финансов и технологий</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+        )}
 
-              {/* Новое видео справа с выравниванием по центру и низу */}
-              <div className="order-1 lg:order-2">
-                <div className="relative mx-auto" style={{ 
-                  width: '480px', 
-                  height: '560px',
-                  maxWidth: '100%'
-                }}>
-                  <video
-                    src="https://assets.revolut.com/published-assets-v3/a1cbc33c-6662-4f29-ab7b-2c4e1b4e781f/7989b735-2247-485a-b3c4-67680b1974f2.mp4"
-                    className="w-full h-full object-cover rounded-lg shadow-2xl"
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    preload="metadata"
-                    aria-label="Professional crypto service demonstration"
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      objectPosition: 'center bottom', // 🎯 Выравнивание по центру и низу
-                      border: 'none',
-                      outline: 'none',
-                      borderRadius: '8px'
-                    }}
-                  />
-                </div>
-              </div>
-            </motion.div>
+        {/* Gradient transitions */}
+        <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-white to-transparent z-5" />
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent to-blue-100/20 z-5" />
 
-            {/* Mission Section - Two Equal Columns */}
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="space-y-24">
+
+            {/* 1. Профессиональный криптосервис (текст) */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
               viewport={{ once: true }}
-              className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
+              className="max-w-4xl mx-auto text-center"
             >
-              {/* Left Column - Image */}
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5 }}
-                viewport={{ once: true }}
-                className="flex items-center justify-center"
-              >
-                {/* 🎯 КОНТЕЙНЕР БЕЗ РАМОК И ГРАНИЦ */}
-                <div className="relative w-full max-w-lg aspect-square">
-                  <Image
-                    src="https://assets.revolut.com/published-assets-v3/73aa49ec-f611-485f-9cc6-b57e3801240f/6a85f8bd-2664-4414-aeec-4d05e476f61b.png"
-                    alt="Our Mission - Professional crypto service"
-                    fill
-                    className="object-contain"
-                    priority
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    style={{
-                      border: 'none',
-                      outline: 'none',
-                      boxShadow: 'none'
-                    }}
-                  />
-                </div>
-              </motion.div>
-
-              {/* Right Column - Mission Text */}
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5 }}
-                viewport={{ once: true }}
-                className="flex items-center"
-              >
-                <div className="space-y-6">
-                  <div className="inline-flex items-center gap-2 bg-[#001D8D]/10 text-[#001D8D] px-4 py-2 rounded-full text-sm font-medium">
-                    <Target className="h-4 w-4" />
-                    Наша миссия
+              <div className="inline-flex items-center gap-2 bg-[#001D8D]/10 text-[#001D8D] px-4 py-2 rounded-full text-sm font-medium mb-6">
+                <Building2 className="h-4 w-4" />
+                Профессиональный криптосервис
+              </div>
+              
+              <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-6">
+                Профессиональный криптосервис
+              </h2>
+              
+              <p className="text-lg text-[#001D8D]/80 leading-relaxed mb-8">
+                Мы помогаем бизнесу и частным клиентам безопасно и эффективно совершать финансовые операции 
+                любой сложности, снижая издержки и способствуя преодолению экономических и операционных барьеров. 
+                Мы стремимся участвовать в инновационной трансформации глобальной финансовой системы, предоставляя 
+                возможность каждому сосредоточиться на своих целях, оставив финансовую логистику профессионалам.
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
+                <div className="text-center">
+                  <div className="bg-blue-100 p-3 rounded-lg inline-flex mb-3">
+                    <Shield className="h-6 w-6 text-blue-600" />
                   </div>
-                  
-                  <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D]">
-                    Наша миссия
-                  </h2>
-                  
-                  <p className="text-lg text-[#001D8D]/80 leading-relaxed">
-                    Мы помогаем бизнесу и частным клиентам безопасно и эффективно совершать финансовые операции 
-                    любой сложности, снижая издержки и способствуя преодолению экономических и операционных барьеров. 
-                    Мы стремимся участвовать в инновационной трансформации глобальной финансовой системы, предоставляя 
-                    возможность каждому сосредоточиться на своих целях, оставив финансовую логистику профессионалам.
-                  </p>
-                  
-                  <div className="space-y-4">
-                    <div className="flex items-start gap-3">
-                      <div className="bg-blue-100 p-2 rounded-lg">
-                        <Shield className="h-5 w-5 text-blue-600" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-[#001D8D]">Безопасные операции</h4>
-                        <p className="text-sm text-[#001D8D]/70">Снижение рисков и обеспечение безопасности</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-start gap-3">
-                      <div className="bg-green-100 p-2 rounded-lg">
-                        <TrendingUp className="h-5 w-5 text-green-600" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-[#001D8D]">Снижение издержек</h4>
-                        <p className="text-sm text-[#001D8D]/70">Оптимизация финансовых процессов</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-start gap-3">
-                      <div className="bg-purple-100 p-2 rounded-lg">
-                        <Globe className="h-5 w-5 text-purple-600" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-[#001D8D]">Глобальная трансформация</h4>
-                        <p className="text-sm text-[#001D8D]/70">Участие в инновационном развитии финансовой системы</p>
-                      </div>
-                    </div>
-                  </div>
+                  <h4 className="font-semibold text-[#001D8D] mb-2">Безопасные операции</h4>
+                  <p className="text-sm text-[#001D8D]/70">Снижение рисков и обеспечение безопасности</p>
                 </div>
-              </motion.div>
+                
+                <div className="text-center">
+                  <div className="bg-green-100 p-3 rounded-lg inline-flex mb-3">
+                    <TrendingUp className="h-6 w-6 text-green-600" />
+                  </div>
+                  <h4 className="font-semibold text-[#001D8D] mb-2">Снижение издержек</h4>
+                  <p className="text-sm text-[#001D8D]/70">Оптимизация финансовых процессов</p>
+                </div>
+                
+                <div className="text-center">
+                  <div className="bg-purple-100 p-3 rounded-lg inline-flex mb-3">
+                    <Globe className="h-6 w-6 text-purple-600" />
+                  </div>
+                  <h4 className="font-semibold text-[#001D8D] mb-2">Глобальная трансформация</h4>
+                  <p className="text-sm text-[#001D8D]/70">Участие в инновационном развитии финансовой системы</p>
+                </div>
+              </div>
             </motion.div>
 
-            {/* Vision Section - Two Equal Columns (НОВЫЙ РАЗДЕЛ) */}
+            {/* 2. Видео */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+              className="flex justify-center"
+            >
+              <div className="relative mx-auto" style={{ 
+                width: '480px', 
+                height: '560px',
+                maxWidth: '100%'
+              }}>
+                <video
+                  src="https://assets.revolut.com/published-assets-v3/a1cbc33c-6662-4f29-ab7b-2c4e1b4e781f/7989b735-2247-485a-b3c4-67680b1974f2.mp4"
+                  className="w-full h-full object-cover rounded-lg shadow-2xl"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  aria-label="Professional crypto service demonstration"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    objectPosition: 'center bottom',
+                    border: 'none',
+                    outline: 'none',
+                    borderRadius: '8px'
+                  }}
+                />
+              </div>
+            </motion.div>
+
+            {/* 3. Наша миссия (текст) */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+              className="max-w-4xl mx-auto text-center"
+            >
+              <div className="inline-flex items-center gap-2 bg-[#001D8D]/10 text-[#001D8D] px-4 py-2 rounded-full text-sm font-medium mb-6">
+                <Target className="h-4 w-4" />
+                Наша миссия
+              </div>
+              
+              <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-6">
+                Наша миссия
+              </h2>
+              
+              <p className="text-lg text-[#001D8D]/80 leading-relaxed mb-8">
+                Мы помогаем бизнесу и частным клиентам безопасно и эффективно совершать финансовые операции 
+                любой сложности, снижая издержки и способствуя преодолению экономических и операционных барьеров. 
+                Мы стремимся участвовать в инновационной трансформации глобальной финансовой системы, предоставляя 
+                возможность каждому сосредоточиться на своих целях, оставив финансовую логистику профессионалам.
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
+                <div className="text-center">
+                  <div className="bg-blue-100 p-3 rounded-lg inline-flex mb-3">
+                    <Shield className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <h4 className="font-semibold text-[#001D8D] mb-2">Безопасные операции</h4>
+                  <p className="text-sm text-[#001D8D]/70">Снижение рисков и обеспечение безопасности</p>
+                </div>
+                
+                <div className="text-center">
+                  <div className="bg-green-100 p-3 rounded-lg inline-flex mb-3">
+                    <TrendingUp className="h-6 w-6 text-green-600" />
+                  </div>
+                  <h4 className="font-semibold text-[#001D8D] mb-2">Снижение издержек</h4>
+                  <p className="text-sm text-[#001D8D]/70">Оптимизация финансовых процессов</p>
+                </div>
+                
+                <div className="text-center">
+                  <div className="bg-purple-100 p-3 rounded-lg inline-flex mb-3">
+                    <Globe className="h-6 w-6 text-purple-600" />
+                  </div>
+                  <h4 className="font-semibold text-[#001D8D] mb-2">Глобальная трансформация</h4>
+                  <p className="text-sm text-[#001D8D]/70">Участие в инновационном развитии финансовой системы</p>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* 4. Изображение */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+              className="flex justify-center"
+            >
+              <div className="relative w-full max-w-lg aspect-square">
+                <Image
+                  src="https://assets.revolut.com/published-assets-v3/73aa49ec-f611-485f-9cc6-b57e3801240f/6a85f8bd-2664-4414-aeec-4d05e476f61b.png"
+                  alt="Our Mission - Professional crypto service"
+                  fill
+                  className="object-contain"
+                  priority
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  style={{
+                    border: 'none',
+                    outline: 'none',
+                    boxShadow: 'none'
+                  }}
+                />
+              </div>
+            </motion.div>
+
+            {/* Vision Section - Наше видение */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -425,9 +405,8 @@ export function AboutPageClient() {
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5 }}
                 viewport={{ once: true }}
-                className="flex items-center justify-center order-1 lg:order-2"
+                className="flex items-center justify-center"
               >
-                {/* 🎯 КОНТЕЙНЕР БЕЗ РАМОК И ГРАНИЦ */}
                 <div className="relative w-full max-w-lg aspect-square">
                   <Image
                     src="https://assets.revolut.com/published-assets-v3/42d87aec-29bc-40a5-8584-ff44105687b1/f205cf30-e3e8-4106-9167-2fc2c606d648.png"
@@ -528,94 +507,32 @@ export function AboutPageClient() {
                 </div>
 
                 <div className="space-y-6">
-          {/* Mission Image */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
-            className="flex justify-center"
-          >
-            <div className="relative w-full max-w-lg aspect-square">
-              <Image
-                src="https://assets.revolut.com/published-assets-v3/73aa49ec-f611-485f-9cc6-b57e3801240f/6a85f8bd-2664-4414-aeec-4d05e476f61b.png"
-                alt="Our Mission - Professional crypto service"
-                fill
-                className="object-contain"
-                priority
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                style={{
-                  border: 'none',
-                  outline: 'none',
-                  boxShadow: 'none'
-                }}
-              />
-            className="max-w-4xl mx-auto text-center"
+                  <div className="bg-white/95 backdrop-blur-sm rounded-xl p-6 border border-[#001D8D]/10">
+                    <h3 className="text-lg font-bold text-[#001D8D] mb-3">
+                      Какие комиссии взимаются?
+                    </h3>
+                    <p className="text-[#001D8D]/70 leading-relaxed">
+                      Мы предлагаем прозрачную структуру комиссий без скрытых платежей. 
+                      Все комиссии указываются заранее и включены в итоговую стоимость операции.
+                    </p>
+                  </div>
 
-              initial={{ opacity: 0, y: 20 }}
-            <div className="inline-flex items-center gap-2 bg-purple-100 text-purple-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
-              <Eye className="h-4 w-4" />
-              Наше видение
-            </div>
-            
-            <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-6">
-              Наше видение
-            </h2>
-            
-            <p className="text-lg text-[#001D8D]/80 leading-relaxed mb-8">
-              Мы видим будущее, в котором финансовая среда становится единым глобальным пространством без 
-              искусственных барьеров. Каждый предприниматель и частное лицо, независимо от географии, имеет 
-              доступ к передовым цифровым инструментам и может безопасно, выгодно и прозрачно вести деятельность. 
-              Наша цель — стать ключевым участником инновационной трансформации глобальной финансовой системы.
-            </p>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
-              <div className="text-center">
-                <div className="bg-purple-100 p-3 rounded-lg inline-flex mb-3">
-                  <Globe className="h-6 w-6 text-purple-600" />
+                  <div className="bg-white/95 backdrop-blur-sm rounded-xl p-6 border border-[#001D8D]/10">
+                    <h3 className="text-lg font-bold text-[#001D8D] mb-3">
+                      Как быстро обрабатываются транзакции?
+                    </h3>
+                    <p className="text-[#001D8D]/70 leading-relaxed">
+                      Большинство операций обрабатывается в течение 15-30 минут. 
+                      Время может варьироваться в зависимости от загруженности сети и суммы операции.
+                    </p>
+                  </div>
                 </div>
-                <h4 className="font-semibold text-[#001D8D] mb-2">Глобальное пространство</h4>
-                <p className="text-sm text-[#001D8D]/70">Единая финансовая среда без барьеров</p>
               </div>
-              
-              <div className="text-center">
-                <div className="bg-blue-100 p-3 rounded-lg inline-flex mb-3">
-                  <Lightbulb className="h-6 w-6 text-blue-600" />
-                </div>
-                <h4 className="font-semibold text-[#001D8D] mb-2">Цифровые инструменты</h4>
-                <p className="text-sm text-[#001D8D]/70">Передовые технологии для всех</p>
-              </div>
-              
-              <div className="text-center">
-                <div className="bg-green-100 p-3 rounded-lg inline-flex mb-3">
-                  <Rocket className="h-6 w-6 text-green-600" />
-                </div>
-                <h4 className="font-semibold text-[#001D8D] mb-2">Инновационная трансформация</h4>
-                <p className="text-sm text-[#001D8D]/70">Ключевая роль в развитии финансовой системы</p>
-              </div>
-            </div>
-          </motion.div>
+            </motion.div>
 
-          {/* Vision Image - убрали из предыдущей секции */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
-            className="flex justify-center"
-          >
-            <div className="relative w-full max-w-lg aspect-square">
-              <Image
-                src="https://assets.revolut.com/published-assets-v3/42d87aec-29bc-40a5-8584-ff44105687b1/f205cf30-e3e8-4106-9167-2fc2c606d648.png"
-                alt="Our Vision - Global financial transformation"
-                fill
-                className="object-contain"
-                priority
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                style={{
-                  border: 'none',
-                  outline: 'none',
-                  boxShadow: 'none'
-                }}
-              />
-            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
