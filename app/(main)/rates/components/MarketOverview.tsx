@@ -92,16 +92,16 @@ export function MarketOverview({ coins, btcChartData, loading }: MarketOverviewP
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {/* Total Market Cap */}
-      <div className="calculator-container hover:shadow-xl transition-all duration-300 group">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 group-hover:scale-110 transition-transform duration-300">
+      <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600">
             <DollarSign className="h-5 w-5 text-white" />
           </div>
-          <span className="text-sm font-medium text-[#001D8D]/70">
+          <span className="text-xs font-medium text-[#001D8D]/70">
             Общая капитализация
           </span>
         </div>
-        <div className="text-3xl font-bold text-[#001D8D] mb-2">
+        <div className="text-2xl font-bold text-[#001D8D] mb-1">
           {formatLargeNumber(totalMarketCap)}
         </div>
         <div className={`flex items-center gap-1 text-sm ${
@@ -119,88 +119,38 @@ export function MarketOverview({ coins, btcChartData, loading }: MarketOverviewP
       </div>
 
       {/* BTC Dominance */}
-      <div className="calculator-container hover:shadow-xl transition-all duration-300 group">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 rounded-lg bg-gradient-to-br from-orange-500 to-orange-600 group-hover:scale-110 transition-transform duration-300">
+      <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="p-1.5 rounded-lg bg-gradient-to-br from-orange-500 to-orange-600">
             <Bitcoin className="h-5 w-5 text-white" />
           </div>
-          <span className="text-sm font-medium text-[#001D8D]/70">
+          <span className="text-xs font-medium text-[#001D8D]/70">
             Доминирование BTC
           </span>
         </div>
-        <div className="text-3xl font-bold text-[#001D8D] mb-2">
+        <div className="text-2xl font-bold text-[#001D8D] mb-1">
           {btcDominance.toFixed(1)}%
         </div>
-        <div className="text-sm text-[#001D8D]/70">
+        <div className="text-xs text-[#001D8D]/70">
           ETH: {ethDominance.toFixed(1)}%
         </div>
-        
-        {/* Simple BTC price chart */}
-        {btcChartData && btcPriceData.length > 0 && (
-          <div className="mt-4 pt-4 border-t border-gray-100">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-[#001D8D]/60">BTC тренд 30 дней</span>
-              <Badge variant="outline" className="text-xs">
-                {btcPriceData[btcPriceData.length - 1] > btcPriceData[0] ? 'Бычий' : 'Медвежий'}
-              </Badge>
-            </div>
-            <div className="h-10 flex items-end">
-              {btcPriceData.map((price, index) => {
-                const min = Math.min(...btcPriceData);
-                const max = Math.max(...btcPriceData);
-                const range = max - min;
-                const height = ((price - min) / range) * 100;
-                
-                return (
-                  <div 
-                    key={index}
-                    className={`flex-1 mx-0.5 rounded-sm ${
-                      index > 0 && price >= btcPriceData[index - 1] 
-                        ? 'bg-green-500' 
-                        : 'bg-red-500'
-                    }`}
-                    style={{ height: `${Math.max(height, 5)}%` }}
-                  />
-                );
-              })}
-            </div>
-          </div>
-        )}
       </div>
 
       {/* 24h Volume */}
-      <div className="calculator-container hover:shadow-xl transition-all duration-300 group">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 group-hover:scale-110 transition-transform duration-300">
+      <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="p-1.5 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600">
             <PieChart className="h-5 w-5 text-white" />
           </div>
-          <span className="text-sm font-medium text-[#001D8D]/70">
+          <span className="text-xs font-medium text-[#001D8D]/70">
             Объем торгов 24ч
           </span>
         </div>
-        <div className="text-3xl font-bold text-[#001D8D] mb-2">
+        <div className="text-2xl font-bold text-[#001D8D] mb-1">
           {formatLargeNumber(totalVolume)}
         </div>
-        <div className="text-sm text-[#001D8D]/70">
+        <div className="text-xs text-[#001D8D]/70">
           Объем/Капитализация: {((totalVolume / totalMarketCap) * 100).toFixed(1)}%
-        </div>
-        
-        {/* Volume distribution */}
-        <div className="mt-4 pt-4 border-t border-gray-100">
-          <div className="text-xs text-[#001D8D]/60 mb-2">Распределение объема (Топ 5)</div>
-          <div className="space-y-2">
-            {coins.slice(0, 5).map((coin) => (
-              <div key={coin.id} className="flex items-center justify-between text-xs">
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                  <span>{coin.symbol.toUpperCase()}</span>
-                </div>
-                <span className="text-[#001D8D]/70">
-                  {((coin.total_volume / totalVolume) * 100).toFixed(1)}%
-                </span>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
     </div>
