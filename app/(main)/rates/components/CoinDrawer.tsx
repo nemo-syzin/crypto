@@ -299,7 +299,7 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
                           {new Date(coin.ath_date).toLocaleDateString('ru-RU')}
                         </div>
                         <div className={`text-xs px-2 py-1 rounded mt-2 ${
-                          (coin.ath_change_percentage || 0) >= 0 ? 'text-green-600 bg-green-100' : 'text-red-600 bg-red-100'
+                          (coin.ath_change_percentage || 0) >= 0 ? 'text-green-600 bg-white' : 'text-red-600 bg-white'
                         }`}>
                           {formatPercentage(coin.ath_change_percentage)} от ATH
                         </div>
