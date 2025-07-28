@@ -199,6 +199,35 @@ export function AboutPageClient() {
               viewport={{ once: true }}
               className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
             >
+              {/* Видео слева */}
+              <div className="flex items-center justify-center">
+                <div className="relative mx-auto" style={{ 
+                  width: '480px', 
+                  height: '560px',
+                  maxWidth: '100%'
+                }}>
+                  <video
+                    src="https://assets.revolut.com/published-assets-v3/a1cbc33c-6662-4f29-ab7b-2c4e1b4e781f/7989b735-2247-485a-b3c4-67680b1974f2.mp4"
+                    className="w-full h-full object-cover rounded-lg shadow-2xl"
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    preload="metadata"
+                    aria-label="Professional crypto service demonstration"
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      objectPosition: 'center bottom', // 🎯 Выравнивание по центру и низу
+                      border: 'none',
+                      outline: 'none',
+                      borderRadius: '8px'
+                    }}
+                  />
+                </div>
+              </div>
+
               {/* Текст слева */}
               <div className="space-y-6">
                 <div className="inline-flex items-center gap-2 bg-[#001D8D]/10 text-[#001D8D] px-4 py-2 rounded-full text-sm font-medium">
@@ -249,35 +278,6 @@ export function AboutPageClient() {
                   </div>
                 </div>
               </div>
-
-              {/* Новое видео справа с выравниванием по центру и низу */}
-              <div className="order-1 lg:order-2">
-                <div className="relative mx-auto" style={{ 
-                  width: '480px', 
-                  height: '560px',
-                  maxWidth: '100%'
-                }}>
-                  <video
-                    src="https://assets.revolut.com/published-assets-v3/a1cbc33c-6662-4f29-ab7b-2c4e1b4e781f/7989b735-2247-485a-b3c4-67680b1974f2.mp4"
-                    className="w-full h-full object-cover rounded-lg shadow-2xl"
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    preload="metadata"
-                    aria-label="Professional crypto service demonstration"
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      objectPosition: 'center bottom', // 🎯 Выравнивание по центру и низу
-                      border: 'none',
-                      outline: 'none',
-                      borderRadius: '8px'
-                    }}
-                  />
-                </div>
-              </div>
             </motion.div>
 
             {/* Mission Section - Two Equal Columns */}
@@ -288,39 +288,13 @@ export function AboutPageClient() {
               viewport={{ once: true }}
               className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
             >
-              {/* Left Column - Image */}
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5 }}
-                viewport={{ once: true }}
-                className="flex items-center justify-center"
-              >
-                {/* 🎯 КОНТЕЙНЕР БЕЗ РАМОК И ГРАНИЦ */}
-                <div className="relative w-full max-w-lg aspect-square">
-                  <Image
-                    src="https://assets.revolut.com/published-assets-v3/73aa49ec-f611-485f-9cc6-b57e3801240f/6a85f8bd-2664-4414-aeec-4d05e476f61b.png"
-                    alt="Our Mission - Professional crypto service"
-                    fill
-                    className="object-contain"
-                    priority
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    style={{
-                      border: 'none',
-                      outline: 'none',
-                      boxShadow: 'none'
-                    }}
-                  />
-                </div>
-              </motion.div>
-
-              {/* Right Column - Mission Text */}
+              {/* Left Column - Mission Text */}
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5 }}
                 viewport={{ once: true }}
-                className="flex items-center"
+                className="flex items-center justify-center"
               >
                 <div className="space-y-6">
                   <div className="inline-flex items-center gap-2 bg-[#001D8D]/10 text-[#001D8D] px-4 py-2 rounded-full text-sm font-medium">
@@ -370,6 +344,32 @@ export function AboutPageClient() {
                       </div>
                     </div>
                   </div>
+                </div>
+              </motion.div>
+
+              {/* Right Column - Image */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5 }}
+                viewport={{ once: true }}
+                className="flex items-center justify-center"
+              >
+                {/* 🎯 КОНТЕЙНЕР БЕЗ РАМОК И ГРАНИЦ */}
+                <div className="relative w-full max-w-lg aspect-square">
+                  <Image
+                    src="https://assets.revolut.com/published-assets-v3/73aa49ec-f611-485f-9cc6-b57e3801240f/6a85f8bd-2664-4414-aeec-4d05e476f61b.png"
+                    alt="Our Mission - Professional crypto service"
+                    fill
+                    className="object-contain"
+                    priority
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    style={{
+                      border: 'none',
+                      outline: 'none',
+                      boxShadow: 'none'
+                    }}
+                  />
                 </div>
               </motion.div>
             </motion.div>
@@ -447,7 +447,7 @@ export function AboutPageClient() {
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5 }}
                 viewport={{ once: true }}
-                className="flex items-center justify-center order-1 lg:order-2"
+                className="flex items-center justify-center"
               >
                 {/* 🎯 КОНТЕЙНЕР БЕЗ РАМОК И ГРАНИЦ */}
                 <div className="relative w-full max-w-lg aspect-square">
