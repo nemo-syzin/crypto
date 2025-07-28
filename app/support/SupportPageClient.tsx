@@ -444,60 +444,6 @@ export function SupportPageClient() {
               </Card>
             </motion.div>
 
-            {/* Documentation & Guides */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              viewport={{ once: true }}
-              className="max-w-6xl mx-auto"
-            >
-              <div className="text-center mb-12">
-                <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-4">
-                  Документация и инструкции
-                </h2>
-                <p className="text-xl text-[#001D8D]/70 max-w-3xl mx-auto">
-                  Подробные руководства и инструкции для эффективного использования сервиса
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {guides.map((guide, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                    viewport={{ once: true }}
-                  >
-                    <Card className="bg-white/95 backdrop-blur-sm shadow-lg border border-[#001D8D]/10 hover:border-[#001D8D]/30 transition-all duration-300 hover:shadow-xl group cursor-pointer">
-                      <CardContent className="p-6">
-                        <div className="flex items-start gap-4">
-                          <div className="bg-gradient-to-br from-[#001D8D] to-blue-600 p-3 rounded-lg group-hover:scale-110 transition-transform duration-300">
-                            <guide.icon className="h-6 w-6 text-white" />
-                          </div>
-                          <div className="flex-1">
-                            <h3 className="text-lg font-bold text-[#001D8D] mb-2 group-hover:text-blue-600 transition-colors">
-                              {guide.title}
-                            </h3>
-                            <p className="text-[#001D8D]/70 text-sm leading-relaxed mb-3">
-                              {guide.description}
-                            </p>
-                            <div className="flex items-center justify-between">
-                              <Badge variant="outline" className="text-xs">
-                                <BookOpen className="h-3 w-3 mr-1" />
-                                {guide.readTime}
-                              </Badge>
-                              <ArrowRight className="h-4 w-4 text-[#001D8D]/50 group-hover:text-[#001D8D] group-hover:translate-x-1 transition-all duration-300" />
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
 
             {/* Contact Form */}
             <motion.div
@@ -623,54 +569,6 @@ export function SupportPageClient() {
               </div>
             </motion.div>
 
-            {/* Additional Support Info */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              viewport={{ once: true }}
-              className="max-w-5xl mx-auto"
-            >
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Complaints */}
-                <Card className="bg-gradient-to-br from-red-50 to-red-100 border-2 border-red-200 hover:border-red-300 transition-all duration-300">
-                  <CardContent className="p-8">
-                    <div className="flex items-center gap-3 mb-4">
-                      <AlertCircle className="h-6 w-6 text-red-600" />
-                      <h3 className="text-xl font-bold text-red-900">Жалобы и предложения</h3>
-                    </div>
-                    <p className="text-red-800 leading-relaxed mb-4">
-                      Если у вас есть жалобы или предложения по улучшению нашего сервиса, 
-                      пожалуйста, направьте их на complaints@kenigswap.com. 
-                      Мы ценим каждое обращение и внимательно его рассматриваем.
-                    </p>
-                    <Button className="bg-red-600 hover:bg-red-700 text-white">
-                      <Mail className="h-4 w-4 mr-2" />
-                      Отправить жалобу
-                    </Button>
-                  </CardContent>
-                </Card>
-
-                {/* Feedback */}
-                <Card className="bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200 hover:border-green-300 transition-all duration-300">
-                  <CardContent className="p-8">
-                    <div className="flex items-center gap-3 mb-4">
-                      <Heart className="h-6 w-6 text-green-600" />
-                      <h3 className="text-xl font-bold text-green-900">Отзывы клиентов</h3>
-                    </div>
-                    <p className="text-green-800 leading-relaxed mb-4">
-                      Поделитесь своим опытом использования KenigSwap. 
-                      Ваши отзывы помогают нам становиться лучше и помогают другим клиентам 
-                      принимать обоснованные решения.
-                    </p>
-                    <Button className="bg-green-600 hover:bg-green-700 text-white">
-                      <Star className="h-4 w-4 mr-2" />
-                      Оставить отзыв
-                    </Button>
-                  </CardContent>
-                </Card>
-              </div>
-            </motion.div>
 
             {/* Final CTA */}
             <motion.div
