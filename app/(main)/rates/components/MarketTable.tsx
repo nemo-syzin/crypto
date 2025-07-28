@@ -227,9 +227,6 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
               <th className="text-right py-3 px-2" scope="col">
                 <SortButton field="price_change_percentage_24h">24ч %</SortButton>
               </th>
-              <th className="text-right py-3 px-2 hidden md:table-cell" scope="col">
-                <SortButton field="price_change_percentage_7d_in_currency">7д %</SortButton>
-              </th>
               <th className="text-right py-3 px-2" scope="col">
                 <SortButton field="market_cap">Капитализация</SortButton>
               </th>
@@ -278,7 +275,13 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
                   </div>
                 </td>
                 <td className="py-4 px-2 text-center hidden md:table-cell">
-                  <MiniSparkline coin={coin} />
+                  <div className="flex justify-center">
+                    {coin.price_change_percentage_24h >= 0 ? (
+                      <TrendingUp className="h-4 w-4 text-green-600" />
+                    ) : (
+                      <TrendingDown className="h-4 w-4 text-red-600" />
+                    )}
+                  </div>
                 </td>
                 <td className="py-4 px-2 text-right font-semibold text-[#001D8D]">
                   {formatPrice(coin.current_price)}
@@ -302,16 +305,6 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
                       {coin.price_change_percentage_24h.toFixed(2)}%
                     </span>
                   </Badge>
-                </td>
-                <td className="py-4 px-2 text-right hidden md:table-cell">
-                  <span className={`${
-                    (coin.price_change_percentage_7d_in_currency || 0) >= 0
-                      ? 'text-green-600'
-                      : 'text-red-600'
-                  }`}>
-                    {(coin.price_change_percentage_7d_in_currency || 0) >= 0 ? '+' : ''}
-                    {coin.price_change_percentage_7d_in_currency?.toFixed(2) || 'N/A'}%
-                  </span>
                 </td>
                 <td className="py-4 px-2 text-right text-[#001D8D]/70">
                   {formatMarketCap(coin.market_cap)}
@@ -388,7 +381,6 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
               <div>• <strong>Ранг</strong>: Позиция по рыночной капитализации</div>
               <div>• <strong>Цена</strong>: Текущая цена в USD</div>
               <div>• <strong>24ч %</strong>: Изменение цены за последние 24 часа</div>
-              <div>• <strong>7д %</strong>: Изменение цены за последние 7 дней</div>
               <div>• <strong>Капитализация</strong>: Общая рыночная стоимость</div>
               <div>• <strong>Объем (24ч)</strong>: Объем торгов за 24 часа</div>
               <div>• <strong>В обращении</strong>: Количество монет в обращении</div>

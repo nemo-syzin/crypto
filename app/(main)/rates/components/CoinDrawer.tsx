@@ -289,27 +289,11 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
                   </h4>
                   <div className="grid grid-cols-3 gap-4">
                     <div className="text-center p-3 bg-white rounded-lg border border-gray-200">
-                      <div className="text-xs text-[#001D8D]/60 mb-1">1 час</div>
-                      <div className={`font-bold ${
-                        (coin.price_change_percentage_1h_in_currency || 0) >= 0 ? 'text-green-600' : 'text-red-600'
-                      }`}>
-                        {formatPercentage(coin.price_change_percentage_1h_in_currency)}
-                      </div>
-                    </div>
-                    <div className="text-center p-3 bg-white rounded-lg border border-gray-200">
                       <div className="text-xs text-[#001D8D]/60 mb-1">24 часа</div>
                       <div className={`font-bold ${
                         (coin.price_change_percentage_24h || 0) >= 0 ? 'text-green-600' : 'text-red-600'
                       }`}>
                         {formatPercentage(coin.price_change_percentage_24h)}
-                      </div>
-                    </div>
-                    <div className="text-center p-3 bg-white rounded-lg border border-gray-200">
-                      <div className="text-xs text-[#001D8D]/60 mb-1">7 дней</div>
-                      <div className={`font-bold ${
-                        (coin.price_change_percentage_7d_in_currency || 0) >= 0 ? 'text-green-600' : 'text-red-600'
-                      }`}>
-                        {formatPercentage(coin.price_change_percentage_7d_in_currency)}
                       </div>
                     </div>
                   </div>
