@@ -198,28 +198,28 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
                   <TabsContent value="overview" className="space-y-6">
                     {/* Market Overview */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
+                      <div className="bg-white p-4 rounded-lg border-2 border-[#001D8D]/20 hover:border-[#001D8D]/30 transition-colors">
                         <div className="flex items-center gap-2 mb-2">
-                          <DollarSign className="h-4 w-4 text-blue-600" />
-                          <span className="font-semibold text-blue-900">Рыночная позиция</span>
+                          <DollarSign className="h-4 w-4 text-[#001D8D]" />
+                          <span className="font-semibold text-[#001D8D]">Рыночная позиция</span>
                         </div>
-                        <div className="text-2xl font-bold text-blue-700 mb-1">#{coin.market_cap_rank}</div>
-                        <div className="text-sm text-blue-600">Глобальный рейтинг по капитализации</div>
+                        <div className="text-2xl font-bold text-[#001D8D] mb-1">#{coin.market_cap_rank}</div>
+                        <div className="text-sm text-[#001D8D]/70">Глобальный рейтинг по капитализации</div>
                       </div>
 
-                      <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg border border-green-200">
+                      <div className="bg-white p-4 rounded-lg border-2 border-[#001D8D]/20 hover:border-[#001D8D]/30 transition-colors">
                         <div className="flex items-center gap-2 mb-2">
-                          <BarChart3 className="h-4 w-4 text-green-600" />
-                          <span className="font-semibold text-green-900">Капитализация</span>
+                          <BarChart3 className="h-4 w-4 text-[#001D8D]" />
+                          <span className="font-semibold text-[#001D8D]">Капитализация</span>
                         </div>
-                        <div className="text-2xl font-bold text-green-700 mb-1">{formatMarketCap(coin.market_cap)}</div>
-                        <div className="text-sm text-green-600">Общая рыночная стоимость</div>
+                        <div className="text-2xl font-bold text-[#001D8D] mb-1">{formatMarketCap(coin.market_cap)}</div>
+                        <div className="text-sm text-[#001D8D]/70">Общая рыночная стоимость</div>
                       </div>
                     </div>
 
                     {/* Price Range */}
-                    <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-4 rounded-lg border border-gray-200">
-                      <h4 className="font-semibold text-gray-900 mb-3">Диапазон цен за 24 часа</h4>
+                    <div className="bg-white p-4 rounded-lg border-2 border-[#001D8D]/20">
+                      <h4 className="font-semibold text-[#001D8D] mb-3">Диапазон цен за 24 часа</h4>
                       <div className="flex items-center justify-between mb-2">
                         <div className="text-red-600 font-medium">
                           Мин: {formatPrice(coin.low_24h)}
@@ -241,7 +241,7 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
                           }}
                         />
                       </div>
-                      <div className="text-center mt-2 text-sm text-gray-600">
+                      <div className="text-center mt-2 text-sm text-[#001D8D]/70">
                         Текущая: {formatPrice(coin.current_price)}
                       </div>
                     </div>
@@ -290,12 +290,12 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
 
                     {/* All-Time Records */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg border border-green-200">
-                        <div className="text-sm text-green-700 mb-1 font-medium">Исторический максимум</div>
+                      <div className="bg-white p-4 rounded-lg border-2 border-[#001D8D]/20 hover:border-[#001D8D]/30 transition-colors">
+                        <div className="text-sm text-[#001D8D]/70 mb-1 font-medium">Исторический максимум</div>
                         <div className="text-xl font-bold text-green-600 mb-1">
                           {formatPrice(coin.ath)}
                         </div>
-                        <div className="text-xs text-green-600">
+                        <div className="text-xs text-[#001D8D]/50">
                           {new Date(coin.ath_date).toLocaleDateString('ru-RU')}
                         </div>
                         <div className={`text-xs px-2 py-1 rounded mt-2 ${
@@ -305,12 +305,12 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
                         </div>
                       </div>
 
-                      <div className="bg-gradient-to-br from-red-50 to-red-100 p-4 rounded-lg border border-red-200">
-                        <div className="text-sm text-red-700 mb-1 font-medium">Исторический минимум</div>
+                      <div className="bg-white p-4 rounded-lg border-2 border-[#001D8D]/20 hover:border-[#001D8D]/30 transition-colors">
+                        <div className="text-sm text-[#001D8D]/70 mb-1 font-medium">Исторический минимум</div>
                         <div className="text-xl font-bold text-red-600 mb-1">
                           {formatPrice(coin.atl)}
                         </div>
-                        <div className="text-xs text-red-600">
+                        <div className="text-xs text-[#001D8D]/50">
                           {new Date(coin.atl_date).toLocaleDateString('ru-RU')}
                         </div>
                         <div className={`text-xs px-2 py-1 rounded mt-2 ${
@@ -355,10 +355,10 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
 
                   <TabsContent value="analysis" className="space-y-6">
                     {/* Market Sentiment */}
-                    <div className="bg-gradient-to-br from-blue-50 to-indigo-100 p-6 rounded-lg border border-blue-200">
+                    <div className="bg-white p-6 rounded-lg border-2 border-[#001D8D]/20 hover:border-[#001D8D]/30 transition-colors">
                       <div className="flex items-center gap-2 mb-4">
-                        <Activity className="h-5 w-5 text-blue-600" />
-                        <h4 className="font-bold text-blue-900">Анализ настроения рынка</h4>
+                        <Activity className="h-5 w-5 text-[#001D8D]" />
+                        <h4 className="font-bold text-[#001D8D]">Анализ настроения рынка</h4>
                       </div>
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2">
@@ -368,38 +368,38 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
                           </span>
                         </div>
                         <div className="text-right">
-                          <div className="text-sm text-blue-700">На основе ценовых трендов</div>
+                          <div className="text-sm text-[#001D8D]/70">На основе ценовых трендов</div>
                         </div>
                       </div>
-                      <div className="text-sm text-blue-800">
+                      <div className="text-sm text-[#001D8D]/70">
                         Настроение рынка определяется анализом краткосрочных и долгосрочных движений цены, 
                         показывая общее отношение рынка к данной криптовалюте.
                       </div>
                     </div>
 
                     {/* Volatility Analysis */}
-                    <div className="bg-gradient-to-br from-yellow-50 to-orange-100 p-6 rounded-lg border border-yellow-200">
+                    <div className="bg-white p-6 rounded-lg border-2 border-[#001D8D]/20 hover:border-[#001D8D]/30 transition-colors">
                       <div className="flex items-center gap-2 mb-4">
-                        <Zap className="h-5 w-5 text-yellow-600" />
-                        <h4 className="font-bold text-yellow-900">Оценка волатильности</h4>
+                        <Zap className="h-5 w-5 text-[#001D8D]" />
+                        <h4 className="font-bold text-[#001D8D]">Оценка волатильности</h4>
                       </div>
                       <div className="flex items-center justify-between mb-4">
                         <div>
                           <span className={`font-bold text-lg ${volatility.color}`}>
                             {volatility.level} волатильность
                           </span>
-                          <div className="text-sm text-yellow-800 mt-1">
+                          <div className="text-sm text-[#001D8D]/70 mt-1">
                             {volatility.description}
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className="text-2xl font-bold text-yellow-700">
+                          <div className="text-2xl font-bold text-[#001D8D]">
                             {Math.abs(coin.price_change_percentage_24h || 0).toFixed(1)}%
                           </div>
-                          <div className="text-xs text-yellow-600">Движение за 24ч</div>
+                          <div className="text-xs text-[#001D8D]/50">Движение за 24ч</div>
                         </div>
                       </div>
-                      <div className="text-sm text-yellow-800">
+                      <div className="text-sm text-[#001D8D]/70">
                         Волатильность измеряет интенсивность колебаний цены. Высокая волатильность указывает 
                         на больший риск, но также и на потенциал более высокой доходности.
                       </div>
@@ -413,17 +413,17 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
                       </div>
                       <div className="space-y-3">
                         <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
-                          <span className="text-sm font-medium text-gray-700">Ранг по капитализации</span>
+                          <span className="text-sm font-medium text-[#001D8D]/70">Ранг по капитализации</span>
                           <span className="font-bold text-[#001D8D]">#{coin.market_cap_rank}</span>
                         </div>
                         <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
-                          <span className="text-sm font-medium text-gray-700">Полная оценка</span>
+                          <span className="text-sm font-medium text-[#001D8D]/70">Полная оценка</span>
                           <span className="font-bold text-[#001D8D]">
                             {coin.fully_diluted_valuation ? formatMarketCap(coin.fully_diluted_valuation) : 'N/A'}
                           </span>
                         </div>
                         <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
-                          <span className="text-sm font-medium text-gray-700">Изменение капитализации (24ч)</span>
+                          <span className="text-sm font-medium text-[#001D8D]/70">Изменение капитализации (24ч)</span>
                           <span className={`font-bold ${
                             (coin.market_cap_change_percentage_24h || 0) >= 0 ? 'text-green-600' : 'text-red-600'
                           }`}>
