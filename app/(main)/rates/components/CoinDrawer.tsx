@@ -104,34 +104,42 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
     <Drawer open={open} onOpenChange={onClose}>
       <DrawerContent className="max-h-[90vh] bg-white border-t-4 border-[#001D8D]">
         {/* Enhanced Header with KenigSwap branding */}
-        <DrawerHeader className="bg-gradient-to-r from-blue-500 to-blue-400 text-white border-none">
+        <DrawerHeader className="bg-white border-b border-gray-200">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <Image
-                  src={getSafeImageUrl(coin.image)} 
-                  alt={coin.name}
-                  width={48}
-                  height={48}
-                  className="w-12 h-12 rounded-full border-2 border-white shadow-lg"
-                />
-                <div className="absolute -top-1 -right-1 bg-white rounded-full p-1">
-                  <Star className="h-3 w-3 text-[#001D8D]" />
-                </div>
-              </div>
+            <div className="flex items-center gap-3">
+              <Image
+                src={getSafeImageUrl(coin.image)} 
+                alt={coin.name}
+                width={40}
+                height={40}
+                className="w-10 h-10 rounded-full"
+              />
               <div>
-                <DrawerTitle className="text-white text-xl font-bold">{coin.name}</DrawerTitle>
-                <div className="text-white/90 font-medium">{coin.symbol.toUpperCase()}</div>
-                <div className="text-white/70 text-sm">Ранг #{coin.market_cap_rank}</div>
+                <DrawerTitle className="text-[#001D8D] text-lg font-bold">{coin.name}</DrawerTitle>
+                <div className="text-[#001D8D]/70 text-sm">{coin.symbol.toUpperCase()} • Ранг #{coin.market_cap_rank}</div>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               <div className="text-right">
-                <div className="text-white/90 text-sm">Текущая цена</div>
-                <div className="text-white font-bold text-lg">{formatPrice(coin.current_price)}</div>
+                <div className="text-2xl font-bold text-[#001D8D]">{formatPrice(coin.current_price)}</div>
+                <Badge 
+                  variant="outline"
+                  className={`${
+                    (coin.price_change_percentage_24h || 0) >= 0
+                      ? 'border-green-200 text-green-700 bg-green-50'
+                      : 'border-red-200 text-red-700 bg-red-50'
+                  }`}
+                >
+                  {(coin.price_change_percentage_24h || 0) >= 0 ? (
+                    <TrendingUp className="h-3 w-3 mr-1" />
+                  ) : (
+                    <TrendingDown className="h-3 w-3 mr-1" />
+                  )}
+                  {formatPercentage(coin.price_change_percentage_24h)}
+                </Badge>
               </div>
               <DrawerClose asChild>
-                <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
+                <Button variant="ghost" size="sm" className="text-[#001D8D]/70 hover:text-[#001D8D] hover:bg-gray-100">
                   <X className="h-5 w-5" />
                 </Button>
               </DrawerClose>
