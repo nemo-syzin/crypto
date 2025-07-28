@@ -104,7 +104,7 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
     <Drawer open={open} onOpenChange={onClose}>
       <DrawerContent className="max-h-[90vh] bg-white border-t-4 border-[#001D8D]">
         {/* Enhanced Header with KenigSwap branding */}
-        <DrawerHeader className="bg-gradient-to-r from-[#001D8D] to-blue-700 text-white border-none">
+        <DrawerHeader className="bg-gradient-to-r from-blue-500 to-blue-400 text-white border-none">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="relative">
