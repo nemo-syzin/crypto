@@ -146,14 +146,14 @@ const Header = () => {
               variant="ghost"
               className="text-[#001D8D] hover:bg-[#001D8D]/10"
             >
-              <Link href="/login">Login</Link>
+              <Link href="/login">Вход</Link>
             </Button>
             
             <Button 
               asChild 
               className="bg-[#001D8D] hover:opacity-90 text-white font-medium"
             >
-              <Link href="/register">Get Started</Link>
+              <Link href="/register">Регистрация</Link>
             </Button>
           </div>
 
@@ -246,13 +246,13 @@ const Header = () => {
                       variant="ghost"
                       className="text-[#001D8D] hover:bg-[#001D8D]/5"
                     >
-                      <Link href="/login">Login</Link>
+                      <Link href="/login">Вход</Link>
                     </Button>
                     <Button 
                       asChild 
                       className="bg-[#001D8D] hover:opacity-90 text-white"
                     >
-                      <Link href="/register">Get Started</Link>
+                      <Link href="/register">Регистрация</Link>
                     </Button>
                   </div>
                 </nav>
