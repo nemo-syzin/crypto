@@ -290,7 +290,7 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
 
                     {/* All-Time Records */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="bg-white p-4 rounded-lg border-2 border-[#001D8D]/20 hover:border-[#001D8D]/30 transition-colors">
+                      <div className="bg-transparent p-4 rounded-lg border-2 border-[#001D8D]/20 hover:border-[#001D8D]/30 transition-colors">
                         <div className="text-sm text-[#001D8D]/70 mb-1 font-medium">Исторический максимум</div>
                         <div className="text-xl font-bold text-green-600 mb-1">
                           {formatPrice(coin.ath)}
@@ -305,7 +305,7 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
                         </div>
                       </div>
 
-                      <div className="bg-white p-4 rounded-lg border-2 border-[#001D8D]/20 hover:border-[#001D8D]/30 transition-colors">
+                      <div className="bg-transparent p-4 rounded-lg border-2 border-[#001D8D]/20 hover:border-[#001D8D]/30 transition-colors">
                         <div className="text-sm text-[#001D8D]/70 mb-1 font-medium">Исторический минимум</div>
                         <div className="text-xl font-bold text-red-600 mb-1">
                           {formatPrice(coin.atl)}
