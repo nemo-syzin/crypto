@@ -186,32 +186,6 @@ export function AboutPageClient() {
               <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-6">
                 Профессиональный криптосервис
               </h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
-                <div className="text-center">
-                  <div className="bg-blue-100 p-3 rounded-lg inline-flex mb-3">
-                    <Shield className="h-6 w-6 text-blue-600" />
-                  </div>
-                  <h4 className="font-semibold text-[#001D8D] mb-2">Безопасные операции</h4>
-                  <p className="text-sm text-[#001D8D]/70">Снижение рисков и обеспечение безопасности</p>
-                </div>
-                
-                <div className="text-center">
-                  <div className="bg-green-100 p-3 rounded-lg inline-flex mb-3">
-                    <TrendingUp className="h-6 w-6 text-green-600" />
-                  </div>
-                  <h4 className="font-semibold text-[#001D8D] mb-2">Снижение издержек</h4>
-                  <p className="text-sm text-[#001D8D]/70">Оптимизация финансовых процессов</p>
-                </div>
-                
-                <div className="text-center">
-                  <div className="bg-purple-100 p-3 rounded-lg inline-flex mb-3">
-                    <Globe className="h-6 w-6 text-purple-600" />
-                  </div>
-                  <h4 className="font-semibold text-[#001D8D] mb-2">Глобальная трансформация</h4>
-                  <p className="text-sm text-[#001D8D]/70">Участие в инновационном развитии финансовой системы</p>
-                </div>
-              </div>
             </motion.div>
 
             {/* 2. Видео */}
