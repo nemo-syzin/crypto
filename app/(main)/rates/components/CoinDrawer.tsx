@@ -189,9 +189,10 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
                       </span>
                     </div>
                     <TabsList className="bg-[#001D8D]/10 border border-[#001D8D]/20">
-                      <TabsTrigger value="overview" className="data-[state=active]:bg-[#001D8D] data-[state=active]:text-white">Обзор</TabsTrigger>
-                      <TabsTrigger value="stats" className="data-[state=active]:bg-[#001D8D] data-[state=active]:text-white">Статистика</TabsTrigger>
-                      <TabsTrigger value="analysis" className="data-[state=active]:bg-[#001D8D] data-[state=active]:text-white">Анализ</TabsTrigger>
+                    <TabsList className="bg-[#001D8D] border border-[#001D8D]/50">
+                      <TabsTrigger value="overview" className="text-white/70 hover:bg-[#001D8D]/80 data-[state=active]:bg-white data-[state=active]:text-[#001D8D]">Обзор</TabsTrigger>
+                      <TabsTrigger value="stats" className="text-white/70 hover:bg-[#001D8D]/80 data-[state=active]:bg-white data-[state=active]:text-[#001D8D]">Статистика</TabsTrigger>
+                      <TabsTrigger value="analysis" className="text-white/70 hover:bg-[#001D8D]/80 data-[state=active]:bg-white data-[state=active]:text-[#001D8D]">Анализ</TabsTrigger>
                     </TabsList>
                   </div>
 
