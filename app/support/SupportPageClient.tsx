@@ -109,15 +109,6 @@ export function SupportPageClient() {
   // Обновленные методы связи в фирменном стиле
   const contactMethods = [
     {
-      icon: MessageCircle,
-      title: "Онлайн-чат",
-      description: "Самый быстрый способ получить ответ на ваш вопрос. Наши операторы доступны ежедневно с 9:00 до 22:00.",
-      action: "Начать чат",
-      available: true,
-      responseTime: "< 5 минут",
-      features: ["Мгновенные ответы", "Поддержка файлов", "История чата"]
-    },
-    {
       icon: Mail,
       title: "Электронная почта",
       description: "Отправьте нам сообщение на support@kenigswap.com и получите подробный ответ в течение 24 часов.",
@@ -314,7 +305,7 @@ export function SupportPageClient() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {contactMethods.map((method, index) => (
                   <motion.div
                     key={index}
@@ -596,9 +587,9 @@ export function SupportPageClient() {
                     </p>
                     
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                      <Button className="bg-white text-[#001D8D] hover:bg-gray-100 px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
-                        <MessageCircle className="h-5 w-5 mr-2" />
-                        Начать чат
+                      <Button className="bg-white text-[#001D8D] hover:bg-gray-100 px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2">
+                        <Mail className="h-5 w-5 mr-2" />
+                        Написать письмо
                       </Button>
                       <Button className="border-2 border-white/30 text-white hover:bg-white/10 px-8 py-4 text-lg font-semibold transition-all duration-300">
                         <Phone className="h-5 w-5 mr-2" />
