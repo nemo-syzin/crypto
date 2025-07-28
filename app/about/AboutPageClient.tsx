@@ -200,7 +200,7 @@ export function AboutPageClient() {
               className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
             >
               {/* Видео слева */}
-              <div className="order-1 lg:order-1 flex items-center justify-center">
+              <div className="flex items-center justify-center">
                 <div className="relative mx-auto" style={{ 
                   width: '480px', 
                   height: '560px',
@@ -229,7 +229,7 @@ export function AboutPageClient() {
               </div>
 
               {/* Текст слева */}
-              <div className="order-2 lg:order-2 space-y-6">
+              <div className="space-y-6">
                 <div className="inline-flex items-center gap-2 bg-[#001D8D]/10 text-[#001D8D] px-4 py-2 rounded-full text-sm font-medium">
                   <Users className="h-4 w-4" />
                   О нас
@@ -294,7 +294,7 @@ export function AboutPageClient() {
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5 }}
                 viewport={{ once: true }}
-                className="order-1 lg:order-1 flex items-center justify-center"
+                className="flex items-center justify-center"
               >
                 <div className="space-y-6">
                   <div className="inline-flex items-center gap-2 bg-[#001D8D]/10 text-[#001D8D] px-4 py-2 rounded-full text-sm font-medium">
@@ -353,7 +353,7 @@ export function AboutPageClient() {
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5 }}
                 viewport={{ once: true }}
-                className="order-2 lg:order-2 flex items-center justify-center"
+                className="flex items-center justify-center"
               >
                 {/* 🎯 КОНТЕЙНЕР БЕЗ РАМОК И ГРАНИЦ */}
                 <div className="relative w-full max-w-lg aspect-square">
@@ -388,7 +388,7 @@ export function AboutPageClient() {
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5 }}
                 viewport={{ once: true }}
-                className="order-1 lg:order-1 flex items-center"
+                className="flex items-center"
               >
                 <div className="space-y-6">
                   <div className="inline-flex items-center gap-2 bg-purple-100 text-purple-700 px-4 py-2 rounded-full text-sm font-medium">
@@ -447,7 +447,7 @@ export function AboutPageClient() {
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5 }}
                 viewport={{ once: true }}
-                className="order-2 lg:order-2 flex items-center justify-center"
+                className="flex items-center justify-center"
               >
                 {/* 🎯 КОНТЕЙНЕР БЕЗ РАМОК И ГРАНИЦ */}
                 <div className="relative w-full max-w-lg aspect-square">
