@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, TrendingDown, Star, Flame, Zap, Crown } from 'lucide-react';
-import type { Coin } from '@/lib/coingecko-api';
+import type { CoinMarketData } from '@/lib/coingecko';
 
 // Функция для проверки и исправления URL изображений
 const getSafeImageUrl = (url: string): string => {
@@ -17,7 +17,7 @@ const getSafeImageUrl = (url: string): string => {
 };
 
 interface TrendingCoinsProps {
-  coins: Coin[];
+  coins: CoinMarketData[];
   onCoinClick: (coin: any) => void;
   loading?: boolean;
 }
@@ -70,7 +70,7 @@ export function TrendingCoins({ coins, onCoinClick, loading }: TrendingCoinsProp
     return `$${volume.toLocaleString()}`;
   };
 
-  const renderCoinItem = (coin: Coin, index: number, showVolume = false) => (
+  const renderCoinItem = (coin: CoinMarketData, index: number, showVolume = false) => (
     <div
       key={coin.id}
       onClick={() => onCoinClick(coin)}

@@ -897,3 +897,6 @@ function useCoinHistory(coinId: string, days: number = 1) {
 
 // Export functions for direct use
 export { getTopCoins, getGlobalMarketData, getCoinHistory };
+
+// Export useCoinHistory hook for external use
+export { useCoinHistory };

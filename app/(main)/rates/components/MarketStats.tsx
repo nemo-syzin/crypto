@@ -4,10 +4,10 @@ import React, { useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, TrendingDown, BarChart3, PieChart, Activity, Zap, Target, AlertCircle } from 'lucide-react';
-import type { Coin } from '@/lib/coingecko-api';
+import type { CoinMarketData } from '@/lib/coingecko';
 
 interface MarketStatsProps {
-  coins: Coin[];
+  coins: CoinMarketData[];
   loading?: boolean;
 }
 

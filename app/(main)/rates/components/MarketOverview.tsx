@@ -4,12 +4,11 @@ import React, { useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, TrendingDown, DollarSign, Bitcoin, PieChart } from 'lucide-react';
-import type { Coin } from '@/lib/coingecko-api';
-import type { MarketChart } from '@/lib/coingecko-api';
+import type { CoinMarketData } from '@/lib/coingecko';
 
 interface MarketOverviewProps {
-  coins: Coin[];
-  btcChartData: MarketChart | null;
+  coins: CoinMarketData[];
+  btcChartData: any | null;
   loading?: boolean;
 }
 
@@ -137,7 +136,7 @@ export function MarketOverview({ coins, btcChartData, loading }: MarketOverviewP
         </div>
         
         {/* Simple BTC price chart */}
-        {btcPriceData.length > 0 && (
+        {btcChartData && btcPriceData.length > 0 && (
           <div className="mt-4 pt-4 border-t border-gray-100">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs text-[#001D8D]/60">BTC 30-day trend</span>

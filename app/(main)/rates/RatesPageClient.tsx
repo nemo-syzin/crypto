@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import { RefreshCw, AlertTriangle, Globe, PieChart, BarChart3, TrendingUp, TrendingDown, DollarSign, Clock, Info } from 'lucide-react';
-import { useTopCoins, useCoinMarketChart } from '@/lib/coingecko-api';
+import { useMarket, useCoinHistory } from '@/lib/coingecko';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { MarketTable } from './components/MarketTable';
@@ -24,24 +24,10 @@ const UnifiedVantaBackground = dynamic(
 );
 
 export function RatesPageClient() {
-  const { coins: cryptoCoins, loading: cryptoLoading, error: cryptoError, refetch } = useTopCoins('usd', 50);
-  const { chartData: btcChartData, loading: btcChartLoading } = useCoinMarketChart('bitcoin', 'usd', 30);
-  const [retryCount, setRetryCount] = useState(0);
+  const { data: cryptoCoins, loading: cryptoLoading, error: cryptoError, refetch } = useMarket(50);
+  const { data: btcChartData, loading: btcChartLoading } = useCoinHistory('bitcoin', 30);
   const [selectedCoin, setSelectedCoin] = useState<CoinMarketData | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
-
-  // Автоматически повторять запрос при ошибке, но не более 3 раз
-  useEffect(() => {
-    if (cryptoError && retryCount < 3) {
-      const timer = setTimeout(() => {
-        console.log(`🔄 Автоматическая повторная попытка загрузки данных (${retryCount + 1}/3)...`);
-        refetch();
-        setRetryCount(prev => prev + 1);
-      }, 5000); // Повторять каждые 5 секунд
-      
-      return () => clearTimeout(timer);
-    }
-  }, [cryptoError, retryCount, refetch]);
 
   const handleCoinClick = (coin: CoinMarketData) => {
     setSelectedCoin(coin);
@@ -194,8 +180,7 @@ export function RatesPageClient() {
           >
             <div className="max-w-7xl mx-auto">
               <MarketTable 
-                coins={cryptoCoins as unknown as CoinMarketData[]}
-                cryptoCoins={cryptoCoins}
+                coins={cryptoCoins || []}
                 onCoinClick={handleCoinClick}
                 loading={cryptoLoading}
               />

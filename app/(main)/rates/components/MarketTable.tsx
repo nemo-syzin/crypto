@@ -7,7 +7,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { TrendingUp, TrendingDown, ChevronUp, ChevronDown, BarChart3, Activity, Info, Download, Filter, Globe, Search } from 'lucide-react';
 import type { CoinMarketData } from '@/lib/coingecko';
-import type { Coin } from '@/lib/coingecko-api';
 
 // Функция для проверки и исправления URL изображений
 const getSafeImageUrl = (url: string): string => {
@@ -20,7 +19,6 @@ const getSafeImageUrl = (url: string): string => {
 
 interface MarketTableProps {
   coins: CoinMarketData[];
-  cryptoCoins?: Coin[];
   onCoinClick: (coin: CoinMarketData) => void;
   loading?: boolean;
 }
@@ -28,7 +26,7 @@ interface MarketTableProps {
 type SortField = 'market_cap_rank' | 'current_price' | 'price_change_percentage_24h' | 'price_change_percentage_7d_in_currency' | 'market_cap' | 'total_volume' | 'circulating_supply';
 type SortDirection = 'asc' | 'desc';
 
-export function MarketTable({ coins, cryptoCoins = [], onCoinClick, loading }: MarketTableProps) {
+export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
   const [sortField, setSortField] = useState<SortField>('market_cap_rank');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [page, setPage] = useState(1);
@@ -44,40 +42,8 @@ export function MarketTable({ coins, cryptoCoins = [], onCoinClick, loading }: M
     }
   };
 
-  // Convert CoinGecko API data to match our CoinMarketData format
-  const convertedCryptoCoins: CoinMarketData[] = cryptoCoins.map(coin => ({
-    id: coin.id,
-    symbol: coin.symbol,
-    name: coin.name,
-    image: coin.image,
-    current_price: coin.current_price,
-    market_cap: coin.market_cap,
-    market_cap_rank: coin.market_cap_rank,
-    fully_diluted_valuation: coin.fully_diluted_valuation,
-    total_volume: coin.total_volume,
-    high_24h: coin.high_24h,
-    low_24h: coin.low_24h,
-    price_change_24h: coin.price_change_24h,
-    price_change_percentage_24h: coin.price_change_percentage_24h,
-    price_change_percentage_7d_in_currency: coin.price_change_percentage_7d_in_currency,
-    price_change_percentage_1h_in_currency: coin.price_change_percentage_1h_in_currency,
-    market_cap_change_24h: coin.market_cap_change_24h,
-    market_cap_change_percentage_24h: coin.market_cap_change_percentage_24h,
-    circulating_supply: coin.circulating_supply,
-    total_supply: coin.total_supply,
-    max_supply: coin.max_supply,
-    ath: coin.ath,
-    ath_change_percentage: coin.ath_change_percentage,
-    ath_date: coin.ath_date,
-    atl: coin.atl,
-    atl_change_percentage: coin.atl_change_percentage,
-    atl_date: coin.atl_date,
-    roi: null,
-    last_updated: coin.last_updated
-  }));
-
-  // Choose which data source to display
-  const displayCoins = convertedCryptoCoins;
+  // Use coins directly
+  const displayCoins = coins;
 
   // Filter coins based on search query
   const filteredCoins = useMemo(() => {
@@ -426,7 +392,7 @@ export function MarketTable({ coins, cryptoCoins = [], onCoinClick, loading }: M
           
           <div className="flex items-center gap-2">
             <Activity className="h-3 w-3" />
-            <span>Showing {filteredCoins.length} of {displayCoins.length} coins</span>
+            <span>Showing {filteredCoins.length} of {coins.length} coins</span>
           </div>
         </div>
         
