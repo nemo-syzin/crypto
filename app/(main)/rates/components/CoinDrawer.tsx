@@ -102,9 +102,9 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
 
   return (
     <Drawer open={open} onOpenChange={onClose}>
-      <DrawerContent className="max-h-[90vh] bg-white border-t-4 border-[#001D8D]">
+      <DrawerContent className="max-h-[90vh] bg-transparent border-t-4 border-[#001D8D]">
         {/* Enhanced Header with KenigSwap branding */}
-        <DrawerHeader className="bg-gradient-to-r from-[#001D8D] to-blue-700 text-white border-none">
+        <DrawerHeader className="bg-[#001D8D] text-white border-none">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="relative">
@@ -139,10 +139,10 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
           </div>
         </DrawerHeader>
 
-        <div className="p-6 overflow-y-auto bg-gray-50">
+        <div className="p-6 overflow-y-auto bg-transparent">
           {/* Price Overview with enhanced styling */}
           <div className="mb-8">
-            <Card className="bg-white border-2 border-[#001D8D]/20 shadow-lg">
+            <Card className="bg-transparent border-2 border-[#001D8D]/20 shadow-lg">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div>
@@ -178,7 +178,7 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
 
           {/* Enhanced Information Tabs */}
           <div className="mb-8">
-            <Card className="bg-white border-2 border-[#001D8D]/20 shadow-lg">
+            <Card className="bg-transparent border-2 border-[#001D8D]/20 shadow-lg">
               <CardContent className="p-6">
                 <Tabs value={selectedTab} onValueChange={(value) => setSelectedTab(value as 'overview' | 'stats' | 'analysis')} className="w-full">
                   <div className="flex items-center justify-between mb-6">
@@ -198,7 +198,7 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
                   <TabsContent value="overview" className="space-y-6">
                     {/* Market Overview */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="bg-white p-4 rounded-lg border-2 border-[#001D8D]/20 hover:border-[#001D8D]/30 transition-colors">
+                      <div className="bg-transparent p-4 rounded-lg border-2 border-[#001D8D]/20 hover:border-[#001D8D]/30 transition-colors">
                         <div className="flex items-center gap-2 mb-2">
                           <DollarSign className="h-4 w-4 text-[#001D8D]" />
                           <span className="font-semibold text-[#001D8D]">Рыночная позиция</span>
@@ -207,7 +207,7 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
                         <div className="text-sm text-[#001D8D]/70">Глобальный рейтинг по капитализации</div>
                       </div>
 
-                      <div className="bg-white p-4 rounded-lg border-2 border-[#001D8D]/20 hover:border-[#001D8D]/30 transition-colors">
+                      <div className="bg-transparent p-4 rounded-lg border-2 border-[#001D8D]/20 hover:border-[#001D8D]/30 transition-colors">
                         <div className="flex items-center gap-2 mb-2">
                           <BarChart3 className="h-4 w-4 text-[#001D8D]" />
                           <span className="font-semibold text-[#001D8D]">Капитализация</span>
@@ -218,7 +218,7 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
                     </div>
 
                     {/* Price Range */}
-                    <div className="bg-white p-4 rounded-lg border-2 border-[#001D8D]/20">
+                    <div className="bg-transparent p-4 rounded-lg border-2 border-[#001D8D]/20">
                       <h4 className="font-semibold text-[#001D8D] mb-3">Диапазон цен за 24 часа</h4>
                       <div className="flex items-center justify-between mb-2">
                         <div className="text-red-600 font-medium">
@@ -248,7 +248,7 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
 
                     {/* Supply Information */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="bg-white p-4 rounded-lg border-2 border-[#001D8D]/20">
+                      <div className="bg-transparent p-4 rounded-lg border-2 border-[#001D8D]/20">
                         <div className="text-sm text-[#001D8D]/70 mb-1 font-medium">В обращении</div>
                         <div className="text-xl font-bold text-[#001D8D]">
                           {formatSupply(coin.circulating_supply)}
@@ -256,7 +256,7 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
                         <div className="text-xs text-[#001D8D]/50">{coin.symbol.toUpperCase()}</div>
                       </div>
 
-                      <div className="bg-white p-4 rounded-lg border-2 border-[#001D8D]/20">
+                      <div className="bg-transparent p-4 rounded-lg border-2 border-[#001D8D]/20">
                         <div className="text-sm text-[#001D8D]/70 mb-1 font-medium">Макс. предложение</div>
                         <div className="text-xl font-bold text-[#001D8D]">
                           {coin.max_supply ? formatSupply(coin.max_supply) : 'Неограниченно'}
@@ -271,7 +271,7 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
                   <TabsContent value="stats" className="space-y-6">
                     {/* Trading Statistics */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="bg-white p-4 rounded-lg border-2 border-[#001D8D]/20">
+                      <div className="bg-transparent p-4 rounded-lg border-2 border-[#001D8D]/20">
                         <div className="text-sm text-[#001D8D]/70 mb-1 font-medium">Объем 24ч</div>
                         <div className="text-xl font-bold text-[#001D8D]">
                           {formatMarketCap(coin.total_volume)}
@@ -279,7 +279,7 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
                         <div className="text-xs text-[#001D8D]/50">Торговая активность</div>
                       </div>
 
-                      <div className="bg-white p-4 rounded-lg border-2 border-[#001D8D]/20">
+                      <div className="bg-transparent p-4 rounded-lg border-2 border-[#001D8D]/20">
                         <div className="text-sm text-[#001D8D]/70 mb-1 font-medium">Объем/Капитализация</div>
                         <div className="text-xl font-bold text-[#001D8D]">
                           {((coin.total_volume / coin.market_cap) * 100).toFixed(2)}%
@@ -290,7 +290,7 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
 
                     {/* All-Time Records */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="bg-white p-4 rounded-lg border-2 border-[#001D8D]/20 hover:border-[#001D8D]/30 transition-colors">
+                      <div className="bg-transparent p-4 rounded-lg border-2 border-[#001D8D]/20 hover:border-[#001D8D]/30 transition-colors">
                         <div className="text-sm text-[#001D8D]/70 mb-1 font-medium">Исторический максимум</div>
                         <div className="text-xl font-bold text-green-600 mb-1">
                           {formatPrice(coin.ath)}
@@ -305,7 +305,7 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
                         </div>
                       </div>
 
-                      <div className="bg-white p-4 rounded-lg border-2 border-[#001D8D]/20 hover:border-[#001D8D]/30 transition-colors">
+                      <div className="bg-transparent p-4 rounded-lg border-2 border-[#001D8D]/20 hover:border-[#001D8D]/30 transition-colors">
                         <div className="text-sm text-[#001D8D]/70 mb-1 font-medium">Исторический минимум</div>
                         <div className="text-xl font-bold text-red-600 mb-1">
                           {formatPrice(coin.atl)}
@@ -322,7 +322,7 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
                     </div>
 
                     {/* Price Changes */}
-                    <div className="bg-white p-4 rounded-lg border-2 border-[#001D8D]/20">
+                    <div className="bg-transparent p-4 rounded-lg border-2 border-[#001D8D]/20">
                       <h4 className="font-semibold text-[#001D8D] mb-3">Динамика цены</h4>
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                         <div className="text-center">
@@ -355,7 +355,7 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
 
                   <TabsContent value="analysis" className="space-y-6">
                     {/* Market Sentiment */}
-                    <div className="bg-white p-6 rounded-lg border-2 border-[#001D8D]/20 hover:border-[#001D8D]/30 transition-colors">
+                    <div className="bg-transparent p-6 rounded-lg border-2 border-[#001D8D]/20 hover:border-[#001D8D]/30 transition-colors">
                       <div className="flex items-center gap-2 mb-4">
                         <Activity className="h-5 w-5 text-[#001D8D]" />
                         <h4 className="font-bold text-[#001D8D]">Анализ настроения рынка</h4>
@@ -378,7 +378,7 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
                     </div>
 
                     {/* Volatility Analysis */}
-                    <div className="bg-white p-6 rounded-lg border-2 border-[#001D8D]/20 hover:border-[#001D8D]/30 transition-colors">
+                    <div className="bg-transparent p-6 rounded-lg border-2 border-[#001D8D]/20 hover:border-[#001D8D]/30 transition-colors">
                       <div className="flex items-center gap-2 mb-4">
                         <Zap className="h-5 w-5 text-[#001D8D]" />
                         <h4 className="font-bold text-[#001D8D]">Оценка волатильности</h4>
@@ -406,23 +406,23 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
                     </div>
 
                     {/* Trading Insights */}
-                    <div className="bg-white p-6 rounded-lg border-2 border-[#001D8D]/20">
+                    <div className="bg-transparent p-6 rounded-lg border-2 border-[#001D8D]/20">
                       <div className="flex items-center gap-2 mb-4">
                         <BarChart3 className="h-5 w-5 text-[#001D8D]" />
                         <h4 className="font-bold text-[#001D8D]">Торговая аналитика</h4>
                       </div>
                       <div className="space-y-3">
-                        <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
+                        <div className="flex justify-between items-center p-3 bg-transparent border border-[#001D8D]/10 rounded">
                           <span className="text-sm font-medium text-[#001D8D]/70">Ранг по капитализации</span>
                           <span className="font-bold text-[#001D8D]">#{coin.market_cap_rank}</span>
                         </div>
-                        <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
+                        <div className="flex justify-between items-center p-3 bg-transparent border border-[#001D8D]/10 rounded">
                           <span className="text-sm font-medium text-[#001D8D]/70">Полная оценка</span>
                           <span className="font-bold text-[#001D8D]">
                             {coin.fully_diluted_valuation ? formatMarketCap(coin.fully_diluted_valuation) : 'N/A'}
                           </span>
                         </div>
-                        <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
+                        <div className="flex justify-between items-center p-3 bg-transparent border border-[#001D8D]/10 rounded">
                           <span className="text-sm font-medium text-[#001D8D]/70">Изменение капитализации (24ч)</span>
                           <span className={`font-bold ${
                             (coin.market_cap_change_percentage_24h || 0) >= 0 ? 'text-green-600' : 'text-red-600'
@@ -439,7 +439,7 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
           </div>
 
           {/* Enhanced Footer with KenigSwap branding */}
-          <Card className="bg-gradient-to-r from-[#001D8D] to-blue-700 text-white border-none shadow-xl">
+          <Card className="bg-[#001D8D] text-white border-none shadow-xl">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
