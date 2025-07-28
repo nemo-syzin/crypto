@@ -209,10 +209,6 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
             <Activity className="h-3 w-3 mr-1" />
             Данные в реальном времени
           </Badge>
-          <Button variant="outline" size="sm" className="text-xs flex items-center gap-1">
-            <Download className="h-3 w-3" />
-            Экспорт
-          </Button>
         </div>
       </div>
       
