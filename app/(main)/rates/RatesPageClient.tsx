@@ -81,18 +81,6 @@ export function RatesPageClient() {
               Комплексные рыночные данные криптовалют с актуальными ценами, трендами и аналитикой.
               Отслеживайте топ криптовалюты, движения рынка и объемы торгов в одном месте.
             </p>
-            
-            {/* Simple refresh button */}
-            <div className="flex justify-center">
-              <button
-                onClick={refetch}
-                disabled={cryptoLoading}
-                className="bg-gradient-to-r from-[#001D8D] to-blue-600 text-white px-8 py-4 rounded-lg font-semibold hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-              >
-                <RefreshCw className={`h-5 w-5 ${cryptoLoading ? 'animate-spin' : ''}`} />
-                {cryptoLoading ? 'Обновление данных...' : 'Обновить данные'}
-              </button>
-            </div>
           </motion.div>
 
           {/* Error Alert with calculator styling */}
