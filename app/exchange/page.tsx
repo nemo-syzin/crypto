@@ -319,17 +319,6 @@ export default function ExchangePage() {
                     <div className="text-sm text-[#001D8D]/70">Полный обмен</div>
                   </div>
                 </div>
-                
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2 text-sm text-[#001D8D]/70">
-                    <Globe className="h-4 w-4" />
-                    <span>Работаем 24/7</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-[#001D8D]/70">
-                    <Users className="h-4 w-4" />
-                    <span>10,000+ довольных клиентов</span>
-                  </div>
-                </div>
               </div>
               
               <div className="relative flex items-center justify-center">
