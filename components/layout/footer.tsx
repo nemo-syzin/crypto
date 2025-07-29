@@ -45,7 +45,7 @@ const Footer = () => {
                 <ul className="space-y-1">
                   <li>
                     <a 
-                      href="https://t.me/KaliningradCryptoKenigSwap" 
+                      href="t.me/KaliningradCryptoRatesKenigSwap" 
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-gray-600 hover:text-[#001D8D] transition-colors duration-200 text-sm"
@@ -55,7 +55,7 @@ const Footer = () => {
                   </li>
                   <li>
                     <a 
-                      href="https://t.me/KenigSwapNews" 
+                      href="t.me/KenigSwapCryptoNews" 
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-gray-600 hover:text-[#001D8D] transition-colors duration-200 text-sm"
@@ -65,7 +65,7 @@ const Footer = () => {
                   </li>
                   <li>
                     <a 
-                      href="https://t.me/Kenigswap" 
+                      href="https://t.me/Kenigswap_39" 
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-gray-600 hover:text-[#001D8D] transition-colors duration-200 text-sm"
