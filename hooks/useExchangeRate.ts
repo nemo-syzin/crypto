@@ -37,10 +37,12 @@ const fetchExchangeRate = async (from: string, to: string): Promise<Rate> => {
     console.warn(`⚠️ Error fetching direct pair ${from}/${to}:`, directError);
   }
 
-  if (directPair && directPair.sell && directPair.sell > 0) {
-    console.log(`✅ Found direct pair ${from}/${to}, using sell rate:`, directPair.sell);
+  if (directPair && directPair.buy && directPair.buy > 0) {
+    // Для прямой пары: клиент отдает from, получает to
+    // Обменник покупает from у клиента, поэтому используем buy курс
+    console.log(`✅ Found direct pair ${from}/${to}, using buy rate (exchange buys ${from}):`, directPair.buy);
     return {
-      rate: directPair.sell,
+      rate: directPair.buy,
       updated_at: directPair.updated_at,
       pair: `${from}/${to}`,
       source: 'kenig',
@@ -62,10 +64,11 @@ const fetchExchangeRate = async (from: string, to: string): Promise<Rate> => {
     console.warn(`⚠️ Error fetching reverse pair ${to}/${from}:`, reverseError);
   }
 
-  if (reversePair && reversePair.buy && reversePair.buy > 0) {
-    // Для обратной пары используем инвертированный buy курс
-    const invertedRate = 1 / reversePair.buy;
-    console.log(`✅ Found reverse pair ${to}/${from}, using inverted buy rate: 1/${reversePair.buy} = ${invertedRate}`);
+  if (reversePair && reversePair.sell && reversePair.sell > 0) {
+    // Для обратной пары: клиент отдает from, получает to
+    // Обменник продает to клиенту, поэтому используем sell курс и инвертируем
+    const invertedRate = 1 / reversePair.sell;
+    console.log(`✅ Found reverse pair ${to}/${from}, using inverted sell rate (exchange sells ${to}): 1/${reversePair.sell} = ${invertedRate}`);
     
     return {
       rate: invertedRate,
@@ -75,7 +78,7 @@ const fetchExchangeRate = async (from: string, to: string): Promise<Rate> => {
     };
   }
 
-  // Шаг 3: Если ни прямая, ни обратная пара не найдены, пробуем другие источники
+  // Шаг 3: Если ни прямая, ни обратная пара не найдены в kenig, пробуем другие источники
   console.log(`🔍 No kenig pairs found, trying other sources for ${from}/${to}`);
   
   // Пробуем прямую пару из других источников
@@ -93,10 +96,10 @@ const fetchExchangeRate = async (from: string, to: string): Promise<Rate> => {
     console.warn(`⚠️ Error fetching other direct pair ${from}/${to}:`, otherDirectError);
   }
 
-  if (otherDirectPair && otherDirectPair.sell && otherDirectPair.sell > 0) {
-    console.log(`✅ Found direct pair from ${otherDirectPair.source}: ${from}/${to}, using sell rate:`, otherDirectPair.sell);
+  if (otherDirectPair && otherDirectPair.buy && otherDirectPair.buy > 0) {
+    console.log(`✅ Found direct pair from ${otherDirectPair.source}: ${from}/${to}, using buy rate:`, otherDirectPair.buy);
     return {
-      rate: otherDirectPair.sell,
+      rate: otherDirectPair.buy,
       updated_at: otherDirectPair.updated_at,
       pair: `${from}/${to}`,
       source: 'derived',
@@ -118,9 +121,9 @@ const fetchExchangeRate = async (from: string, to: string): Promise<Rate> => {
     console.warn(`⚠️ Error fetching other reverse pair ${to}/${from}:`, otherReverseError);
   }
 
-  if (otherReversePair && otherReversePair.buy && otherReversePair.buy > 0) {
-    const invertedRate = 1 / otherReversePair.buy;
-    console.log(`✅ Found reverse pair from ${otherReversePair.source}: ${to}/${from}, using inverted buy rate: 1/${otherReversePair.buy} = ${invertedRate}`);
+  if (otherReversePair && otherReversePair.sell && otherReversePair.sell > 0) {
+    const invertedRate = 1 / otherReversePair.sell;
+    console.log(`✅ Found reverse pair from ${otherReversePair.source}: ${to}/${from}, using inverted sell rate: 1/${otherReversePair.sell} = ${invertedRate}`);
     
     return {
       rate: invertedRate,
