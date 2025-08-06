@@ -1,20 +1,54 @@
 "use client";
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useExchangeRate } from '@/hooks/useExchangeRate';
 import { useBaseAssets, useQuoteAssets } from '@/hooks/useAssets';
-import { Calculator, RefreshCw, ArrowUpDown, AlertTriangle, Settings, Info } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { Calculator, RefreshCw, ArrowUpDown, AlertTriangle, Settings, Info, Send, CheckCircle, User, Mail, Phone, Wallet, CreditCard } from 'lucide-react';
+
+interface ClientData {
+  email: string;
+  phone: string;
+  walletAddress: string;
+  bankDetails: string;
+}
+
+interface OrderResponse {
+  success: boolean;
+  message: string;
+  orderId?: string;
+  order?: any;
+  error?: string;
+  details?: string[];
+}
 
 export default function ExchangeCalculator() {
+  const { toast } = useToast();
   const [amount, setAmount] = useState<string>('');
   const [fromCurrency, setFromCurrency] = useState<string>('USDT');
   const [toCurrency, setToCurrency] = useState<string>('');
   const [isAnimating, setIsAnimating] = useState(false);
+  const [showOrderForm, setShowOrderForm] = useState(false);
+  const [submittingOrder, setSubmittingOrder] = useState(false);
+  const [orderSuccess, setOrderSuccess] = useState(false);
+  const [orderData, setOrderData] = useState<any>(null);
+  
+  // Данные клиента
+  const [clientData, setClientData] = useState<ClientData>({
+    email: '',
+    phone: '',
+    walletAddress: '',
+    bankDetails: ''
+  });
+  
+  const [clientErrors, setClientErrors] = useState<Partial<ClientData>>({});
   
   // Get available base currencies
   const { bases, loading: basesLoading, error: basesError } = useBaseAssets();
@@ -131,6 +165,143 @@ export default function ExchangeCalculator() {
   const isCalculationDisabled = !hasValidRate || loading || !!error;
   const numericAmount = parseAmount(amount);
   const result = calculateResult();
+  
+  // Валидация данных клиента
+  const validateClientData = useCallback((): boolean => {
+    const errors: Partial<ClientData> = {};
+    
+    // Email обязателен
+    if (!clientData.email) {
+      errors.email = 'Введите email адрес';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clientData.email)) {
+      errors.email = 'Введите корректный email адрес';
+    }
+    
+    // Телефон опционален, но если указан - должен быть валидным
+    if (clientData.phone && !/^[\+]?[1-9][\d]{0,15}$/.test(clientData.phone.replace(/[\s\-\(\)]/g, ''))) {
+      errors.phone = 'Введите корректный номер телефона';
+    }
+    
+    // Адрес кошелька нужен для криптовалют
+    const cryptoCurrencies = ['BTC', 'ETH', 'USDT', 'USDC', 'BNB', 'ADA', 'DOT', 'SOL', 'XRP', 'DOGE', 'SHIB', 'LTC', 'LINK', 'UNI', 'ATOM', 'XLM', 'TRX', 'FIL', 'NEAR'];
+    if (cryptoCurrencies.includes(toCurrency.toUpperCase())) {
+      if (!clientData.walletAddress) {
+        errors.walletAddress = `Введите адрес кошелька для получения ${toCurrency}`;
+      } else if (clientData.walletAddress.length < 10) {
+        errors.walletAddress = 'Адрес кошелька слишком короткий';
+      }
+    }
+    
+    // Банковские реквизиты нужны для рублей
+    if (toCurrency.toUpperCase() === 'RUB') {
+      if (!clientData.bankDetails) {
+        errors.bankDetails = 'Введите банковские реквизиты для получения рублей';
+      } else if (clientData.bankDetails.length < 10) {
+        errors.bankDetails = 'Банковские реквизиты слишком короткие';
+      }
+    }
+    
+    setClientErrors(errors);
+    return Object.keys(errors).length === 0;
+  }, [clientData, toCurrency]);
+  
+  // Обработка изменения данных клиента
+  const handleClientDataChange = useCallback((field: keyof ClientData, value: string) => {
+    setClientData(prev => ({ ...prev, [field]: value }));
+    
+    // Очищаем ошибку для этого поля
+    if (clientErrors[field]) {
+      setClientErrors(prev => ({ ...prev, [field]: undefined }));
+    }
+  }, [clientErrors]);
+  
+  // Отправка заявки
+  const handleSubmitOrder = useCallback(async () => {
+    if (!validateClientData()) {
+      toast({
+        title: "Ошибка валидации",
+        description: "Пожалуйста, исправьте ошибки в форме",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setSubmittingOrder(true);
+    
+    try {
+      const orderPayload = {
+        fromCurrency,
+        toCurrency,
+        amountFrom: numericAmount,
+        amountTo: result,
+        exchangeRate: rate,
+        clientEmail: clientData.email,
+        clientPhone: clientData.phone || undefined,
+        clientWalletAddress: clientData.walletAddress || undefined,
+        clientBankDetails: clientData.bankDetails || undefined
+      };
+      
+      console.log('📤 Отправка заявки на сервер...');
+      
+      const response = await fetch('/api/exchange-orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderPayload),
+      });
+      
+      const responseData: OrderResponse = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(responseData.message || responseData.error || 'Ошибка отправки заявки');
+      }
+      
+      if (responseData.success) {
+        setOrderSuccess(true);
+        setOrderData(responseData.order);
+        setShowOrderForm(false);
+        
+        // Очищаем форму
+        setAmount('');
+        setClientData({
+          email: '',
+          phone: '',
+          walletAddress: '',
+          bankDetails: ''
+        });
+        
+        toast({
+          title: "Заявка создана!",
+          description: `Заявка №${responseData.orderId?.substring(0, 8)} успешно отправлена. Мы свяжемся с вами в ближайшее время.`,
+        });
+        
+        console.log('✅ Заявка успешно создана:', responseData.orderId);
+      } else {
+        throw new Error(responseData.message || 'Неизвестная ошибка');
+      }
+      
+    } catch (error) {
+      console.error('❌ Ошибка при отправке заявки:', error);
+      
+      const errorMessage = error instanceof Error ? error.message : 'Произошла ошибка при отправке заявки';
+      
+      toast({
+        title: "Ошибка отправки заявки",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setSubmittingOrder(false);
+    }
+  }, [validateClientData, fromCurrency, toCurrency, numericAmount, result, rate, clientData, toast]);
+  
+  // Сброс состояния успеха
+  const resetOrderState = useCallback(() => {
+    setOrderSuccess(false);
+    setOrderData(null);
+    setShowOrderForm(false);
+  }, []);
 
   // Memoized display functions
   const getResultDisplay = useMemo((): string => {
@@ -190,6 +361,65 @@ export default function ExchangeCalculator() {
 
     return `Введите количество ${fromCurrency} для обмена на ${toCurrency}`;
   }, [basesError, quotesError, isPairSupported, hasValidRate, rate, loading, fromCurrency, toCurrency, formatRate]);
+
+  // Показываем успешную заявку
+  if (orderSuccess && orderData) {
+    return (
+      <div className="space-y-6">
+        <div className="calculator-container">
+          <div className="text-center py-8">
+            <div className="flex justify-center mb-6">
+              <div className="p-4 bg-green-100 rounded-full">
+                <CheckCircle className="h-12 w-12 text-green-600" />
+              </div>
+            </div>
+            <h2 className="text-2xl font-bold text-[#001D8D] mb-4">
+              Заявка успешно отправлена!
+            </h2>
+            <div className="bg-blue-50 p-4 rounded-lg mb-6">
+              <div className="text-sm text-[#001D8D]/70 mb-2">Номер заявки:</div>
+              <div className="text-lg font-bold text-[#001D8D] mb-4">
+                #{orderData.id.substring(0, 8).toUpperCase()}
+              </div>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <div className="text-[#001D8D]/70">Отдаете:</div>
+                  <div className="font-semibold text-[#001D8D]">
+                    {formatCurrency(orderData.amountFrom, orderData.fromCurrency)}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[#001D8D]/70">Получаете:</div>
+                  <div className="font-semibold text-[#001D8D]">
+                    {formatCurrency(orderData.amountTo, orderData.toCurrency)}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p className="text-[#001D8D]/70 mb-6 leading-relaxed">
+              Мы получили вашу заявку и свяжемся с вами в ближайшее время для подтверждения деталей обмена. 
+              Проверьте вашу электронную почту для получения дальнейших инструкций.
+            </p>
+            <div className="space-y-3">
+              <Button 
+                onClick={resetOrderState}
+                className="w-full bg-gradient-to-r from-[#001D8D] to-blue-600 text-white hover:opacity-90"
+              >
+                Создать новую заявку
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={() => window.location.href = '/dashboard'}
+                className="w-full text-[#001D8D] border-[#001D8D]/20"
+              >
+                Перейти в личный кабинет
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -373,16 +603,215 @@ export default function ExchangeCalculator() {
           )}
 
           {/* Exchange Button */}
-          <button 
-            className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 ${
-              isCalculationDisabled || amount === '' || numericAmount <= 0 || !toCurrency
-                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                : 'bg-gradient-to-r from-[#001D8D] to-blue-600 text-white hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]'
-            }`}
-            disabled={isCalculationDisabled || amount === '' || numericAmount <= 0 || !toCurrency}
-          >
-            {getExchangeButtonText}
-          </button>
+          <div className="space-y-4">
+            <button 
+              onClick={() => setShowOrderForm(true)}
+              className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 ${
+                isCalculationDisabled || amount === '' || numericAmount <= 0 || !toCurrency
+                  ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-[#001D8D] to-blue-600 text-white hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]'
+              }`}
+              disabled={isCalculationDisabled || amount === '' || numericAmount <= 0 || !toCurrency}
+            >
+              <Send className="h-5 w-5 mr-2 inline" />
+              Оставить заявку на обмен
+            </button>
+            
+            {hasValidRate && rate && amount && numericAmount > 0 && (
+              <div className="text-center text-sm text-[#001D8D]/60">
+                {getExchangeButtonText}
+              </div>
+            )}
+          </div>
+
+          {/* Order Form Modal */}
+          {showOrderForm && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+              <div className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-xl font-bold text-[#001D8D]">Заявка на обмен</h3>
+                    <button
+                      onClick={() => setShowOrderForm(false)}
+                      className="text-gray-500 hover:text-gray-700"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  
+                  {/* Сводка обмена */}
+                  <div className="bg-blue-50 p-4 rounded-lg mb-6">
+                    <h4 className="font-semibold text-[#001D8D] mb-3">Детали обмена:</h4>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-[#001D8D]/70">Отдаете:</span>
+                        <span className="font-semibold text-[#001D8D]">
+                          {formatCurrency(numericAmount, fromCurrency)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-[#001D8D]/70">Получаете:</span>
+                        <span className="font-semibold text-[#001D8D]">
+                          {formatCurrency(result, toCurrency)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-[#001D8D]/70">Курс:</span>
+                        <span className="font-semibold text-[#001D8D]">
+                          {formatRate(rate, toCurrency)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Форма данных клиента */}
+                  <div className="space-y-4">
+                    {/* Email */}
+                    <div>
+                      <Label htmlFor="clientEmail" className="text-[#001D8D] font-medium">
+                        Email адрес *
+                      </Label>
+                      <div className="relative mt-2">
+                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[#001D8D]/60" />
+                        <Input
+                          id="clientEmail"
+                          type="email"
+                          value={clientData.email}
+                          onChange={(e) => handleClientDataChange('email', e.target.value)}
+                          placeholder="your@email.com"
+                          className={`pl-10 border-[#001D8D]/20 focus:border-[#001D8D] ${
+                            clientErrors.email ? 'border-red-300' : ''
+                          }`}
+                        />
+                      </div>
+                      {clientErrors.email && (
+                        <p className="text-sm text-red-600 mt-1">{clientErrors.email}</p>
+                      )}
+                    </div>
+                    
+                    {/* Телефон */}
+                    <div>
+                      <Label htmlFor="clientPhone" className="text-[#001D8D] font-medium">
+                        Номер телефона
+                      </Label>
+                      <div className="relative mt-2">
+                        <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[#001D8D]/60" />
+                        <Input
+                          id="clientPhone"
+                          type="tel"
+                          value={clientData.phone}
+                          onChange={(e) => handleClientDataChange('phone', e.target.value)}
+                          placeholder="+7 (999) 123-45-67"
+                          className={`pl-10 border-[#001D8D]/20 focus:border-[#001D8D] ${
+                            clientErrors.phone ? 'border-red-300' : ''
+                          }`}
+                        />
+                      </div>
+                      {clientErrors.phone && (
+                        <p className="text-sm text-red-600 mt-1">{clientErrors.phone}</p>
+                      )}
+                    </div>
+                    
+                    {/* Адрес кошелька (для криптовалют) */}
+                    {['BTC', 'ETH', 'USDT', 'USDC', 'BNB', 'ADA', 'DOT', 'SOL', 'XRP', 'DOGE', 'SHIB', 'LTC', 'LINK', 'UNI', 'ATOM', 'XLM', 'TRX', 'FIL', 'NEAR'].includes(toCurrency.toUpperCase()) && (
+                      <div>
+                        <Label htmlFor="clientWalletAddress" className="text-[#001D8D] font-medium">
+                          Адрес кошелька {toCurrency} *
+                        </Label>
+                        <div className="relative mt-2">
+                          <Wallet className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[#001D8D]/60" />
+                          <Input
+                            id="clientWalletAddress"
+                            type="text"
+                            value={clientData.walletAddress}
+                            onChange={(e) => handleClientDataChange('walletAddress', e.target.value)}
+                            placeholder={`Введите адрес ${toCurrency} кошелька`}
+                            className={`pl-10 border-[#001D8D]/20 focus:border-[#001D8D] ${
+                              clientErrors.walletAddress ? 'border-red-300' : ''
+                            }`}
+                          />
+                        </div>
+                        {clientErrors.walletAddress && (
+                          <p className="text-sm text-red-600 mt-1">{clientErrors.walletAddress}</p>
+                        )}
+                        <p className="text-xs text-[#001D8D]/60 mt-1">
+                          Убедитесь, что адрес корректный. Неверный адрес может привести к потере средств.
+                        </p>
+                      </div>
+                    )}
+                    
+                    {/* Банковские реквизиты (для рублей) */}
+                    {toCurrency.toUpperCase() === 'RUB' && (
+                      <div>
+                        <Label htmlFor="clientBankDetails" className="text-[#001D8D] font-medium">
+                          Банковские реквизиты *
+                        </Label>
+                        <div className="relative mt-2">
+                          <CreditCard className="absolute left-3 top-3 h-5 w-5 text-[#001D8D]/60" />
+                          <Textarea
+                            id="clientBankDetails"
+                            value={clientData.bankDetails}
+                            onChange={(e) => handleClientDataChange('bankDetails', e.target.value)}
+                            placeholder="Номер карты или банковские реквизиты для получения рублей"
+                            className={`pl-10 border-[#001D8D]/20 focus:border-[#001D8D] min-h-[80px] ${
+                              clientErrors.bankDetails ? 'border-red-300' : ''
+                            }`}
+                          />
+                        </div>
+                        {clientErrors.bankDetails && (
+                          <p className="text-sm text-red-600 mt-1">{clientErrors.bankDetails}</p>
+                        )}
+                        <p className="text-xs text-[#001D8D]/60 mt-1">
+                          Укажите номер карты или полные банковские реквизиты для перевода рублей.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Кнопки */}
+                  <div className="flex gap-3 mt-6">
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowOrderForm(false)}
+                      className="flex-1 text-[#001D8D] border-[#001D8D]/20"
+                      disabled={submittingOrder}
+                    >
+                      Отмена
+                    </Button>
+                    <Button
+                      onClick={handleSubmitOrder}
+                      disabled={submittingOrder}
+                      className="flex-1 bg-gradient-to-r from-[#001D8D] to-blue-600 text-white hover:opacity-90"
+                    >
+                      {submittingOrder ? (
+                        <>
+                          <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                          Отправка...
+                        </>
+                      ) : (
+                        <>
+                          <Send className="h-4 w-4 mr-2" />
+                          Отправить заявку
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                  
+                  {/* Информация о безопасности */}
+                  <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                    <h5 className="text-sm font-semibold text-[#001D8D] mb-2">
+                      Безопасность ваших данных
+                    </h5>
+                    <ul className="text-xs text-[#001D8D]/70 space-y-1">
+                      <li>• Все данные передаются по защищенному соединению</li>
+                      <li>• Мы не храним банковские данные после завершения обмена</li>
+                      <li>• Ваши персональные данные защищены согласно политике конфиденциальности</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
         </CardContent>
       </div>
