@@ -206,7 +206,7 @@ export function LoginForm() {
           {/* Забыли пароль */}
           <div className="text-right">
             <Link 
-              href="/forgot-password" 
+              href="/forgot-password"
               className="text-sm text-[#001D8D] hover:underline"
             >
               Забыли пароль?
