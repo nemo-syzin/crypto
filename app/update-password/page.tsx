@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { Metadata } from 'next';
 import { UpdatePasswordForm } from '@/components/auth/UpdatePasswordForm';
 
@@ -25,7 +26,18 @@ export default function UpdatePasswordPage() {
             </p>
           </div>
           
-          <UpdatePasswordForm />
+          <Suspense fallback={
+            <div className="bg-white/95 backdrop-blur-sm shadow-xl border-2 border-[#001D8D]/20 rounded-lg p-8">
+              <div className="flex items-center justify-center py-12">
+                <div className="flex items-center gap-3 text-[#001D8D]">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#001D8D]"></div>
+                  <span className="text-lg font-medium">Загрузка формы...</span>
+                </div>
+              </div>
+            </div>
+          }>
+            <UpdatePasswordForm />
+          </Suspense>
         </div>
       </div>
     </div>
