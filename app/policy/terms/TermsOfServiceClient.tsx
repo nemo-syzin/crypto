@@ -265,7 +265,6 @@ export function TermsOfServiceClient() {
                 <FileText className="w-12 h-12 text-blue-600" />
               </div>
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             <h1 className="text-4xl md:text-5xl font-bold text-[#001D8D] mb-4">
               Условия пользования сервисом
             </h1>
@@ -312,7 +311,6 @@ export function TermsOfServiceClient() {
                         <div className="p-3 bg-blue-500/10 rounded-xl mr-4">
                           <IconComponent className="w-6 h-6 text-blue-600" />
                         </div>
-                        <h2 className="text-2xl font-bold text-gray-900">
                         <h2 className="text-2xl font-bold text-[#001D8D]">
                           {section.title}
                         </h2>
