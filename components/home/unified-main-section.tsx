@@ -298,7 +298,6 @@ const UnifiedMainSection = () => {
           {/* 2. Deal Process Section - Без плашки */}
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-semibold text-center text-[#001D8D] mb-4">
               <h2 className="text-3xl md:text-4xl font-bold text-center text-[#001D8D] mb-6">
                 Как проходит обмен
               </h2>
