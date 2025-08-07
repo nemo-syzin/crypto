@@ -252,7 +252,6 @@ export function PrivacyPolicyClient() {
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             <h1 className="text-4xl md:text-5xl font-bold text-[#001D8D] mb-4">
               Политика конфиденциальности
-            </h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               Подробная информация о том, как мы собираем, используем и защищаем ваши персональные данные
             </p>
@@ -297,7 +296,6 @@ export function PrivacyPolicyClient() {
                           <IconComponent className="w-6 h-6 text-blue-600" />
                         </div>
                         <h2 className="text-2xl font-bold text-gray-900">
-                        <h2 className="text-2xl font-bold text-[#001D8D]">
                           {section.title}
                         </h2>
                       </div>
