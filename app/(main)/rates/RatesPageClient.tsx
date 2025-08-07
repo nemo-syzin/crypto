@@ -74,6 +74,7 @@ export function RatesPageClient() {
             className="text-center mb-16"
           >
             <h1 className="text-4xl md:text-5xl font-bold text-[#001D8D] mb-4 flex items-center justify-center gap-3">
+              <Globe className="h-10 w-10" />
               Рыночные данные криптовалют
             </h1>
             <p className="text-xl text-[#001D8D]/80 max-w-4xl mx-auto mb-8 leading-relaxed">
