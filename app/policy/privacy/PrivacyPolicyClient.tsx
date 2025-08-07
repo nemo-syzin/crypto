@@ -220,6 +220,14 @@ export function PrivacyPolicyClient() {
     }
   }, []);
 
+  const tocItems = useMemo(() => 
+    policySections.map(section => ({
+      id: section.id,
+      title: section.title,
+      level: 1
+    })), [policySections]
+  );
+
   if (!isMounted) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
@@ -229,107 +237,101 @@ export function PrivacyPolicyClient() {
   }
 
   return (
-    <>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 relative overflow-hidden">
-        <UnifiedVantaBackground />
-        
-        <div className="relative z-10">
-          <div className="container mx-auto px-4 py-20">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="text-center mb-12 mt-8"
-            >
-              <div className="flex items-center justify-center mb-6">
-                <div className="p-4 bg-blue-500/10 rounded-2xl backdrop-blur-sm border border-blue-200/20">
-                  <Lock className="w-12 h-12 text-blue-600" />
-                </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 relative overflow-hidden">
+      <UnifiedVantaBackground />
+      
+      <div className="relative z-10">
+        <div className="container mx-auto px-4 py-20">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-12 mt-8"
+          >
+            <div className="flex items-center justify-center mb-6">
+              <div className="p-4 bg-blue-500/10 rounded-2xl backdrop-blur-sm border border-blue-200/20">
+                <Lock className="w-12 h-12 text-blue-600" />
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold text-[#001D8D] mb-4">
-                Политика конфиденциальности
-              </h1>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                Подробная информация о том, как мы собираем, используем и защищаем ваши персональные данные
-              </p>
+            </div>
+            <h1 className="text-4xl md:text-5xl font-bold text-[#001D8D] mb-4">
+              Политика конфиденциальности
+            </h1>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Подробная информация о том, как мы собираем, используем и защищаем ваши персональные данные
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="lg:col-span-1"
+            >
+              <div className="sticky top-8">
+                <TableOfContents
+                  items={tocItems}
+                  activeId={activeSection}
+                  onItemClick={handleSectionClick}
+                />
+              </div>
             </motion.div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                className="lg:col-span-1"
-              >
-                <div className="sticky top-8">
-                  <TableOfContents
-                    items={tocItems}
-                    activeId={activeSection}
-                    onItemClick={handleSectionClick}
-                  />
-                </div>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-                className="lg:col-span-3"
-              >
-                <div className="space-y-8">
-                  {policySections.map((section, index) => {
-                    const IconComponent = section.icon;
-                    return (
-                      <motion.div
-                        key={section.id}
-                        id={section.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: 0.1 * index }}
-                        className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300"
-                      >
-                        <div className="flex items-center mb-6">
-                          <div className="p-3 bg-blue-500/10 rounded-xl mr-4">
-                            <IconComponent className="w-6 h-6 text-blue-600" />
-                          </div>
-                          <h2 className="text-2xl font-bold text-[#001D8D]">
-                            {section.title}
-                          </h2>
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="lg:col-span-3"
+            >
+              <div className="space-y-8">
+                {policySections.map((section, index) => {
+                  const IconComponent = section.icon;
+                  return (
+                    <motion.div
+                      key={section.id}
+                      id={section.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6, delay: 0.1 * index }}
+                      className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300"
+                    >
+                      <div className="flex items-center mb-6">
+                        <div className="p-3 bg-blue-500/10 rounded-xl mr-4">
+                          <IconComponent className="w-6 h-6 text-blue-600" />
+                        </div>
+                        <h2 className="text-2xl font-bold text-[#001D8D]">
+                          {section.title}
+                        </h2>
+                      </div>
+                      
+                      <div className="prose prose-lg max-w-none">
+                        <div className="text-gray-700 leading-relaxed whitespace-pre-line">
+                          {section.content}
                         </div>
                         
-                        <div className="prose prose-lg max-w-none">
-                          <div className="text-gray-700 leading-relaxed whitespace-pre-line">
-                            {section.content}
+                        {section.subsections && (
+                          <div className="mt-6 space-y-4">
+                            {section.subsections.map((subsection, subIndex) => (
+                              <div key={subIndex} className="border-l-4 border-blue-200 pl-6">
+                                <h3 className="text-lg font-semibold text-[#001D8D] mb-2">
+                                  {subsection.title}
+                                </h3>
+                                <p className="text-gray-700 leading-relaxed">
+                                  {subsection.content}
+                                </p>
+                              </div>
+                            ))}
                           </div>
-                          
-                          {section.subsections && (
-                            <div className="mt-6 space-y-4">
-                              {section.subsections.map((subsection, subIndex) => (
-                                <div key={subIndex} className="border-l-4 border-blue-200 pl-6">
-                                  <h3 className="text-lg font-semibold text-[#001D8D] mb-2">
-                                    {subsection.title}
-                                  </h3>
-                                  <p className="text-gray-700 leading-relaxed">
-                                    {subsection.content}
-                                  </p>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      </motion.div>
-                    );
-                  })}
-                </div>
-              </motion.div>
-            </div>
-          </div>
-        </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  );
+                })}
               </div>
             </motion.div>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
