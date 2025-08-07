@@ -249,9 +249,9 @@ export function PrivacyPolicyClient() {
                 <Lock className="w-12 h-12 text-blue-600" />
               </div>
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             <h1 className="text-4xl md:text-5xl font-bold text-[#001D8D] mb-4">
               Политика конфиденциальности
+            </h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               Подробная информация о том, как мы собираем, используем и защищаем ваши персональные данные
             </p>
