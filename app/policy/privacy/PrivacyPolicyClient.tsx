@@ -216,6 +216,103 @@ export function PrivacyPolicyClient() {
     setActiveSection(sectionId);
     const element = document.getElementById(sectionId);
     if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, []);
+
+  if (!isMounted) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen relative overflow-hidden">
+      <UnifiedVantaBackground />
+      
+      <div className="relative z-10 min-h-screen">
+        <div className="container mx-auto px-4 py-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="max-w-7xl mx-auto"
+          >
+            {/* Header */}
+            <div className="text-center mb-12">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6, delay: 0.1 }}
+                className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mb-6 shadow-lg"
+              >
+                <Lock className="w-10 h-10 text-white" />
+              </motion.div>
+              
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="text-4xl md:text-5xl font-bold text-gray-900 mb-4"
+              >
+                Политика конфиденциальности
+              </motion.h1>
+              
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                className="text-xl text-gray-600 max-w-3xl mx-auto"
+              >
+                Подробная информация о том, как мы собираем, используем и защищаем ваши персональные данные
+              </motion.p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+              {/* Table of Contents */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: 0.4 }}
+                className="lg:col-span-1"
+              >
+                <div className="sticky top-8">
+                  <TableOfContents
+                    sections={policySections.map(section => ({
+                      id: section.id,
+                      title: section.title,
+                      icon: section.icon
+                    }))}
+                    activeSection={activeSection}
+                    onSectionClick={handleSectionClick}
+                  />
+                </div>
+              </motion.div>
+
+              {/* Content */}
+              <div className="lg:col-span-3">
+                {policySections.map((section, index) => {
+                  const IconComponent = section.icon;
+                  
+                  return (
+                    <motion.div
+                      key={section.id}
+                      id={section.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6, delay: 0.1 * index }}
+                      className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-8 mb-8"
+                    >
+                      <div className="flex items-center gap-4 mb-6">
+                        <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl shadow-lg">
+                          <IconComponent className="w-6 h-6 text-white" />
+                        </div>
+                        
+                        <h2 className="text-2xl font-bold text-gray-900">
+                          {section.title}
+                        </h2>
                       </div>
                       
                       <div className="prose prose-lg max-w-none">
