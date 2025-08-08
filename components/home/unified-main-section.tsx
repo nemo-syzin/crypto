@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import Image from 'next/image';
-import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -18,7 +17,8 @@ import {
   CheckCircle,
   Star,
   TrendingUp,
-  Zap
+  Zap,
+  DollarSign
 } from 'lucide-react';
 import Marquee from 'react-fast-marquee';
 
@@ -34,22 +34,22 @@ const UnifiedVantaBackground = dynamic(
 // Данные для секций
 const features = [
   {
-    icon: "https://coex.global/_ipx/w_400&f_avif/img/eth-light.png?v=1",
+    iconComponent: DollarSign,
     title: "Выгодный курс",
     description: "Получите лучший курс обмена USDT на рубли на рынке, обновляемый в реальном времени для максимальной выгоды.",
   },
   {
-    icon: "https://coex.global/_ipx/w_100&f_avif/img/shield-dark.png?v=1",
+    iconComponent: Shield,
     title: "Полная безопасность",
     description: "Сквозное шифрование и защищенная обработка платежей гарантируют безопасность ваших транзакций и личных данных.",
   },
   {
-    icon: "https://coex.global/_ipx/w_100&f_avif/img/timer-dark.png?v=1",
+    iconComponent: Zap,
     title: "Быстрые транзакции",
     description: "Совершайте обмены быстро благодаря нашей оптимизированной системе - большинство транзакций завершается менее чем за 15 минут.",
   },
   {
-    icon: "https://coex.global/_ipx/w_100&f_avif/img/planet-light.png?v=1",
+    iconComponent: CheckCircle,
     title: "Простая верификация",
     description: "Наш оптимизированный процесс KYC позволяет быстро пройти верификацию и начать торговлю с минимальными усилиями.",
   }
@@ -281,16 +281,8 @@ const UnifiedMainSection = () => {
                   className="calculator-container group hover:shadow-xl transition-all duration-300"
                 >
                   <div className="relative z-10">
-                    <div className="flex items-center justify-center h-12 w-12 mb-8">
-                      <Image
-                        src={feature.icon}
-                        alt={feature.title}
-                        width={48}
-                        height={48}
-                        className="w-12 h-12 object-contain"
-                       priority={index === 0}
-                       loading={index === 0 ? "eager" : "lazy"}
-                      />
+                    <div className="flex items-center justify-center h-12 w-12 mb-8 bg-[#001D8D]/5 p-3 rounded-full">
+                      <feature.iconComponent className="h-6 w-6 text-[#001D8D]" />
                     </div>
                     <h3 className="text-2xl md:text-3xl font-bold mb-4 text-[#001D8D]">{feature.title}</h3>
                     <p className="text-[#001D8D]/70 leading-relaxed">{feature.description}</p>
