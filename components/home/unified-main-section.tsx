@@ -288,7 +288,8 @@ const UnifiedMainSection = () => {
                         width={48}
                         height={48}
                         className="w-12 h-12 object-contain"
-                        unoptimized
+                       priority={index === 0}
+                       loading={index === 0 ? "eager" : "lazy"}
                       />
                     </div>
                     <h3 className="text-2xl md:text-3xl font-bold mb-4 text-[#001D8D]">{feature.title}</h3>
