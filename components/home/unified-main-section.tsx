@@ -281,10 +281,12 @@ const UnifiedMainSection = () => {
                   className="calculator-container group hover:shadow-xl transition-all duration-300"
                 >
                   <div className="relative z-10">
-                    <div className="flex items-center justify-center h-12 w-12 mb-8 bg-[#001D8D]/5 p-3 rounded-full">
-                      <feature.iconComponent className="h-6 w-6 text-[#001D8D]" />
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="flex items-center justify-center h-10 w-10 bg-[#001D8D]/10 p-2 rounded-lg">
+                        <feature.iconComponent className="h-5 w-5 text-[#001D8D]" />
+                      </div>
+                      <h3 className="text-xl md:text-2xl font-bold text-[#001D8D]">{feature.title}</h3>
                     </div>
-                    <h3 className="text-2xl md:text-3xl font-bold mb-4 text-[#001D8D]">{feature.title}</h3>
                     <p className="text-[#001D8D]/70 leading-relaxed">{feature.description}</p>
                   </div>
                 </motion.div>
