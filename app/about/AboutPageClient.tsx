@@ -183,7 +183,6 @@ export function AboutPageClient() {
                 Профессиональный криптосервис
               </div>
               
-              <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-6">
               <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-[#001D8D] mb-6">
                 Профессиональный криптосервис
               </h2>
