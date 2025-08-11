@@ -160,14 +160,14 @@ export default function ExchangePage() {
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent to-blue-100/20 z-5" />
 
         <div className="container mx-auto px-4 relative z-10">
-          <div className="space-y-24">
+          <div className="space-y-12">
             
             {/* Hero Section */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="text-center mb-8 mt-8"
+              className="text-center mb-0 mt-8"
             >
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-[#001D8D]">
                 Профессиональный <span className="bg-gradient-to-r from-[#001D8D] to-blue-600 bg-clip-text text-transparent">обмен</span> криптовалют
