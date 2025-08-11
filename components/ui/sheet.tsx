@@ -80,4 +80,4 @@ const SheetTitle = React.forwardRef<
 ));
 SheetTitle.displayName = SheetPrimitive.Title.displayName;
 
-export { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle };
+export { Sheet, SheetTrigger, SheetClose, SheetContent, SheetHeader, SheetTitle };
