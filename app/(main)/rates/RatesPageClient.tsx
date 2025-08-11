@@ -185,5 +185,3 @@ export function RatesPageClient() {
     </div>
   );
 }
-  )
-}
