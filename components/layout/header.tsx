@@ -11,6 +11,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
+  SheetClose,
 } from "@/components/ui/sheet";
 
 const Header = () => {
@@ -182,53 +183,67 @@ const Header = () => {
                   </SheetTitle>
                 </SheetHeader>
                 <nav className="flex flex-col gap-4 mt-8">
-                  <Link 
-                    href="/exchange" 
-                    className="p-2 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors"
-                  >
-                    Exchange
-                  </Link>
-                  <Link 
-                    href="/rates" 
-                    className="p-2 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors"
-                  >
-                    Rates
-                  </Link>
-                  <Link 
-                    href="/about" 
-                    className="p-2 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors"
-                  >
-                    About
-                  </Link>
+                  <SheetClose asChild>
+                    <Link 
+                      href="/exchange" 
+                      className="p-2 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors"
+                    >
+                      Exchange
+                    </Link>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <Link 
+                      href="/rates" 
+                      className="p-2 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors"
+                    >
+                      Rates
+                    </Link>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <Link 
+                      href="/about" 
+                      className="p-2 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors"
+                    >
+                      About
+                    </Link>
+                  </SheetClose>
                   <div className="p-2 text-[#001D8D]">
                     <div className="mb-2 font-medium">Policy</div>
                     <div className="pl-4 flex flex-col gap-2">
-                      <Link 
-                        href="/policy/aml-kyc" 
-                        className="p-2 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors text-sm"
-                      >
-                        AML/CTF и KYC
-                      </Link>
-                      <Link 
-                        href="/policy/terms" 
-                        className="p-2 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors text-sm"
-                      >
-                        Условия использования
-                      </Link>
-                      <Link 
-                        href="/policy/privacy" 
-                        className="p-2 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors text-sm"
-                      >
-                        Политика конфиденциальности
-                      </Link>
+                      <SheetClose asChild>
+                        <Link 
+                          href="/policy/aml-kyc" 
+                          className="p-2 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors text-sm"
+                        >
+                          AML/CTF и KYC
+                        </Link>
+                      </SheetClose>
+                      <SheetClose asChild>
+                        <Link 
+                          href="/policy/terms" 
+                          className="p-2 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors text-sm"
+                        >
+                          Условия использования
+                        </Link>
+                      </SheetClose>
+                      <SheetClose asChild>
+                        <Link 
+                          href="/policy/privacy" 
+                          className="p-2 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors text-sm"
+                        >
+                          Политика конфиденциальности
+                        </Link>
+                      </SheetClose>
                     </div>
                   </div>
-                  <Link 
-                    href="/support" 
-                    className="p-2 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors"
-                  >
-                    Support
-                  </Link>
+                  <SheetClose asChild>
+                    <Link 
+                      href="/support" 
+                      className="p-2 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors"
+                    >
+                      Support
+                    </Link>
+                  </SheetClose>
                   <div className="border-t border-[#001D8D]/10 my-4 pt-4 flex flex-col gap-3">
                     <Button 
                       variant="ghost"
@@ -241,19 +256,23 @@ const Header = () => {
                         <><Moon className="h-4 w-4 mr-2" /> Dark Mode</>
                       )}
                     </Button>
-                    <Button 
-                      asChild 
-                      variant="ghost"
-                      className="text-[#001D8D] hover:bg-[#001D8D]/5"
-                    >
-                      <Link href="/login">Вход</Link>
-                    </Button>
-                    <Button 
-                      asChild 
-                      className="bg-[#001D8D] hover:opacity-90 text-white"
-                    >
-                      <Link href="/register">Регистрация</Link>
-                    </Button>
+                    <SheetClose asChild>
+                      <Button 
+                        asChild 
+                        variant="ghost"
+                        className="text-[#001D8D] hover:bg-[#001D8D]/5"
+                      >
+                        <Link href="/login">Вход</Link>
+                      </Button>
+                    </SheetClose>
+                    <SheetClose asChild>
+                      <Button 
+                        asChild 
+                        className="bg-[#001D8D] hover:opacity-90 text-white"
+                      >
+                        <Link href="/register">Регистрация</Link>
+                      </Button>
+                    </SheetClose>
                   </div>
                 </nav>
               </SheetContent>
