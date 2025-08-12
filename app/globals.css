@@ -38,8 +38,25 @@
     font-family: 'Gilroy', sans-serif;
   }
   
+  html {
+    scroll-behavior: smooth;
+  }
+  
   body {
     @apply bg-white text-[#001D8D] m-0 p-0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  
+  /* Optimize animations for better performance */
+  * {
+    will-change: auto;
+  }
+  
+  .animate-spin,
+  .animate-pulse {
+    will-change: transform;
   }
 }
 

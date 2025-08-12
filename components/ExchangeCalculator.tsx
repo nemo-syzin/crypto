@@ -817,4 +817,6 @@ export default function ExchangeCalculator() {
       </div>
     </div>
   );
-}
+});
+
+export default ExchangeCalculator;

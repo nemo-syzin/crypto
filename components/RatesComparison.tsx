@@ -354,4 +354,6 @@ export default function RatesComparison() {
       </Card>
     </div>
   );
-}
+});
+
+export default RatesComparison;

@@ -435,7 +435,6 @@ const UnifiedMainSection = () => {
                   gradient={false}
                   speed={60}
                   pauseOnHover={true}
-                  pauseOnClick={true}
                   className="py-4"
                 >
                   {partners
@@ -457,6 +456,7 @@ const UnifiedMainSection = () => {
                   speed={45}
                   direction="right"
                   pauseOnHover={true}
+                  pauseOnClick={true}
                   className="py-4"
                 >
                   {partners
