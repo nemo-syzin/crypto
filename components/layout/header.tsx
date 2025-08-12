@@ -72,6 +72,12 @@ const Header = () => {
               Rates
             </Link>
             <Link 
+              href="/blog" 
+              className="text-[#001D8D] hover:opacity-80 transition-colors duration-200"
+            >
+              Blog
+            </Link>
+            <Link 
               href="/about" 
               className="text-[#001D8D] hover:opacity-80 transition-colors duration-200"
             >
@@ -197,6 +203,14 @@ const Header = () => {
                       className="p-2 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors"
                     >
                       Rates
+                    </Link>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <Link 
+                      href="/blog" 
+                      className="p-2 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors"
+                    >
+                      Blog
                     </Link>
                   </SheetClose>
                   <SheetClose asChild>

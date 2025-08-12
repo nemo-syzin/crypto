@@ -49,7 +49,8 @@ import {
   Lightbulb,
   Heart,
   Award,
-  TrendingUp
+  TrendingUp,
+  BookOpen
 } from 'lucide-react';
 
 // Динамический импорт 3D-фона с отключенным SSR для улучшения производительности
@@ -193,12 +194,6 @@ export function SupportPageClient() {
       icon: Shield,
       readTime: "7 мин"
     }
-  ];
-
-  const socialLinks = [
-    { icon: Send, name: "Telegram", url: "#", color: "text-blue-500" },
-    { icon: Twitter, name: "Twitter", url: "#", color: "text-blue-400" },
-    { icon: MessageSquare, name: "Discord", url: "#", color: "text-indigo-500" }
   ];
 
   const handleContactSubmit = (e: React.FormEvent) => {
@@ -514,7 +509,7 @@ export function SupportPageClient() {
               </Card>
             </motion.div>
 
-            {/* Social Media & Community */}
+            {/* Blog Section */}
             <motion.div
               ref={ref}
               variants={containerVariants}
@@ -524,39 +519,97 @@ export function SupportPageClient() {
             >
               <div className="text-center mb-12">
                 <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-4">
-                  Социальные сети и сообщество
+                  Наш Блог
                 </h2>
                 <p className="text-xl text-[#001D8D]/70 max-w-3xl mx-auto">
-                  Присоединяйтесь к нашему сообществу для обмена опытом и оперативного получения актуальной информации
+                  Следите за последними новостями криптовалютного рынка, обновлениями сервиса и полезными материалами
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {socialLinks.map((social, index) => (
-                  <motion.div
-                    key={index}
-                    variants={itemVariants}
-                    className="group"
-                  >
-                    <Card className="bg-white/95 backdrop-blur-sm shadow-lg border border-[#001D8D]/10 hover:border-[#001D8D]/30 transition-all duration-300 hover:shadow-xl hover:scale-105 transform cursor-pointer">
-                      <CardContent className="p-8 text-center">
-                        <div className="mb-6">
-                          <div className="inline-flex p-4 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 group-hover:from-[#001D8D] group-hover:to-blue-600 transition-all duration-300 shadow-lg">
-                            <social.icon className={`h-8 w-8 ${social.color} group-hover:text-white transition-colors duration-300`} />
-                          </div>
+                {/* Последние новости */}
+                <motion.div
+                  variants={itemVariants}
+                  className="group"
+                >
+                  <Card className="bg-white/95 backdrop-blur-sm shadow-lg border border-[#001D8D]/10 hover:border-[#001D8D]/30 transition-all duration-300 hover:shadow-xl hover:scale-105 transform cursor-pointer">
+                    <CardContent className="p-8 text-center">
+                      <div className="mb-6">
+                        <div className="inline-flex p-4 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 group-hover:from-[#001D8D] group-hover:to-blue-600 transition-all duration-300 shadow-lg">
+                          <BookOpen className="h-8 w-8 text-blue-600 group-hover:text-white transition-colors duration-300" />
                         </div>
-                        <h3 className="text-xl font-bold text-[#001D8D] mb-3">{social.name}</h3>
-                        <p className="text-[#001D8D]/70 leading-relaxed mb-4">
-                          Следите за новостями и общайтесь с сообществом
-                        </p>
-                        <Button variant="outline" className="w-full border-[#001D8D]/20 text-[#001D8D] hover:bg-[#001D8D] hover:text-white transition-all duration-300">
-                          Подписаться
-                          <ExternalLink className="h-4 w-4 ml-2" />
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ))}
+                      </div>
+                      <h3 className="text-xl font-bold text-[#001D8D] mb-3">Последние новости</h3>
+                      <p className="text-[#001D8D]/70 leading-relaxed mb-4">
+                        Актуальные новости криптовалютного рынка и обновления нашего сервиса
+                      </p>
+                      <Button 
+                        variant="outline" 
+                        className="w-full border-[#001D8D]/20 text-[#001D8D] hover:bg-[#001D8D] hover:text-white transition-all duration-300"
+                        onClick={() => window.location.href = '/blog'}
+                      >
+                        Читать новости
+                        <ArrowRight className="h-4 w-4 ml-2" />
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+
+                {/* Аналитика и обзоры */}
+                <motion.div
+                  variants={itemVariants}
+                  className="group"
+                >
+                  <Card className="bg-white/95 backdrop-blur-sm shadow-lg border border-[#001D8D]/10 hover:border-[#001D8D]/30 transition-all duration-300 hover:shadow-xl hover:scale-105 transform cursor-pointer">
+                    <CardContent className="p-8 text-center">
+                      <div className="mb-6">
+                        <div className="inline-flex p-4 rounded-full bg-gradient-to-br from-green-100 to-green-200 group-hover:from-[#001D8D] group-hover:to-blue-600 transition-all duration-300 shadow-lg">
+                          <TrendingUp className="h-8 w-8 text-green-600 group-hover:text-white transition-colors duration-300" />
+                        </div>
+                      </div>
+                      <h3 className="text-xl font-bold text-[#001D8D] mb-3">Аналитика рынка</h3>
+                      <p className="text-[#001D8D]/70 leading-relaxed mb-4">
+                        Экспертные обзоры и аналитика криптовалютного рынка от наших специалистов
+                      </p>
+                      <Button 
+                        variant="outline" 
+                        className="w-full border-[#001D8D]/20 text-[#001D8D] hover:bg-[#001D8D] hover:text-white transition-all duration-300"
+                        onClick={() => window.location.href = '/blog?category=analytics'}
+                      >
+                        Читать аналитику
+                        <ArrowRight className="h-4 w-4 ml-2" />
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+
+                {/* Обучающие материалы */}
+                <motion.div
+                  variants={itemVariants}
+                  className="group"
+                >
+                  <Card className="bg-white/95 backdrop-blur-sm shadow-lg border border-[#001D8D]/10 hover:border-[#001D8D]/30 transition-all duration-300 hover:shadow-xl hover:scale-105 transform cursor-pointer">
+                    <CardContent className="p-8 text-center">
+                      <div className="mb-6">
+                        <div className="inline-flex p-4 rounded-full bg-gradient-to-br from-purple-100 to-purple-200 group-hover:from-[#001D8D] group-hover:to-blue-600 transition-all duration-300 shadow-lg">
+                          <Lightbulb className="h-8 w-8 text-purple-600 group-hover:text-white transition-colors duration-300" />
+                        </div>
+                      </div>
+                      <h3 className="text-xl font-bold text-[#001D8D] mb-3">Обучающие материалы</h3>
+                      <p className="text-[#001D8D]/70 leading-relaxed mb-4">
+                        Полезные гайды и инструкции по работе с криптовалютами и нашим сервисом
+                      </p>
+                      <Button 
+                        variant="outline" 
+                        className="w-full border-[#001D8D]/20 text-[#001D8D] hover:bg-[#001D8D] hover:text-white transition-all duration-300"
+                        onClick={() => window.location.href = '/blog?category=guides'}
+                      >
+                        Изучать материалы
+                        <ArrowRight className="h-4 w-4 ml-2" />
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </motion.div>
               </div>
             </motion.div>
 
