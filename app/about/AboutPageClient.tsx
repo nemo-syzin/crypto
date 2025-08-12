@@ -178,11 +178,6 @@ export function AboutPageClient() {
               viewport={{ once: true }}
               className="max-w-4xl mx-auto text-center"
             >
-              <div className="inline-flex items-center gap-2 bg-[#001D8D]/10 text-[#001D8D] px-4 py-2 rounded-full text-sm font-medium mb-6">
-                <Building2 className="h-4 w-4" />
-                Профессиональный криптосервис
-              </div>
-              
               <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-[#001D8D] mb-6">
                 Профессиональный криптосервис
               </h2>
