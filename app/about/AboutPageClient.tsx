@@ -178,9 +178,9 @@ export function AboutPageClient() {
               viewport={{ once: true }}
               className="max-w-4xl mx-auto text-center"
             >
-              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-[#001D8D] mb-6">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-[#001D8D] mb-6">
                 Профессиональный криптосервис
-              </h2>
+              </h1>
             </motion.div>
 
             {/* 2. Видео */}
