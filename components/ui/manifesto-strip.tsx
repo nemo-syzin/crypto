@@ -133,14 +133,14 @@ export function ManifestoStrip({ values, className = "" }: ManifestoStripProps) 
               className="bg-white rounded-lg border-2 border-gray-100 p-8 shadow-lg"
             >
               {/* Заголовок с номером */}
-              <div className="flex items-center gap-4 mb-6">
+              <div className="flex items-center gap-4 mb-6 w-full">
                 <div 
                   className="w-16 h-16 flex items-center justify-center text-white font-bold text-xl rounded-lg"
                   style={{ backgroundColor: activeValueData.color }}
                 >
                   {activeValueData.number}
                 </div>
-                <div>
+                <div className="flex-1 min-w-0">
                   <h3 className="text-2xl font-bold text-[#001D8D] mb-1">
                     {activeValueData.title}
                   </h3>
@@ -149,7 +149,7 @@ export function ManifestoStrip({ values, className = "" }: ManifestoStripProps) 
               </div>
 
               {/* Описание */}
-              <p className="text-lg text-[#001D8D]/80 leading-relaxed">
+              <p className="text-lg text-[#001D8D]/80 leading-relaxed w-full">
                 {activeValueData.description}
               </p>
 
