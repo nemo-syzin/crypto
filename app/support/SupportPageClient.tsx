@@ -50,7 +50,8 @@ import {
   Lightbulb,
   Heart,
   Award,
-  TrendingUp
+  TrendingUp,
+  RefreshCw
 } from 'lucide-react';
 
 // Добавляем типы для Tawk.to API
@@ -105,11 +106,13 @@ export function SupportPageClient() {
       script.setAttribute('crossorigin', '*');
       
       script.onload = () => {
-        // Скрываем виджет по умолчанию
-        if (window.Tawk_API) {
-          window.Tawk_API.hideWidget();
-          setTawkLoaded(true);
-        }
+        // Скрываем виджет по умолчанию с задержкой для полной инициализации API
+        setTimeout(() => {
+          if (window.Tawk_API && typeof window.Tawk_API.hideWidget === 'function') {
+            window.Tawk_API.hideWidget();
+            setTawkLoaded(true);
+          }
+        }, 500);
       };
       
       document.body.appendChild(script);
