@@ -306,6 +306,7 @@ export function AboutPageClient() {
                     fill
                     className="object-contain"
                     priority
+                    fetchPriority="high"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     style={{
                       border: 'none',
@@ -456,6 +457,7 @@ export function AboutPageClient() {
                     fill
                     className="object-contain"
                     priority
+                    fetchPriority="high"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     style={{
                       border: 'none',

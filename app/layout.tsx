@@ -20,6 +20,19 @@ export default function RootLayout({
     <html lang="ru" suppressHydrationWarning>
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
+        {/* Preload critical fonts */}
+        <link 
+          rel="preload" 
+          as="font" 
+          type="font/woff2" 
+          crossOrigin="anonymous"
+          href="/fonts/Gilroy-ExtraBold.woff2" 
+        />
+        {/* DNS prefetch for external resources */}
+        <link rel="dns-prefetch" href="//assets.revolut.com" />
+        <link rel="dns-prefetch" href="//assets.coingecko.com" />
+        <link rel="dns-prefetch" href="//res.coinpaper.com" />
+        <link rel="dns-prefetch" href="//api.alternative.me" />
       </head>
       <body className="min-h-screen">
         <ThemeProvider

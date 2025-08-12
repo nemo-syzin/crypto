@@ -768,10 +768,10 @@ export function useMarket(limit: number = 20) {
     `market-data-${limit}`,
     () => getTopCoins(limit),
     {
-      refreshInterval: 5 * 60 * 1000, // 5 minutes
+      refreshInterval: 10 * 60 * 1000, // Increased to 10 minutes to reduce API calls
       revalidateOnFocus: true,
       revalidateOnReconnect: true,
-      dedupingInterval: 2 * 60 * 1000, // 2 minutes
+      dedupingInterval: 5 * 60 * 1000, // Increased to 5 minutes
       fallbackData: getFallbackCoinsData(limit), // Provide fallback data with correct limit
       onError: (error) => {
         console.warn('⚠️ Market data hook error, using fallback data:', error);
@@ -799,10 +799,10 @@ export function useGlobal() {
     'global-market-data',
     getGlobalMarketData,
     {
-      refreshInterval: 10 * 60 * 1000, // 10 minutes
+      refreshInterval: 15 * 60 * 1000, // Increased to 15 minutes
       revalidateOnFocus: false,
       revalidateOnReconnect: true,
-      dedupingInterval: 5 * 60 * 1000, // 5 minutes
+      dedupingInterval: 10 * 60 * 1000, // Increased to 10 minutes
       fallbackData: getFallbackGlobalData(), // Provide fallback data
       onError: (error) => {
         console.warn('⚠️ Global market data hook error, using fallback data:', error);

@@ -56,7 +56,16 @@ const nextConfig = {
   },
   // Optimize bundle size
   experimental: {
-    optimizePackageImports: ['lucide-react', 'framer-motion']
+    optimizePackageImports: ['lucide-react', 'framer-motion'],
+    // Enable modern bundling optimizations
+    turbo: {
+      rules: {
+        '*.svg': {
+          loaders: ['@svgr/webpack'],
+          as: '*.js',
+        },
+      },
+    },
   },
   webpack: (config, { isServer }) => {
     // Fix for Supabase realtime-js critical dependency warning
@@ -76,6 +85,27 @@ const nextConfig = {
         tls: false,
       };
     }
+    
+    // Optimize chunks for better caching
+    config.optimization = {
+      ...config.optimization,
+      splitChunks: {
+        chunks: 'all',
+        cacheGroups: {
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            chunks: 'all',
+          },
+          common: {
+            name: 'common',
+            minChunks: 2,
+            chunks: 'all',
+            enforce: true,
+          },
+        },
+      },
+    };
     
     return config;
   },

@@ -52,6 +52,7 @@ const HeroSection = () => {
               width={400}
               height={120}
               priority
+              fetchPriority="high"
               className="h-auto w-auto"
             />
           </div>

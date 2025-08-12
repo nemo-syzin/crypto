@@ -65,8 +65,37 @@ export function UnifiedVantaBackground({
   const vantaRef = useRef<HTMLDivElement>(null);
   const vantaEffect = useRef<any>(null);
   const [fallbackMode, setFallbackMode] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const observerRef = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {
+    // Performance optimization: pause effect when not visible
+    if (typeof window !== 'undefined' && vantaRef.current) {
+      observerRef.current = new IntersectionObserver(
+        ([entry]) => {
+          setIsVisible(entry.isIntersecting);
+          
+          // Pause/resume effect based on visibility
+          if (vantaEffect.current) {
+            if (entry.isIntersecting) {
+              // Resume animation
+              if (vantaEffect.current.resume) {
+                vantaEffect.current.resume();
+              }
+            } else {
+              // Pause animation to save resources
+              if (vantaEffect.current.pause) {
+                vantaEffect.current.pause();
+              }
+            }
+          }
+        },
+        { threshold: 0.1 }
+      );
+      
+      observerRef.current.observe(vantaRef.current);
+    }
+
     let mounted = true;
 
     const initVanta = async () => {
@@ -212,7 +241,7 @@ export function UnifiedVantaBackground({
             maxDistance,
             spacing,
             showDots,
-            speed,
+            speed: isVisible ? speed : 0.1, // Reduce speed when not visible
             forceAnimate
           };
           console.log(`🎨 Topology with primary color: #${color.toString(16)}`);
@@ -266,6 +295,11 @@ export function UnifiedVantaBackground({
       return () => {
         mounted = false;
         clearTimeout(timer);
+        
+        // Cleanup intersection observer
+        if (observerRef.current) {
+          observerRef.current.disconnect();
+        }
         
         if (vantaEffect.current) {
           try {

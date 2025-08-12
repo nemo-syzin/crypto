@@ -335,6 +335,7 @@ export default function ExchangePage() {
                     height={400}
                     className="rounded-2xl shadow-2xl w-full h-full object-cover"
                     priority
+                    fetchPriority="high"
                   />
                   {/* ❌ УБРАНА ОРАНЖЕВАЯ ЗАЛИВКА */}
                 </div>
