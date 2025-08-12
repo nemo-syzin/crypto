@@ -26,7 +26,9 @@ import {
   Star,
   Eye,
   MessageCircle,
-  Share2
+  Share2,
+  CheckCircle,
+  Shield
 } from 'lucide-react';
 
 // Динамический импорт 3D-фона с отключенным SSR для улучшения производительности
