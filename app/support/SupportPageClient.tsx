@@ -49,8 +49,7 @@ import {
   Lightbulb,
   Heart,
   Award,
-  TrendingUp,
-  BookOpen
+  TrendingUp
 } from 'lucide-react';
 
 // Динамический импорт 3D-фона с отключенным SSR для улучшения производительности
