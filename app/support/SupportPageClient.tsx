@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
+import { useToast } from '@/hooks/use-toast';
 import dynamic from 'next/dynamic';
 import { 
   Card, 
@@ -52,6 +53,14 @@ import {
   TrendingUp
 } from 'lucide-react';
 
+// Добавляем типы для Tawk.to API
+declare global {
+  interface Window {
+    Tawk_API?: any;
+    Tawk_LoadStart?: Date;
+  }
+}
+
 // Динамический импорт 3D-фона с отключенным SSR для улучшения производительности
 const UnifiedVantaBackground = dynamic(
   () => import('@/components/shared/UnifiedVantaBackground').then(mod => ({ default: mod.UnifiedVantaBackground })),
@@ -62,7 +71,9 @@ const UnifiedVantaBackground = dynamic(
 );
 
 export function SupportPageClient() {
+  const { toast } = useToast();
   const [isMounted, setIsMounted] = useState(false);
+  const [tawkLoaded, setTawkLoaded] = useState(false);
   const [selectedFaq, setSelectedFaq] = useState<string>("item-0");
   const [contactForm, setContactForm] = useState({
     name: '',
@@ -78,6 +89,53 @@ export function SupportPageClient() {
 
   useEffect(() => {
     setIsMounted(true);
+    
+    // Динамически загружаем скрипт Tawk.to
+    const loadTawkScript = () => {
+      // Проверяем, что скрипт еще не загружен
+      if (document.querySelector('script[src*="tawk.to"]')) {
+        setTawkLoaded(true);
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.async = true;
+      script.src = 'https://embed.tawk.to/689b693ea96f841925e981cc/1j2fh66tt';
+      script.charset = 'UTF-8';
+      script.setAttribute('crossorigin', '*');
+      
+      script.onload = () => {
+        // Скрываем виджет по умолчанию
+        if (window.Tawk_API) {
+          window.Tawk_API.hideWidget();
+          setTawkLoaded(true);
+        }
+      };
+      
+      document.body.appendChild(script);
+      
+      // Инициализируем Tawk_API если еще не существует
+      if (!window.Tawk_API) {
+        window.Tawk_API = {};
+        window.Tawk_LoadStart = new Date();
+      }
+    };
+
+    loadTawkScript();
+    
+    // Cleanup function
+    return () => {
+      // Удаляем скрипт при размонтировании компонента
+      const script = document.querySelector('script[src*="tawk.to"]');
+      if (script) {
+        script.remove();
+      }
+      
+      // Очищаем Tawk_API
+      if (window.Tawk_API && window.Tawk_API.endChat) {
+        window.Tawk_API.endChat();
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -109,6 +167,16 @@ export function SupportPageClient() {
   // Обновленные методы связи в фирменном стиле
   const contactMethods = [
     {
+      icon: MessageCircle,
+      title: "Онлайн-чат",
+      description: "Общайтесь с нашими операторами в реальном времени через встроенный чат-виджет.",
+      action: "Открыть чат",
+      available: true,
+      responseTime: "< 2 минуты",
+      features: ["Мгновенные ответы", "Поддержка 24/7", "История переписки"],
+      type: "live_chat"
+    },
+    {
       icon: Mail,
       title: "Электронная почта",
       description: "Отправьте нам сообщение на support@kenigswap.com и получите подробный ответ в течение 24 часов.",
@@ -127,6 +195,20 @@ export function SupportPageClient() {
       features: ["Быстрые уведомления", "Статус заявок", "Мобильная поддержка"]
     }
   ];
+
+  // Функция для открытия лайв-чата
+  const handleLiveChatClick = () => {
+    if (tawkLoaded && window.Tawk_API) {
+      // Показываем и открываем чат
+      window.Tawk_API.showWidget();
+      window.Tawk_API.toggle();
+    } else {
+      toast({
+        title: "Чат загружается",
+        description: "Пожалуйста, подождите несколько секунд и попробуйте снова.",
+      });
+    }
+  };
 
   // Объединенные FAQ - из главной страницы + существующие
   const faqs = [
@@ -359,10 +441,34 @@ export function SupportPageClient() {
 
                       {/* Кнопка действия */}
                       <div className="mt-auto">
-                        <button className="w-full bg-gradient-to-r from-[#001D8D] to-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2">
-                          {method.action}
-                          <ArrowRight className="h-4 w-4" />
-                        </button>
+                        {method.type === 'live_chat' ? (
+                          <button 
+                            onClick={handleLiveChatClick}
+                            disabled={!tawkLoaded}
+                            className={`w-full py-3 px-6 rounded-lg font-semibold hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2 ${
+                              tawkLoaded 
+                                ? 'bg-gradient-to-r from-[#001D8D] to-blue-600 text-white' 
+                                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                            }`}
+                          >
+                            {tawkLoaded ? (
+                              <>
+                                {method.action}
+                                <ArrowRight className="h-4 w-4" />
+                              </>
+                            ) : (
+                              <>
+                                Загрузка чата...
+                                <RefreshCw className="h-4 w-4 animate-spin" />
+                              </>
+                            )}
+                          </button>
+                        ) : (
+                          <button className="w-full bg-gradient-to-r from-[#001D8D] to-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2">
+                            {method.action}
+                            <ArrowRight className="h-4 w-4" />
+                          </button>
+                        )}
                       </div>
                     </div>
                   </motion.div>

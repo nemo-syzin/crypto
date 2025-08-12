@@ -46,23 +46,6 @@ export default function RootLayout({
             <Footer />
           </div>
           <Toaster />
-          
-          {/* Tawk.to Live Chat Script */}
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `
-                var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
-                (function(){
-                var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
-                s1.async=true;
-                s1.src='https://embed.tawk.to/689b693ea96f841925e981cc/1j2fh66tt';
-                s1.charset='UTF-8';
-                s1.setAttribute('crossorigin','*');
-                s0.parentNode.insertBefore(s1,s0);
-                })();
-              `,
-            }}
-          />
         </ThemeProvider>
       </body>
     </html>
