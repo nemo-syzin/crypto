@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -22,6 +22,38 @@ const Header = () => {
   const [mounted, setMounted] = useState(false);
   const [policyDropdownOpen, setPolicyDropdownOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  
+  // Refs для контейнеров дропдаунов
+  const policyRef = useRef<HTMLDivElement>(null);
+  const userRef = useRef<HTMLDivElement>(null);
+
+  // Закрытие по клику вне
+  const handleClickOutside = useCallback((e: MouseEvent) => {
+    const target = e.target as Node;
+    if (policyDropdownOpen && policyRef.current && !policyRef.current.contains(target)) {
+      setPolicyDropdownOpen(false);
+    }
+    if (userDropdownOpen && userRef.current && !userRef.current.contains(target)) {
+      setUserDropdownOpen(false);
+    }
+  }, [policyDropdownOpen, userDropdownOpen]);
+
+  // Закрытие по Esc
+  const handleKeydown = useCallback((e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      setPolicyDropdownOpen(false);
+      setUserDropdownOpen(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeydown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeydown);
+    };
+  }, [handleClickOutside, handleKeydown]);
 
   useEffect(() => {
     setMounted(true);
@@ -86,42 +118,33 @@ const Header = () => {
             >
               About
             </Link>
-            <div className="relative">
+            <div className="relative" ref={policyRef}>
               <button
+                type="button"
+                aria-haspopup="menu"
+                aria-expanded={policyDropdownOpen}
+                type="button"
+                aria-haspopup="menu"
+                aria-expanded={policyDropdownOpen}
                 className="text-[#001D8D] hover:opacity-80 transition-colors duration-200 flex items-center gap-1"
-                onClick={() => setPolicyDropdownOpen(!policyDropdownOpen)}
-                onBlur={(e) => {
-                  // Проверяем, что фокус не переходит на элемент внутри dropdown
-                  if (!e.currentTarget.contains(e.relatedTarget)) {
-                    setTimeout(() => setPolicyDropdownOpen(false), 150);
-                  }
-                }}
-              >
-                Policy <ChevronDown className="h-4 w-4" />
-              </button>
-              {policyDropdownOpen && (
-                <div 
+                  role="menu"
                   className="absolute top-full left-0 mt-2 w-64 bg-white rounded-md shadow-lg py-2 z-50 border border-gray-200"
-                  onMouseLeave={() => setPolicyDropdownOpen(false)}
                 >
                   <Link 
                     href="/policy/aml-kyc" 
                     className="block px-4 py-3 text-sm text-[#001D8D] hover:bg-[#001D8D]/5 transition-colors"
-                    onClick={() => setPolicyDropdownOpen(false)}
                   >
                     AML/CTF и KYC
                   </Link>
                   <Link 
                     href="/policy/terms" 
                     className="block px-4 py-3 text-sm text-[#001D8D] hover:bg-[#001D8D]/5 transition-colors"
-                    onClick={() => setPolicyDropdownOpen(false)}
                   >
                     Условия использования
                   </Link>
                   <Link 
                     href="/policy/privacy" 
                     className="block px-4 py-3 text-sm text-[#001D8D] hover:bg-[#001D8D]/5 transition-colors"
-                    onClick={() => setPolicyDropdownOpen(false)}
                   >
                     Политика конфиденциальности
                   </Link>
@@ -154,15 +177,13 @@ const Header = () => {
             {loading ? (
               <div className="w-8 h-8 animate-pulse bg-gray-200 rounded-full"></div>
             ) : user ? (
-              <div className="relative">
+              <div className="relative" ref={userRef}>
                 <button
+                  type="button"
+                  aria-haspopup="menu"
+                  aria-expanded={userDropdownOpen}
                   className="flex items-center gap-2 text-[#001D8D] hover:bg-[#001D8D]/10 px-3 py-2 rounded-lg transition-colors"
-                  onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                  onBlur={(e) => {
-                    if (!e.currentTarget.contains(e.relatedTarget)) {
-                      setTimeout(() => setUserDropdownOpen(false), 150);
-                    }
-                  }}
+                  onClick={() => setUserDropdownOpen(prev => !prev)}
                 >
                   <div className="w-8 h-8 bg-[#001D8D]/10 rounded-full flex items-center justify-center">
                     <User className="h-4 w-4 text-[#001D8D]" />
@@ -172,8 +193,8 @@ const Header = () => {
                 </button>
                 {userDropdownOpen && (
                   <div 
+                    role="menu"
                     className="absolute top-full right-0 mt-2 w-64 bg-white rounded-md shadow-lg py-2 z-50 border border-gray-200"
-                    onMouseLeave={() => setUserDropdownOpen(false)}
                   >
                     <div className="px-4 py-3 border-b border-gray-100">
                       <div className="font-medium text-[#001D8D]">
@@ -184,7 +205,6 @@ const Header = () => {
                     <Link 
                       href="/dashboard" 
                       className="flex items-center gap-2 px-4 py-3 text-sm text-[#001D8D] hover:bg-[#001D8D]/5 transition-colors"
-                      onClick={() => setUserDropdownOpen(false)}
                     >
                       <User className="h-4 w-4" />
                       Личный кабинет
@@ -192,14 +212,12 @@ const Header = () => {
                     <Link 
                       href="/operator-dashboard" 
                       className="flex items-center gap-2 px-4 py-3 text-sm text-[#001D8D] hover:bg-[#001D8D]/5 transition-colors"
-                      onClick={() => setUserDropdownOpen(false)}
                     >
                       <Settings className="h-4 w-4" />
                       Панель оператора
                     </Link>
                     <button 
                       onClick={async () => {
-                        setUserDropdownOpen(false);
                         try {
                           await signOut();
                         } catch (error) {
