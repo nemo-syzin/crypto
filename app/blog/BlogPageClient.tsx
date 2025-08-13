@@ -472,10 +472,6 @@ export function BlogPageClient() {
                         <span>Еженедельная рассылка</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Shield className="h-4 w-4 text-blue-400" />
-                        <span>Никакого спама</span>
-                      </div>
-                      <div className="flex items-center gap-2">
                         <Star className="h-4 w-4 text-yellow-400" />
                         <span>Эксклюзивная аналитика</span>
                       </div>
