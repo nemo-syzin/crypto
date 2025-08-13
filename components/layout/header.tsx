@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -18,49 +18,10 @@ import {
 const Header = () => {
   const { setTheme, theme } = useTheme();
   const { user, loading, signOut } = useAuth();
-  
-  // Диагностика состояния аутентификации
-  console.log('Header - Auth User:', user);
-  console.log('Header - Auth Loading:', loading);
-  console.log('Header - User exists:', !!user);
-  console.log('Header - Loading state:', loading);
-  
   const [isScrolled, setIsScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [policyDropdownOpen, setPolicyDropdownOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
-  
-  // Refs для контейнеров дропдаунов
-  const policyRef = useRef<HTMLDivElement>(null);
-  const userRef = useRef<HTMLDivElement>(null);
-
-  // Закрытие по клику вне
-  const handleClickOutside = useCallback((e: MouseEvent) => {
-    const target = e.target as Node;
-    if (policyDropdownOpen && policyRef.current && !policyRef.current.contains(target)) {
-      setPolicyDropdownOpen(false);
-    }
-    if (userDropdownOpen && userRef.current && !userRef.current.contains(target)) {
-      setUserDropdownOpen(false);
-    }
-  }, [policyDropdownOpen, userDropdownOpen]);
-
-  // Закрытие по Esc
-  const handleKeydown = useCallback((e: KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      setPolicyDropdownOpen(false);
-      setUserDropdownOpen(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('keydown', handleKeydown);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleKeydown);
-    };
-  }, [handleClickOutside, handleKeydown]);
 
   useEffect(() => {
     setMounted(true);
@@ -80,7 +41,7 @@ const Header = () => {
 
   return (
     <header 
-      className={`fixed top-0 left-0 right-0 z-[999] transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled 
           ? 'bg-white/10 backdrop-blur-[10px] shadow-lg'
           : 'bg-transparent backdrop-blur-[8px]'
@@ -125,36 +86,42 @@ const Header = () => {
             >
               About
             </Link>
-            <div className="relative" ref={policyRef}>
+            <div className="relative">
               <button
-                type="button"
-                aria-haspopup="menu"
-                aria-expanded={policyDropdownOpen}
                 className="text-[#001D8D] hover:opacity-80 transition-colors duration-200 flex items-center gap-1"
-                onClick={() => setPolicyDropdownOpen(prev => !prev)}
+                onClick={() => setPolicyDropdownOpen(!policyDropdownOpen)}
+                onBlur={(e) => {
+                  // Проверяем, что фокус не переходит на элемент внутри dropdown
+                  if (!e.currentTarget.contains(e.relatedTarget)) {
+                    setTimeout(() => setPolicyDropdownOpen(false), 150);
+                  }
+                }}
               >
                 Policy <ChevronDown className="h-4 w-4" />
               </button>
               {policyDropdownOpen && (
                 <div 
-                  role="menu"
                   className="absolute top-full left-0 mt-2 w-64 bg-white rounded-md shadow-lg py-2 z-50 border border-gray-200"
+                  onMouseLeave={() => setPolicyDropdownOpen(false)}
                 >
                   <Link 
                     href="/policy/aml-kyc" 
                     className="block px-4 py-3 text-sm text-[#001D8D] hover:bg-[#001D8D]/5 transition-colors"
+                    onClick={() => setPolicyDropdownOpen(false)}
                   >
                     AML/CTF и KYC
                   </Link>
                   <Link 
                     href="/policy/terms" 
                     className="block px-4 py-3 text-sm text-[#001D8D] hover:bg-[#001D8D]/5 transition-colors"
+                    onClick={() => setPolicyDropdownOpen(false)}
                   >
                     Условия использования
                   </Link>
                   <Link 
                     href="/policy/privacy" 
                     className="block px-4 py-3 text-sm text-[#001D8D] hover:bg-[#001D8D]/5 transition-colors"
+                    onClick={() => setPolicyDropdownOpen(false)}
                   >
                     Политика конфиденциальности
                   </Link>
@@ -184,21 +151,17 @@ const Header = () => {
               )}
             </Button>
 
-            {loading && !user ? (
+            {loading ? (
               <div className="w-8 h-8 animate-pulse bg-gray-200 rounded-full"></div>
             ) : user ? (
-              <div className="relative" ref={userRef}>
+              <div className="relative">
                 <button
-                  type="button"
-                  aria-haspopup="menu"
-                  aria-expanded={userDropdownOpen}
                   className="flex items-center gap-2 text-[#001D8D] hover:bg-[#001D8D]/10 px-3 py-2 rounded-lg transition-colors"
-                  onClick={() => {
-                    console.log('Avatar button clicked!');
-                    setUserDropdownOpen(prev => {
-                      console.log('userDropdownOpen changed from', prev, 'to', !prev);
-                      return !prev;
-                    });
+                  onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                  onBlur={(e) => {
+                    if (!e.currentTarget.contains(e.relatedTarget)) {
+                      setTimeout(() => setUserDropdownOpen(false), 150);
+                    }
                   }}
                 >
                   <div className="w-8 h-8 bg-[#001D8D]/10 rounded-full flex items-center justify-center">
@@ -209,8 +172,8 @@ const Header = () => {
                 </button>
                 {userDropdownOpen && (
                   <div 
-                    role="menu"
                     className="absolute top-full right-0 mt-2 w-64 bg-white rounded-md shadow-lg py-2 z-50 border border-gray-200"
+                    onMouseLeave={() => setUserDropdownOpen(false)}
                   >
                     <div className="px-4 py-3 border-b border-gray-100">
                       <div className="font-medium text-[#001D8D]">
@@ -221,6 +184,7 @@ const Header = () => {
                     <Link 
                       href="/dashboard" 
                       className="flex items-center gap-2 px-4 py-3 text-sm text-[#001D8D] hover:bg-[#001D8D]/5 transition-colors"
+                      onClick={() => setUserDropdownOpen(false)}
                     >
                       <User className="h-4 w-4" />
                       Личный кабинет
@@ -228,12 +192,14 @@ const Header = () => {
                     <Link 
                       href="/operator-dashboard" 
                       className="flex items-center gap-2 px-4 py-3 text-sm text-[#001D8D] hover:bg-[#001D8D]/5 transition-colors"
+                      onClick={() => setUserDropdownOpen(false)}
                     >
                       <Settings className="h-4 w-4" />
                       Панель оператора
                     </Link>
                     <button 
                       onClick={async () => {
+                        setUserDropdownOpen(false);
                         try {
                           await signOut();
                         } catch (error) {
