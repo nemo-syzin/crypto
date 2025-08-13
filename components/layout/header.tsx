@@ -123,10 +123,13 @@ const Header = () => {
                 type="button"
                 aria-haspopup="menu"
                 aria-expanded={policyDropdownOpen}
-                type="button"
-                aria-haspopup="menu"
-                aria-expanded={policyDropdownOpen}
                 className="text-[#001D8D] hover:opacity-80 transition-colors duration-200 flex items-center gap-1"
+                onClick={() => setPolicyDropdownOpen(prev => !prev)}
+              >
+                Policy <ChevronDown className="h-4 w-4" />
+              </button>
+              {policyDropdownOpen && (
+                <div 
                   role="menu"
                   className="absolute top-full left-0 mt-2 w-64 bg-white rounded-md shadow-lg py-2 z-50 border border-gray-200"
                 >
