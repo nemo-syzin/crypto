@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/components/auth/SupabaseAuthProvider';
 import { supabase } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,7 +22,6 @@ import {
   EyeOff,
   Loader2
 } from 'lucide-react';
-import type { User as SupabaseUser } from '@supabase/supabase-js';
 
 interface UserProfile {
   id: string;
@@ -40,25 +40,24 @@ interface UserProfile {
 export function DashboardClient() {
   const router = useRouter();
   const { toast } = useToast();
-  const [user, setUser] = useState<SupabaseUser | null>(null);
+  const { user, loading: authLoading, signOut } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(true);
   const [showEmail, setShowEmail] = useState(false);
 
   useEffect(() => {
-    checkUser();
-  }, []);
-
-  const checkUser = async () => {
-    try {
-      const { data: { user }, error } = await supabase.auth.getUser();
-      
-      if (error || !user) {
+    if (!authLoading) {
+      if (!user) {
         router.push('/login');
-        return;
+      } else {
+        loadUserProfile();
       }
+    }
+  }, [user, authLoading, router]);
 
-      setUser(user);
+  const loadUserProfile = async () => {
+    try {
+      setProfileLoading(true);
       
       // Загружаем профиль пользователя
       const { data: profileData, error: profileError } = await supabase
@@ -88,30 +87,8 @@ export function DashboardClient() {
       }
     } catch (error) {
       console.error('Error checking user:', error);
-      router.push('/login');
     } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      
-      toast({
-        title: "Выход выполнен",
-        description: "Вы успешно вышли из аккаунта.",
-      });
-      
-      router.push('/');
-    } catch (error) {
-      console.error('Logout error:', error);
-      toast({
-        title: "Ошибка",
-        description: "Не удалось выйти из аккаунта.",
-        variant: "destructive",
-      });
+      setProfileLoading(false);
     }
   };
 
@@ -132,7 +109,7 @@ export function DashboardClient() {
     return `${maskedUsername}@${domain}`;
   };
 
-  if (loading) {
+  if (authLoading || profileLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-white via-blue-50/10 to-blue-100/20 flex items-center justify-center">
         <div className="flex items-center gap-3 text-[#001D8D]">
@@ -224,7 +201,23 @@ export function DashboardClient() {
                     
                     <Button 
                       variant="outline" 
-                      onClick={handleLogout}
+                      onClick={async () => {
+                        try {
+                          await signOut();
+                          toast({
+                            title: "Выход выполнен",
+                            description: "Вы успешно вышли из аккаунта.",
+                          });
+                          router.push('/');
+                        } catch (error) {
+                          console.error('Logout error:', error);
+                          toast({
+                            title: "Ошибка",
+                            description: "Не удалось выйти из аккаунта.",
+                            variant: "destructive",
+                          });
+                        }
+                      }}
                       className="w-full text-red-600 border-red-200 hover:bg-red-50"
                     >
                       <LogOut className="h-4 w-4 mr-2" />

@@ -4,7 +4,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { useTheme } from 'next-themes';
-import { Moon, Sun, Menu, ChevronDown } from 'lucide-react';
+import { Moon, Sun, Menu, ChevronDown, User, LogOut, Settings } from 'lucide-react';
+import { useAuth } from '@/components/auth/SupabaseAuthProvider';
 import {
   Sheet,
   SheetContent,
@@ -16,9 +17,11 @@ import {
 
 const Header = () => {
   const { setTheme, theme } = useTheme();
+  const { user, loading, signOut } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [policyDropdownOpen, setPolicyDropdownOpen] = useState(false);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -148,20 +151,87 @@ const Header = () => {
               )}
             </Button>
 
-            <Button 
-              asChild 
-              variant="ghost"
-              className="text-[#001D8D] hover:bg-[#001D8D]/10"
-            >
-              <Link href="/login">Вход</Link>
-            </Button>
-            
-            <Button 
-              asChild 
-              className="bg-[#001D8D] hover:opacity-90 text-white font-medium"
-            >
-              <Link href="/register">Регистрация</Link>
-            </Button>
+            {loading ? (
+              <div className="w-8 h-8 animate-pulse bg-gray-200 rounded-full"></div>
+            ) : user ? (
+              <div className="relative">
+                <button
+                  className="flex items-center gap-2 text-[#001D8D] hover:bg-[#001D8D]/10 px-3 py-2 rounded-lg transition-colors"
+                  onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                  onBlur={(e) => {
+                    if (!e.currentTarget.contains(e.relatedTarget)) {
+                      setTimeout(() => setUserDropdownOpen(false), 150);
+                    }
+                  }}
+                >
+                  <div className="w-8 h-8 bg-[#001D8D]/10 rounded-full flex items-center justify-center">
+                    <User className="h-4 w-4 text-[#001D8D]" />
+                  </div>
+                  <span className="font-medium">{user.user_metadata?.full_name || user.email?.split('@')[0]}</span>
+                  <ChevronDown className="h-4 w-4" />
+                </button>
+                {userDropdownOpen && (
+                  <div 
+                    className="absolute top-full right-0 mt-2 w-64 bg-white rounded-md shadow-lg py-2 z-50 border border-gray-200"
+                    onMouseLeave={() => setUserDropdownOpen(false)}
+                  >
+                    <div className="px-4 py-3 border-b border-gray-100">
+                      <div className="font-medium text-[#001D8D]">
+                        {user.user_metadata?.full_name || 'Пользователь'}
+                      </div>
+                      <div className="text-sm text-[#001D8D]/70">{user.email}</div>
+                    </div>
+                    <Link 
+                      href="/dashboard" 
+                      className="flex items-center gap-2 px-4 py-3 text-sm text-[#001D8D] hover:bg-[#001D8D]/5 transition-colors"
+                      onClick={() => setUserDropdownOpen(false)}
+                    >
+                      <User className="h-4 w-4" />
+                      Личный кабинет
+                    </Link>
+                    <Link 
+                      href="/operator-dashboard" 
+                      className="flex items-center gap-2 px-4 py-3 text-sm text-[#001D8D] hover:bg-[#001D8D]/5 transition-colors"
+                      onClick={() => setUserDropdownOpen(false)}
+                    >
+                      <Settings className="h-4 w-4" />
+                      Панель оператора
+                    </Link>
+                    <button 
+                      onClick={async () => {
+                        setUserDropdownOpen(false);
+                        try {
+                          await signOut();
+                        } catch (error) {
+                          console.error('Ошибка выхода:', error);
+                        }
+                      }}
+                      className="flex items-center gap-2 w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Выйти
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <>
+                <Button 
+                  asChild 
+                  variant="ghost"
+                  className="text-[#001D8D] hover:bg-[#001D8D]/10"
+                >
+                  <Link href="/login">Вход</Link>
+                </Button>
+                
+                <Button 
+                  asChild 
+                  className="bg-[#001D8D] hover:opacity-90 text-white font-medium"
+                >
+                  <Link href="/register">Регистрация</Link>
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu */}
@@ -276,17 +346,49 @@ const Header = () => {
                         variant="ghost"
                         className="text-[#001D8D] hover:bg-[#001D8D]/5"
                       >
-                        <Link href="/login">Вход</Link>
+                        {user ? (
+                          <Link href="/dashboard">Личный кабинет</Link>
+                        ) : (
+                          <Link href="/login">Вход</Link>
+                        )}
                       </Button>
                     </SheetClose>
-                    <SheetClose asChild>
-                      <Button 
-                        asChild 
-                        className="bg-[#001D8D] hover:opacity-90 text-white"
-                      >
-                        <Link href="/register">Регистрация</Link>
-                      </Button>
-                    </SheetClose>
+                    {user ? (
+                      <>
+                        <SheetClose asChild>
+                          <Button 
+                            asChild 
+                            variant="ghost"
+                            className="text-[#001D8D] hover:bg-[#001D8D]/5"
+                          >
+                            <Link href="/operator-dashboard">Панель оператора</Link>
+                          </Button>
+                        </SheetClose>
+                        <Button 
+                          onClick={async () => {
+                            try {
+                              await signOut();
+                            } catch (error) {
+                              console.error('Ошибка выхода:', error);
+                            }
+                          }}
+                          variant="ghost"
+                          className="text-red-600 hover:bg-red-50 justify-start"
+                        >
+                          <LogOut className="h-4 w-4 mr-2" />
+                          Выйти
+                        </Button>
+                      </>
+                    ) : (
+                      <SheetClose asChild>
+                        <Button 
+                          asChild 
+                          className="bg-[#001D8D] hover:opacity-90 text-white"
+                        >
+                          <Link href="/register">Регистрация</Link>
+                        </Button>
+                      </SheetClose>
+                    )}
                   </div>
                 </nav>
               </SheetContent>

@@ -1,6 +1,7 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import { ThemeProvider } from '@/components/theme-provider';
+import { SupabaseAuthProvider } from '@/components/auth/SupabaseAuthProvider';
 import { Toaster } from '@/components/ui/toaster';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
@@ -40,12 +41,14 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="flex min-h-screen flex-col">
-            <Header />
-            <main className="flex-1">{children}</main>
-            <Footer />
-          </div>
-          <Toaster />
+          <SupabaseAuthProvider>
+            <div className="flex min-h-screen flex-col">
+              <Header />
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </div>
+            <Toaster />
+          </SupabaseAuthProvider>
         </ThemeProvider>
       </body>
     </html>

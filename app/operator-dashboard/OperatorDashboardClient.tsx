@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
+import { useAuth } from '@/components/auth/SupabaseAuthProvider';
 import { supabase } from '@/lib/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -33,7 +34,6 @@ import {
   UserCheck,
   Shield
 } from 'lucide-react';
-import type { User as SupabaseUser } from '@supabase/supabase-js';
 import type { ChatSession, ChatMessage, ChatOperator } from '@/lib/chat';
 
 interface ExtendedChatSession extends ChatSession {
@@ -44,9 +44,9 @@ interface ExtendedChatSession extends ChatSession {
 export function OperatorDashboardClient() {
   const router = useRouter();
   const { toast } = useToast();
-  const [user, setUser] = useState<SupabaseUser | null>(null);
+  const { user, loading: authLoading, signOut } = useAuth();
   const [operator, setOperator] = useState<ChatOperator | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [operatorLoading, setOperatorLoading] = useState(true);
   const [sessions, setSessions] = useState<ExtendedChatSession[]>([]);
   const [selectedSession, setSelectedSession] = useState<ExtendedChatSession | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -58,8 +58,14 @@ export function OperatorDashboardClient() {
 
   // Проверка аутентификации и статуса оператора
   useEffect(() => {
-    checkOperatorAuth();
-  }, []);
+    if (!authLoading) {
+      if (!user) {
+        router.push('/login');
+      } else {
+        checkOperatorStatus();
+      }
+    }
+  }, [user, authLoading, router]);
 
   // Подписка на новые сообщения для выбранной сессии
   useEffect(() => {
@@ -85,16 +91,9 @@ export function OperatorDashboardClient() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const checkOperatorAuth = async () => {
+  const checkOperatorStatus = async () => {
     try {
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      
-      if (userError || !user) {
-        router.push('/login');
-        return;
-      }
-
-      setUser(user);
+      setOperatorLoading(true);
 
       // Проверяем, является ли пользователь оператором
       const { data: operatorData, error: operatorError } = await supabase
@@ -127,7 +126,7 @@ export function OperatorDashboardClient() {
       console.error('Ошибка проверки аутентификации:', error);
       router.push('/login');
     } finally {
-      setLoading(false);
+      setOperatorLoading(false);
     }
   };
 
@@ -330,20 +329,19 @@ export function OperatorDashboardClient() {
 
   const handleLogout = async () => {
     try {
-      // Устанавливаем статус "оффлайн"
-      if (user) {
-        await supabase
-          .from('chat_operators')
-          .update({ is_online: false })
-          .eq('user_id', user.id);
-      }
-
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      
+      await signOut();
+      toast({
+        title: "Выход выполнен",
+        description: "Вы успешно вышли из панели оператора.",
+      });
       router.push('/');
     } catch (error) {
       console.error('Ошибка выхода:', error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось выйти из системы.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -370,7 +368,7 @@ export function OperatorDashboardClient() {
     }
   };
 
-  if (loading) {
+  if (authLoading || operatorLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-white via-blue-50/10 to-blue-100/20 flex items-center justify-center">
         <div className="flex items-center gap-3 text-[#001D8D]">
