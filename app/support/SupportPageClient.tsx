@@ -5,7 +5,7 @@ import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { useToast } from '@/hooks/use-toast';
 import dynamic from 'next/dynamic';
-import { CustomChat, ChatButton } from '@/components/ui/custom-chat';
+import { RealChat, RealChatButton } from '@/components/ui/real-chat';
 import { 
   Card, 
   CardContent, 
@@ -382,7 +382,7 @@ export function SupportPageClient() {
                       {/* Кнопка действия */}
                       <div className="mt-auto">
                         {method.type === 'live_chat' ? (
-                          <ChatButton onClick={handleLiveChatClick} />
+                          <RealChatButton onClick={handleLiveChatClick} />
                         ) : (
                           <button className="w-full bg-gradient-to-r from-[#001D8D] to-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2">
                             {method.action}
@@ -699,8 +699,8 @@ export function SupportPageClient() {
         </div>
       </section>
 
-      {/* Custom Chat Component */}
-      <CustomChat
+      {/* Real Chat Component */}
+      <RealChat
         isOpen={chatOpen}
         onClose={() => setChatOpen(false)}
         onMinimize={() => setChatMinimized(!chatMinimized)}
