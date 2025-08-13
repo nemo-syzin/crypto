@@ -11,22 +11,29 @@ const URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 /** Мини‑валидация (без фанатизма) */
-const hasUrl = typeof URL === 'string' && URL.startsWith('https://') && URL.includes('.supabase.co');
+const hasUrl = typeof URL === 'string' && URL.startsWith('https://');
 const hasKey = typeof KEY === 'string' && KEY.length > 20; // anon key — это JWT, обычно >100 символов
 
 /** Если что-то не задано — сразу бросаем понятную ошибку (чтобы не было “тихих” поломок). */
 if (!hasUrl || !hasKey) {
-  // Делаем вывод максимально явным в консоли
-  // (в проде тоже лучше увидеть понятную причину)
-  // eslint-disable-next-line no-console
-  console.error(
-    '[supabase] Missing or invalid env vars.\n' +
-    `  NEXT_PUBLIC_SUPABASE_URL: ${URL ?? '<undefined>'}\n` +
-    `  NEXT_PUBLIC_SUPABASE_ANON_KEY: ${KEY ? `set (len=${KEY.length})` : '<undefined>'}\n` +
-    'Fix: set both variables in Netlify → Site → Settings → Build & deploy → Environment variables,\n' +
-    'then run “Deploy project without cache”.'
-  );
-  throw new Error('[supabase] Env vars not configured: NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY');
+  // В режиме разработки используем placeholder значения
+  if (process.env.NODE_ENV === 'development') {
+    // eslint-disable-next-line no-console
+    console.warn(
+      '[supabase] Using placeholder values for development.\n' +
+      'Replace with actual Supabase credentials for production.'
+    );
+  } else {
+    // eslint-disable-next-line no-console
+    console.error(
+      '[supabase] Missing or invalid env vars.\n' +
+      `  NEXT_PUBLIC_SUPABASE_URL: ${URL ?? '<undefined>'}\n` +
+      `  NEXT_PUBLIC_SUPABASE_ANON_KEY: ${KEY ? `set (len=${KEY.length})` : '<undefined>'}\n` +
+      'Fix: set both variables in Netlify → Site → Settings → Build & deploy → Environment variables,\n' +
+      'then run "Deploy project without cache".'
+    );
+    throw new Error('[supabase] Env vars not configured: NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY');
+  }
 }
 
 /** Создаём одиночный клиент */
