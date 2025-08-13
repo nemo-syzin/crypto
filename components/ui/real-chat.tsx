@@ -50,6 +50,7 @@ export function RealChat({ isOpen, onClose, onMinimize, isMinimized }: RealChatP
   const [chatStarted, setChatStarted] = useState(false);
   const [userInfo, setUserInfo] = useState({ name: '', email: '' });
   const [showUserForm, setShowUserForm] = useState(true);
+  const [connectionTimeoutId, setConnectionTimeoutId] = useState<NodeJS.Timeout | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const subscriptionRef = useRef<any>(null);
 
@@ -61,6 +62,13 @@ export function RealChat({ isOpen, onClose, onMinimize, isMinimized }: RealChatP
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Очистка таймаута при размонтировании или успешном подключении
+  useEffect(() => {
+    return () => {
+      if (connectionTimeoutId) clearTimeout(connectionTimeoutId);
+    };
+  }, [connectionTimeoutId]);
 
   // Очистка при закрытии
   useEffect(() => {
@@ -85,6 +93,16 @@ export function RealChat({ isOpen, onClose, onMinimize, isMinimized }: RealChatP
     }
 
     setIsConnecting(true);
+    // Устанавливаем таймаут для подключения
+    setConnectionTimeoutId(setTimeout(() => {
+      setIsConnecting(false);
+      toast({
+        title: "Ошибка подключения",
+        description: "Время ожидания подключения истекло. Пожалуйста, попробуйте еще раз.",
+        variant: "destructive",
+      });
+      handleCloseChat(); // Закрываем чат, чтобы пользователь мог попробовать снова
+    }, 15000)); // 15 секунд таймаут
     
     try {
       const { session: newSession, error } = await createChatSession(
@@ -103,6 +121,9 @@ export function RealChat({ isOpen, onClose, onMinimize, isMinimized }: RealChatP
       setChatStarted(true);
 
       // Загружаем существующие сообщения
+      // Это должно включать начальное сообщение, отправленное пользователем
+      // Если оно не появляется, проблема может быть в sendMessage или getSessionMessages в lib/chat.ts
+      // (которые не могут быть изменены в этом запросе)
       const { messages: existingMessages } = await getSessionMessages(newSession.id);
       setMessages(existingMessages);
 
@@ -149,6 +170,9 @@ export function RealChat({ isOpen, onClose, onMinimize, isMinimized }: RealChatP
         description: "Вы подключены к службе поддержки KenigSwap",
       });
 
+      // Очищаем таймаут, так как подключение успешно
+      if (connectionTimeoutId) clearTimeout(connectionTimeoutId);
+
     } catch (error) {
       console.error('Ошибка запуска чата:', error);
       toast({
@@ -158,6 +182,7 @@ export function RealChat({ isOpen, onClose, onMinimize, isMinimized }: RealChatP
       });
     } finally {
       setIsConnecting(false);
+      if (connectionTimeoutId) clearTimeout(connectionTimeoutId); // Гарантируем очистку таймаута
     }
   };
 
@@ -371,7 +396,7 @@ export function RealChat({ isOpen, onClose, onMinimize, isMinimized }: RealChatP
               {!showUserForm && (
                 <>
                   <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
-                    {messages.length === 0 ? (
+                    {messages.length === 0 && !isConnecting ? ( // Показываем это сообщение только если нет сообщений и не идет активное подключение
                       <div className="flex items-center justify-center h-full">
                         <div className="text-center">
                           <MessageCircle className="h-12 w-12 text-[#001D8D]/40 mx-auto mb-4" />
