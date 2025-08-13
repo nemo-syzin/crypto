@@ -19,9 +19,11 @@ const Header = () => {
   const { setTheme, theme } = useTheme();
   const { user, loading, signOut } = useAuth();
   
-  // Добавляем console.log для диагностики
+  // Диагностика состояния аутентификации
   console.log('Header - Auth User:', user);
   console.log('Header - Auth Loading:', loading);
+  console.log('Header - User exists:', !!user);
+  console.log('Header - Loading state:', loading);
   
   const [isScrolled, setIsScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -182,7 +184,7 @@ const Header = () => {
               )}
             </Button>
 
-            {loading ? (
+            {loading && !user ? (
               <div className="w-8 h-8 animate-pulse bg-gray-200 rounded-full"></div>
             ) : user ? (
               <div className="relative" ref={userRef}>

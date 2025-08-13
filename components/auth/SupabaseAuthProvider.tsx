@@ -41,17 +41,20 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
     // Получаем текущую сессию при загрузке
     const getInitialSession = async () => {
       try {
+        console.log('🔄 Getting initial session...');
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
           console.error('Ошибка получения сессии:', error);
         } else {
+          console.log('✅ Initial session loaded:', !!session, session?.user?.email);
           setSession(session);
           setUser(session?.user ?? null);
         }
       } catch (error) {
         console.error('Ошибка при получении начальной сессии:', error);
       } finally {
+        console.log('🏁 Setting loading to false');
         setLoading(false);
       }
     };
@@ -61,7 +64,8 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
     // Подписываемся на изменения состояния аутентификации
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.email);
+        console.log('🔄 Auth state changed:', event, session?.user?.email);
+        console.log('🔄 Setting loading to false after auth change');
         
         setSession(session);
         setUser(session?.user ?? null);
