@@ -322,11 +322,11 @@ export function UnifiedVantaBackground({
   if (fallbackMode) {
     return (
       <div 
-        className={className}
+        className={`${className} pointer-events-none -z-10`}
         style={{ 
           background: `linear-gradient(135deg, ${color ? `#${color.toString(16).padStart(6, '0')}20` : '#94bdff20'}, ${color2 ? `#${color2.toString(16).padStart(6, '0')}10` : '#001D8D10'})`,
-          zIndex: 0,
-          pointerEvents: 'none',
+          zIndex: -10,
+          pointerEvents: 'none !important',
           userSelect: 'none'
         }}
       />
@@ -336,10 +336,10 @@ export function UnifiedVantaBackground({
   return (
     <div 
       ref={vantaRef} 
-      className={className}
+      className={`${className} pointer-events-none -z-10`}
       style={{ 
-        zIndex: 0,
-        pointerEvents: 'none',
+        zIndex: -10,
+        pointerEvents: 'none !important',
         userSelect: 'none'
       }}
     />
