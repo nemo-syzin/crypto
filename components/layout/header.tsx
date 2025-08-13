@@ -18,6 +18,11 @@ import {
 const Header = () => {
   const { setTheme, theme } = useTheme();
   const { user, loading, signOut } = useAuth();
+  
+  // Добавляем console.log для диагностики
+  console.log('Header - Auth User:', user);
+  console.log('Header - Auth Loading:', loading);
+  
   const [isScrolled, setIsScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [policyDropdownOpen, setPolicyDropdownOpen] = useState(false);
@@ -186,7 +191,13 @@ const Header = () => {
                   aria-haspopup="menu"
                   aria-expanded={userDropdownOpen}
                   className="flex items-center gap-2 text-[#001D8D] hover:bg-[#001D8D]/10 px-3 py-2 rounded-lg transition-colors"
-                  onClick={() => setUserDropdownOpen(prev => !prev)}
+                  onClick={() => {
+                    console.log('Avatar button clicked!');
+                    setUserDropdownOpen(prev => {
+                      console.log('userDropdownOpen changed from', prev, 'to', !prev);
+                      return !prev;
+                    });
+                  }}
                 >
                   <div className="w-8 h-8 bg-[#001D8D]/10 rounded-full flex items-center justify-center">
                     <User className="h-4 w-4 text-[#001D8D]" />
