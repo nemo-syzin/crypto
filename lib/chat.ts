@@ -213,6 +213,71 @@ export async function getAvailableOperators(): Promise<{
   }
 }
 
+// Получение активных сессий чата для оператора
+export async function getActiveChatSessions(): Promise<{
+  sessions: ChatSession[];
+  error: string | null;
+}> {
+  if (!isSupabaseAvailable()) {
+    return { sessions: [], error: 'Сервис временно недоступен' };
+  }
+
+  try {
+    const { data: sessions, error } = await supabase
+      .from('chat_sessions')
+      .select('*')
+      .in('status', ['waiting', 'active'])
+      .order('updated_at', { ascending: false });
+
+    if (error) {
+      console.error('Ошибка получения сессий:', error);
+      return { sessions: [], error: 'Не удалось загрузить сессии' };
+    }
+
+    return { sessions: sessions || [], error: null };
+  } catch (error) {
+    console.error('Ошибка при получении сессий:', error);
+    return { sessions: [], error: 'Произошла ошибка при загрузке сессий' };
+  }
+}
+
+// Отправка сообщения оператором
+export async function sendOperatorMessage(
+  sessionId: string,
+  message: string,
+  operatorId: string
+): Promise<{ message: ChatMessage | null; error: string | null }> {
+  if (!isSupabaseAvailable()) {
+    return { message: null, error: 'Чат временно недоступен' };
+  }
+
+  try {
+    const messageData = {
+      session_id: sessionId,
+      sender_id: operatorId,
+      sender_type: 'operator' as const,
+      message: message.trim(),
+      message_type: 'text' as const
+    };
+
+    const { data: newMessage, error } = await supabase
+      .from('chat_messages')
+      .insert([messageData])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Ошибка отправки сообщения оператором:', error);
+      return { message: null, error: 'Не удалось отправить сообщение' };
+    }
+
+    return { message: newMessage, error: null };
+  } catch (error) {
+    console.error('Ошибка при отправке сообщения оператором:', error);
+    return { message: null, error: 'Произошла ошибка при отправке сообщения' };
+  }
+}
+
 // Назначение оператора на сессию
 export async function assignOperatorToSession(
   sessionId: string,
