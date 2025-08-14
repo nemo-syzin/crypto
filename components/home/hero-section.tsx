@@ -2,8 +2,17 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
-import { PerformanceOptimizedBackground } from '@/components/shared/PerformanceOptimizedBackground';
+
+// Динамический импорт 3D-фона с отключенным SSR для улучшения производительности
+const UnifiedVantaBackground = dynamic(
+  () => import('@/components/shared/UnifiedVantaBackground').then(mod => ({ default: mod.UnifiedVantaBackground })),
+  { 
+    ssr: false,
+    loading: () => <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-100" />
+  }
+);
 
 const HeroSection = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -16,10 +25,16 @@ const HeroSection = () => {
     <section className="relative min-h-screen flex items-center overflow-hidden bg-white">
       {isMounted && (
         <div className="absolute inset-0 z-0 opacity-100">
-          <PerformanceOptimizedBackground 
-            primaryColor="#01278f"
-            secondaryColor="#01278f"
-            intensity={0.3}
+          <UnifiedVantaBackground 
+            type="globe"
+            color={0x01278f}
+            color2={0x01278f}     
+            backgroundColor={0xffffff} 
+            scale={1.0}
+            size={1}
+            mouseControls={true}
+            touchControls={true}
+            gyroControls={false}
           />
         </div>
       )}

@@ -59,10 +59,10 @@ export function useFearGreed() {
     'fear-greed-index',
     fngFetcher,
     {
-      refreshInterval: 60 * 60 * 1000, // Increased to 1 hour
+      refreshInterval: 30 * 60 * 1000, // Increased to 30 minutes
       revalidateOnFocus: false,
       revalidateOnReconnect: true,
-      dedupingInterval: 30 * 60 * 1000, // Increased to 30 minutes
+      dedupingInterval: 20 * 60 * 1000, // Increased to 20 minutes
       fallbackData: getFallbackFearGreedData(), // Provide fallback data
       onError: (error) => {
         console.warn('⚠️ Fear & Greed Index hook error, using fallback data:', error);

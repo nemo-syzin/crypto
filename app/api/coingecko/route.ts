@@ -1,12 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { headers as getHeaders } from 'next/headers';
 
-// Enable caching for this API route
-export const revalidate = 300; // 5 minutes
-
 // Cache for API responses
 let cache: Map<string, { data: any; timestamp: number }> = new Map();
-const CACHE_DURATION = 10 * 60 * 1000; // Increased to 10 minutes cache duration
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache duration
 
 function getCachedData(key: string): any | null {
   const cached = cache.get(key);

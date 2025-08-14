@@ -145,9 +145,9 @@ export function useExchangeRate(from: string, to: string) {
       ? { rate: 1, updated_at: new Date().toISOString(), pair: `${from}/${to}`, source: 'system' }
       : fetchExchangeRate(from, to)),
     { 
-      refreshInterval: 300_000, // Increased to 5 minutes
+      refreshInterval: 120_000, // Increased to 2 minutes
       revalidateOnFocus: false,
-      dedupingInterval: 120_000, // Increased to 2 minutes
+      dedupingInterval: 60_000, // Increased to 1 minute
     }
   );
 
