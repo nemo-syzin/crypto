@@ -38,25 +38,21 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log('SupabaseAuthProvider: useEffect started');
     // Получаем текущую сессию при загрузке
     const getInitialSession = async () => {
-      console.log('SupabaseAuthProvider: Attempting to get initial session...');
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
-          console.error('SupabaseAuthProvider: Error getting initial session:', error);
+          console.error('SupabaseAuthProvider: Ошибка получения сессии:', error);
         } else {
-          console.log('SupabaseAuthProvider: Initial session data:', session);
           setSession(session);
           setUser(session?.user ?? null);
         }
       } catch (error) {
-        console.error('SupabaseAuthProvider: Error fetching initial session:', error);
+        console.error('Ошибка при получении начальной сессии:', error);
       } finally {
         setLoading(false);
-        console.log('SupabaseAuthProvider: Initial session check finished, loading set to false.');
       }
     };
 
@@ -86,7 +82,6 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
               .from('chat_operators')
               .update({ is_online: true, updated_at: new Date().toISOString() })
               .eq('user_id', session.user.id);
-            console.log('SupabaseAuthProvider: Operator status set to online.');
           }
         } else {
           // При выходе устанавливаем статус "оффлайн" для всех операторов этого пользователя
@@ -96,20 +91,17 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
               .from('chat_operators')
               .update({ is_online: false })
               .eq('user_id', currentUser.id);
-            console.log('SupabaseAuthProvider: Operator status set to offline on logout.');
           }
         }
       }
     );
 
     return () => {
-      console.log('SupabaseAuthProvider: useEffect cleanup.');
       subscription.unsubscribe();
     };
   }, []);
 
   const signOut = async () => {
-    console.log('SupabaseAuthProvider: Signing out...');
     try {
       // Устанавливаем статус "оффлайн" перед выходом
       if (user) {
@@ -117,34 +109,30 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
           .from('chat_operators')
           .update({ is_online: false })
           .eq('user_id', user.id);
-        console.log('SupabaseAuthProvider: Operator status set to offline before sign out.');
       }
 
       const { error } = await supabase.auth.signOut();
       if (error) {
-        console.error('SupabaseAuthProvider: Sign out error:', error);
+        console.error('Ошибка выхода:', error);
         throw error;
       }
-      console.log('SupabaseAuthProvider: Sign out successful.');
     } catch (error) {
-      console.error('SupabaseAuthProvider: Error during sign out:', error);
+      console.error('Ошибка при выходе из системы:', error);
       throw error;
     }
   };
 
   const refreshSession = async () => {
-    console.log('SupabaseAuthProvider: Refreshing session...');
     try {
       const { data: { session }, error } = await supabase.auth.refreshSession();
       if (error) {
-        console.error('SupabaseAuthProvider: Error refreshing session:', error);
+        console.error('Ошибка обновления сессии:', error);
       } else {
-        console.log('SupabaseAuthProvider: Session refreshed:', session);
         setSession(session);
         setUser(session?.user ?? null);
       }
     } catch (error) {
-      console.error('SupabaseAuthProvider: Error during session refresh:', error);
+      console.error('Ошибка при обновлении сессии:', error);
     }
   };
 
@@ -156,4 +144,9 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
     refreshSession,
   };
 
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
 }

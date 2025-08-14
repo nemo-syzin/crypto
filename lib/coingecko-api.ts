@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 // API key for CoinGecko
-const API_KEY = process.env.NEXT_PUBLIC_COINGECKO_API_KEY;
+const API_KEY = process.env.NEXT_PUBLIC_COINGECKO_API_KEY || 'CG-shU9QGkzZMvPXBdgbTkZDmcm';
 
 // Base URL for CoinGecko API
 const BASE_URL = 'https://api.coingecko.com/api/v3';
