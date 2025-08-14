@@ -155,3 +155,5 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
     signOut,
     refreshSession,
   };
+
+}
