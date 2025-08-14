@@ -16,9 +16,9 @@ const hasValidEnvVars = !!(supabaseUrl && supabaseAnonKey &&
 console.log('- hasValidEnvVars:', hasValidEnvVars);
 
 if (!hasValidEnvVars) {
-  console.error('❌ Supabase configuration invalid!');
-  console.error('- URL valid:', !!(supabaseUrl && supabaseUrl !== 'https://your-project-id.supabase.co'));
-  console.error('- Key valid:', !!(supabaseAnonKey && supabaseAnonKey !== 'your-anon-public-key-here'));
+  console.warn('Supabase configuration not set - using placeholder values');
+  console.warn('- URL configured:', !!(supabaseUrl && supabaseUrl !== 'https://your-project-id.supabase.co'));
+  console.warn('- Key configured:', !!(supabaseAnonKey && supabaseAnonKey !== 'your-anon-public-key-here'));
 } else {
   console.log('✅ Supabase configuration valid');
 }
