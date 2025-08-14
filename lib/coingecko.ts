@@ -768,10 +768,10 @@ export function useMarket(limit: number = 20) {
     `market-data-${limit}`,
     () => getTopCoins(limit),
     {
-      refreshInterval: 15 * 60 * 1000, // Increased to 15 minutes to reduce API calls
+      refreshInterval: 20 * 60 * 1000, // Increased to 20 minutes to reduce API calls
       revalidateOnFocus: true,
       revalidateOnReconnect: true,
-      dedupingInterval: 10 * 60 * 1000, // Increased to 10 minutes
+      dedupingInterval: 15 * 60 * 1000, // Increased to 15 minutes
       fallbackData: getFallbackCoinsData(limit), // Provide fallback data with correct limit
       onError: (error) => {
         console.warn('⚠️ Market data hook error, using fallback data:', error);
@@ -799,10 +799,10 @@ export function useGlobal() {
     'global-market-data',
     getGlobalMarketData,
     {
-      refreshInterval: 20 * 60 * 1000, // Increased to 20 minutes
+      refreshInterval: 30 * 60 * 1000, // Increased to 30 minutes
       revalidateOnFocus: false,
       revalidateOnReconnect: true,
-      dedupingInterval: 15 * 60 * 1000, // Increased to 15 minutes
+      dedupingInterval: 20 * 60 * 1000, // Increased to 20 minutes
       fallbackData: getFallbackGlobalData(), // Provide fallback data
       onError: (error) => {
         console.warn('⚠️ Global market data hook error, using fallback data:', error);
@@ -830,9 +830,9 @@ function useCoinHistory(coinId: string, days: number = 1) {
     coinId ? `coin-history-${coinId}-${days}` : null,
     () => getCoinHistory(coinId, days),
     {
-      refreshInterval: 10 * 60 * 1000, // Increased to 10 minutes
+      refreshInterval: 15 * 60 * 1000, // Increased to 15 minutes
       revalidateOnFocus: false,
-      dedupingInterval: 5 * 60 * 1000, // Increased to 5 minutes
+      dedupingInterval: 10 * 60 * 1000, // Increased to 10 minutes
       onError: (error) => {
         console.warn('⚠️ Coin history hook error:', error);
       },

@@ -34,6 +34,9 @@ export const metadata: Metadata = {
   },
 };
 
+// Enable static generation for this page
+export const revalidate = 1800; // 30 minutes
+
 export default function BlogPage() {
   return <BlogPageClient />;
 }

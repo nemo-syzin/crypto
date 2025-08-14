@@ -2,26 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import dynamic from 'next/dynamic';
 import { RefreshCw, AlertTriangle, Globe, PieChart, BarChart3, TrendingUp, TrendingDown, DollarSign, Clock, Info } from 'lucide-react';
 import { useMarket, useCoinHistory } from '@/lib/coingecko';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { PerformanceOptimizedBackground } from '@/components/shared/PerformanceOptimizedBackground';
 import { MarketTable } from './components/MarketTable';
 import { CoinDrawer } from './components/CoinDrawer';
 import { MarketOverview } from './components/MarketOverview';
 import { TrendingCoins } from './components/TrendingCoins';
 import { MarketStats } from './components/MarketStats';
 import type { CoinMarketData } from '@/lib/coingecko';
-
-// Динамический импорт 3D-фона с отключенным SSR для улучшения производительности
-const UnifiedVantaBackground = dynamic(
-  () => import('@/components/shared/UnifiedVantaBackground').then(mod => ({ default: mod.UnifiedVantaBackground })),
-  { 
-    ssr: false,
-    loading: () => <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-100" />
-  }
-);
 
 export function RatesPageClient() {
   const { data: cryptoCoins, loading: cryptoLoading, error: cryptoError, refetch } = useMarket(50);
@@ -45,19 +36,10 @@ export function RatesPageClient() {
       <section className="relative py-20 bg-gradient-to-b from-white via-blue-50/10 to-blue-100/20 overflow-hidden">
         {/* Оптимизированный фон */}
         <div className="absolute inset-0 opacity-15">
-          <UnifiedVantaBackground 
-            type="topology"
-            color={0x94bdff}
-            color2={0xFF6B35}
-            backgroundColor={0xffffff}
-            points={15}
-            maxDistance={20}
-            spacing={16}
-            showDots={true}
-            speed={1.4}
-            mouseControls={true}
-            touchControls={true}
-            forceAnimate={true}
+          <PerformanceOptimizedBackground 
+            primaryColor="#94bdff"
+            secondaryColor="#FF6B35"
+            intensity={0.15}
           />
         </div>
 

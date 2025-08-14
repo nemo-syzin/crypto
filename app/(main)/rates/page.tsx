@@ -34,6 +34,9 @@ export const metadata: Metadata = {
   },
 };
 
+// Enable ISR for this page
+export const revalidate = 300; // 5 minutes
+
 export default function RatesPage() {
   return <RatesPageClient />;
 }

@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server';
 import { getValidatedKenigRates } from '@/lib/supabase/validated-rates';
 
+// Enable caching for this API route
+export const revalidate = 120; // 2 minutes
+
 let cache: { data: any; timestamp: number } | null = null;
-const CACHE_DURATION = 5 * 60 * 1000; // Увеличиваем кэш до 5 минут
+const CACHE_DURATION = 10 * 60 * 1000; // Increased to 10 minutes
 
 const getFallbackData = () => ({
   kenig: { sell: 95.50, buy: 94.80, updated_at: new Date().toISOString() },

@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import dynamic from 'next/dynamic';
 import { 
   Card, 
   CardContent, 
@@ -24,18 +23,10 @@ import {
   BarChart3
 } from 'lucide-react';
 import { ManifestoStrip } from '@/components/ui/manifesto-strip';
+import { PerformanceOptimizedBackground } from '@/components/shared/PerformanceOptimizedBackground';
 import ExchangeCalculator from '@/components/ExchangeCalculator';
 import RatesComparison from '@/components/RatesComparison';
 import Image from 'next/image';
-
-// Динамический импорт 3D-фона с отключенным SSR для улучшения производительности
-const UnifiedVantaBackground = dynamic(
-  () => import('@/components/shared/UnifiedVantaBackground').then(mod => ({ default: mod.UnifiedVantaBackground })),
-  { 
-    ssr: false,
-    loading: () => <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-100" />
-  }
-);
 
 export default function ExchangePage() {
   const [isMounted, setIsMounted] = useState(false);
@@ -138,19 +129,10 @@ export default function ExchangePage() {
         {/* Оптимизированный фон */}
         {isMounted && (
           <div className="absolute inset-0 opacity-15">
-            <UnifiedVantaBackground 
-              type="topology"
-              color={0x94bdff}
-              color2={0xFF6B35}
-              backgroundColor={0xffffff}
-              points={15}
-              maxDistance={20}
-              spacing={10}
-              showDots={true}
-              speed={1.4}
-              mouseControls={true}
-              touchControls={true}
-              forceAnimate={true}
+            <PerformanceOptimizedBackground 
+              primaryColor="#94bdff"
+              secondaryColor="#FF6B35"
+              intensity={0.15}
             />
           </div>
         )}

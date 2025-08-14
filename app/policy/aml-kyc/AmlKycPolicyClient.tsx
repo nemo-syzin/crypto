@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import dynamic from 'next/dynamic';
 import { 
   Shield, 
   FileText, 
@@ -23,15 +22,7 @@ import {
   Info
 } from 'lucide-react';
 import { TableOfContents } from '@/components/ui/table-of-contents';
-
-// Динамический импорт 3D-фона с отключенным SSR для улучшения производительности
-const UnifiedVantaBackground = dynamic(
-  () => import('@/components/shared/UnifiedVantaBackground').then(mod => ({ default: mod.UnifiedVantaBackground })),
-  { 
-    ssr: false,
-    loading: () => <div className="absolute inset-0 bg-gradient-to-br from-slate-50 to-blue-50" />
-  }
-);
+import { PerformanceOptimizedBackground } from '@/components/shared/PerformanceOptimizedBackground';
 
 interface PolicySection {
   id: string;
@@ -247,7 +238,11 @@ AML – это комплекс мер и процедур, предотвращ
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 relative overflow-hidden">
-      <UnifiedVantaBackground />
+      <PerformanceOptimizedBackground 
+        primaryColor="#94bdff"
+        secondaryColor="#FF6B35"
+        intensity={0.1}
+      />
       
       <div className="relative z-10">
         <div className="container mx-auto px-4 py-20">

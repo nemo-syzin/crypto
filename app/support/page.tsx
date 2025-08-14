@@ -34,6 +34,9 @@ export const metadata: Metadata = {
   },
 };
 
+// Enable static generation for this page
+export const revalidate = 3600; // 1 hour
+
 export default function SupportPage() {
   return <SupportPageClient />;
 }

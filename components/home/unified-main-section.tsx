@@ -3,9 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PerformanceOptimizedBackground } from '@/components/shared/PerformanceOptimizedBackground';
 import { 
   ArrowRight, 
   Wallet, 
@@ -21,15 +21,6 @@ import {
   DollarSign
 } from 'lucide-react';
 import Marquee from 'react-fast-marquee';
-
-// Динамический импорт 3D-фона с отключенным SSR для улучшения производительности
-const UnifiedVantaBackground = dynamic(
-  () => import('@/components/shared/UnifiedVantaBackground').then(mod => ({ default: mod.UnifiedVantaBackground })),
-  { 
-    ssr: false,
-    loading: () => <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-100" />
-  }
-);
 
 // Данные для секций
 const features = [
@@ -234,19 +225,10 @@ const UnifiedMainSection = () => {
     <section className="relative py-20 bg-gradient-to-b from-white via-blue-50/10 to-blue-100/20 overflow-hidden">
       {/* Оптимизированный 3D-фон с отложенной загрузкой */}
       <div className="absolute inset-0 opacity-15">
-        <UnifiedVantaBackground 
-          type="topology"
-          color={0x94bdff}
-          color2={0xFF6B35}
-          backgroundColor={0xffffff}
-          points={15}
-          maxDistance={20}
-          spacing={10}
-          showDots={true}
-          speed={1.4}
-          mouseControls={true}
-          touchControls={true}
-          forceAnimate={true}
+        <PerformanceOptimizedBackground 
+          primaryColor="#94bdff"
+          secondaryColor="#FF6B35"
+          intensity={0.15}
         />
       </div>
 

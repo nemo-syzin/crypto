@@ -34,6 +34,9 @@ export const metadata: Metadata = {
   },
 };
 
+// Enable static generation for this page
+export const revalidate = 86400; // 24 hours
+
 export default function PrivacyPolicyPage() {
   return <PrivacyPolicyClient />;
 }
