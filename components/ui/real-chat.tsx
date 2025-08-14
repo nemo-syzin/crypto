@@ -97,7 +97,7 @@ export function RealChat({ isOpen, onClose, onMinimize, isMinimized }: RealChatP
     setConnectionTimeoutId(setTimeout(() => {
       setIsConnecting(false);
       toast({
-        title: "Ошибка подключения",
+        title: "Ошибка подключения к чату",
         description: "Время ожидания подключения истекло. Пожалуйста, попробуйте еще раз.",
         variant: "destructive",
       });
@@ -105,10 +105,21 @@ export function RealChat({ isOpen, onClose, onMinimize, isMinimized }: RealChatP
     }, 15000)); // 15 секунд таймаут
     
     try {
-      const { session: newSession, error } = await createChatSession(
+      // 1. Создаем сессию
+      const { session: newSession, error: sessionError } = await createChatSession(
         userInfo.name,
         userInfo.email,
-        'Здравствуйте! У меня есть вопрос по обмену криптовалют.'
+      );
+
+      if (sessionError || !newSession) {
+        throw new Error(sessionError || 'Не удалось создать сессию чата');
+      }
+
+      // 2. Отправляем первое сообщение пользователя
+      const { message: initialUserMessage, error: messageError } = await sendMessage(
+        newSession.id,
+        'Здравствуйте! У меня есть вопрос по обмену криптовалют.', // Первое сообщение пользователя
+        'user'
       );
 
       if (error || !newSession) {
@@ -121,10 +132,11 @@ export function RealChat({ isOpen, onClose, onMinimize, isMinimized }: RealChatP
       setChatStarted(true);
 
       // Загружаем существующие сообщения
-      // Это должно включать начальное сообщение, отправленное пользователем
-      // Если оно не появляется, проблема может быть в sendMessage или getSessionMessages в lib/chat.ts
-      // (которые не могут быть изменены в этом запросе)
       const { messages: existingMessages } = await getSessionMessages(newSession.id);
+      // Добавляем первое сообщение пользователя в список сообщений, если оно было успешно отправлено
+      if (initialUserMessage) {
+        existingMessages.push(initialUserMessage);
+      }
       setMessages(existingMessages);
 
       // Подписываемся на новые сообщения
@@ -148,22 +160,19 @@ export function RealChat({ isOpen, onClose, onMinimize, isMinimized }: RealChatP
         }
       );
 
-      // Симулируем подключение оператора через несколько секунд
-      setTimeout(() => {
-        const welcomeMessage: ChatMessage = {
-          id: `welcome-${Date.now()}`,
-          session_id: newSession.id,
-          sender_id: null,
-          sender_type: 'operator',
-          message: `Здравствуйте, ${userInfo.name}! Меня зовут Анна, я оператор поддержки KenigSwap. Как дела? Чем могу помочь?`,
-          message_type: 'text',
-          created_at: new Date().toISOString(),
-          read_at: null,
-          metadata: {}
-        };
-        
-        setMessages(prev => [...prev, welcomeMessage]);
-      }, 2000);
+      // Добавляем системное сообщение о подключении оператора
+      const operatorWelcomeMessage: ChatMessage = {
+        id: `system-welcome-${Date.now()}`,
+        session_id: newSession.id,
+        sender_id: null,
+        sender_type: 'system',
+        message: `Ожидайте подключения оператора. Обычно это занимает не более 2 минут.`,
+        message_type: 'system',
+        created_at: new Date().toISOString(),
+        read_at: null,
+        metadata: {}
+      };
+      setMessages(prev => [...prev, operatorWelcomeMessage]);
 
       toast({
         title: "Чат подключен",
