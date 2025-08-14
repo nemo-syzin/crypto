@@ -44,7 +44,7 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
-          console.error('Ошибка получения сессии:', error);
+          console.error('SupabaseAuthProvider: Ошибка получения сессии:', error);
         } else {
           setSession(session);
           setUser(session?.user ?? null);
@@ -61,7 +61,7 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
     // Подписываемся на изменения состояния аутентификации
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.email);
+        console.log('SupabaseAuthProvider: Auth state changed:', event, 'User:', session?.user?.email, 'Session:', session);
         
         setSession(session);
         setUser(session?.user ?? null);
