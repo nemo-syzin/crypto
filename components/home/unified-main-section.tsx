@@ -22,28 +22,6 @@ import {
 } from 'lucide-react';
 import Marquee from 'react-fast-marquee';
 
-// Hook для определения мобильного устройства
-const useIsMobile = () => {
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkIsMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    // Проверяем при монтировании
-    checkIsMobile();
-
-    // Добавляем слушатель изменения размера окна
-    window.addEventListener('resize', checkIsMobile);
-
-    // Очищаем слушатель при размонтировании
-    return () => window.removeEventListener('resize', checkIsMobile);
-  }, []);
-
-  return isMobile;
-};
-
 // Данные для секций
 const features = [
   {
@@ -164,8 +142,6 @@ const partners = [
 
 const UnifiedMainSection = () => {
   const [activeTab, setActiveTab] = useState('office');
-  const isMobile = useIsMobile();
-  const isMobile = useIsMobile();
 
   const containerVariants = {
     hidden: {},
