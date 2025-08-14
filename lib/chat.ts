@@ -51,6 +51,19 @@ export async function createChatSession(
       user_id: user?.id || null,
       user_name: userName,
       status: 'waiting' as const
+    };
+
+    const { data: session, error } = await supabase
+      .from('chat_sessions')
+      .insert([sessionData])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Ошибка при создании сессии чата:', error);
+      return { session: null, error: 'Не удалось создать сессию чата' };
+    }
+
     return { session, error: null };
   } catch (error) {
     console.error('Ошибка при создании сессии чата:', error);

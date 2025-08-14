@@ -108,7 +108,7 @@ export function RealChat({ isOpen, onClose, onMinimize, isMinimized }: RealChatP
       // 1. Создаем сессию
       const { session: newSession, error: sessionError } = await createChatSession(
         userInfo.name,
-        userInfo.email,
+        userInfo.email
       );
 
       if (sessionError || !newSession) {
@@ -122,8 +122,9 @@ export function RealChat({ isOpen, onClose, onMinimize, isMinimized }: RealChatP
         'user'
       );
 
-      if (error || !newSession) {
-        throw new Error(error || 'Не удалось создать сессию чата');
+      if (messageError) {
+        console.warn('Ошибка отправки первого сообщения:', messageError);
+        // Не прерываем процесс, пользователь сможет отправить сообщение вручную
       }
 
       setSession(newSession);
@@ -136,6 +137,20 @@ export function RealChat({ isOpen, onClose, onMinimize, isMinimized }: RealChatP
       // Добавляем первое сообщение пользователя в список сообщений, если оно было успешно отправлено
       if (initialUserMessage) {
         existingMessages.push(initialUserMessage);
+      } else {
+        // Если первое сообщение не отправилось, добавляем его локально для отображения
+        const localMessage: ChatMessage = {
+          id: `local-${Date.now()}`,
+          session_id: newSession.id,
+          sender_id: null,
+          sender_type: 'user',
+          message: 'Здравствуйте! У меня есть вопрос по обмену криптовалют.',
+          message_type: 'text',
+          created_at: new Date().toISOString(),
+          read_at: null,
+          metadata: {}
+        };
+        existingMessages.push(localMessage);
       }
       setMessages(existingMessages);
 
