@@ -3,24 +3,20 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-// Добавляем подробные логи для отладки
-console.log('Supabase Client Init: Environment check');
-console.log('- NODE_ENV:', process.env.NODE_ENV);
-console.log('- NEXT_PUBLIC_SUPABASE_URL:', supabaseUrl ? `${supabaseUrl.substring(0, 30)}...` : 'NOT CONFIGURED');
-console.log('- NEXT_PUBLIC_SUPABASE_ANON_KEY:', supabaseAnonKey ? `${supabaseAnonKey.substring(0, 10)}...` : 'NOT CONFIGURED');
-
+// Check if environment variables are properly configured
 const hasValidEnvVars = !!(supabaseUrl && supabaseAnonKey &&
   supabaseUrl !== 'https://your-project-id.supabase.co' &&
-  supabaseAnonKey !== 'your-anon-public-key-here');
+  supabaseAnonKey !== 'your-anon-public-key-here' &&
+  supabaseUrl.length > 10 &&
+  supabaseAnonKey.length > 10);
 
-console.log('- hasValidEnvVars:', hasValidEnvVars);
-
-if (!hasValidEnvVars) {
-  console.warn('Supabase configuration not set - using placeholder values');
-  console.warn('- URL configured:', !!(supabaseUrl && supabaseUrl !== 'https://your-project-id.supabase.co'));
-  console.warn('- Key configured:', !!(supabaseAnonKey && supabaseAnonKey !== 'your-anon-public-key-here'));
-} else {
-  console.log('✅ Supabase configuration valid');
+// Only log configuration status in development
+if (process.env.NODE_ENV === 'development') {
+  if (!hasValidEnvVars) {
+    console.warn('⚠️ Supabase configuration not properly set. Please check your .env.local file.');
+  } else {
+    console.log('✅ Supabase configuration valid');
+  }
 }
 
 export const supabase = createClient(
@@ -29,3 +25,10 @@ export const supabase = createClient(
 );
 
 export const isSupabaseAvailable = () => hasValidEnvVars;
+
+export const getSupabaseStatus = () => ({
+  hasUrl: !!(supabaseUrl && supabaseUrl !== 'https://your-project-id.supabase.co'),
+  hasKey: !!(supabaseAnonKey && supabaseAnonKey !== 'your-anon-public-key-here'),
+  isConfigured: hasValidEnvVars,
+  url: supabaseUrl
+});
