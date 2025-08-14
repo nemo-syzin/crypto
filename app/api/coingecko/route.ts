@@ -181,7 +181,7 @@ export async function GET(request: NextRequest) {
   }
 
   // Check if API key is configured
-  const apiKey = process.env.COINGECKO_API_KEY;
+  const apiKey = process.env.NEXT_PUBLIC_COINGECKO_API_KEY;
   
   // Проверяем, что ключ API существует и не является значением по умолчанию
   if (!apiKey || apiKey.trim() === '' || apiKey === 'your-api-key-here' || apiKey.length < 10) {
