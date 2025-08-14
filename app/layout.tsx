@@ -29,6 +29,10 @@ export default function RootLayout({
           crossOrigin="anonymous"
           href="/fonts/Gilroy-ExtraBold.woff2" 
         />
+        {/* Optimize viewport for mobile */}
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes" />
+        {/* Prevent flash of unstyled content */}
+        <meta name="color-scheme" content="light" />
         {/* Preconnect to external domains */}
         <link rel="preconnect" href="https://jetfadpysjsvtqdgnsjp.supabase.co" />
         {/* DNS prefetch for external resources */}
@@ -37,7 +41,7 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="//res.coinpaper.com" />
         <link rel="dns-prefetch" href="//api.alternative.me" />
       </head>
-      <body className="min-h-screen">
+      <body className="min-h-screen mobile-optimized">
         <ThemeProvider
           attribute="class"
           enableSystem
@@ -46,7 +50,7 @@ export default function RootLayout({
           <SupabaseAuthProvider>
             <div className="flex min-h-screen flex-col">
               <Header />
-              <main className="flex-1">{children}</main>
+              <main className="flex-1 mobile-container">{children}</main>
               <Footer />
             </div>
             <Toaster />

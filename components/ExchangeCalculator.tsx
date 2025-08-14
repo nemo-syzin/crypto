@@ -425,7 +425,7 @@ export default function ExchangeCalculator() {
     <div className="space-y-6">
       {/* Configuration Error Alert */}
       {isConfigurationError && (
-        <Alert className="bg-orange-50 border-orange-200">
+        <Alert className="bg-orange-50 border-orange-200 mobile-card">
           <Settings className="h-4 w-4 text-orange-600" />
           <AlertDescription className="text-orange-800">
             <strong>Требуется настройка:</strong>
@@ -448,7 +448,7 @@ export default function ExchangeCalculator() {
             variant="outline" 
             size="sm" 
             onClick={refetch}
-            className="mt-2 text-red-800 border-red-300 hover:bg-red-100"
+            className="mt-2 text-red-800 border-red-300 hover:bg-red-100 mobile-touch-target"
           >
             Повторить загрузку
           </Button>
@@ -456,25 +456,25 @@ export default function ExchangeCalculator() {
       )}
 
       {/* Main Calculator */}
-      <div className="calculator-container">
+      <div className="calculator-container mobile-card">
         <CardHeader className="pb-6">
           <CardTitle className="flex items-center justify-between">
-            <span className="flex items-center gap-3">
+            <span className="flex items-center gap-3 flex-wrap">
               <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600">
                 <Calculator className="h-5 w-5 text-white" />
               </div>
-              <span className="text-[#001D8D] text-xl font-bold">
+              <span className="text-[#001D8D] text-lg sm:text-xl font-bold">
                 Калькулятор обмена KenigSwap
               </span>
             </span>
             <button
               onClick={refetch}
               disabled={loading}
-              className="refresh-button"
+              className="refresh-button mobile-touch-target"
             >
               <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
               {lastUpdated && (
-                <span className="timestamp">
+                <span className="timestamp hidden sm:inline">
                   {lastUpdated.toLocaleTimeString('ru-RU')}
                 </span>
               )}
@@ -482,7 +482,7 @@ export default function ExchangeCalculator() {
           </CardTitle>
         </CardHeader>
         
-        <CardContent className="space-y-8">
+        <CardContent className="space-y-6 sm:space-y-8">
           {/* From Currency Selection */}
           <div className="space-y-3">
             <Label htmlFor="fromCurrency" className="text-[#001D8D] font-semibold text-base">
@@ -493,7 +493,7 @@ export default function ExchangeCalculator() {
               onValueChange={handleFromCurrencyChange}
               disabled={basesLoading}
             >
-              <SelectTrigger className="input-field">
+              <SelectTrigger className="input-field mobile-touch-target">
                 <SelectValue placeholder="Выберите валюту обмена" />
               </SelectTrigger>
               <SelectContent>
@@ -518,9 +518,9 @@ export default function ExchangeCalculator() {
               onChange={handleAmountChange}
               placeholder={`100 ${fromCurrency}`}
               disabled={isCalculationDisabled || basesLoading || quotesLoading}
-              className={`input-field ${error ? 'border-red-300' : ''}`}
+              className={`input-field mobile-touch-target ${error ? 'border-red-300' : ''}`}
             />
-            <div className="hint-text">
+            <div className="hint-text mobile-text-scale">
               {getHintText}
             </div>
           </div>
@@ -530,7 +530,7 @@ export default function ExchangeCalculator() {
             <button
               onClick={toggleDirection}
               disabled={isCalculationDisabled || basesLoading || quotesLoading || !toCurrency}
-              className="swap-button"
+              className="swap-button mobile-touch-target"
             >
               <ArrowUpDown className="h-5 w-5 text-blue-600" />
             </button>
@@ -546,7 +546,7 @@ export default function ExchangeCalculator() {
               onValueChange={setToCurrency}
               disabled={quotesLoading || !fromCurrency}
             >
-              <SelectTrigger className="input-field">
+              <SelectTrigger className="input-field mobile-touch-target">
                 <SelectValue placeholder="Выберите валюту получения" />
               </SelectTrigger>
               <SelectContent>
@@ -564,12 +564,12 @@ export default function ExchangeCalculator() {
             <Label htmlFor="result" className="text-[#001D8D] font-semibold text-base">
               Получите {toCurrency || ''}
             </Label>
-            <div className={`input-field bg-gray-50 ${isAnimating ? 'result-animation' : ''}`}>
+            <div className={`input-field bg-gray-50 mobile-touch-target ${isAnimating ? 'result-animation' : ''}`}>
               <div className="text-[#001D8D] font-semibold">
                 {getResultDisplay || (amount === '' ? 'Результат появится здесь' : '')}
               </div>
             </div>
-            <div className="hint-text">
+            <div className="hint-text mobile-text-scale">
               Итоговая сумма к получению без скрытых комиссий
             </div>
           </div>
@@ -579,14 +579,14 @@ export default function ExchangeCalculator() {
             <div className="flex items-center justify-center py-8">
               <div className="flex items-center gap-3 text-[#001D8D]">
                 <RefreshCw className="h-5 w-5 animate-spin" />
-                <span className="font-medium">Загрузка актуальных курсов...</span>
+                <span className="font-medium mobile-text-scale">Загрузка актуальных курсов...</span>
               </div>
             </div>
           )}
 
           {/* Current Rate Display */}
           {hasValidRate && rate && (
-            <div className="rates-container">
+            <div className="rates-container mobile-card">
               <h4 className="font-semibold text-[#001D8D] mb-3">Текущий курс {fromCurrency}/{toCurrency}</h4>
               <div className="grid grid-cols-1 gap-4">
                 <div className="text-center">
@@ -595,7 +595,7 @@ export default function ExchangeCalculator() {
                 </div>
               </div>
               <div className="text-center mt-3">
-                <div className="text-xs text-[#001D8D]/50">
+                <div className="text-xs text-[#001D8D]/50 mobile-text-scale">
                   Обновлено: {lastUpdated ? lastUpdated.toLocaleString('ru-RU') : 'Недавно'}
                 </div>
               </div>
@@ -606,7 +606,7 @@ export default function ExchangeCalculator() {
           <div className="space-y-4">
             <button 
               onClick={() => setShowOrderForm(true)}
-              className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 ${
+              className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 mobile-touch-target ${
                 isCalculationDisabled || amount === '' || numericAmount <= 0 || !toCurrency
                   ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                   : 'bg-gradient-to-r from-[#001D8D] to-blue-600 text-white hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]'
@@ -618,7 +618,7 @@ export default function ExchangeCalculator() {
             </button>
             
             {hasValidRate && rate && amount && numericAmount > 0 && (
-              <div className="text-center text-sm text-[#001D8D]/60">
+              <div className="text-center text-sm text-[#001D8D]/60 mobile-text-scale">
                 {getExchangeButtonText}
               </div>
             )}
@@ -626,21 +626,21 @@ export default function ExchangeCalculator() {
 
           {/* Order Form Modal */}
           {showOrderForm && (
-            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-              <div className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 mobile-modal">
+              <div className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto mobile-modal">
                 <div className="p-6">
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-xl font-bold text-[#001D8D]">Заявка на обмен</h3>
+                    <h3 className="text-lg sm:text-xl font-bold text-[#001D8D]">Заявка на обмен</h3>
                     <button
                       onClick={() => setShowOrderForm(false)}
-                      className="text-gray-500 hover:text-gray-700"
+                      className="text-gray-500 hover:text-gray-700 mobile-touch-target"
                     >
                       ✕
                     </button>
                   </div>
                   
                   {/* Сводка обмена */}
-                  <div className="bg-blue-50 p-4 rounded-lg mb-6">
+                  <div className="bg-blue-50 p-4 rounded-xl mb-6">
                     <h4 className="font-semibold text-[#001D8D] mb-3">Детали обмена:</h4>
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
@@ -679,7 +679,7 @@ export default function ExchangeCalculator() {
                           value={clientData.email}
                           onChange={(e) => handleClientDataChange('email', e.target.value)}
                           placeholder="your@email.com"
-                          className={`pl-10 border-[#001D8D]/20 focus:border-[#001D8D] ${
+                          className={`pl-10 border-[#001D8D]/20 focus:border-[#001D8D] mobile-touch-target ${
                             clientErrors.email ? 'border-red-300' : ''
                           }`}
                         />
@@ -702,7 +702,7 @@ export default function ExchangeCalculator() {
                           value={clientData.phone}
                           onChange={(e) => handleClientDataChange('phone', e.target.value)}
                           placeholder="+7 (999) 123-45-67"
-                          className={`pl-10 border-[#001D8D]/20 focus:border-[#001D8D] ${
+                          className={`pl-10 border-[#001D8D]/20 focus:border-[#001D8D] mobile-touch-target ${
                             clientErrors.phone ? 'border-red-300' : ''
                           }`}
                         />
@@ -726,7 +726,7 @@ export default function ExchangeCalculator() {
                             value={clientData.walletAddress}
                             onChange={(e) => handleClientDataChange('walletAddress', e.target.value)}
                             placeholder={`Введите адрес ${toCurrency} кошелька`}
-                            className={`pl-10 border-[#001D8D]/20 focus:border-[#001D8D] ${
+                            className={`pl-10 border-[#001D8D]/20 focus:border-[#001D8D] mobile-touch-target ${
                               clientErrors.walletAddress ? 'border-red-300' : ''
                             }`}
                           />
@@ -734,7 +734,7 @@ export default function ExchangeCalculator() {
                         {clientErrors.walletAddress && (
                           <p className="text-sm text-red-600 mt-1">{clientErrors.walletAddress}</p>
                         )}
-                        <p className="text-xs text-[#001D8D]/60 mt-1">
+                        <p className="text-xs text-[#001D8D]/60 mt-1 mobile-text-scale">
                           Убедитесь, что адрес корректный. Неверный адрес может привести к потере средств.
                         </p>
                       </div>
@@ -753,7 +753,7 @@ export default function ExchangeCalculator() {
                             value={clientData.bankDetails}
                             onChange={(e) => handleClientDataChange('bankDetails', e.target.value)}
                             placeholder="Номер карты или банковские реквизиты для получения рублей"
-                            className={`pl-10 border-[#001D8D]/20 focus:border-[#001D8D] min-h-[80px] ${
+                            className={`pl-10 border-[#001D8D]/20 focus:border-[#001D8D] min-h-[80px] mobile-touch-target ${
                               clientErrors.bankDetails ? 'border-red-300' : ''
                             }`}
                           />
@@ -761,7 +761,7 @@ export default function ExchangeCalculator() {
                         {clientErrors.bankDetails && (
                           <p className="text-sm text-red-600 mt-1">{clientErrors.bankDetails}</p>
                         )}
-                        <p className="text-xs text-[#001D8D]/60 mt-1">
+                        <p className="text-xs text-[#001D8D]/60 mt-1 mobile-text-scale">
                           Укажите номер карты или полные банковские реквизиты для перевода рублей.
                         </p>
                       </div>
@@ -769,11 +769,11 @@ export default function ExchangeCalculator() {
                   </div>
                   
                   {/* Кнопки */}
-                  <div className="flex gap-3 mt-6">
+                  <div className="flex flex-col sm:flex-row gap-3 mt-6">
                     <Button
                       variant="outline"
                       onClick={() => setShowOrderForm(false)}
-                      className="flex-1 text-[#001D8D] border-[#001D8D]/20"
+                      className="flex-1 text-[#001D8D] border-[#001D8D]/20 mobile-touch-target order-2 sm:order-1"
                       disabled={submittingOrder}
                     >
                       Отмена
@@ -781,7 +781,7 @@ export default function ExchangeCalculator() {
                     <Button
                       onClick={handleSubmitOrder}
                       disabled={submittingOrder}
-                      className="flex-1 bg-gradient-to-r from-[#001D8D] to-blue-600 text-white hover:opacity-90"
+                      className="flex-1 bg-gradient-to-r from-[#001D8D] to-blue-600 text-white hover:opacity-90 mobile-touch-target order-1 sm:order-2"
                     >
                       {submittingOrder ? (
                         <>
@@ -798,11 +798,11 @@ export default function ExchangeCalculator() {
                   </div>
                   
                   {/* Информация о безопасности */}
-                  <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                  <div className="mt-6 p-4 bg-gray-50 rounded-xl">
                     <h5 className="text-sm font-semibold text-[#001D8D] mb-2">
                       Безопасность ваших данных
                     </h5>
-                    <ul className="text-xs text-[#001D8D]/70 space-y-1">
+                    <ul className="text-xs text-[#001D8D]/70 space-y-1 mobile-text-scale">
                       <li>• Все данные передаются по защищенному соединению</li>
                       <li>• Мы не храним банковские данные после завершения обмена</li>
                       <li>• Ваши персональные данные защищены согласно политике конфиденциальности</li>
