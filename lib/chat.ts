@@ -39,7 +39,6 @@ export interface ChatOperator {
 // Создание новой сессии чата
 export async function createChatSession(
   userName: string,
-  userEmail: string,
 ): Promise<{ session: ChatSession | null; error: string | null }> {
   if (!isSupabaseAvailable()) {
     return { session: null, error: 'Чат временно недоступен' };
@@ -51,21 +50,7 @@ export async function createChatSession(
     const sessionData = {
       user_id: user?.id || null,
       user_name: userName,
-      user_email: userEmail,
       status: 'waiting' as const
-    };
-
-    const { data: session, error } = await supabase
-      .from('chat_sessions')
-      .insert([sessionData])
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Ошибка создания сессии чата:', error);
-      return { session: null, error: 'Не удалось создать сессию чата' };
-    }
-
     return { session, error: null };
   } catch (error) {
     console.error('Ошибка при создании сессии чата:', error);
