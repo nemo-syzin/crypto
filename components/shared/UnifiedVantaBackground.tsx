@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import * as THREE from 'three';
 
 interface UnifiedVantaBackgroundProps {
@@ -51,11 +51,11 @@ export function UnifiedVantaBackground({
   className = "absolute inset-0 w-full h-full",
   
   // Topology props
-  points = 12,
-  maxDistance = 22,
-  spacing = 20,
+  points = 8,
+  maxDistance = 15,
+  spacing = 25,
   showDots = true,
-  speed = 1.0,
+  speed = 0.5,
   forceAnimate = true,
   
   // Dots props
@@ -66,9 +66,52 @@ export function UnifiedVantaBackground({
   const vantaEffect = useRef<any>(null);
   const [fallbackMode, setFallbackMode] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isLowPerformance, setIsLowPerformance] = useState(false);
+  const [vantaInitialized, setVantaInitialized] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
+  const performanceCheckRef = useRef<boolean>(false);
+
+  // Performance detection
+  const detectPerformance = useCallback(() => {
+    if (performanceCheckRef.current) return;
+    performanceCheckRef.current = true;
+
+    // Check if mobile device
+    const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+                          window.innerWidth < 768;
+    setIsMobile(isMobileDevice);
+
+    // Check hardware capabilities
+    const hardwareConcurrency = navigator.hardwareConcurrency || 1;
+    const isLowEnd = hardwareConcurrency <= 2;
+    
+    // Check GPU capabilities
+    const canvas = document.createElement('canvas');
+    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    let isIntegratedGPU = false;
+    
+    if (gl) {
+      const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+      if (debugInfo) {
+        const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+        isIntegratedGPU = renderer.includes('Intel') || renderer.includes('Mali') || renderer.includes('Adreno');
+      }
+    }
+
+    // Set low performance mode for mobile or low-end devices
+    const shouldUseLowPerformance = isMobileDevice || isLowEnd || isIntegratedGPU || !gl;
+    setIsLowPerformance(shouldUseLowPerformance);
+    
+    if (shouldUseLowPerformance) {
+      console.log('🔧 Low performance mode enabled:', { isMobileDevice, isLowEnd, isIntegratedGPU, hasWebGL: !!gl });
+      setFallbackMode(true);
+    }
+  }, []);
 
   useEffect(() => {
+    detectPerformance();
+    
     // Performance optimization: pause effect when not visible
     if (typeof window !== 'undefined' && vantaRef.current) {
       observerRef.current = new IntersectionObserver(
@@ -90,7 +133,7 @@ export function UnifiedVantaBackground({
             }
           }
         },
-        { threshold: 0.1 }
+        { threshold: 0.05 }
       );
       
       observerRef.current.observe(vantaRef.current);
@@ -100,7 +143,7 @@ export function UnifiedVantaBackground({
 
     const initVanta = async () => {
       try {
-        if (!mounted || !vantaRef.current || vantaEffect.current) return;
+        if (!mounted || !vantaRef.current || vantaEffect.current || fallbackMode || isLowPerformance) return;
 
         // Only run on client side
         if (typeof window === 'undefined') return;
@@ -120,6 +163,7 @@ export function UnifiedVantaBackground({
             console.warn('Warning during effect cleanup:', error);
           }
           vantaEffect.current = null;
+          setVantaInitialized(false);
         }
 
         // Ensure THREE is available globally
@@ -157,8 +201,8 @@ export function UnifiedVantaBackground({
               await p5LoadPromise;
             }
             
-            // Add explicit delay after p5.js is loaded but before Vanta initialization
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            // Reduced delay for faster initialization
+            await new Promise(resolve => setTimeout(resolve, 300));
             
             // Double-check that p5 is available and properly initialized
             if (!(window as any).p5 || !p5Instance) {
@@ -221,8 +265,8 @@ export function UnifiedVantaBackground({
           gyroControls,
           minHeight,
           minWidth,
-          scale,
-          scaleMobile,
+          scale: isMobile ? scaleMobile * 0.8 : scale,
+          scaleMobile: scaleMobile * 0.8,
           color,
           backgroundColor
         };
@@ -237,19 +281,19 @@ export function UnifiedVantaBackground({
           config = {
             ...config,
             p5: (window as any).p5,
-            points,
-            maxDistance,
-            spacing,
+            points: isMobile ? Math.max(points - 4, 4) : points,
+            maxDistance: isMobile ? Math.max(maxDistance - 7, 8) : maxDistance,
+            spacing: isMobile ? spacing + 10 : spacing,
             showDots,
-            speed: isVisible ? speed : 0.1, // Reduce speed when not visible
+            speed: isVisible ? (isMobile ? speed * 0.5 : speed) : 0.1,
             forceAnimate
           };
           console.log(`🎨 Topology with primary color: #${color.toString(16)}`);
         } else if (type === 'dots' || hasP5LoadFailed) {
           config = {
             ...config,
-            size,
-            spacing,
+            size: isMobile ? size * 0.8 : size,
+            spacing: isMobile ? spacing + 5 : spacing,
             showLines
           };
           console.log(`🔵 Dots with primary color: #${color.toString(16)}`);
@@ -257,7 +301,7 @@ export function UnifiedVantaBackground({
           config = {
             ...config,
             color2,
-            size: size || 1.0
+            size: isMobile ? (size || 1.0) * 0.7 : (size || 1.0)
           };
           console.log(`🌍 Globe with dual colors: #${color.toString(16)} + #${color2.toString(16)}`);
         }
@@ -267,6 +311,7 @@ export function UnifiedVantaBackground({
         // Initialize the effect with additional error handling
         try {
           vantaEffect.current = VantaEffect(config);
+          setVantaInitialized(true);
           console.log(`✅ Unified Vanta ${type} initialized successfully with dual colors`);
         } catch (initError) {
           console.warn(`⚠️ Vanta ${type} initialization failed:`, initError);
@@ -279,18 +324,20 @@ export function UnifiedVantaBackground({
             }
             vantaEffect.current = null;
           }
+          setVantaInitialized(false);
           setFallbackMode(true);
         }
 
       } catch (error) {
         console.warn(`⚠️ Failed to initialize Unified Vanta ${type}:`, error);
+        setVantaInitialized(false);
         setFallbackMode(true);
       }
     };
 
     // Only initialize on client side with increased delay
     if (typeof window !== 'undefined') {
-      const timer = setTimeout(initVanta, 200);
+      const timer = setTimeout(initVanta, 500);
       
       return () => {
         mounted = false;
@@ -308,6 +355,7 @@ export function UnifiedVantaBackground({
             console.warn(`⚠️ Unified Vanta ${type} cleanup warning:`, error);
           } finally {
             vantaEffect.current = null;
+            setVantaInitialized(false);
           }
         }
       };
@@ -316,15 +364,15 @@ export function UnifiedVantaBackground({
     return () => {
       mounted = false;
     };
-  }, [type, color, color2, backgroundColor, mouseControls, touchControls, gyroControls, minHeight, minWidth, scale, scaleMobile, points, maxDistance, spacing, showDots, speed, forceAnimate, size, showLines]);
+  }, [type, color, color2, backgroundColor, mouseControls, touchControls, gyroControls, minHeight, minWidth, scale, scaleMobile, points, maxDistance, spacing, showDots, speed, forceAnimate, size, showLines, detectPerformance]);
 
-  // Render fallback if needed
-  if (fallbackMode) {
+  // Always render fallback for mobile or low performance devices
+  if (fallbackMode || isLowPerformance || isMobile) {
     return (
       <div 
         className={className}
         style={{ 
-          background: `linear-gradient(135deg, ${color ? `#${color.toString(16).padStart(6, '0')}20` : '#94bdff20'}, ${color2 ? `#${color2.toString(16).padStart(6, '0')}10` : '#001D8D10'})`,
+          background: `linear-gradient(135deg, ${color ? `#${color.toString(16).padStart(6, '0')}15` : '#94bdff15'}, ${color2 ? `#${color2.toString(16).padStart(6, '0')}08` : '#001D8D08'})`,
           zIndex: 0,
           pointerEvents: 'none',
           userSelect: 'none'
@@ -333,11 +381,27 @@ export function UnifiedVantaBackground({
     );
   }
 
+  // Only render Vanta container if initialized or initializing
+  if (vantaInitialized || (!fallbackMode && !isLowPerformance && !isMobile)) {
+    return (
+      <div 
+        ref={vantaRef} 
+        className={className}
+        style={{ 
+          zIndex: 0,
+          pointerEvents: 'none',
+          userSelect: 'none'
+        }}
+      />
+    );
+  }
+
+  // Fallback gradient
   return (
     <div 
-      ref={vantaRef} 
       className={className}
       style={{ 
+        background: `linear-gradient(135deg, ${color ? `#${color.toString(16).padStart(6, '0')}15` : '#94bdff15'}, ${color2 ? `#${color2.toString(16).padStart(6, '0')}08` : '#001D8D08'})`,
         zIndex: 0,
         pointerEvents: 'none',
         userSelect: 'none'

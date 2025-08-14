@@ -51,7 +51,7 @@ export function TableOfContents({
 
   return (
     <motion.div 
-      className={`bg-white/90 backdrop-blur-sm rounded-lg border border-[#001D8D]/10 p-6 ${
+      className={`bg-white/96 rounded-lg border border-[#001D8D]/10 p-6 shadow-sm ${
         isSticky ? 'shadow-lg' : ''
       } transition-all duration-300 ${className}`}
       initial={{ opacity: 0, y: 20 }}

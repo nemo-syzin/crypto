@@ -1,10 +1,8 @@
-export const dynamic = 'force-dynamic';   // ⬅️  запрет SSG / Static Export
-
 import { NextResponse } from 'next/server';
 import { getValidatedKenigRates } from '@/lib/supabase/validated-rates';
 
 let cache: { data: any; timestamp: number } | null = null;
-const CACHE_DURATION = 60 * 1000; // Увеличиваем кэш до 1 минуты
+const CACHE_DURATION = 5 * 60 * 1000; // Увеличиваем кэш до 5 минут
 
 const getFallbackData = () => ({
   kenig: { sell: 95.50, buy: 94.80, updated_at: new Date().toISOString() },
