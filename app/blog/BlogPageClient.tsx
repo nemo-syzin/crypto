@@ -263,10 +263,15 @@ export function BlogPageClient() {
                       <Card className="bg-white/95 backdrop-blur-sm shadow-lg border border-[#001D8D]/10 hover:border-[#001D8D]/30 transition-all duration-300 hover:shadow-xl hover:scale-105 transform overflow-hidden">
                         {post.imageUrl && (
                           <div className="relative h-48 overflow-hidden">
-                            <img
+                            <Image
                               src={post.imageUrl}
                               alt={post.title}
+                              width={400}
+                              height={192}
                               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                              placeholder="blur"
+                              blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkbHB0eH/xAAVAQEBAQAAAAAAAAAAAAAAAAAAAQID/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
+                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
                             />
                             <div className="absolute top-4 left-4">
                               <Badge className={getCategoryColor(post.category)}>
@@ -338,10 +343,15 @@ export function BlogPageClient() {
                       <Card className="bg-white/95 backdrop-blur-sm shadow-lg border border-[#001D8D]/10 hover:border-[#001D8D]/30 transition-all duration-300 hover:shadow-xl hover:scale-105 transform overflow-hidden h-full">
                         {post.imageUrl && (
                           <div className="relative h-40 overflow-hidden">
-                            <img
+                            <Image
                               src={post.imageUrl}
                               alt={post.title}
+                              width={300}
+                              height={160}
                               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                              placeholder="blur"
+                              blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkbHB0eH/xAAVAQEBAQAAAAAAAAAAAAAAAAAAAQID/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
+                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 300px"
                             />
                             <div className="absolute top-3 left-3">
                               <Badge className={getCategoryColor(post.category)}>
