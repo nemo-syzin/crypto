@@ -21,35 +21,21 @@ export default function RootLayout({
     <html lang="ru" suppressHydrationWarning>
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
-        {/* Optimized font preloading */}
+        {/* Preload critical fonts */}
         <link 
           rel="preload" 
           as="font" 
           type="font/woff2" 
           crossOrigin="anonymous"
-          href="/fonts/Gilroy-ExtraBold.woff2"
-        />
-        <link 
-          rel="preconnect" 
-          href="https://fonts.googleapis.com"
-        />
-        <link 
-          rel="preconnect" 
-          href="https://fonts.gstatic.com" 
-          crossOrigin="anonymous"
+          href="/fonts/Gilroy-ExtraBold.woff2" 
         />
         {/* Preconnect to external domains */}
         <link rel="preconnect" href="https://jetfadpysjsvtqdgnsjp.supabase.co" />
-        {/* Optimized DNS prefetch for external resources */}
+        {/* DNS prefetch for external resources */}
         <link rel="dns-prefetch" href="//assets.revolut.com" />
         <link rel="dns-prefetch" href="//assets.coingecko.com" />
         <link rel="dns-prefetch" href="//res.coinpaper.com" />
         <link rel="dns-prefetch" href="//api.alternative.me" />
-        <link rel="dns-prefetch" href="//coin-images.coingecko.com" />
-        <link rel="dns-prefetch" href="//images.pexels.com" />
-        {/* Resource hints for better performance */}
-        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-        <meta name="theme-color" content="#001D8D" />
       </head>
       <body className="min-h-screen">
         <ThemeProvider

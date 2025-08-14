@@ -10,19 +10,6 @@
   font-display: swap;
 }
 
-/* Fallback font stack for better performance */
-@font-face {
-  font-family: 'Gilroy-Fallback';
-  src: local('Arial'), local('Helvetica'), local('sans-serif');
-  font-weight: 800;
-  font-style: normal;
-  font-display: block;
-  ascent-override: 105%;
-  descent-override: 35%;
-  line-gap-override: 10%;
-  size-adjust: 92.5%;
-}
-
 :root {
   --background: hsl(0 0% 100%);
   --foreground: rgb(0, 29, 141);
@@ -48,40 +35,11 @@
 
 @layer base {
   * {
-    font-family: 'Gilroy', 'Gilroy-Fallback', 'Arial', 'Helvetica Neue', sans-serif;
+    font-family: 'Gilroy', sans-serif;
   }
   
   body {
     @apply bg-white text-[#001D8D] m-0 p-0;
-    /* Optimize rendering performance */
-    text-rendering: optimizeSpeed;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    /* Prevent layout shifts */
-    overflow-x: hidden;
-  }
-  
-  /* Optimize image rendering */
-  img {
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
-  }
-  
-  /* Optimize scrolling performance */
-  * {
-    scroll-behavior: smooth;
-  }
-  
-  /* Reduce motion for users who prefer it */
-  @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-      scroll-behavior: auto !important;
-    }
   }
 }
 
@@ -458,7 +416,6 @@
   .performance-optimized {
     contain: layout style paint;
     content-visibility: auto;
-    contain-intrinsic-size: 0 500px;
   }
 
   /* Mobile-specific optimizations */
@@ -467,79 +424,33 @@
       padding: 16px;
       border-radius: 16px;
       box-shadow: 0 2px 16px rgba(31,38,135,0.06);
-      /* Optimize for mobile performance */
-      transform: translateZ(0);
-      will-change: transform;
     }
 
     .glass-tile {
       border-radius: 12px;
       box-shadow: 0 2px 12px rgba(31, 38, 135, 0.08);
-      transform: translateZ(0);
     }
 
     .partner-tile {
       box-shadow: 0 1px 6px rgba(31, 38, 135, 0.04);
-      transform: translateZ(0);
-    }
-    
-    /* Optimize text rendering on mobile */
-    body {
-      text-rendering: optimizeSpeed;
-    }
-    
-    /* Reduce complexity for mobile */
-    .manifesto-strip,
-    .crystal-bg {
-      display: none;
     }
   }
   
-  /* Optimize for high DPI displays */
-  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-    img {
-      image-rendering: -webkit-optimize-contrast;
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
     }
-  }
-  
-  /* Critical resource hints */
-  .critical-resource {
-    content-visibility: auto;
-    contain-intrinsic-size: 0 200px;
-  }
-  
-  /* Optimize for touch devices */
-  @media (hover: none) and (pointer: coarse) {
-    .hover\:scale-105:hover {
-      transform: none;
+
+    .calculator-container,
+    .glass-tile,
+    .partner-tile {
+      transition: none !important;
     }
-    
-    .hover\:shadow-xl:hover {
-      box-shadow: inherit;
-    }
-    
-    /* Increase touch targets */
-    button, a, [role="button"] {
-      min-height: 44px;
-      min-width: 44px;
-    }
-  }
-  
-  /* Optimize animations for 60fps */
-  @keyframes optimizedFadeIn {
-    from {
-      opacity: 0;
-      transform: translate3d(0, 10px, 0);
-    }
-    to {
-      opacity: 1;
-      transform: translate3d(0, 0, 0);
-    }
-  }
-  
-  .optimized-fade-in {
-    animation: optimizedFadeIn 0.3s ease-out;
-    will-change: transform, opacity;
   }
 
   /* Countdown timer styles */
