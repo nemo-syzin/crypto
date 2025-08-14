@@ -59,10 +59,10 @@ export function useFearGreed() {
     'fear-greed-index',
     fngFetcher,
     {
-      refreshInterval: 30 * 60 * 1000, // Increased to 30 minutes
+      refreshInterval: 15 * 60 * 1000, // Increased to 15 minutes
       revalidateOnFocus: false,
       revalidateOnReconnect: true,
-      dedupingInterval: 20 * 60 * 1000, // Increased to 20 minutes
+      dedupingInterval: 10 * 60 * 1000, // Increased to 10 minutes
       fallbackData: getFallbackFearGreedData(), // Provide fallback data
       onError: (error) => {
         console.warn('⚠️ Fear & Greed Index hook error, using fallback data:', error);
@@ -71,8 +71,8 @@ export function useFearGreed() {
         // Only retry up to 3 times
         if (retryCount >= 3) return;
         
-        // Retry after 30 seconds
-        setTimeout(() => revalidate({ retryCount }), 30000);
+        // Retry after 10 seconds
+        setTimeout(() => revalidate({ retryCount }), 10000);
       },
     }
   );

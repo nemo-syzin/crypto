@@ -102,9 +102,8 @@ export function CoinDrawer({ coin, open, onClose }: CoinDrawerProps) {
   return (
     <Drawer open={open} onOpenChange={onClose}>
       <DrawerContent className="max-h-[90vh] bg-gray-50 border-t border-gray-200">
-      <DrawerContent className="max-h-[90vh] bg-white/98 border-t border-gray-200">
         {/* Лаконичный заголовок в фирменном стиле */}
-        <DrawerHeader className="bg-white/98 border-b border-gray-100 py-4">
+        <DrawerHeader className="bg-white border-b border-gray-100 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Image

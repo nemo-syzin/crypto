@@ -215,7 +215,6 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
       <div className="overflow-x-auto">
         <table className="w-full" role="table" aria-label="Cryptocurrency market data">
           <thead className="sticky top-0 bg-white/95 backdrop-blur-sm">
-          <thead className="sticky top-0 bg-white/98">
             <tr className="border-b border-[#001D8D]/10 text-sm">
               <th className="text-left py-3 px-2" scope="col">
                 <SortButton field="market_cap_rank">Ранг</SortButton>

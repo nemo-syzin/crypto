@@ -1,9 +1,11 @@
+export const dynamic = 'force-dynamic';   // ⬅️  запрет SSG / Static Export
+
 import { NextRequest, NextResponse } from 'next/server';
 import { headers as getHeaders } from 'next/headers';
 
 // Cache for API responses
 let cache: Map<string, { data: any; timestamp: number }> = new Map();
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache duration
+const CACHE_DURATION = 30 * 1000; // 30 seconds cache duration
 
 function getCachedData(key: string): any | null {
   const cached = cache.get(key);

@@ -29,8 +29,6 @@ export default function RootLayout({
           crossOrigin="anonymous"
           href="/fonts/Gilroy-ExtraBold.woff2" 
         />
-        {/* Preconnect to external domains */}
-        <link rel="preconnect" href="https://jetfadpysjsvtqdgnsjp.supabase.co" />
         {/* DNS prefetch for external resources */}
         <link rel="dns-prefetch" href="//assets.revolut.com" />
         <link rel="dns-prefetch" href="//assets.coingecko.com" />

@@ -116,7 +116,6 @@ export function ManifestoStrip({ values, className = "" }: ManifestoStripProps) 
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.4, ease: "easeOut" }}
               className="w-full bg-white rounded-xl border-2 border-gray-100 p-6 md:p-8 shadow-lg"
-              className="w-full bg-white/98 rounded-xl border-2 border-gray-100 p-6 md:p-8 shadow-lg"
             >
               {/* Заголовок с номером */}
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6 w-full">
