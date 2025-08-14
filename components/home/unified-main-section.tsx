@@ -165,6 +165,7 @@ const partners = [
 const UnifiedMainSection = () => {
   const [activeTab, setActiveTab] = useState('office');
   const isMobile = useIsMobile();
+  const isMobile = useIsMobile();
 
   const containerVariants = {
     hidden: {},
