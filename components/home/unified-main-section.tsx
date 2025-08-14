@@ -242,16 +242,16 @@ const UnifiedMainSection = () => {
           {/* 1. Features Section - Без плашки */}
           <div>
             <div className="text-center max-w-3xl mx-auto mb-16">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 text-[#001D8D]">
+              <h2 className="text-3xl md:text-4xl font-bold mb-6 text-[#001D8D]">
                 Почему выбирают <span className="text-[#001D8D]">Kenigswap</span>
               </h2>
-              <p className="text-[#001D8D]/80 leading-relaxed mobile-text-scale">
+              <p className="text-[#001D8D]/80 leading-relaxed">
                 Мы предоставляем безопасную, быструю и удобную платформу для всех ваших потребностей в обмене криптовалюты.
                 Наш фокус на конвертации USDT в рубли гарантирует вам лучший сервис.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 mb-16 sm:mb-24">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-24">
               {features.map((feature, index) => (
                 <motion.div
                   key={index}
@@ -263,16 +263,16 @@ const UnifiedMainSection = () => {
                     ease: "easeOut"
                   }}
                   viewport={{ once: true, amount: 0.2 }}
-                  className="calculator-container group hover:shadow-xl transition-all duration-300 mobile-card"
+                  className="calculator-container group hover:shadow-xl transition-all duration-300"
                 >
                   <div className="relative z-10">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="flex items-center justify-center h-10 w-10 bg-[#001D8D]/10 p-2 rounded-lg">
                         <feature.iconComponent className="h-5 w-5 text-[#001D8D]" />
                       </div>
-                      <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-[#001D8D]">{feature.title}</h3>
+                      <h3 className="text-xl md:text-2xl font-bold text-[#001D8D]">{feature.title}</h3>
                     </div>
-                    <p className="text-[#001D8D]/70 leading-relaxed mobile-text-scale">{feature.description}</p>
+                    <p className="text-[#001D8D]/70 leading-relaxed">{feature.description}</p>
                   </div>
                 </motion.div>
               ))}
@@ -282,26 +282,24 @@ const UnifiedMainSection = () => {
           {/* 2. Deal Process Section - Без плашки */}
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-[#001D8D] mb-6">
+              <h2 className="text-3xl md:text-4xl font-bold text-center text-[#001D8D] mb-6">
                 Как проходит обмен
               </h2>
-              <p className="text-[#001D8D]/70 max-w-3xl mx-auto leading-relaxed mobile-text-scale">
+              <p className="text-[#001D8D]/70 max-w-3xl mx-auto leading-relaxed">
                 Выберите удобный способ обмена и следуйте простым шагам для безопасной и быстрой транзакции
               </p>
             </div>
 
-            <div className="calculator-container mb-16 mobile-card">
+            <div className="calculator-container mb-16">
               <Tabs defaultValue="office" onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-6 sm:mb-8 bg-white border border-[#001D8D]/10">
-                  <TabsTrigger value="office" className="text-[#001D8D] mobile-touch-target">
+                <TabsList className="grid w-full grid-cols-2 mb-8 bg-white/90 backdrop-blur-sm border border-[#001D8D]/10">
+                  <TabsTrigger value="office" className="text-[#001D8D]">
                     <Building2 className="w-4 h-4 mr-2" />
-                    <span className="hidden sm:inline">В офисе</span>
-                    <span className="sm:hidden">Офис</span>
+                    В офисе
                   </TabsTrigger>
-                  <TabsTrigger value="online" className="text-[#001D8D] mobile-touch-target">
+                  <TabsTrigger value="online" className="text-[#001D8D]">
                     <Globe className="w-4 h-4 mr-2" />
-                    <span className="hidden sm:inline">Онлайн</span>
-                    <span className="sm:hidden">Online</span>
+                    Онлайн
                   </TabsTrigger>
                 </TabsList>
 
@@ -310,36 +308,36 @@ const UnifiedMainSection = () => {
                     variants={stepsContainerVariants}
                     initial="hidden"
                     animate={activeTab === 'office' ? 'visible' : 'hidden'}
-                    className="space-y-4 sm:space-y-6"
+                    className="space-y-6"
                   >
                     {officeSteps.map((step, index) => (
                       <motion.div
                         key={index}
                         variants={stepVariants}
-                        className="glass-tile p-4 sm:p-6 hover:shadow-lg transition-all duration-300 group mobile-card"
+                        className="glass-tile p-6 hover:shadow-lg transition-all duration-300 group"
                         whileHover={{ 
                           scale: 1.02,
                           boxShadow: "0 20px 40px rgba(0, 29, 141, 0.15)"
                         }}
                       >
-                        <div className="flex items-start gap-3 sm:gap-4">
+                        <div className="flex items-start gap-4">
                           {/* Номер в стиле манифеста с анимацией */}
                           <motion.div 
                             className="flex-shrink-0"
                             whileHover={{ scale: 1.1 }}
                             transition={{ duration: 0.2 }}
                           >
-                            <div className="manifesto-number text-2xl sm:text-3xl font-bold text-[#001D8D] tracking-wider group-hover:text-blue-600 transition-colors duration-300">
+                            <div className="manifesto-number text-3xl font-bold text-[#001D8D] tracking-wider group-hover:text-blue-600 transition-colors duration-300">
                               {formatStepNumber(index)}
                             </div>
                           </motion.div>
                           <div className="flex-1">
                             <div className="flex justify-between items-start">
-                              <h3 className="text-lg sm:text-xl font-bold text-[#001D8D] mb-2 group-hover:text-blue-600 transition-colors duration-300">
+                              <h3 className="text-xl font-bold text-[#001D8D] mb-2 group-hover:text-blue-600 transition-colors duration-300">
                                 {step.title}
                               </h3>
                             </div>
-                            <p className="text-[#001D8D]/70 leading-relaxed mobile-text-scale">
+                            <p className="text-[#001D8D]/70 leading-relaxed">
                               {step.description}
                             </p>
                           </div>
@@ -354,36 +352,36 @@ const UnifiedMainSection = () => {
                     variants={stepsContainerVariants}
                     initial="hidden"
                     animate={activeTab === 'online' ? 'visible' : 'hidden'}
-                    className="space-y-4 sm:space-y-6"
+                    className="space-y-6"
                   >
                     {onlineSteps.map((step, index) => (
                       <motion.div
                         key={index}
                         variants={stepVariants}
-                        className="glass-tile p-4 sm:p-6 hover:shadow-lg transition-all duration-300 group mobile-card"
+                        className="glass-tile p-6 hover:shadow-lg transition-all duration-300 group"
                         whileHover={{ 
                           scale: 1.02,
                           boxShadow: "0 20px 40px rgba(0, 29, 141, 0.15)"
                         }}
                       >
-                        <div className="flex items-start gap-3 sm:gap-4">
+                        <div className="flex items-start gap-4">
                           {/* Номер в стиле манифеста с анимацией */}
                           <motion.div 
                             className="flex-shrink-0"
                             whileHover={{ scale: 1.1 }}
                             transition={{ duration: 0.2 }}
                           >
-                            <div className="manifesto-number text-2xl sm:text-3xl font-bold text-[#001D8D] tracking-wider group-hover:text-blue-600 transition-colors duration-300">
+                            <div className="manifesto-number text-3xl font-bold text-[#001D8D] tracking-wider group-hover:text-blue-600 transition-colors duration-300">
                               {formatStepNumber(index)}
                             </div>
                           </motion.div>
                           <div className="flex-1">
                             <div className="flex justify-between items-start">
-                              <h3 className="text-lg sm:text-xl font-bold text-[#001D8D] mb-2 group-hover:text-blue-600 transition-colors duration-300">
+                              <h3 className="text-xl font-bold text-[#001D8D] mb-2 group-hover:text-blue-600 transition-colors duration-300">
                                 {step.title}
                               </h3>
                             </div>
-                            <p className="text-[#001D8D]/70 leading-relaxed mobile-text-scale">
+                            <p className="text-[#001D8D]/70 leading-relaxed">
                               {step.description}
                             </p>
                           </div>
@@ -405,10 +403,10 @@ const UnifiedMainSection = () => {
               viewport={{ once: true }}
               className="text-center mb-12"
             >
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 text-[#001D8D]">
+              <h2 className="text-3xl md:text-4xl font-bold mb-6 text-[#001D8D]">
                 Наши партнёры
               </h2>
-              <p className="text-[#001D8D]/70 max-w-2xl mx-auto mobile-text-scale">
+              <p className="text-[#001D8D]/70 max-w-2xl mx-auto">
                 Мы сотрудничаем с ведущими криптовалютными биржами и платформами для обеспечения 
                 безопасных и эффективных обменов
               </p>
@@ -417,10 +415,10 @@ const UnifiedMainSection = () => {
             {/* Оптимизированные ленты партнеров */}
             <div className="relative mb-12 overflow-hidden">
               {/* Первая лента - слева направо */}
-              <div className="mb-4 sm:mb-6">
+              <div className="mb-6">
                 <Marquee
                   gradient={false}
-                  speed={isMobile ? 40 : 60}
+                  speed={60}
                   pauseOnHover={true}
                   className="py-4"
                 >
@@ -440,7 +438,7 @@ const UnifiedMainSection = () => {
               <div>
                 <Marquee
                   gradient={false}
-                  speed={isMobile ? 30 : 45}
+                  speed={45}
                   direction="right"
                   pauseOnHover={true}
                   className="py-4"
@@ -466,7 +464,7 @@ const UnifiedMainSection = () => {
               viewport={{ once: true }}
               className="text-center"
             >
-              <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-8 text-xs sm:text-sm text-[#001D8D]/60">
+              <div className="flex flex-wrap justify-center items-center gap-8 text-sm text-[#001D8D]/60">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                   <span>Проверенные партнеры</span>
@@ -485,18 +483,18 @@ const UnifiedMainSection = () => {
 
           {/* 4. CTA Section - Calculator Style */}
           <div className="max-w-5xl mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
                 viewport={{ once: true }}
-                className="calculator-container mobile-card"
+                className="calculator-container"
               >
-                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 text-[#001D8D]">
+                <h2 className="text-3xl md:text-4xl font-bold mb-6 text-[#001D8D]">
                   Готовы начать <span className="text-[#001D8D]">обмен?</span>
                 </h2>
-                <p className="text-[#001D8D]/70 mb-6 sm:mb-8 leading-relaxed mobile-text-scale">
+                <p className="text-[#001D8D]/70 mb-8 leading-relaxed">
                   Создайте аккаунт уже сегодня и получите самый быстрый и безопасный способ конвертации USDT в рубли.
                 </p>
                 
@@ -507,7 +505,7 @@ const UnifiedMainSection = () => {
                     </div>
                     <div>
                       <h4 className="font-semibold text-[#001D8D]">Быстрая настройка</h4>
-                      <p className="text-sm text-[#001D8D]/70 mobile-text-scale">Начните работу за считанные минуты с нашим упрощенным процессом регистрации</p>
+                      <p className="text-sm text-[#001D8D]/70">Начните работу за считанные минуты с нашим упрощенным процессом регистрации</p>
                     </div>
                   </div>
                   
@@ -517,7 +515,7 @@ const UnifiedMainSection = () => {
                     </div>
                     <div>
                       <h4 className="font-semibold text-[#001D8D]">Лучшие курсы</h4>
-                      <p className="text-sm text-[#001D8D]/70 mobile-text-scale">Всегда получайте самые конкурентоспособные курсы обмена USDT на рубли</p>
+                      <p className="text-sm text-[#001D8D]/70">Всегда получайте самые конкурентоспособные курсы обмена USDT на рубли</p>
                     </div>
                   </div>
                   
@@ -527,7 +525,7 @@ const UnifiedMainSection = () => {
                     </div>
                     <div>
                       <h4 className="font-semibold text-[#001D8D]">100% безопасность</h4>
-                      <p className="text-sm text-[#001D8D]/70 mobile-text-scale">Ведущие в отрасли меры безопасности для защиты ваших активов</p>
+                      <p className="text-sm text-[#001D8D]/70">Ведущие в отрасли меры безопасности для защиты ваших активов</p>
                     </div>
                   </div>
                 </div>
@@ -538,12 +536,12 @@ const UnifiedMainSection = () => {
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
                 viewport={{ once: true }}
-                className="calculator-container mobile-card"
+                className="calculator-container"
               >
-                <h3 className="text-xl sm:text-2xl font-bold mb-6 text-center text-[#001D8D]">
+                <h3 className="text-2xl font-bold mb-6 text-center text-[#001D8D]">
                   Начните сегодня
                 </h3>
-                <p className="text-[#001D8D]/70 mb-6 sm:mb-8 text-center leading-relaxed mobile-text-scale">
+                <p className="text-[#001D8D]/70 mb-8 text-center leading-relaxed">
                   Зарегистрируйтесь всего за несколько минут и начните обменивать криптовалюту по лучшим курсам.
                 </p>
                 
@@ -551,20 +549,20 @@ const UnifiedMainSection = () => {
                   <Link href="/register">
                     <Button 
                       size="lg" 
-                      className="w-full mb-4 bg-[#001D8D] hover:bg-[#001D8D]/90 text-white font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 mobile-touch-target"
+                      className="w-full mb-4 bg-[#001D8D] hover:bg-[#001D8D]/90 text-white font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
                     >
                       Создать аккаунт
                     </Button>
                   </Link>
                   
                   <Link href="/login" className="block">
-                    <button className="w-full border-2 border-[#001D8D]/20 text-[#001D8D] hover:bg-[#001D8D]/5 px-6 py-3 rounded-lg font-semibold transition-all duration-300 mobile-touch-target">
+                    <button className="w-full border-2 border-[#001D8D]/20 text-[#001D8D] hover:bg-[#001D8D]/5 px-6 py-3 rounded-lg font-semibold transition-all duration-300">
                       Войти
                     </button>
                   </Link>
                 </div>
                 
-                <div className="mt-6 sm:mt-8 text-center text-sm text-[#001D8D]/60 mobile-text-scale">
+                <div className="mt-8 text-center text-sm text-[#001D8D]/60">
                   Уже есть аккаунт? <Link href="/login" className="text-[#001D8D] hover:underline">Войти</Link>
                 </div>
               </motion.div>

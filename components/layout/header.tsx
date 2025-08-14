@@ -64,31 +64,31 @@ const Header = () => {
           <nav className="hidden md:flex items-center gap-12 absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2">
             <Link 
               href="/exchange" 
-              className="text-[#001D8D] hover:opacity-80 transition-colors duration-200 touch-friendly mobile-touch-target"
+              className="text-[#001D8D] hover:opacity-80 transition-colors duration-200"
             >
               Exchange
             </Link>
             <Link 
               href="/rates" 
-              className="text-[#001D8D] hover:opacity-80 transition-colors duration-200 touch-friendly mobile-touch-target"
+              className="text-[#001D8D] hover:opacity-80 transition-colors duration-200"
             >
               Rates
             </Link>
             <Link 
               href="/blog" 
-              className="text-[#001D8D] hover:opacity-80 transition-colors duration-200 touch-friendly mobile-touch-target"
+              className="text-[#001D8D] hover:opacity-80 transition-colors duration-200"
             >
               Blog
             </Link>
             <Link 
               href="/about" 
-              className="text-[#001D8D] hover:opacity-80 transition-colors duration-200 touch-friendly mobile-touch-target"
+              className="text-[#001D8D] hover:opacity-80 transition-colors duration-200"
             >
               About
             </Link>
             <div className="relative">
               <button
-                className="text-[#001D8D] hover:opacity-80 transition-colors duration-200 flex items-center gap-1 touch-friendly mobile-touch-target"
+                className="text-[#001D8D] hover:opacity-80 transition-colors duration-200 flex items-center gap-1"
                 onClick={() => setPolicyDropdownOpen(!policyDropdownOpen)}
                 onBlur={(e) => {
                   // Проверяем, что фокус не переходит на элемент внутри dropdown
@@ -101,26 +101,26 @@ const Header = () => {
               </button>
               {policyDropdownOpen && (
                 <div 
-                  className="absolute top-full left-0 mt-2 w-64 bg-white rounded-xl shadow-xl py-3 z-50 border border-gray-200 mobile-optimized"
+                  className="absolute top-full left-0 mt-2 w-64 bg-white rounded-md shadow-lg py-2 z-50 border border-gray-200"
                   onMouseLeave={() => setPolicyDropdownOpen(false)}
                 >
                   <Link 
                     href="/policy/aml-kyc" 
-                    className="block px-4 py-3 text-sm text-[#001D8D] hover:bg-[#001D8D]/5 transition-colors touch-friendly mobile-touch-target rounded-lg mx-2"
+                    className="block px-4 py-3 text-sm text-[#001D8D] hover:bg-[#001D8D]/5 transition-colors"
                     onClick={() => setPolicyDropdownOpen(false)}
                   >
                     AML/CTF и KYC
                   </Link>
                   <Link 
                     href="/policy/terms" 
-                    className="block px-4 py-3 text-sm text-[#001D8D] hover:bg-[#001D8D]/5 transition-colors touch-friendly mobile-touch-target rounded-lg mx-2"
+                    className="block px-4 py-3 text-sm text-[#001D8D] hover:bg-[#001D8D]/5 transition-colors"
                     onClick={() => setPolicyDropdownOpen(false)}
                   >
                     Условия использования
                   </Link>
                   <Link 
                     href="/policy/privacy" 
-                    className="block px-4 py-3 text-sm text-[#001D8D] hover:bg-[#001D8D]/5 transition-colors touch-friendly mobile-touch-target rounded-lg mx-2"
+                    className="block px-4 py-3 text-sm text-[#001D8D] hover:bg-[#001D8D]/5 transition-colors"
                     onClick={() => setPolicyDropdownOpen(false)}
                   >
                     Политика конфиденциальности
@@ -130,7 +130,7 @@ const Header = () => {
             </div>
             <Link 
               href="/support" 
-              className="text-[#001D8D] hover:opacity-80 transition-colors duration-200 touch-friendly mobile-touch-target"
+              className="text-[#001D8D] hover:opacity-80 transition-colors duration-200"
             >
               Support
             </Link>
@@ -142,7 +142,7 @@ const Header = () => {
               variant="ghost" 
               size="icon"
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className="text-[#001D8D] hover:bg-[#001D8D]/10 touch-friendly mobile-touch-target"
+              className="text-[#001D8D] hover:bg-[#001D8D]/10"
             >
               {theme === 'dark' ? (
                 <Sun className="h-5 w-5" />
@@ -156,7 +156,7 @@ const Header = () => {
             ) : user ? (
               <div className="relative">
                 <button
-                  className="flex items-center gap-2 text-[#001D8D] hover:bg-[#001D8D]/10 px-3 py-2 rounded-lg transition-colors touch-friendly mobile-touch-target"
+                  className="flex items-center gap-2 text-[#001D8D] hover:bg-[#001D8D]/10 px-3 py-2 rounded-lg transition-colors"
                   onClick={() => setUserDropdownOpen(!userDropdownOpen)}
                   onBlur={(e) => {
                     if (!e.currentTarget.contains(e.relatedTarget)) {
@@ -172,7 +172,7 @@ const Header = () => {
                 </button>
                 {userDropdownOpen && (
                   <div 
-                    className="absolute top-full right-0 mt-2 w-64 bg-white rounded-xl shadow-xl py-3 z-50 border border-gray-200 mobile-optimized"
+                    className="absolute top-full right-0 mt-2 w-64 bg-white rounded-md shadow-lg py-2 z-50 border border-gray-200"
                     onMouseLeave={() => setUserDropdownOpen(false)}
                   >
                     <div className="px-4 py-3 border-b border-gray-100">
@@ -183,7 +183,7 @@ const Header = () => {
                     </div>
                     <Link 
                       href="/dashboard" 
-                      className="flex items-center gap-2 px-4 py-3 text-sm text-[#001D8D] hover:bg-[#001D8D]/5 transition-colors touch-friendly mobile-touch-target rounded-lg mx-2"
+                      className="flex items-center gap-2 px-4 py-3 text-sm text-[#001D8D] hover:bg-[#001D8D]/5 transition-colors"
                       onClick={() => setUserDropdownOpen(false)}
                     >
                       <User className="h-4 w-4" />
@@ -191,7 +191,7 @@ const Header = () => {
                     </Link>
                     <Link 
                       href="/operator-dashboard" 
-                      className="flex items-center gap-2 px-4 py-3 text-sm text-[#001D8D] hover:bg-[#001D8D]/5 transition-colors touch-friendly mobile-touch-target rounded-lg mx-2"
+                      className="flex items-center gap-2 px-4 py-3 text-sm text-[#001D8D] hover:bg-[#001D8D]/5 transition-colors"
                       onClick={() => setUserDropdownOpen(false)}
                     >
                       <Settings className="h-4 w-4" />
@@ -206,7 +206,7 @@ const Header = () => {
                           console.error('Ошибка выхода:', error);
                         }
                       }}
-                      className="flex items-center gap-2 w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors touch-friendly mobile-touch-target rounded-lg mx-2"
+                      className="flex items-center gap-2 w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors"
                     >
                       <LogOut className="h-4 w-4" />
                       Выйти
@@ -219,14 +219,14 @@ const Header = () => {
                 <Button 
                   asChild 
                   variant="ghost"
-                  className="text-[#001D8D] hover:bg-[#001D8D]/10 touch-friendly mobile-touch-target"
+                  className="text-[#001D8D] hover:bg-[#001D8D]/10"
                 >
                   <Link href="/login">Вход</Link>
                 </Button>
                 
                 <Button 
                   asChild 
-                  className="bg-[#001D8D] hover:opacity-90 text-white font-medium touch-friendly mobile-touch-target"
+                  className="bg-[#001D8D] hover:opacity-90 text-white font-medium"
                 >
                   <Link href="/register">Регистрация</Link>
                 </Button>
@@ -241,12 +241,12 @@ const Header = () => {
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="text-[#001D8D] hover:bg-[#001D8D]/10 touch-friendly mobile-touch-target"
+                  className="text-[#001D8D] hover:bg-[#001D8D]/10"
                 >
                   <Menu className="h-6 w-6" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[300px] sm:w-[400px] bg-white border-[#001D8D]/20 smooth-scroll mobile-drawer">
+              <SheetContent side="right" className="w-[300px] sm:w-[400px] bg-white/95 backdrop-blur-md border-[#001D8D]/20">
                 <SheetHeader>
                   <SheetTitle className="flex items-center gap-2">
                     <Image 
@@ -258,11 +258,11 @@ const Header = () => {
                     />
                   </SheetTitle>
                 </SheetHeader>
-                <nav className="flex flex-col gap-3 mt-8">
+                <nav className="flex flex-col gap-4 mt-8">
                   <SheetClose asChild>
                     <Link 
                       href="/exchange" 
-                      className="mobile-nav-item text-[#001D8D] hover:bg-[#001D8D]/5 rounded-xl transition-colors mobile-nav-smooth"
+                      className="p-2 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors"
                     >
                       Exchange
                     </Link>
@@ -270,7 +270,7 @@ const Header = () => {
                   <SheetClose asChild>
                     <Link 
                       href="/rates" 
-                      className="mobile-nav-item text-[#001D8D] hover:bg-[#001D8D]/5 rounded-xl transition-colors mobile-nav-smooth"
+                      className="p-2 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors"
                     >
                       Rates
                     </Link>
@@ -278,7 +278,7 @@ const Header = () => {
                   <SheetClose asChild>
                     <Link 
                       href="/blog" 
-                      className="mobile-nav-item text-[#001D8D] hover:bg-[#001D8D]/5 rounded-xl transition-colors mobile-nav-smooth"
+                      className="p-2 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors"
                     >
                       Blog
                     </Link>
@@ -286,18 +286,18 @@ const Header = () => {
                   <SheetClose asChild>
                     <Link 
                       href="/about" 
-                      className="mobile-nav-item text-[#001D8D] hover:bg-[#001D8D]/5 rounded-xl transition-colors mobile-nav-smooth"
+                      className="p-2 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors"
                     >
                       About
                     </Link>
                   </SheetClose>
-                  <div className="mobile-nav-item text-[#001D8D]">
+                  <div className="p-2 text-[#001D8D]">
                     <div className="mb-2 font-medium">Policy</div>
                     <div className="pl-4 flex flex-col gap-2">
                       <SheetClose asChild>
                         <Link 
                           href="/policy/aml-kyc" 
-                          className="mobile-nav-item text-[#001D8D] hover:bg-[#001D8D]/5 rounded-lg transition-colors text-sm mobile-nav-smooth"
+                          className="p-2 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors text-sm"
                         >
                           AML/CTF и KYC
                         </Link>
@@ -305,7 +305,7 @@ const Header = () => {
                       <SheetClose asChild>
                         <Link 
                           href="/policy/terms" 
-                          className="mobile-nav-item text-[#001D8D] hover:bg-[#001D8D]/5 rounded-lg transition-colors text-sm mobile-nav-smooth"
+                          className="p-2 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors text-sm"
                         >
                           Условия использования
                         </Link>
@@ -313,7 +313,7 @@ const Header = () => {
                       <SheetClose asChild>
                         <Link 
                           href="/policy/privacy" 
-                          className="mobile-nav-item text-[#001D8D] hover:bg-[#001D8D]/5 rounded-lg transition-colors text-sm mobile-nav-smooth"
+                          className="p-2 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors text-sm"
                         >
                           Политика конфиденциальности
                         </Link>
@@ -323,7 +323,7 @@ const Header = () => {
                   <SheetClose asChild>
                     <Link 
                       href="/support" 
-                      className="mobile-nav-item text-[#001D8D] hover:bg-[#001D8D]/5 rounded-xl transition-colors mobile-nav-smooth"
+                      className="p-2 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors"
                     >
                       Support
                     </Link>
@@ -331,7 +331,7 @@ const Header = () => {
                   <div className="border-t border-[#001D8D]/10 my-4 pt-4 flex flex-col gap-3">
                     <Button 
                       variant="ghost"
-                      className="justify-start text-[#001D8D] hover:bg-[#001D8D]/5 touch-friendly mobile-touch-target rounded-xl"
+                      className="justify-start text-[#001D8D] hover:bg-[#001D8D]/5"
                       onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                     >
                       {theme === 'dark' ? (
@@ -344,7 +344,7 @@ const Header = () => {
                       <Button 
                         asChild 
                         variant="ghost"
-                        className="text-[#001D8D] hover:bg-[#001D8D]/5 touch-friendly mobile-touch-target rounded-xl"
+                        className="text-[#001D8D] hover:bg-[#001D8D]/5"
                       >
                         {user ? (
                           <Link href="/dashboard">Личный кабинет</Link>
@@ -359,7 +359,7 @@ const Header = () => {
                           <Button 
                             asChild 
                             variant="ghost"
-                            className="text-[#001D8D] hover:bg-[#001D8D]/5 touch-friendly mobile-touch-target rounded-xl"
+                            className="text-[#001D8D] hover:bg-[#001D8D]/5"
                           >
                             <Link href="/operator-dashboard">Панель оператора</Link>
                           </Button>
@@ -373,7 +373,7 @@ const Header = () => {
                             }
                           }}
                           variant="ghost"
-                          className="text-red-600 hover:bg-red-50 justify-start touch-friendly mobile-touch-target rounded-xl"
+                          className="text-red-600 hover:bg-red-50 justify-start"
                         >
                           <LogOut className="h-4 w-4 mr-2" />
                           Выйти
@@ -383,7 +383,7 @@ const Header = () => {
                       <SheetClose asChild>
                         <Button 
                           asChild 
-                          className="bg-[#001D8D] hover:opacity-90 text-white touch-friendly mobile-touch-target rounded-xl"
+                          className="bg-[#001D8D] hover:opacity-90 text-white"
                         >
                           <Link href="/register">Регистрация</Link>
                         </Button>

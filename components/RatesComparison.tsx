@@ -221,7 +221,7 @@ export default function RatesComparison() {
     <div className="space-y-4">
       {/* Configuration Error Alert */}
       {isConfigurationError && (
-        <Alert className="bg-orange-50 border-orange-200 mobile-card">
+        <Alert className="bg-orange-50 border-orange-200">
           <Settings className="h-4 w-4 text-orange-600" />
           <AlertDescription className="text-orange-800">
             <strong>Требуется настройка:</strong> {error}
@@ -231,7 +231,7 @@ export default function RatesComparison() {
 
       {/* Other Errors Alert */}
       {error && !isConfigurationError && (
-        <Alert className="bg-red-50 border-red-200 mobile-card">
+        <Alert className="bg-red-50 border-red-200">
           <AlertTriangle className="h-4 w-4 text-red-600" />
           <AlertDescription className="text-red-800">
             <strong>Ошибка:</strong> {error}
@@ -240,23 +240,23 @@ export default function RatesComparison() {
       )}
 
       {/* Main Comparison Card - Compact */}
-      <Card className="glass-tile border-none shadow-lg mobile-card">
+      <Card className="glass-tile border-none shadow-lg">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-[#001D8D] flex items-center gap-2 text-base sm:text-lg">
+            <CardTitle className="text-[#001D8D] flex items-center gap-2 text-lg">
               <TrendingUp className="h-4 w-4" />
               Сравнение курсов
             </CardTitle>
             
             {/* Compact refresh section */}
             <div className="flex items-center gap-2">
-              <div className="countdown-timer text-xs hidden sm:block">
+              <div className="countdown-timer text-xs">
                 {countdown}
               </div>
               <button
                 onClick={refetch}
                 disabled={loading}
-                className="w-8 h-8 flex items-center justify-center rounded-full bg-[#001D8D]/10 hover:bg-[#001D8D]/20 transition-colors mobile-touch-target"
+                className="w-7 h-7 flex items-center justify-center rounded-full bg-[#001D8D]/10 hover:bg-[#001D8D]/20 transition-colors"
               >
                 <RefreshCw className={`h-3 w-3 text-[#001D8D] ${loading ? 'animate-spin' : ''}`} />
               </button>
@@ -269,21 +269,21 @@ export default function RatesComparison() {
             <div className="flex items-center justify-center py-8">
               <div className="flex items-center gap-2 text-[#001D8D]">
                 <RefreshCw className="h-4 w-4 animate-spin" />
-                <span className="text-sm mobile-text-scale">Загрузка актуальных курсов...</span>
+                <span className="text-sm">Загрузка актуальных курсов...</span>
               </div>
             </div>
           ) : rates ? (
-            <div className="space-y-4 sm:space-y-6">
+            <div className="space-y-6">
               {/* Sell Rates Section - Compact */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <ArrowRightLeft className="h-4 w-4 text-red-500" />
-                  <h3 className="text-sm sm:text-base font-semibold">Продажа USDT → RUB</h3>
-                  <span className="text-xs text-muted/60 hidden sm:inline">(лучший = низкий)</span>
+                  <h3 className="text-base font-semibold">Продажа USDT → RUB</h3>
+                  <span className="text-xs text-muted/60">(лучший = низкий)</span>
                 </div>
 
                 {/* Desktop view - Compact grid */}
-                <div className="hidden sm:grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div className="hidden sm:grid grid-cols-2 gap-4">
                   {exchangeData.map((exchange) => 
                     renderCompactRateCard(exchange, 'sell', bestRates.bestSell?.source === exchange.name)
                   )}
@@ -295,7 +295,7 @@ export default function RatesComparison() {
                   
                   {exchangeData.length > 1 && (
                     <details className="mt-3">
-                      <summary className="flex items-center gap-2 cursor-pointer text-sm text-[#001D8D] hover:text-[#001D8D]/80 mobile-touch-target">
+                      <summary className="flex items-center gap-2 cursor-pointer text-sm text-[#001D8D] hover:text-[#001D8D]/80">
                         <span>Ещё {exchangeData.length - 1}</span>
                         <ChevronDown className="h-3 w-3" />
                       </summary>
@@ -313,12 +313,12 @@ export default function RatesComparison() {
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <ArrowRightLeft className="h-4 w-4 text-blue-500" />
-                  <h3 className="text-sm sm:text-base font-semibold">Покупка USDT ← RUB</h3>
-                  <span className="text-xs text-muted/60 hidden sm:inline">(лучший = высокий)</span>
+                  <h3 className="text-base font-semibold">Покупка USDT ← RUB</h3>
+                  <span className="text-xs text-muted/60">(лучший = высокий)</span>
                 </div>
 
                 {/* Desktop view - Compact grid */}
-                <div className="hidden sm:grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div className="hidden sm:grid grid-cols-2 gap-4">
                   {exchangeData.map((exchange) => 
                     renderCompactRateCard(exchange, 'buy', bestRates.bestBuy?.source === exchange.name)
                   )}
@@ -330,7 +330,7 @@ export default function RatesComparison() {
                   
                   {exchangeData.length > 1 && (
                     <details className="mt-3">
-                      <summary className="flex items-center gap-2 cursor-pointer text-sm text-[#001D8D] hover:text-[#001D8D]/80 mobile-touch-target">
+                      <summary className="flex items-center gap-2 cursor-pointer text-sm text-[#001D8D] hover:text-[#001D8D]/80">
                         <span>Ещё {exchangeData.length - 1}</span>
                         <ChevronDown className="h-3 w-3" />
                       </summary>
@@ -347,7 +347,7 @@ export default function RatesComparison() {
           ) : (
             <div className="text-center py-8 text-[#001D8D]/70">
               <div className="text-2xl mb-2">📊</div>
-              <p className="text-sm mobile-text-scale">Нет данных о курсах</p>
+              <p className="text-sm">Нет данных о курсах</p>
             </div>
           )}
         </CardContent>

@@ -186,7 +186,7 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
   }
 
   return (
-    <div className="calculator-container hover:shadow-xl transition-all duration-300 mobile-card">
+    <div className="calculator-container hover:shadow-xl transition-all duration-300">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600">
@@ -194,46 +194,46 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
           </div>
           <h3 className="text-xl font-bold text-[#001D8D]">Глобальный крипторынок</h3>
         </div>
-        <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex items-center gap-3">
           <div className="relative">
             <input
               type="text"
               placeholder="Поиск монет..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="py-2 px-3 pr-10 bg-gray-100 border border-gray-300 rounded-lg text-sm text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:bg-white transition-colors w-full sm:w-auto min-w-[200px]"
+              className="py-2 px-3 pr-10 bg-gray-100 border border-gray-300 rounded-lg text-sm text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:bg-white transition-colors"
             />
             <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
           </div>
-          <Badge variant="outline" className="text-xs whitespace-nowrap">
+          <Badge variant="outline" className="text-xs">
             <Activity className="h-3 w-3 mr-1" />
             Данные в реальном времени
           </Badge>
         </div>
       </div>
       
-      <div className="mobile-table-scroll overflow-x-auto">
+      <div className="overflow-x-auto">
         <table className="w-full" role="table" aria-label="Cryptocurrency market data">
-          <thead className="sticky top-0 bg-white border-b border-gray-200">
+          <thead className="sticky top-0 bg-white/95 backdrop-blur-sm">
             <tr className="border-b border-[#001D8D]/10 text-sm">
               <th className="text-left py-3 px-2" scope="col">
                 <SortButton field="market_cap_rank">Ранг</SortButton>
               </th>
-              <th className="text-left py-3 px-2 min-w-[120px]" scope="col">Название</th>
+              <th className="text-left py-3 px-2" scope="col">Название</th>
               <th className="text-center py-3 px-2 hidden md:table-cell" scope="col">Тренд</th>
-              <th className="text-right py-3 px-2 min-w-[80px]" scope="col">
+              <th className="text-right py-3 px-2" scope="col">
                 <SortButton field="current_price">Цена</SortButton>
               </th>
-              <th className="text-right py-3 px-2 min-w-[70px]" scope="col">
+              <th className="text-right py-3 px-2" scope="col">
                 <SortButton field="price_change_percentage_24h">24ч %</SortButton>
               </th>
-              <th className="text-right py-3 px-2 min-w-[100px]" scope="col">
+              <th className="text-right py-3 px-2" scope="col">
                 <SortButton field="market_cap">Капитализация</SortButton>
               </th>
-              <th className="text-right py-3 px-2 hidden md:table-cell min-w-[100px]" scope="col">
+              <th className="text-right py-3 px-2 hidden md:table-cell" scope="col">
                 <SortButton field="total_volume">Объем (24ч)</SortButton>
               </th>
-              <th className="text-right py-3 px-2 hidden lg:table-cell min-w-[120px]" scope="col">
+              <th className="text-right py-3 px-2 hidden lg:table-cell" scope="col">
                 <SortButton field="circulating_supply">В обращении</SortButton>
               </th>
             </tr>
@@ -243,7 +243,7 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
               <tr
                 key={coin.id}
                 onClick={() => onCoinClick(coin)}
-                className="border-b border-gray-100 hover:bg-[#001D8D]/5 cursor-pointer transition-colors group touch-friendly mobile-touch-target"
+                className="border-b border-gray-100 hover:bg-[#001D8D]/5 cursor-pointer transition-colors group"
                 role="button"
                 tabIndex={0}
                 aria-label={`Просмотр деталей для ${coin.name}`}
@@ -254,7 +254,7 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
                   }
                 }}
               >
-                <td className="py-4 px-2 text-[#001D8D]/70 font-medium text-sm">
+                <td className="py-4 px-2 text-[#001D8D]/70 font-medium">
                   {coin.market_cap_rank}
                 </td>
                 <td className="py-4 px-2">
@@ -264,16 +264,16 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
                       alt={`${coin.name} logo`}
                       width={32}
                       height={32}
-                      className="w-8 h-8 rounded-full flex-shrink-0"
+                      className="w-8 h-8 rounded-full"
                       loading="lazy"
                       placeholder="blur"
                       blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkbHB0eH/xAAVAQEBAQAAAAAAAAAAAAAAAAAAAQID/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
                     />
-                    <div className="min-w-0 flex-1">
-                      <div className="font-semibold text-[#001D8D] group-hover:text-[#001D8D]/80 text-sm sm:text-base">
+                    <div>
+                      <div className="font-semibold text-[#001D8D] group-hover:text-[#001D8D]/80">
                         {coin.name}
                       </div>
-                      <div className="text-xs sm:text-sm text-[#001D8D]/70 truncate">{coin.symbol.toUpperCase()}</div>
+                      <div className="text-sm text-[#001D8D]/70">{coin.symbol.toUpperCase()}</div>
                     </div>
                   </div>
                 </td>
@@ -286,7 +286,7 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
                     )}
                   </div>
                 </td>
-                <td className="py-4 px-2 text-right font-semibold text-[#001D8D] text-sm sm:text-base">
+                <td className="py-4 px-2 text-right font-semibold text-[#001D8D]">
                   {formatPrice(coin.current_price)}
                 </td>
                 <td className="py-4 px-2 text-right">
@@ -296,7 +296,7 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
                       coin.price_change_percentage_24h >= 0
                         ? 'border-green-200 text-green-700 bg-green-50'
                         : 'border-red-200 text-red-700 bg-red-50'
-                    } text-xs whitespace-nowrap`}
+                    }`}
                   >
                     <span className="flex items-center gap-1">
                       {coin.price_change_percentage_24h >= 0 ? (
@@ -309,15 +309,15 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
                     </span>
                   </Badge>
                 </td>
-                <td className="py-4 px-2 text-right text-[#001D8D]/70 text-sm">
+                <td className="py-4 px-2 text-right text-[#001D8D]/70">
                   {formatMarketCap(coin.market_cap)}
                 </td>
-                <td className="py-4 px-2 text-right text-[#001D8D]/70 hidden md:table-cell text-sm">
+                <td className="py-4 px-2 text-right text-[#001D8D]/70 hidden md:table-cell">
                   {formatMarketCap(coin.total_volume)}
                 </td>
-                <td className="py-4 px-2 text-right text-[#001D8D]/70 hidden lg:table-cell text-sm">
+                <td className="py-4 px-2 text-right text-[#001D8D]/70 hidden lg:table-cell">
                   <div className="flex flex-col items-end">
-                    <div className="truncate max-w-[100px]">{formatSupply(coin.circulating_supply)} {coin.symbol.toUpperCase()}</div>
+                    <div>{formatSupply(coin.circulating_supply)} {coin.symbol.toUpperCase()}</div>
                     {coin.max_supply && (
                       <div className="text-xs text-[#001D8D]/50">
                         Макс: {formatSupply(coin.max_supply)}
@@ -333,51 +333,40 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
       
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="text-sm text-[#001D8D]/70 flex items-center gap-2 order-2 sm:order-1">
+        <div className="mt-6 flex items-center justify-between">
+          <div className="text-sm text-[#001D8D]/70 flex items-center gap-2">
             <span>Показано</span>
             <strong>{(page - 1) * itemsPerPage + 1}-{Math.min(page * itemsPerPage, sortedCoins.length)}</strong>
             <span>из</span>
             <strong>{sortedCoins.length}</strong>
           </div>
-          <div className="flex items-center gap-2 flex-wrap justify-center order-1 sm:order-2">
+          <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
               onClick={() => setPage(p => Math.max(p - 1, 1))}
               disabled={page === 1}
-              className="text-[#001D8D] mobile-touch-target"
+              className="text-[#001D8D]"
             >
               Назад
             </Button>
-            {Array.from({ length: Math.min(totalPages, 5) }).map((_, i) => {
-              const pageNum = totalPages <= 5 ? i + 1 : 
-                page <= 3 ? i + 1 :
-                page >= totalPages - 2 ? totalPages - 4 + i :
-                page - 2 + i;
-              
-              return (
+            {Array.from({ length: totalPages }).map((_, i) => (
               <Button
-                key={pageNum}
-                variant={page === pageNum ? "default" : "outline"}
+                key={i}
+                variant={page === i + 1 ? "default" : "outline"}
                 size="sm"
-                onClick={() => setPage(pageNum)}
-                className={`${page === pageNum ? "bg-[#001D8D] text-white" : "text-[#001D8D]"} mobile-touch-target hidden sm:inline-flex`}
+                onClick={() => setPage(i + 1)}
+                className={page === i + 1 ? "bg-[#001D8D] text-white" : "text-[#001D8D]"}
               >
-                {pageNum}
+                {i + 1}
               </Button>
-              );
-            })}
-            {/* Mobile: show current page info */}
-            <div className="sm:hidden text-sm text-[#001D8D]/70 px-3 py-2 bg-gray-100 rounded-lg">
-              {page} / {totalPages}
-            </div>
+            ))}
             <Button
               variant="outline"
               size="sm"
               onClick={() => setPage(p => Math.min(p + 1, totalPages))}
               disabled={page === totalPages}
-              className="text-[#001D8D] mobile-touch-target"
+              className="text-[#001D8D]"
             >
               Далее
             </Button>
@@ -386,19 +375,19 @@ export function MarketTable({ coins, onCoinClick, loading }: MarketTableProps) {
       )}
       
       {/* Table Legend */}
-      <div className="mt-6 p-4 bg-blue-50/50 rounded-xl border border-blue-100 text-sm">
+      <div className="mt-6 p-4 bg-blue-50/50 rounded-lg border border-blue-100 text-sm">
         <div className="flex items-start gap-3">
           <Info className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
           <div>
             <h5 className="font-semibold text-blue-900 mb-2">Информация о таблице</h5>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-xs text-blue-800">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 text-xs text-blue-800">
               <div>• <strong>Ранг</strong>: Позиция по рыночной капитализации</div>
               <div>• <strong>Цена</strong>: Текущая цена в USD</div>
               <div>• <strong>24ч %</strong>: Изменение цены за последние 24 часа</div>
               <div>• <strong>Капитализация</strong>: Общая рыночная стоимость</div>
               <div>• <strong>Объем (24ч)</strong>: Объем торгов за 24 часа</div>
               <div>• <strong>В обращении</strong>: Количество монет в обращении</div>
-              <div className="sm:col-span-2">• <strong>Макс. предложение</strong>: Максимально возможное количество монет</div>
+              <div>• <strong>Макс. предложение</strong>: Максимально возможное количество монет</div>
             </div>
           </div>
         </div>
