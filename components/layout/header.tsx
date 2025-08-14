@@ -247,6 +247,7 @@ const Header = () => {
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-[300px] sm:w-[400px] bg-white/95 backdrop-blur-md border-[#001D8D]/20">
+              <SheetContent side="right" className="w-[300px] sm:w-[400px] bg-white/98 border-[#001D8D]/20">
                 <SheetHeader>
                   <SheetTitle className="flex items-center gap-2">
                     <Image 
