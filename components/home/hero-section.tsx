@@ -20,10 +20,10 @@ const HeroSection = () => {
             <Image
               src="/brand/kenigswap-logo.svg"
               alt="KenigSwap - Обмен криптовалют без границ"
-              width={400}
-              height={100}
+              width={800}
+              height={200}
               priority
-              className="max-w-full h-auto"
+              className="w-full max-w-4xl h-auto"
             />
           </div>
           
