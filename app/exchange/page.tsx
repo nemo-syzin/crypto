@@ -11,13 +11,22 @@ import {
 } from "@/components/ui/card";
 import { 
   CheckCircle, 
-  BarChart3
+  BarChart3,
+  Shield,
+  Award,
+  Zap,
+  TrendingUp
 } from 'lucide-react';
 import { ManifestoStrip } from '@/components/ui/manifesto-strip';
 import ExchangeCalculator from '@/components/ExchangeCalculator';
 import RatesComparison from '@/components/RatesComparison';
 import Image from 'next/image';
 
+export default function ExchangePage() {
+  const controls = useAnimation();
+  const [ref, inView] = useInView({
+    threshold: 0.1,
+    triggerOnce: true
   });
 
   useEffect(() => {
@@ -79,7 +88,11 @@ import Image from 'next/image';
       description: 'Мониторинг рынка 24/7 и автоматическое обновление курсов каждые 30 секунд гарантируют, что вы всегда получаете лучшую цену. Наша система работает круглосуточно для вашей выгоды.',
       priority: 4,
       color: '#f97316'
-    },
+    }
+  ];
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Main Content Section */}
       <section className="relative py-20 bg-white overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
