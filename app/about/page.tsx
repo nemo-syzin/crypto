@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { AboutPageClient } from './AboutPageClient';
+import AboutPageClient from './AboutPageClient';
 
 export const metadata: Metadata = {
   title: 'О нас – KenigSwap',
