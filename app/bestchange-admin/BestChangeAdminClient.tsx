@@ -102,7 +102,7 @@ export function BestChangeAdminClient() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-blue-50/10 to-blue-100/20 py-20">
+    <div className="min-h-screen bg-white py-20">
       <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto">
           

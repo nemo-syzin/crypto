@@ -158,10 +158,7 @@
 
   /* Crystal background helper */
   .crystal-bg {
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at center, rgba(79, 128, 255, 0.25) 0%, transparent 70%);
-    pointer-events: none;
+    display: none;
   }
 
   /* Modern geometric principle cards */
@@ -572,43 +569,12 @@
 
 @layer utilities {
   .gradient-bg {
-    background: linear-gradient(-45deg, #001D8D, #001D8D, #001D8D, #001D8D);
-    background-size: 600% 600%;
-    animation: gradientShift 15s ease infinite;
+    background: #001D8D;
   }
   
-  /* Disable gradient animation on mobile for performance */
-  @media (max-width: 768px) {
-    .gradient-bg {
-      background: #001D8D;
-      animation: none;
-    }
-  }
-
   /* Анимация для плавного перехода фона */
   .background-story {
-    background: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 1) 0%,
-      rgba(59, 130, 246, 0.05) 25%,
-      rgba(59, 130, 246, 0.1) 50%,
-      rgba(59, 130, 246, 0.15) 75%,
-      rgba(59, 130, 246, 0.2) 100%
-    );
-    animation: backgroundFlow 20s ease-in-out infinite;
-  }
-  
-  /* Disable background animation on mobile for performance */
-  @media (max-width: 768px) {
-    .background-story {
-      background: linear-gradient(
-        180deg,
-        rgba(255, 255, 255, 1) 0%,
-        rgba(59, 130, 246, 0.1) 50%,
-        rgba(59, 130, 246, 0.2) 100%
-      );
-      animation: none;
-    }
+    background: white;
   }
 
   /* Typography utilities */
@@ -637,43 +603,7 @@
   }
 
   .manifesto-hover-scale:hover {
-    transform: scale(1.02);
-  }
-  
-  /* Simplified hover scale for mobile */
-  @media (max-width: 768px) {
-    .manifesto-hover-scale:hover {
-      transform: scale(1.01);
-    }
-  }
-}
-
-@keyframes gradientShift {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-@keyframes backgroundFlow {
-  0%, 100% { 
-    background: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 1) 0%,
-      rgba(59, 130, 246, 0.05) 25%,
-      rgba(59, 130, 246, 0.1) 50%,
-      rgba(59, 130, 246, 0.15) 75%,
-      rgba(59, 130, 246, 0.2) 100%
-    );
-  }
-  50% { 
-    background: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 1) 0%,
-      rgba(59, 130, 246, 0.1) 25%,
-      rgba(59, 130, 246, 0.2) 50%,
-      rgba(59, 130, 246, 0.25) 75%,
-      rgba(59, 130, 246, 0.3) 100%
-    );
+    transform: scale(1.01);
   }
 }
 
@@ -684,16 +614,7 @@
 }
 
 .backdrop-enhanced {
-  background: rgba(255, 255, 255, 0.9);
-}
-
-/* Desktop-only backdrop filter for enhanced elements */
-@media (min-width: 769px) {
-  .backdrop-enhanced {
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(8px) saturate(180%);
-    -webkit-backdrop-filter: blur(8px) saturate(180%);
-  }
+  background: white;
 }
 
 /* Performance optimization utilities */

@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import dynamic from 'next/dynamic';
 import { 
   Card, 
   CardContent, 
@@ -20,15 +19,6 @@ import {
   Users,
   Shield,
   Zap,
-  Award,
-  TrendingUp,
-  Globe,
-  CheckCircle,
-  Star,
-  Lightbulb,
-  Handshake,
-  Clock,
-  Building2,
   Rocket,
   Diamond,
   Info
@@ -36,26 +26,7 @@ import {
 import { CrystalVisualization } from '@/components/3d/CrystalVisualization';
 import Image from 'next/image';
 
-// Динамический импорт 3D-фона с отключенным SSR для улучшения производительности
-const UnifiedVantaBackground = dynamic(
-  () => import('@/components/shared/UnifiedVantaBackground').then(mod => ({ default: mod.UnifiedVantaBackground })),
-  { 
-    ssr: false,
-    loading: () => <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-100" />
-  }
-);
-
-export function AboutPageClient() {
-  const [isMounted, setIsMounted] = useState(false);
-  const controls = useAnimation();
-  const [ref, inView] = useInView({
-    threshold: 0.1,
-    triggerOnce: true,
   });
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   useEffect(() => {
     if (inView) {
@@ -117,56 +88,8 @@ export function AboutPageClient() {
       priority: 4,
       color: '#8b5cf6'
     },
-    {
-      id: 'innovation',
-      number: '05',
-      title: 'Инновационность',
-      description: 'Мы внимательно следим за инновациями и интегрируем новейшие технологии, чтобы всегда оставаться впереди конкурентов и предоставлять клиентам передовые решения. Технологическое лидерство — основа нашего конкурентного преимущества.',
-      priority: 5,
-      color: '#6366f1'
-    },
-    {
-      id: 'partnership',
-      number: '06',
-      title: 'Долгосрочное партнерство',
-      description: 'Наш подход к сотрудничеству основан на честности и взаимном доверии. Мы рассматриваем клиентов как партнёров, вместе с которыми достигаем долгосрочного успеха и развития. Строим отношения на годы, а не на разовые сделки.',
-      priority: 6,
-      color: '#dc2626'
-    }
-  ];
-
-  if (!isMounted) {
-    return null;
-  }
-
-  return (
-    <div className="min-h-screen bg-white relative overflow-hidden">
-      {/* Background */}
-      <section className="relative py-20 bg-gradient-to-b from-white via-blue-50/10 to-blue-100/20 overflow-hidden">
-        {/* Оптимизированный фон */}
-        {isMounted && (
-          <div className="absolute inset-0 opacity-15">
-            <UnifiedVantaBackground 
-              type="topology"
-              color={0x94bdff}
-              color2={0xFF6B35}
-              backgroundColor={0xffffff}
-              points={15}
-              maxDistance={20}
-              spacing={16}
-              showDots={true}
-              speed={1.4}
-              mouseControls={true}
-              touchControls={true}
-              forceAnimate={true}
-            />
-          </div>
-        )}
-
-        {/* Gradient transitions */}
-        <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-white to-transparent z-5" />
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent to-blue-100/20 z-5" />
-
+      {/* Main content section */}
+      <section className="relative py-20 bg-white overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <div className="space-y-24">
 
@@ -568,7 +491,6 @@ export function AboutPageClient() {
                     <p className="text-[#001D8D]/70 leading-relaxed">
                       Большинство операций обрабатывается в течение 15-30 минут. 
                       Время может варьироваться в зависимости от загруженности сети и суммы операции.
-                    </p>
                   </div>
                 </div>
               </div>

@@ -491,9 +491,6 @@ export function CrystalVisualization() {
 
       {/* Crystal visualization container - reduced height by 30% */}
       <div className="relative w-full min-h-[350px] md:h-[455px] lg:h-[525px] mb-6">
-        {/* Background halo */}
-        <div className="crystal-bg" />
-        
         {use3D ? (
           <Suspense fallback={
             <div className="w-full h-full flex items-center justify-center">

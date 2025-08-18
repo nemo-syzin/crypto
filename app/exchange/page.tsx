@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import dynamic from 'next/dynamic';
 import { 
   Card, 
   CardContent, 
@@ -12,15 +11,6 @@ import {
 } from "@/components/ui/card";
 import { 
   CheckCircle, 
-  Clock,
-  TrendingUp,
-  Shield,
-  Zap,
-  Globe,
-  ArrowRight,
-  Star,
-  Users,
-  Award,
   BarChart3
 } from 'lucide-react';
 import { ManifestoStrip } from '@/components/ui/manifesto-strip';
@@ -28,26 +18,7 @@ import ExchangeCalculator from '@/components/ExchangeCalculator';
 import RatesComparison from '@/components/RatesComparison';
 import Image from 'next/image';
 
-// Динамический импорт 3D-фона с отключенным SSR для улучшения производительности
-const UnifiedVantaBackground = dynamic(
-  () => import('@/components/shared/UnifiedVantaBackground').then(mod => ({ default: mod.UnifiedVantaBackground })),
-  { 
-    ssr: false,
-    loading: () => <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-100" />
-  }
-);
-
-export default function ExchangePage() {
-  const [isMounted, setIsMounted] = useState(false);
-  const controls = useAnimation();
-  const [ref, inView] = useInView({
-    threshold: 0.1,
-    triggerOnce: true,
   });
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   useEffect(() => {
     if (inView) {
@@ -109,56 +80,8 @@ export default function ExchangePage() {
       priority: 4,
       color: '#f97316'
     },
-    {
-      id: 'comparison',
-      number: '05',
-      title: 'Легкое сравнение предложений',
-      description: 'Сравнивайте курсы разных обменников в одном месте. Мы показываем лучшие предложения рынка для принятия обоснованных решений. Все данные в удобном формате для быстрого анализа.',
-      priority: 5,
-      color: '#06b6d4'
-    },
-    {
-      id: 'professional',
-      number: '06',
-      title: 'Профессиональный сервис',
-      description: 'Многолетний опыт работы, тысячи довольных клиентов и высокие рейтинги доверия. Мы предоставляем сервис мирового класса с индивидуальным подходом к каждому клиенту.',
-      priority: 6,
-      color: '#6366f1'
-    }
-  ];
-
-  if (!isMounted) {
-    return null;
-  }
-
-  return (
-    <div className="min-h-screen bg-white relative overflow-hidden">
-      {/* Main Content Section with unified background */}
-      <section className="relative py-20 bg-gradient-to-b from-white via-blue-50/10 to-blue-100/20 overflow-hidden">
-        {/* Оптимизированный фон */}
-        {isMounted && (
-          <div className="absolute inset-0 opacity-15">
-            <UnifiedVantaBackground 
-              type="topology"
-              color={0x94bdff}
-              color2={0xFF6B35}
-              backgroundColor={0xffffff}
-              points={15}
-              maxDistance={20}
-              spacing={10}
-              showDots={true}
-              speed={1.4}
-              mouseControls={true}
-              touchControls={true}
-              forceAnimate={true}
-            />
-          </div>
-        )}
-
-        {/* Gradient transitions */}
-        <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-white to-transparent z-5" />
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent to-blue-100/20 z-5" />
-
+      {/* Main Content Section */}
+      <section className="relative py-20 bg-white overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <div className="space-y-12">
             
@@ -391,7 +314,6 @@ export default function ExchangePage() {
                     Начать обмен сейчас
                   </button>
                   <button className="border-2 border-white/30 text-white hover:bg-white/10 px-8 py-4 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2">
-                    <ArrowRight className="h-5 w-5" />
                     Узнать больше о сервисе
                   </button>
                 </div>

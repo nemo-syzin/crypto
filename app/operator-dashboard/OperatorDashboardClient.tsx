@@ -370,7 +370,7 @@ export function OperatorDashboardClient() {
 
   if (authLoading || operatorLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-white via-blue-50/10 to-blue-100/20 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="flex items-center gap-3 text-[#001D8D]">
           <Loader2 className="h-8 w-8 animate-spin" />
           <span className="text-lg font-medium">Загрузка панели оператора...</span>
@@ -380,7 +380,7 @@ export function OperatorDashboardClient() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-blue-50/10 to-blue-100/20 py-20">
+    <div className="min-h-screen bg-white py-20">
       <div className="container mx-auto px-4">
         <div className="max-w-7xl mx-auto">
           

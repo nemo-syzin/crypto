@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { useToast } from '@/hooks/use-toast';
-import dynamic from 'next/dynamic';
 import { RealChat, RealChatButton } from '@/components/ui/real-chat';
 import { 
   Card, 
@@ -40,33 +39,14 @@ import {
   ExternalLink,
   Headphones,
   BookOpen,
-  MessageSquare,
-  Twitter,
-  Facebook,
-  Instagram,
-  Youtube,
-  HelpCircle,
-  Search,
-  ArrowRight,
-  Lightbulb,
   Heart,
   Award,
   TrendingUp,
   RefreshCw
 } from 'lucide-react';
 
-// Динамический импорт 3D-фона с отключенным SSR для улучшения производительности
-const UnifiedVantaBackground = dynamic(
-  () => import('@/components/shared/UnifiedVantaBackground').then(mod => ({ default: mod.UnifiedVantaBackground })),
-  { 
-    ssr: false,
-    loading: () => <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-100" />
-  }
-);
-
 export function SupportPageClient() {
   const { toast } = useToast();
-  const [isMounted, setIsMounted] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [chatMinimized, setChatMinimized] = useState(false);
   const [selectedFaq, setSelectedFaq] = useState<string>("item-0");
@@ -76,15 +56,6 @@ export function SupportPageClient() {
     subject: '',
     message: ''
   });
-  const controls = useAnimation();
-  const [ref, inView] = useInView({
-    threshold: 0.1,
-    triggerOnce: true,
-  });
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   useEffect(() => {
     if (inView) {
@@ -205,55 +176,8 @@ export function SupportPageClient() {
     },
     {
       title: "Как повысить лимиты на операции",
-      description: "Инструкция по увеличению лимитов для крупных операций",
-      icon: TrendingUp,
-      readTime: "3 мин"
-    },
-    {
-      title: "Руководство по безопасности аккаунта",
-      description: "Лучшие практики защиты вашего аккаунта",
-      icon: Shield,
-      readTime: "7 мин"
-    }
-  ];
-
-  const handleContactSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle form submission
-    console.log('Contact form submitted:', contactForm);
-  };
-
-  if (!isMounted) {
-    return null;
-  }
-
-  return (
-    <div className="min-h-screen bg-white relative overflow-hidden">
-      {/* Background */}
-      <section className="relative py-20 bg-gradient-to-b from-white via-blue-50/10 to-blue-100/20 overflow-hidden">
-        {isMounted && (
-          <div className="absolute inset-0 opacity-15">
-            <UnifiedVantaBackground 
-              type="topology"
-              color={0x94bdff}
-              color2={0xFF6B35}
-              backgroundColor={0xffffff}
-              points={15}
-              maxDistance={20}
-              spacing={16}
-              showDots={true}
-              speed={1.4}
-              mouseControls={true}
-              touchControls={true}
-              forceAnimate={true}
-            />
-          </div>
-        )}
-
-        {/* Gradient transitions */}
-        <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-white to-transparent z-5" />
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent to-blue-100/20 z-5" />
-
+      {/* Main content section */}
+      <section className="relative py-20 bg-white overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <div className="space-y-24">
             

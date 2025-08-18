@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
@@ -12,24 +11,6 @@ import {
   BarChart, 
   Shield, 
   Clock, 
-  Building2, 
-  Globe,
-  CheckCircle,
-  Star,
-  TrendingUp,
-  Zap,
-  DollarSign
-} from 'lucide-react';
-import Marquee from 'react-fast-marquee';
-
-// Динамический импорт 3D-фона с отключенным SSR для улучшения производительности
-const UnifiedVantaBackground = dynamic(
-  () => import('@/components/shared/UnifiedVantaBackground').then(mod => ({ default: mod.UnifiedVantaBackground })),
-  { 
-    ssr: false,
-    loading: () => <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-100" />
-  }
-);
 
 // Данные для секций
 const features = [
@@ -146,11 +127,6 @@ const partners = [
   {
     name: "Dogecoin",
     logo: "https://res.coinpaper.com/coinpaper/dogecoin_doge_logo_477144b3df.svg"
-  }
-];
-
-const UnifiedMainSection = () => {
-  const [activeTab, setActiveTab] = useState('office');
 
   const containerVariants = {
     hidden: {},
@@ -212,48 +188,6 @@ const UnifiedMainSection = () => {
       >
         <img
           src={partner.logo}
-          alt={`${partner.name} - Криптовалютная биржа`}
-          className="w-8 h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 xl:w-12 xl:h-12 object-contain"
-          loading={index < 6 ? "eager" : "lazy"}
-          onError={(e) => {
-            const target = e.currentTarget as HTMLImageElement;
-            const container = target.parentElement;
-            if (container) {
-              container.style.display = 'none';
-            }
-          }}
-          loading={index < 6 ? "eager" : "lazy"}
-          placeholder="blur"
-          blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkbHB0eH/xAAVAQEBAQAAAAAAAAAAAAAAAAAAAQID/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
-        />
-      </div>
-    );
-  };
-
-  return (
-    <section className="relative py-20 bg-gradient-to-b from-white via-blue-50/10 to-blue-100/20 overflow-hidden">
-      {/* Оптимизированный 3D-фон с отложенной загрузкой */}
-      <div className="absolute inset-0 opacity-15">
-        <UnifiedVantaBackground 
-          type="topology"
-          color={0x94bdff}
-          color2={0xFF6B35}
-          backgroundColor={0xffffff}
-          points={15}
-          maxDistance={20}
-          spacing={10}
-          showDots={true}
-          speed={1.4}
-          mouseControls={true}
-          touchControls={true}
-          forceAnimate={true}
-        />
-      </div>
-
-      {/* Градиентные переходы */}
-      <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-white to-transparent z-5" />
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent to-blue-100/20 z-5" />
-
       <div className="container mx-auto px-4 relative z-10">
         <div className="space-y-24">
           

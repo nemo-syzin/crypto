@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import dynamic from 'next/dynamic';
 import { 
   Card, 
   CardContent, 
@@ -20,25 +19,7 @@ import {
   Globe,
   ArrowRight,
   Clock,
-  Tag,
-  Search,
-  Filter,
-  Star,
-  Eye,
-  MessageCircle,
-  Share2,
-  CheckCircle,
-  Shield
 } from 'lucide-react';
-
-// Динамический импорт 3D-фона с отключенным SSR для улучшения производительности
-const UnifiedVantaBackground = dynamic(
-  () => import('@/components/shared/UnifiedVantaBackground').then(mod => ({ default: mod.UnifiedVantaBackground })),
-  { 
-    ssr: false,
-    loading: () => <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-100" />
-  }
-);
 
 interface BlogPost {
   id: string;
@@ -52,16 +33,6 @@ interface BlogPost {
   readTime: number;
   featured: boolean;
   imageUrl?: string;
-}
-
-export function BlogPageClient() {
-  const [isMounted, setIsMounted] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState('');
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   // Пример данных блога (в будущем будет загружаться из базы данных)
   const blogPosts: BlogPost[] = [
@@ -149,55 +120,8 @@ export function BlogPageClient() {
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'news': return 'bg-blue-100 text-blue-800';
-      case 'analytics': return 'bg-green-100 text-green-800';
-      case 'guides': return 'bg-purple-100 text-purple-800';
-      case 'updates': return 'bg-orange-100 text-orange-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getCategoryName = (category: string) => {
-    switch (category) {
-      case 'news': return 'Новости';
-      case 'analytics': return 'Аналитика';
-      case 'guides': return 'Гайды';
-      case 'updates': return 'Обновления';
-      default: return 'Статья';
-    }
-  };
-
-  if (!isMounted) {
-    return null;
-  }
-
-  return (
-    <div className="min-h-screen bg-white relative overflow-hidden">
-      {/* Background */}
-      <section className="relative py-20 bg-gradient-to-b from-white via-blue-50/10 to-blue-100/20 overflow-hidden">
-        {isMounted && (
-          <div className="absolute inset-0 opacity-15">
-            <UnifiedVantaBackground 
-              type="topology"
-              color={0x94bdff}
-              color2={0xFF6B35}
-              backgroundColor={0xffffff}
-              points={15}
-              maxDistance={20}
-              spacing={16}
-              showDots={true}
-              speed={1.4}
-              mouseControls={true}
-              touchControls={true}
-              forceAnimate={true}
-            />
-          </div>
-        )}
-
-        {/* Gradient transitions */}
-        <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-white to-transparent z-5" />
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent to-blue-100/20 z-5" />
-
+      {/* Main content section */}
+      <section className="relative py-20 bg-white overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <div className="space-y-24">
             
@@ -480,7 +404,6 @@ export function BlogPageClient() {
                 </CardContent>
               </Card>
             </motion.div>
-
           </div>
         </div>
       </section>
