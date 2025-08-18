@@ -201,16 +201,23 @@ const UnifiedMainSection = () => {
       >
         <img
           src={partner.logo}
-          alt={partner.name}
-          className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 object-contain"
-          loading="lazy"
+          alt={`${partner.name} - Криптовалютная биржа`}
+          className="w-8 h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 xl:w-12 xl:h-12 object-contain"
+          loading={index < 6 ? "eager" : "lazy"}
+          onError={(e) => {
+            const target = e.currentTarget as HTMLImageElement;
+            const container = target.parentElement;
+            if (container) {
+              container.style.display = 'none';
+            }
+          }}
         />
       </div>
     );
   };
 
   return (
-    <section className="py-24 bg-gradient-to-br from-blue-50/50 via-white to-indigo-50/30 relative overflow-hidden">
+    <section className="relative py-20 bg-white overflow-hidden">
       <div className="container mx-auto px-4 relative z-10">
         <div className="space-y-24">
           
