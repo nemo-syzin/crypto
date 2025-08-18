@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { useToast } from '@/hooks/use-toast';
@@ -42,7 +42,10 @@ import {
   Heart,
   Award,
   TrendingUp,
-  RefreshCw
+  RefreshCw,
+  ArrowRight,
+  HelpCircle,
+  Lightbulb
 } from 'lucide-react';
 
 export function SupportPageClient() {
@@ -55,6 +58,12 @@ export function SupportPageClient() {
     email: '',
     subject: '',
     message: ''
+  });
+
+  const controls = useAnimation();
+  const [ref, inView] = useInView({
+    threshold: 0.1,
+    triggerOnce: true,
   });
 
   useEffect(() => {
@@ -176,6 +185,23 @@ export function SupportPageClient() {
     },
     {
       title: "Как повысить лимиты на операции",
+      description: "Инструкция по увеличению лимитов",
+      icon: TrendingUp,
+      readTime: "3 мин"
+    }
+  ];
+
+  const handleContactSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    toast({
+      title: "Сообщение отправлено",
+      description: "Мы свяжемся с вами в ближайшее время",
+    });
+    setContactForm({ name: '', email: '', subject: '', message: '' });
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Main content section */}
       <section className="relative py-20 bg-white overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">

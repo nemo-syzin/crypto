@@ -13,6 +13,13 @@ import {
   Database, 
   CheckCircle, 
   Settings,
+  Info,
+  Scale,
+  UserCheck,
+  Activity,
+  Archive
+} from 'lucide-react';
+import { TableOfContents } from '@/components/ui/table-of-contents';
 
 interface PolicySection {
   id: string;
@@ -216,6 +223,9 @@ AML – это комплекс мер и процедур, предотвращ
       level: 1
     })), [policySections]
   );
+
+  return (
+    <div className="min-h-screen bg-white relative overflow-hidden">
       <div className="relative z-10">
         <div className="container mx-auto px-4 py-20">
           <motion.div
