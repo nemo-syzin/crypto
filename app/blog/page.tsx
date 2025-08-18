@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { BlogPageClient } from './BlogPageClient';
+import BlogPageClient from './BlogPageClient';
 
 export const metadata: Metadata = {
   title: 'Блог – KenigSwap',
