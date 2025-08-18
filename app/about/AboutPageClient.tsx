@@ -35,7 +35,7 @@ export default function AboutPage() {
   const controls = useAnimation();
   const [ref, inView] = useInView({
     threshold: 0.1,
-    triggerOnce: true
+    triggerOnce: true,
   });
 
   useEffect(() => {
@@ -97,11 +97,27 @@ export default function AboutPage() {
       description: 'Наши специалисты четко понимают специфику своей работы и постоянно держат руку на пульсе событий, гарантируя высокое качество предоставляемых услуг. Мы инвестируем в развитие команды и поддержание экспертизы на высочайшем уровне.',
       priority: 4,
       color: '#8b5cf6'
+    },
+    {
+      id: 'innovation',
+      number: '05',
+      title: 'Инновационность',
+      description: 'Мы внимательно следим за инновациями и интегрируем новейшие технологии, чтобы всегда оставаться впереди конкурентов и предоставлять клиентам передовые решения. Технологическое лидерство — основа нашего конкурентного преимущества.',
+      priority: 5,
+      color: '#6366f1'
+    },
+    {
+      id: 'partnership',
+      number: '06',
+      title: 'Долгосрочное партнерство',
+      description: 'Наш подход к сотрудничеству основан на честности и взаимном доверии. Мы рассматриваем клиентов как партнёров, вместе с которыми достигаем долгосрочного успеха и развития. Строим отношения на годы, а не на разовые сделки.',
+      priority: 6,
+      color: '#dc2626'
     }
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-white relative overflow-hidden">
       {/* Main content section */}
       <section className="relative py-20 bg-white overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
