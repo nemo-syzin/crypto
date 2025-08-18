@@ -11,6 +11,14 @@ import {
   BarChart, 
   Shield, 
   Clock, 
+  DollarSign,
+  Zap,
+  CheckCircle,
+  Building2,
+  Globe,
+  TrendingUp
+} from 'lucide-react';
+import Marquee from 'react-fast-marquee';
 
 // Данные для секций
 const features = [
@@ -127,6 +135,11 @@ const partners = [
   {
     name: "Dogecoin",
     logo: "https://res.coinpaper.com/coinpaper/dogecoin_doge_logo_477144b3df.svg"
+  }
+];
+
+const UnifiedMainSection = () => {
+  const [activeTab, setActiveTab] = useState('office');
 
   const containerVariants = {
     hidden: {},
@@ -188,6 +201,16 @@ const partners = [
       >
         <img
           src={partner.logo}
+          alt={partner.name}
+          className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 object-contain"
+          loading="lazy"
+        />
+      </div>
+    );
+  };
+
+  return (
+    <section className="py-24 bg-gradient-to-br from-blue-50/50 via-white to-indigo-50/30 relative overflow-hidden">
       <div className="container mx-auto px-4 relative z-10">
         <div className="space-y-24">
           

@@ -21,11 +21,21 @@ import {
   Zap,
   Rocket,
   Diamond,
-  Info
+  Info,
+  CheckCircle,
+  Award,
+  TrendingUp,
+  Globe,
+  Lightbulb
 } from 'lucide-react';
 import { CrystalVisualization } from '@/components/3d/CrystalVisualization';
 import Image from 'next/image';
 
+export default function AboutPage() {
+  const controls = useAnimation();
+  const [ref, inView] = useInView({
+    threshold: 0.1,
+    triggerOnce: true
   });
 
   useEffect(() => {
@@ -87,7 +97,11 @@ import Image from 'next/image';
       description: 'Наши специалисты четко понимают специфику своей работы и постоянно держат руку на пульсе событий, гарантируя высокое качество предоставляемых услуг. Мы инвестируем в развитие команды и поддержание экспертизы на высочайшем уровне.',
       priority: 4,
       color: '#8b5cf6'
-    },
+    }
+  ];
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Main content section */}
       <section className="relative py-20 bg-white overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
@@ -412,7 +426,7 @@ import Image from 'next/image';
               className="max-w-7xl mx-auto"
             >
               <div className="text-center mb-16">
-                <div className="inline-flex items-center gap-2 bg-[#001D8D]/10 text-[#001D8D] px-6 py-3 text-lg mb-8 font-medium">
+                <div className="inline-flex items-center gap-2 bg-[#001D8D]/10 text-[#001D8D] px-6 py-3 rounded-full text-lg mb-8 font-medium">
                   <Diamond className="h-6 w-6" />
                   Манифест наших ценностей
                 </div>
@@ -491,6 +505,7 @@ import Image from 'next/image';
                     <p className="text-[#001D8D]/70 leading-relaxed">
                       Большинство операций обрабатывается в течение 15-30 минут. 
                       Время может варьироваться в зависимости от загруженности сети и суммы операции.
+                    </p>
                   </div>
                 </div>
               </div>
