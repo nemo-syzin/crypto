@@ -27,11 +27,6 @@ const HeroSection = () => {
             />
           </div>
           
-          <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Быстрый и безопасный обмен более 100 криптовалют по лучшим курсам. 
-            Без регистрации и скрытых комиссий.
-          </p>
-          
           <Link href="/exchange">
             <Button
               size="lg"
