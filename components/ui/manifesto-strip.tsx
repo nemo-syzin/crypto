@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface ManifestoValue {
@@ -19,6 +19,11 @@ interface ManifestoStripProps {
 
 export function ManifestoStrip({ values, className = "" }: ManifestoStripProps) {
   const [activeValue, setActiveValue] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const activeValueData = values.find(v => v.id === activeValue);
 
@@ -32,7 +37,7 @@ export function ManifestoStrip({ values, className = "" }: ManifestoStripProps) 
             className="relative cursor-pointer group transition-all duration-300 ease-out"
             onMouseEnter={() => setActiveValue(value.id)}
             onMouseLeave={() => setActiveValue(null)}
-            whileHover={{ scale: window.innerWidth > 768 ? 1.02 : 1.01 }}
+            whileHover={mounted ? { scale: window.innerWidth > 768 ? 1.02 : 1.01 } : {}}
             transition={{ duration: 0.3 }}
           >
             {/* Блок ценности */}

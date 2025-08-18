@@ -3,9 +3,14 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { RefreshCw, AlertTriangle, Globe, PieChart, BarChart3, TrendingUp, TrendingDown, DollarSign, Clock, Info } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 import { MarketOverview } from './components/MarketOverview';
 import { TrendingCoins } from './components/TrendingCoins';
 import { MarketStats } from './components/MarketStats';
+import { MarketTable } from './components/MarketTable';
+import { CoinDrawer } from './components/CoinDrawer';
+import { useMarket, useCoinHistory } from '@/lib/hooks/rates';
 import type { CoinMarketData } from '@/lib/coingecko';
 
 export function RatesPageClient() {
@@ -136,7 +141,15 @@ export function RatesPageClient() {
               />
             </div>
           </motion.div>
+        </div>
       </section>
 
-  )
+      {/* Coin Drawer */}
+      <CoinDrawer
+        coin={selectedCoin}
+        open={drawerOpen}
+        onClose={handleDrawerClose}
+      />
+    </div>
+  );
 }

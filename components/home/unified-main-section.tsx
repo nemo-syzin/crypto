@@ -18,8 +18,6 @@ import {
   Globe,
   TrendingUp
 } from 'lucide-react';
-import Marquee from 'react-fast-marquee';
-
 // Данные для секций
 const features = [
   {
