@@ -6,6 +6,26 @@ import { RefreshCw, AlertTriangle, Globe, PieChart, BarChart3, TrendingUp, Trend
 import { MarketOverview } from './components/MarketOverview';
 import { TrendingCoins } from './components/TrendingCoins';
 import { MarketStats } from './components/MarketStats';
+import type { CoinMarketData } from '@/lib/coingecko';
+
+export function RatesPageClient() {
+  const { data: cryptoCoins, loading: cryptoLoading, error: cryptoError, refetch } = useMarket(50);
+  const { data: btcChartData, loading: btcChartLoading } = useCoinHistory('bitcoin', 30);
+  const [selectedCoin, setSelectedCoin] = useState<CoinMarketData | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const handleCoinClick = (coin: CoinMarketData) => {
+    setSelectedCoin(coin);
+    setDrawerOpen(true);
+  };
+
+  const handleDrawerClose = () => {
+    setDrawerOpen(false);
+    setSelectedCoin(null);
+  };
+
+  return (
+    <div className="min-h-screen bg-white relative overflow-hidden">
       {/* Main content section */}
       <section className="relative py-20 bg-white overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
@@ -117,3 +137,6 @@ import { MarketStats } from './components/MarketStats';
             </div>
           </motion.div>
       </section>
+
+  )
+}
