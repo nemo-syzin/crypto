@@ -19,6 +19,11 @@ import {
   Globe,
   ArrowRight,
   Clock,
+  Search,
+  Tag,
+  MessageCircle,
+  CheckCircle,
+  Star
 } from 'lucide-react';
 
 interface BlogPost {
@@ -33,6 +38,11 @@ interface BlogPost {
   readTime: number;
   featured: boolean;
   imageUrl?: string;
+}
+
+export default function BlogPage() {
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Пример данных блога (в будущем будет загружаться из базы данных)
   const blogPosts: BlogPost[] = [
@@ -120,6 +130,26 @@ interface BlogPost {
 
   const getCategoryColor = (category: string) => {
     switch (category) {
+      case 'news':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'analytics':
+        return 'bg-green-100 text-green-800 border-green-200';
+      case 'guides':
+        return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'updates':
+        return 'bg-orange-100 text-orange-800 border-orange-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  const getCategoryName = (category: string) => {
+    const cat = categories.find(c => c.id === category);
+    return cat ? cat.name : category;
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Main content section */}
       <section className="relative py-20 bg-white overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
