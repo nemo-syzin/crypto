@@ -88,11 +88,27 @@ export default function ExchangePage() {
       description: 'Мониторинг рынка 24/7 и автоматическое обновление курсов каждые 30 секунд гарантируют, что вы всегда получаете лучшую цену. Наша система работает круглосуточно для вашей выгоды.',
       priority: 4,
       color: '#f97316'
+    },
+    {
+      id: 'comparison',
+      number: '05',
+      title: 'Легкое сравнение предложений',
+      description: 'Сравнивайте курсы разных обменников в одном месте. Мы показываем лучшие предложения рынка для принятия обоснованных решений. Все данные в удобном формате для быстрого анализа.',
+      priority: 5,
+      color: '#06b6d4'
+    },
+    {
+      id: 'professional',
+      number: '06',
+      title: 'Профессиональный сервис',
+      description: 'Многолетний опыт работы, тысячи довольных клиентов и высокие рейтинги доверия. Мы предоставляем сервис мирового класса с индивидуальным подходом к каждому клиенту.',
+      priority: 6,
+      color: '#6366f1'
     }
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-white relative overflow-hidden">
       {/* Main Content Section */}
       <section className="relative py-20 bg-white overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
