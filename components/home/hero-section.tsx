@@ -27,6 +27,7 @@ const HeroSection = () => {
             />
           </div>
           
+          <div className="pt-12">
           <Link href="/exchange">
             <Button
               size="lg"
@@ -35,6 +36,7 @@ const HeroSection = () => {
               Начать обмен
             </Button>
           </Link>
+          </div>
         </div>
       </div>
     </section>
