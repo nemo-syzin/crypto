@@ -20,8 +20,6 @@ import {
 } from 'lucide-react';
 import Marquee from 'react-fast-marquee';
 
-} from 'lucide-react';
-
 // Данные для секций
 const features = [
   {
