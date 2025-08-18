@@ -1,11 +1,9 @@
-export const dynamic = 'force-dynamic';   // ⬅️  запрет SSG / Static Export
-
 import { NextRequest, NextResponse } from 'next/server';
 import { headers as getHeaders } from 'next/headers';
 
 // Cache for API responses
 let cache: Map<string, { data: any; timestamp: number }> = new Map();
-const CACHE_DURATION = 30 * 1000; // 30 seconds cache duration
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache duration
 
 function getCachedData(key: string): any | null {
   const cached = cache.get(key);
@@ -115,7 +113,7 @@ async function fetchWithRetry(url: string, headers: HeadersInit, maxRetries: num
       console.log(`🔄 Attempt ${attempt}/${maxRetries} - Fetching: ${url}`);
       
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000); // Reduced timeout to 8 seconds
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // Increased timeout to 10 seconds
       
       const response = await fetch(url, {
         headers: {
@@ -150,7 +148,7 @@ async function fetchWithRetry(url: string, headers: HeadersInit, maxRetries: num
       }
       
       // Progressive backoff with jitter for network errors
-      const baseDelay = Math.pow(2, attempt - 1) * 1500; // Increased base delay
+      const baseDelay = Math.pow(2, attempt - 1) * 1000; // Reduced base delay
       const jitter = Math.random() * 1000;
       const delay = baseDelay + jitter;
       
@@ -177,7 +175,11 @@ export async function GET(request: NextRequest) {
   const cachedData = getCachedData(cacheKey);
   if (cachedData) {
     console.log(`📦 Serving cached data for: ${endpoint}`);
-    return NextResponse.json(cachedData);
+    return NextResponse.json(cachedData, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+      },
+    });
   }
 
   // Check if API key is configured
@@ -190,7 +192,11 @@ export async function GET(request: NextRequest) {
     if (fallbackData) {
       // Cache fallback data briefly to avoid repeated warnings
       setCachedData(cacheKey, fallbackData);
-      return NextResponse.json(fallbackData);
+      return NextResponse.json(fallbackData, {
+        headers: {
+          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
+        },
+      });
     }
     
     return NextResponse.json(
@@ -233,7 +239,11 @@ export async function GET(request: NextRequest) {
       if (fallbackData) {
         console.warn('⚠️ Rate limit exceeded, using fallback data');
         setCachedData(cacheKey, fallbackData);
-        return NextResponse.json(fallbackData);
+        return NextResponse.json(fallbackData, {
+          headers: {
+            'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
+          },
+        });
       }
     }
 
@@ -246,7 +256,11 @@ export async function GET(request: NextRequest) {
       if (fallbackData) {
         console.warn(`⚠️ API error ${response.status}, using fallback data`);
         setCachedData(cacheKey, fallbackData);
-        return NextResponse.json(fallbackData);
+        return NextResponse.json(fallbackData, {
+          headers: {
+            'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
+          },
+        });
       }
       
       // Handle specific error cases
@@ -288,7 +302,11 @@ export async function GET(request: NextRequest) {
       console.log(`✅ CoinGecko data fetched successfully for: ${endpoint}`);
     }
     
-    return NextResponse.json(data);
+    return NextResponse.json(data, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+      },
+    });
   } catch (error) {
     console.error('❌ CoinGecko API proxy error:', error);
     
@@ -297,7 +315,11 @@ export async function GET(request: NextRequest) {
     if (fallbackData) {
       console.warn('⚠️ API failed, serving fallback data');
       setCachedData(cacheKey, fallbackData);
-      return NextResponse.json(fallbackData);
+      return NextResponse.json(fallbackData, {
+        headers: {
+          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
+        },
+      });
     }
     
     // Provide specific error messages based on error type

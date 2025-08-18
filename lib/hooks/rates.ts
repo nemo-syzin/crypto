@@ -155,10 +155,10 @@ export function useAllRates() {
     // Первоначальная загрузка
     fetchRates();
     
-    // Настройка интервала обновления каждые 30 секунд
+    // Настройка интервала обновления каждые 2 минуты для снижения нагрузки
     intervalRef.current = setInterval(() => {
       fetchRates();
-    }, 60000); // Increased to 60 seconds to reduce server load
+    }, 120000); // Increased to 2 minutes to reduce server load
 
     // Cleanup
     return () => {
@@ -290,10 +290,10 @@ export function useKenigRate() {
     // Первоначальная загрузка
     fetchRate();
     
-    // Настройка интервала обновления каждые 30 секунд
+    // Настройка интервала обновления каждые 2 минуты для снижения нагрузки
     intervalRef.current = setInterval(() => {
       fetchRate();
-    }, 60000); // Increased to 60 seconds to reduce server load
+    }, 120000); // Increased to 2 minutes to reduce server load
 
     return () => {
       if (intervalRef.current) {

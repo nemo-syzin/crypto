@@ -1,10 +1,8 @@
-export const dynamic = 'force-dynamic';   // ⬅️  запрет SSG / Static Export
-
 import { NextResponse } from 'next/server';
 import { getValidatedKenigRates } from '@/lib/supabase/validated-rates';
 
 let cache: { data: any; timestamp: number } | null = null;
-const CACHE_DURATION = 60 * 1000; // Увеличиваем кэш до 1 минуты
+const CACHE_DURATION = 120 * 1000; // Увеличиваем кэш до 2 минут
 
 const getFallbackData = () => ({
   kenig: { sell: 95.50, buy: 94.80, updated_at: new Date().toISOString() },
@@ -69,11 +67,19 @@ export async function GET() {
       cache = { data, timestamp: now };
     }
     
-    return NextResponse.json(data);
+    return NextResponse.json(data, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
+      },
+    });
   } catch (error) {
     console.error('❌ API Error in /api/rates:', error);
     const fallbackData = getFallbackData();
     fallbackData.error = error instanceof Error ? error.message : 'API request failed';
-    return NextResponse.json(fallbackData);
+    return NextResponse.json(fallbackData, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=60',
+      },
+    });
   }
 }

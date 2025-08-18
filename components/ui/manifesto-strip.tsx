@@ -32,7 +32,7 @@ export function ManifestoStrip({ values, className = "" }: ManifestoStripProps) 
             className="relative cursor-pointer group transition-all duration-300 ease-out"
             onMouseEnter={() => setActiveValue(value.id)}
             onMouseLeave={() => setActiveValue(null)}
-            whileHover={{ scale: 1.02 }}
+            whileHover={{ scale: window.innerWidth > 768 ? 1.02 : 1.01 }}
             transition={{ duration: 0.3 }}
           >
             {/* Блок ценности */}
@@ -114,7 +114,7 @@ export function ManifestoStrip({ values, className = "" }: ManifestoStripProps) 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.4, ease: "easeOut" }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
               className="w-full bg-white rounded-xl border-2 border-gray-100 p-6 md:p-8 shadow-lg"
             >
               {/* Заголовок с номером */}

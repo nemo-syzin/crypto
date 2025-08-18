@@ -55,11 +55,33 @@
   }
 
   .glass-card {
-    @apply bg-white/20 backdrop-blur-md border border-[#001D8D]/10 rounded-2xl;
+    @apply bg-white/20 border border-[#001D8D]/10 rounded-2xl;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  
+  /* Mobile-optimized glass card without backdrop-filter */
+  @media (max-width: 768px) {
+    .glass-card {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
   }
 
   .glass {
-    @apply bg-white/80 backdrop-blur-md border border-white/20;
+    @apply bg-white/80 border border-white/20;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  
+  /* Mobile-optimized glass without backdrop-filter */
+  @media (max-width: 768px) {
+    .glass {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
   }
 
   /* Glass Tile - новый стиль для карточек курсов */
@@ -77,6 +99,21 @@
     transform: translateY(-1px);
     box-shadow: 0 12px 40px rgba(31, 38, 135, 0.2);
   }
+  
+  /* Mobile-optimized glass tile */
+  @media (max-width: 768px) {
+    .glass-tile {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      box-shadow: 0 4px 16px rgba(31, 38, 135, 0.1);
+    }
+    
+    .glass-tile:hover {
+      transform: none;
+      box-shadow: 0 6px 20px rgba(31, 38, 135, 0.15);
+    }
+  }
 
   .text-gradient {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-[#001D8D] to-[#001D8D];
@@ -90,6 +127,14 @@
   .btn-new:hover {
     @apply transform -translate-y-[2px];
     box-shadow: 0 15px 30px 0 rgba(11, 99, 246, 0.8);
+  }
+  
+  /* Simplified hover effects for mobile */
+  @media (max-width: 768px) {
+    .btn-new:hover {
+      transform: none;
+      box-shadow: 0 6px 15px 0 rgba(11, 99, 246, 0.6);
+    }
   }
 
   .btn-orange {
@@ -142,6 +187,14 @@
     transform: translateY(-4px);
     box-shadow: 0 20px 40px rgba(0, 29, 141, 0.15);
   }
+  
+  /* Simplified hover effects for mobile */
+  @media (max-width: 768px) {
+    .principle-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0, 29, 141, 0.1);
+    }
+  }
 
   /* Geometric accent elements */
   .geometric-accent {
@@ -179,6 +232,13 @@
   .manifesto-block:hover::before {
     opacity: 1;
   }
+  
+  /* Simplified manifesto block for mobile */
+  @media (max-width: 768px) {
+    .manifesto-block {
+      transition: all 0.2s ease;
+    }
+  }
 
   .manifesto-number {
     font-family: 'Courier New', monospace;
@@ -187,17 +247,23 @@
   }
 
   .manifesto-description {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9));
-    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.95);
     border: 1px solid rgba(0, 29, 141, 0.1);
+  }
+  
+  /* Desktop-only backdrop filter for manifesto description */
+  @media (min-width: 769px) {
+    .manifesto-description {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9));
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
   }
 
   /* Partner tile glass-blur styles */
   .partner-tile {
     /* Glass-blur background */
-    background: rgba(255, 255, 255, 0.12);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, 0.2);
     
     /* Border radius */
     border-radius: 12px;
@@ -214,6 +280,15 @@
     /* Remove any existing background colors/masks */
     position: relative;
     overflow: hidden;
+  }
+  
+  /* Desktop-only backdrop filter for partner tiles */
+  @media (min-width: 769px) {
+    .partner-tile {
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
   }
 
   /* Desktop sizes */
@@ -248,8 +323,7 @@
     .partner-tile {
       width: 64px;
       height: 64px;
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
+      background: rgba(255, 255, 255, 0.3);
     }
     
     .partner-tile img {
@@ -269,6 +343,15 @@
     outline-offset: 2px;
     transform: scale(1.05);
   }
+  
+  /* Simplified hover for mobile */
+  @media (max-width: 768px) {
+    .partner-tile:hover,
+    .partner-tile:focus-visible {
+      transform: scale(1.02);
+      box-shadow: 0 5px 15px rgba(0, 29, 141, 0.06);
+    }
+  }
 
   /* Remove any existing logo-wrap styles that might interfere */
   .partner-tile::before {
@@ -277,19 +360,26 @@
 
   /* Enhanced Calculator Styles */
   .calculator-container {
-    background: linear-gradient(145deg, rgba(255,255,255,0.9), rgba(241,244,255,0.8));
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.9);
     border-radius: 20px;
     box-shadow: 0 8px 32px rgba(31,38,135,0.1);
     padding: 24px;
     border: 1px solid rgba(231,236,255,0.8);
   }
+  
+  /* Desktop-only backdrop filter for calculator */
+  @media (min-width: 769px) {
+    .calculator-container {
+      background: linear-gradient(145deg, rgba(255,255,255,0.9), rgba(241,244,255,0.8));
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+  }
 
   .input-field {
     height: 48px;
     border-radius: 10px;
-    background: rgba(255,255,255,0.9);
+    background: rgba(255,255,255,0.95);
     border: 1px solid rgba(231,236,255,0.8);
     padding: 0 16px;
     font-size: 16px;
@@ -333,6 +423,14 @@
     box-shadow: 0 0 15px rgba(66,99,235,0.3);
     transform: scale(1.05);
   }
+  
+  /* Simplified hover for mobile */
+  @media (max-width: 768px) {
+    .swap-button:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 8px rgba(66,99,235,0.2);
+    }
+  }
 
   .swap-button:disabled {
     opacity: 0.5;
@@ -362,7 +460,7 @@
     border: 1px solid #E2E8F0;
     border-radius: 8px;
     padding: 8px 12px;
-    background: rgba(255,255,255,0.9);
+    background: rgba(255,255,255,0.95);
     color: #001D8D;
     font-size: 14px;
     cursor: pointer;
@@ -427,6 +525,17 @@
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
     }
+    
+    /* Disable backdrop-filter for reduced motion */
+    .glass-card,
+    .glass,
+    .glass-tile,
+    .calculator-container,
+    .manifesto-description,
+    .partner-tile {
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
   }
 
   /* Countdown timer styles */
@@ -467,6 +576,14 @@
     background-size: 600% 600%;
     animation: gradientShift 15s ease infinite;
   }
+  
+  /* Disable gradient animation on mobile for performance */
+  @media (max-width: 768px) {
+    .gradient-bg {
+      background: #001D8D;
+      animation: none;
+    }
+  }
 
   /* Анимация для плавного перехода фона */
   .background-story {
@@ -479,6 +596,19 @@
       rgba(59, 130, 246, 0.2) 100%
     );
     animation: backgroundFlow 20s ease-in-out infinite;
+  }
+  
+  /* Disable background animation on mobile for performance */
+  @media (max-width: 768px) {
+    .background-story {
+      background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 1) 0%,
+        rgba(59, 130, 246, 0.1) 50%,
+        rgba(59, 130, 246, 0.2) 100%
+      );
+      animation: none;
+    }
   }
 
   /* Typography utilities */
@@ -508,6 +638,13 @@
 
   .manifesto-hover-scale:hover {
     transform: scale(1.02);
+  }
+  
+  /* Simplified hover scale for mobile */
+  @media (max-width: 768px) {
+    .manifesto-hover-scale:hover {
+      transform: scale(1.01);
+    }
   }
 }
 
@@ -547,6 +684,29 @@
 }
 
 .backdrop-enhanced {
-  backdrop-filter: blur(8px) saturate(180%);
-  -webkit-backdrop-filter: blur(8px) saturate(180%);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+/* Desktop-only backdrop filter for enhanced elements */
+@media (min-width: 769px) {
+  .backdrop-enhanced {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(8px) saturate(180%);
+    -webkit-backdrop-filter: blur(8px) saturate(180%);
+  }
+}
+
+/* Performance optimization utilities */
+.will-change-transform {
+  will-change: transform;
+}
+
+.will-change-opacity {
+  will-change: opacity;
+}
+
+.gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
 }
