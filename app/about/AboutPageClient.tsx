@@ -31,7 +31,7 @@ import {
 import { CrystalVisualization } from '@/components/3d/CrystalVisualization';
 import Image from 'next/image';
 
-export default function AboutPage() {
+export function AboutPageClient() {
   const controls = useAnimation();
   const [ref, inView] = useInView({
     threshold: 0.1,
@@ -533,5 +533,3 @@ export default function AboutPage() {
     </div>
   );
 }
-
-export default AboutPageClient;
