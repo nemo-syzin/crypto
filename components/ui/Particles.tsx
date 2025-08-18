@@ -44,6 +44,7 @@ export default function Particles() {
         if (p.x < -10) p.x = w + 10; if (p.x > w + 10) p.x = -10;
         if (p.y < -10) p.y = h + 10; if (p.y > h + 10) p.y = -10;
         ctx.globalAlpha = p.a;
+        ctx.fillStyle = Math.random() < 0.15 ? "rgba(59,130,246,0.25)" : "rgba(255,255,255,0.7)";
         ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
       }
     }
