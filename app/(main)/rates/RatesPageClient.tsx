@@ -10,7 +10,7 @@ import { TrendingCoins } from './components/TrendingCoins';
 import { MarketStats } from './components/MarketStats';
 import { MarketTable } from './components/MarketTable';
 import { CoinDrawer } from './components/CoinDrawer';
-import { useMarket, useCoinHistory } from '@/lib/hooks/rates';
+import { useMarket, useCoinHistory } from '@/lib/coingecko';
 import type { CoinMarketData } from '@/lib/coingecko';
 
 export function RatesPageClient() {
