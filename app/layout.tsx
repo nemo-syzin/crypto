@@ -6,7 +6,6 @@ import { Toaster } from "@/components/ui/toaster";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 // Глобальные декоративные элементы
-import Blob from "@/components/ui/Blob";
 import Particles from "@/components/ui/Particles";
 
 export const metadata: Metadata = {
@@ -44,7 +43,6 @@ export default function RootLayout({
         <div className="relative min-h-screen overflow-hidden">
           {/* Декоративные элементы фона */}
           <div className="pointer-events-none absolute inset-0">
-            <Blob />
             <Particles />
           </div>
 
