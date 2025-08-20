@@ -4,8 +4,7 @@ import Particles from "@/components/ui/Particles";
 
 export default function HeroShell({ children }: { children: React.ReactNode }) {
   return (
-    <section className="relative overflow-hidden">
-      <div className="absolute inset-0 bg-kswap-light bg-noise-light" />
+    <section className="relative overflow-hidden bg-kswap-light bg-noise-light min-h-screen">
       <Particles />
       <div className="relative z-10">{children}</div>
       {/* мягкая белая виньетка */}
