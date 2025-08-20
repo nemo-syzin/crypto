@@ -39,7 +39,7 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="//api.alternative.me" />
       </head>
       <body>
-        <div className="app-bg min-h-screen">
+        <div id="app-root" className="app-bg min-h-screen">
         {/* Глобальные фоновые элементы */}
         <Blob />
         <Particles />
