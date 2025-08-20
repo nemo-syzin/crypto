@@ -5,6 +5,8 @@ import { SupabaseAuthProvider } from '@/components/auth/SupabaseAuthProvider';
 import { Toaster } from '@/components/ui/toaster';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
+import Blob from '@/components/ui/Blob';
+import Particles from '@/components/ui/Particles';
 
 export const metadata: Metadata = {
   title: 'KenigSwap - USDT to RUB Exchange Platform',
@@ -35,14 +37,18 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="//res.coinpaper.com" />
         <link rel="dns-prefetch" href="//api.alternative.me" />
       </head>
-      <body className="min-h-screen">
+      <body className="min-h-screen bg-kswap-light bg-kswap-noise relative overflow-hidden">
+        {/* Глобальные фоновые элементы */}
+        <Blob />
+        <Particles />
+        
         <ThemeProvider
           attribute="class"
           enableSystem
           disableTransitionOnChange
         >
           <SupabaseAuthProvider>
-            <div className="flex min-h-screen flex-col">
+            <div className="flex min-h-screen flex-col relative z-10">
               <Header />
               <main className="flex-1">{children}</main>
               <Footer />
