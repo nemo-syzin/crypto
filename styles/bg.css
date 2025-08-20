@@ -1,0 +1,38 @@
+/* Глобальный светлый фон (только градиенты — максимально легко для мобилок) */
+
+@keyframes kswap-light-gradient{
+  0%{ --x1:0%; --y1:0%; --x2:100%; --y2:100%; }
+  50%{ --x1:100%; --y1:0%; --x2:0%; --y2:100%; }
+  100%{ --x1:0%; --y1:0%; --x2:100%; --y2:100%; }
+}
+
+.app-bg{
+  position: relative;
+  isolation: isolate;
+  min-height: 100svh;
+  z-index: 0;
+
+  /* два мягких голубых пятна + базовый белый градиент */
+  background-image:
+    radial-gradient(900px 480px at var(--x1) var(--y1), rgba(59,130,246,.18), transparent 70%),
+    radial-gradient(800px 400px at var(--x2) var(--y2), rgba(147,197,253,.12), transparent 70%),
+    linear-gradient(180deg,#ffffff 0%, #f3f4f6 60%, #e5e7eb 100%);
+  background-repeat: no-repeat, no-repeat, no-repeat;
+
+  animation: kswap-light-gradient 22s ease-in-out infinite;
+  backface-visibility: hidden;
+}
+
+@media (max-width:640px){
+  .app-bg{
+    animation-duration: 26s;
+    background-image:
+      radial-gradient(560px 300px at var(--x1) var(--y1), rgba(59,130,246,.16), transparent 70%),
+      radial-gradient(520px 280px at var(--x2) var(--y2), rgba(147,197,253,.10), transparent 70%),
+      linear-gradient(180deg,#ffffff 0%, #f7f7f8 60%, #eceff1 100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .app-bg{ animation: none; }
+}

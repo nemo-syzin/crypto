@@ -36,7 +36,7 @@
 
 @layer base {
   * { font-family: 'Gilroy', sans-serif; }
-  /* Прозрачный фон для body и html */
+  /* Прозрачный фон для body и html, чтобы не перекрывать .app-bg */
   html, body { 
     @apply bg-transparent text-[#001D8D] m-0 p-0; 
     background: transparent;

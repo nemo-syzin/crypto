@@ -1,3 +1,4 @@
+import "@/styles/bg.css";
 import "./globals.css";
 import type { Metadata } from "next";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -5,8 +6,6 @@ import { SupabaseAuthProvider } from "@/components/auth/SupabaseAuthProvider";
 import { Toaster } from "@/components/ui/toaster";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
-// Глобальные декоративные элементы
-import Blob from "@/components/ui/Blob";
 
 export const metadata: Metadata = {
   title: "KenigSwap - USDT to RUB Exchange Platform",
@@ -39,14 +38,17 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="//api.alternative.me" />
       </head>
       <body>
-        {/* Глобальный фон с Blob и Particles */}
-        <div className="relative min-h-screen overflow-hidden">
-          {/* Декоративные элементы фона */}
-          <div className="pointer-events-none absolute inset-0">
-            <Blob />
+        {/* Глобальный фон: анимированный градиент из .app-bg + 2 CSS-блоба */}
+        <div id="app-root" className="app-bg min-h-screen relative overflow-hidden">
+          {/* Блоб-слой (НЕ перехватывает клики), -z-10 чтобы быть под контентом */}
+          <div className="pointer-events-none absolute inset-0 -z-10">
+            {/* верх-лево, виден везде */}
+            <div className="absolute -top-24 -left-24 w-[420px] h-[420px] rounded-full bg-blue-300/20 blur-3xl" />
+            {/* низ-право, скрыть на мобилках для перфа */}
+            <div className="hidden md:block absolute -bottom-32 -right-20 w-[520px] h-[520px] rounded-full bg-indigo-400/15 blur-3xl" />
           </div>
 
-          {/* Весь контент приложения поверх фона */}
+          {/* Контент поверх */}
           <div className="relative z-10 min-h-screen flex flex-col">
             <ThemeProvider attribute="class" enableSystem disableTransitionOnChange>
               <SupabaseAuthProvider>
