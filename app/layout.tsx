@@ -1,5 +1,3 @@
-// ВАЖНО: bg.css импортируем ПЕРВЫМ
-import "@/styles/bg.css";
 import "./globals.css";
 import type { Metadata } from "next";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -7,7 +5,7 @@ import { SupabaseAuthProvider } from "@/components/auth/SupabaseAuthProvider";
 import { Toaster } from "@/components/ui/toaster";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
-// Декор можно показать глобально (без перехвата кликов)
+// Глобальные декоративные элементы
 import Blob from "@/components/ui/Blob";
 import Particles from "@/components/ui/Particles";
 
@@ -42,20 +40,20 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="//api.alternative.me" />
       </head>
       <body>
-        {/* Глобальный фон (один раз на весь сайт) */}
-        <div id="app-root" className="app-bg min-h-screen relative overflow-hidden">
-          {/* Декоративные слои — не мешают кликам */}
+        {/* Глобальный фон с Blob и Particles */}
+        <div className="relative min-h-screen overflow-hidden">
+          {/* Декоративные элементы фона */}
           <div className="pointer-events-none absolute inset-0">
             <Blob />
             <Particles />
           </div>
 
-          {/* Контент всегда поверх фона */}
+          {/* Весь контент приложения поверх фона */}
           <div className="relative z-10 min-h-screen flex flex-col">
             <ThemeProvider attribute="class" enableSystem disableTransitionOnChange>
               <SupabaseAuthProvider>
                 <Header />
-                <main className="flex-1 bg-transparent">{children}</main>
+                <main className="flex-1">{children}</main>
                 <Footer />
                 <Toaster />
               </SupabaseAuthProvider>
