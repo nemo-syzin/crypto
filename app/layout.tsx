@@ -38,20 +38,20 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="//res.coinpaper.com" />
         <link rel="dns-prefetch" href="//api.alternative.me" />
       </head>
-      <body className="bg-kswap-light bg-kswap-noise min-h-screen relative overflow-hidden">
+      <body className="bg-kswap-light bg-kswap-noise relative">
         {/* Глобальные фоновые элементы */}
         <Blob />
         <Particles />
         
         {/* Весь контент поверх фона */}
-        <div className="relative z-10">
+        <div className="relative z-10 min-h-screen">
         <ThemeProvider
           attribute="class"
           enableSystem
           disableTransitionOnChange
         >
           <SupabaseAuthProvider>
-            <div className="flex flex-col">
+            <div className="flex flex-col min-h-screen">
               <Header />
               <main className="flex-1">{children}</main>
               <Footer />
