@@ -2,9 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Импорт кастомного фона */
-@import '../styles/bg.css';
+/* НЕ импортируем здесь bg.css — он подключается в layout.tsx */
 
+/* Шрифты и CSS-переменные оставь как были */
 @font-face {
   font-family: 'Gilroy';
   src: url('/fonts/Gilroy-ExtraBold.woff2') format('woff2');
@@ -37,14 +37,11 @@
 }
 
 @layer base {
-  * {
-    font-family: 'Gilroy', sans-serif;
-  }
-  
-  body {
-    @apply bg-white text-[#001D8D] m-0 p-0;
-  }
+  * { font-family: 'Gilroy', sans-serif; }
+  /* ПРОЗРАЧНЫЙ фон у body, чтобы не перекрывал глобальный background */
+  body { @apply bg-transparent text-[#001D8D] m-0 p-0; }
 }
+
 
 /* KenigSwap анимированный фон */
 @keyframes kswap-gradient {
