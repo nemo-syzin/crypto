@@ -19,7 +19,7 @@ const policyLinks = [
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-50 border-t border-gray-200 py-12 mt-24">
+    <footer className="bg-transparent border-t border-gray-200/50 py-12 mt-24">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Logo and Description */}

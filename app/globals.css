@@ -248,14 +248,9 @@
     @apply relative;
   }
 
-  .section-transition::before {
-    content: '';
-    @apply absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-white to-transparent z-10 pointer-events-none;
-  }
-
+  .section-transition::before,
   .section-transition::after {
-    content: '';
-    @apply absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent to-white z-10 pointer-events-none;
+    display: none;
   }
 
   /* Crystal background helper */
@@ -676,7 +671,7 @@
   
   /* Анимация для плавного перехода фона */
   .background-story {
-    background: white;
+    background: transparent;
   }
 
   /* Typography utilities */

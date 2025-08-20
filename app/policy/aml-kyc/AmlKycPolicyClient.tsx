@@ -225,7 +225,7 @@ AML – это комплекс мер и процедур, предотвращ
   );
 
   return (
-    <div className="min-h-screen bg-white relative overflow-hidden">
+    <div className="min-h-screen bg-transparent relative overflow-hidden">
       <div className="relative z-10">
         <div className="container mx-auto px-4 py-20">
           <motion.div

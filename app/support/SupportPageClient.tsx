@@ -201,9 +201,9 @@ export function SupportPageClient() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-transparent">
       {/* Main content section */}
-      <section className="relative py-20 bg-white overflow-hidden">
+      <section className="relative py-20 bg-transparent overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <div className="space-y-24">
             

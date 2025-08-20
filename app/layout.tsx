@@ -55,7 +55,7 @@ export default function RootLayout({
             <ThemeProvider attribute="class" enableSystem disableTransitionOnChange>
               <SupabaseAuthProvider>
                 <Header />
-                <main className="flex-1">{children}</main>
+                <main className="flex-1 bg-transparent">{children}</main>
                 <Footer />
                 <Toaster />
               </SupabaseAuthProvider>

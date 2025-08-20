@@ -380,7 +380,7 @@ export function OperatorDashboardClient() {
   }
 
   return (
-    <div className="min-h-screen bg-white py-20">
+    <div className="min-h-screen bg-transparent py-20">
       <div className="container mx-auto px-4">
         <div className="max-w-7xl mx-auto">
           
