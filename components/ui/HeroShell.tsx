@@ -1,13 +1,9 @@
 "use client";
 
-import Particles from "@/components/ui/Particles";
-import Blob from "@/components/ui/Blob";
-
 export default function HeroShell({ children }: { children: React.ReactNode }) {
   return (
-    <section className="relative overflow-hidden bg-kswap-light bg-kswap-noise min-h-screen">
-      <Blob />
-      <Particles />
+    <section className="relative overflow-hidden min-h-screen">
+      {/* Blob только для Hero-секции */}
       <div className="relative z-10">{children}</div>
     </section>
   );
