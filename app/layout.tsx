@@ -1,5 +1,5 @@
-import '@/styles/bg.css';
 import './globals.css';
+import '@/styles/bg.css';
 import type { Metadata } from 'next';
 import { ThemeProvider } from '@/components/theme-provider';
 import { SupabaseAuthProvider } from '@/components/auth/SupabaseAuthProvider';
@@ -39,7 +39,7 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="//api.alternative.me" />
       </head>
       <body>
-        <div className="app-bg">
+        <div className="app-bg min-h-screen">
         {/* Глобальные фоновые элементы */}
         <Blob />
         <Particles />
