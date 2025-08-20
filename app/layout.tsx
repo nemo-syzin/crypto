@@ -1,11 +1,8 @@
-import '@/styles/bg.css';
 import './globals.css';
 import type { Metadata } from 'next';
 import { ThemeProvider } from '@/components/theme-provider';
 import { SupabaseAuthProvider } from '@/components/auth/SupabaseAuthProvider';
 import { Toaster } from '@/components/ui/toaster';
-import Blob from '@/components/ui/Blob';
-import Particles from '@/components/ui/Particles';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 
@@ -38,21 +35,14 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="//res.coinpaper.com" />
         <link rel="dns-prefetch" href="//api.alternative.me" />
       </head>
-      <body>
-        <div id="app-root" className="app-bg min-h-screen">
-        {/* Глобальные фоновые элементы */}
-        <Blob />
-        <Particles />
-        
-        {/* Весь контент поверх фона */}
-        <div className="relative z-10 min-h-screen">
+      <body className="min-h-screen">
         <ThemeProvider
           attribute="class"
           enableSystem
           disableTransitionOnChange
         >
           <SupabaseAuthProvider>
-            <div className="flex flex-col min-h-screen">
+            <div className="flex min-h-screen flex-col">
               <Header />
               <main className="flex-1">{children}</main>
               <Footer />
@@ -60,8 +50,6 @@ export default function RootLayout({
             <Toaster />
           </SupabaseAuthProvider>
         </ThemeProvider>
-        </div>
-        </div>
       </body>
     </html>
   );

@@ -1,4 +1,4 @@
-/* bg.css - Глобальный анимированный фон для всего сайта */
+/* bg.css - Кастомный анимированный фон для Hero-секции */
 
 @keyframes kswap-light-gradient {
   0%   { --x1: 0%   ; --y1: 0%   ; --x2: 100%; --y2: 100%; }
@@ -6,35 +6,49 @@
   100% { --x1: 0%   ; --y1: 0%   ; --x2: 100%; --y2: 100%; }
 }
 
-/* Глобальный фон приложения */
-.app-bg {
+/* Корневой блок — обязательно relative */
+.bg-kswap-light {
   position: relative;
   isolation: isolate;
+}
+
+.bg-kswap-light::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1; /* Фон должен быть под контентом */
   --x1: 0%; --y1: 0%; --x2: 100%; --y2: 100%;
-  background-image:
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.08'/></svg>"),
+  background:
     radial-gradient(900px 480px at var(--x1) var(--y1), rgba(59,130,246,.25), transparent 70%),
     radial-gradient(800px 400px at var(--x2) var(--y2), rgba(147,197,253,.18), transparent 70%),
     linear-gradient(180deg, #ffffff 0%, #f3f4f6 60%, #e5e7eb 100%);
   animation: kswap-light-gradient 22s ease-in-out infinite;
-  backface-visibility: hidden;
+  backface-visibility: hidden; /* Для плавности анимации */
+}
+
+.bg-kswap-noise::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1; /* Шум должен быть под контентом */
+  pointer-events: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.02'/></svg>");
 }
 
 /* Отключение анимации для prefers-reduced-motion */
 @media (prefers-reduced-motion: reduce) {
-  .app-bg {
+  .bg-kswap-light::before {
     animation: none;
   }
 }
 
 /* Мобильная оптимизация для светлой темы */
 @media (max-width: 640px) {
-  .app-bg {
-    animation-duration: 26s;
-    background-image:
-      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.06'/></svg>"),
+  .bg-kswap-light::before {
+    background:
       radial-gradient(560px 300px at var(--x1) var(--y1), rgba(59,130,246,.20), transparent 70%),
       radial-gradient(520px 280px at var(--x2) var(--y2), rgba(147,197,253,.14), transparent 70%),
       linear-gradient(180deg, #ffffff 0%, #f7f7f8 60%, #eceff1 100%);
+    animation-duration: 26s; /* Немного замедлим анимацию на мобильных */
   }
 }
