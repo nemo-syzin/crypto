@@ -21,8 +21,8 @@
   background:
     radial-gradient(900px 480px at var(--x1) var(--y1), rgba(59,130,246,.25), transparent 70%),
     radial-gradient(800px 400px at var(--x2) var(--y2), rgba(147,197,253,.18), transparent 70%),
-    linear-gradient(180deg, #ffffff 0%, #f9fafb 60%, #f3f4f6 100%);
-  animation: kswap-light-gradient 20s ease-in-out infinite;
+    linear-gradient(180deg, #ffffff 0%, #f3f4f6 60%, #e5e7eb 100%);
+  animation: kswap-light-gradient 22s ease-in-out infinite;
   backface-visibility: hidden; /* Для плавности анимации */
 }
 
@@ -46,9 +46,9 @@
 @media (max-width: 640px) {
   .bg-kswap-light::before {
     background:
-      radial-gradient(560px 300px at var(--x1) var(--y1), rgba(59,130,246,.15), transparent 70%),
-      radial-gradient(520px 280px at var(--x2) var(--y2), rgba(147,197,253,.12), transparent 70%),
-      linear-gradient(180deg, #ffffff 0%, #fafafa 60%, #f4f5f7 100%);
-    animation-duration: 24s; /* Немного замедлим анимацию на мобильных */
+      radial-gradient(560px 300px at var(--x1) var(--y1), rgba(59,130,246,.20), transparent 70%),
+      radial-gradient(520px 280px at var(--x2) var(--y2), rgba(147,197,253,.14), transparent 70%),
+      linear-gradient(180deg, #ffffff 0%, #f7f7f8 60%, #eceff1 100%);
+    animation-duration: 26s; /* Немного замедлим анимацию на мобильных */
   }
 }

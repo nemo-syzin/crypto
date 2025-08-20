@@ -7,21 +7,15 @@ import { Button } from '@/components/ui/button';
 import HeroShell from '@/components/ui/HeroShell';
 
 const HeroSection = () => {
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
   return (
     <HeroShell>
-      <div className="relative flex items-center justify-center min-h-screen">
+      <div className="relative flex items-center justify-center py-16">
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="space-y-8">
             <div className="flex justify-center mb-8">
               <Image
                 src="/brand/kenigswap-logo.svg"
-                alt="KenigSwap - Обмен криптовалют без границ"
+                alt="KenigSwap — обмен криптовалют"
                 width={800}
                 height={200}
                 priority
@@ -33,7 +27,7 @@ const HeroSection = () => {
             <Link href="/exchange">
               <Button
                 size="lg"
-                className="bg-[#001D8D] hover:bg-[#001D8D]/90 text-white px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 transform"
+                className="bg-[#001D8D] hover:bg-[#001D8D]/90 text-white px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300"
               >
                 Начать обмен
               </Button>
