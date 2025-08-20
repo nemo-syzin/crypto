@@ -53,5 +53,5 @@ export default function Particles() {
     return () => { running = false; cancelAnimationFrame(raf); ro.disconnect(); document.removeEventListener("visibilitychange", onVis); };
   }, []);
 
-  return <canvas ref={ref} className="absolute inset-0 w-full h-full pointer-events-none opacity-50" aria-hidden />;
+  return <canvas ref={ref} className="absolute inset-0 w-full h-full pointer-events-none opacity-50 z-0" aria-hidden />;
 }

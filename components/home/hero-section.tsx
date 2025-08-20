@@ -15,7 +15,7 @@ const HeroSection = () => {
 
   return (
     <HeroShell>
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <div className="relative min-h-screen flex items-center justify-center">
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="space-y-8">
             <div className="flex justify-center mb-8">
@@ -41,7 +41,7 @@ const HeroSection = () => {
             </div>
           </div>
         </div>
-      </section>
+      </div>
     </HeroShell>
   );
 };
