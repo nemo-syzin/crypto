@@ -711,7 +711,7 @@
 }
 
 .backdrop-enhanced {
-  background: white;
+  background: transparent;
 }
 
 /* Performance optimization utilities */
