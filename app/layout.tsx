@@ -1,5 +1,5 @@
-import './globals.css';
 import '@/styles/bg.css';
+import './globals.css';
 import type { Metadata } from 'next';
 import { ThemeProvider } from '@/components/theme-provider';
 import { SupabaseAuthProvider } from '@/components/auth/SupabaseAuthProvider';
