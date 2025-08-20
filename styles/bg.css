@@ -1,4 +1,4 @@
-/* bg.css - Кастомный анимированный фон для Hero-секции */
+/* bg.css - Глобальный анимированный фон для всего сайта */
 
 @keyframes kswap-light-gradient {
   0%   { --x1: 0%   ; --y1: 0%   ; --x2: 100%; --y2: 100%; }
@@ -6,13 +6,14 @@
   100% { --x1: 0%   ; --y1: 0%   ; --x2: 100%; --y2: 100%; }
 }
 
-/* Корневой блок — обязательно relative */
-.bg-kswap-light {
+/* Глобальный фон приложения */
+.app-bg {
   position: relative;
   isolation: isolate;
+  min-height: 100svh; /* Фон всегда тянется на весь экран */
 }
 
-.bg-kswap-light::before {
+.app-bg::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -26,7 +27,7 @@
   backface-visibility: hidden; /* Для плавности анимации */
 }
 
-.bg-kswap-noise::after {
+.app-bg::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -37,14 +38,14 @@
 
 /* Отключение анимации для prefers-reduced-motion */
 @media (prefers-reduced-motion: reduce) {
-  .bg-kswap-light::before {
+  .app-bg::before {
     animation: none;
   }
 }
 
 /* Мобильная оптимизация для светлой темы */
 @media (max-width: 640px) {
-  .bg-kswap-light::before {
+  .app-bg::before {
     background:
       radial-gradient(560px 300px at var(--x1) var(--y1), rgba(59,130,246,.20), transparent 70%),
       radial-gradient(520px 280px at var(--x2) var(--y2), rgba(147,197,253,.14), transparent 70%),
