@@ -6,10 +6,11 @@ const config: Config = {
     "./pages/**/*.{ts,tsx}",
     "./components/**/*.{ts,tsx}",
     "./styles/**/*.css",
-    "./app/**/*.{ts,tsx}",
-    "./src/**/*.{ts,tsx}",
   ],
   safelist: [
+    "app-bg",
+    "bg-kswap-light", 
+    "bg-kswap-noise",
     "app-bg",
     "bg-kswap-light",
     "bg-kswap-noise"
