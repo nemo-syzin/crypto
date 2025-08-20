@@ -2,8 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Импорт кастомного фона - проверяем путь */
-@import url('../styles/bg.css');
+/* Импорт кастомного фона */
+@import '../styles/bg.css';
 
 @font-face {
   font-family: 'Gilroy';
