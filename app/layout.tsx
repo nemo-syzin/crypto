@@ -24,16 +24,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ru" className="light" suppressHydrationWarning>
+    <html lang="ru" suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{__html: `
-          try {
-            const t = localStorage.getItem('theme');
-            if (t && t !== 'light') localStorage.setItem('theme','light');
-            document.documentElement.classList.remove('dark');
-            document.documentElement.classList.add('light');
-          } catch (e) {}
-        `}} />
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link
           rel="preload"
@@ -48,24 +40,20 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="//api.alternative.me" />
       </head>
       <body>
+        {/* Глобальный фон с Blob и Particles */}
         <div className="relative min-h-screen overflow-hidden">
+          {/* Декоративные элементы фона */}
           <div className="pointer-events-none absolute inset-0">
-            <div className="absolute inset-0 z-0">
-              <Particles />
-            </div>
+            <Blob />
             <Particles />
           </div>
 
-          <div className="relative z-10">
-            <ThemeProvider 
-              attribute="class" 
-              defaultTheme="light"
-              enableSystem={false}
-              disableTransitionOnChange
-            >
+          {/* Весь контент приложения поверх фона */}
+          <div className="relative z-10 min-h-screen flex flex-col">
+            <ThemeProvider attribute="class" enableSystem disableTransitionOnChange>
               <SupabaseAuthProvider>
                 <Header />
-                <main className="flex-1 bg-transparent">{children}</main>
+                <main className="flex-1">{children}</main>
                 <Footer />
                 <Toaster />
               </SupabaseAuthProvider>
