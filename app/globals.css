@@ -91,12 +91,8 @@
 }
 
 .bg-kswap-light {
-  --x1: 0%; --y1: 0%; --x2: 100%; --y2: 100%;
-  background:
-    radial-gradient(900px 480px at var(--x1) var(--y1), rgba(59,130,246,.15), transparent 70%),
-    radial-gradient(800px 400px at var(--x2) var(--y2), rgba(147,197,253,.10), transparent 70%),
-    linear-gradient(180deg, #ffffff 0%, #f9fafb 60%, #f3f4f6 100%);
-  animation: kswap-light-gradient 20s ease-in-out infinite;
+  position: relative;
+  isolation: isolate;
 }
 
 @media (prefers-reduced-motion: reduce) { 
@@ -107,6 +103,9 @@
     animation: none; 
   } 
   .bg-kswap-light { 
+    animation: none; 
+  } 
+  .bg-kswap-light::before { 
     animation: none; 
   } 
 }
