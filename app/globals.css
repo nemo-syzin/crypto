@@ -36,10 +36,12 @@
 
 @layer base {
   * { font-family: 'Gilroy', sans-serif; }
-  /* Прозрачный фон для body и html */
-  html, body { 
+  html, body {
     @apply bg-transparent text-[#001D8D] m-0 p-0; 
-    background: transparent;
+  }
+  
+  .dark body {
+    @apply bg-transparent text-[#001D8D];
   }
 }
 
