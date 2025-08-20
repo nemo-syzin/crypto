@@ -7,7 +7,6 @@ import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 // Глобальные декоративные элементы
 import Blob from "@/components/ui/Blob";
-import Particles from "@/components/ui/Particles";
 
 export const metadata: Metadata = {
   title: "KenigSwap - USDT to RUB Exchange Platform",
@@ -45,7 +44,6 @@ export default function RootLayout({
           {/* Декоративные элементы фона */}
           <div className="pointer-events-none absolute inset-0">
             <Blob />
-            <Particles />
           </div>
 
           {/* Весь контент приложения поверх фона */}
