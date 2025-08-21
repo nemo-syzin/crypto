@@ -100,7 +100,7 @@ export function ManifestoStrip({ values, className = "" }: ManifestoStripProps) 
 
               {/* Hover эффект */}
               <motion.div
-                className="absolute inset-0 bg-white/10 rounded-xl"
+                className="absolute inset-2 bg-white/10 rounded-xl"
                 initial={{ opacity: 0 }}
                 whileHover={{ opacity: 1 }}
                 transition={{ duration: 0.3 }}
