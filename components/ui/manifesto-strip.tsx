@@ -60,7 +60,7 @@ export function ManifestoStrip({ values, className = "" }: ManifestoStripProps) 
               </div>
 
               {/* Контент блока */}
-              <div className="relative z-10 w-full">
+              <div className="relative z-10 w-full pb-4">
                 {/* Номер */}
                 <motion.div 
                   className="text-2xl md:text-3xl font-bold mb-2 font-mono tracking-wider"
