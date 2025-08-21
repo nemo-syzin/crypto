@@ -75,10 +75,10 @@ export function ManifestoStrip({ values, className = "" }: ManifestoStripProps) 
 
                 {/* Заголовок */}
                 <motion.h3 
-                  className="text-xs sm:text-sm font-semibold leading-relaxed px-1"
+                  className="text-xs sm:text-sm font-semibold leading-relaxed px-2"
                   animate={{ 
                     opacity: activeValue === value.id ? 1 : 0.85,
-                    y: activeValue === value.id ? -1 : 0
+                    y: activeValue === value.id && window.innerWidth > 768 ? -1 : 0
                   }}
                   transition={{ duration: 0.3 }}
                 >
