@@ -80,7 +80,7 @@ const fetcher = async (url: string) => {
     }
     return response.json();
   } catch (error) {
-    console.warn('⚠️ CoinGecko fetch error:', error);
+    console.warn('CoinGecko fetch error:', error);
     
     // Return null instead of throwing to allow graceful degradation
     return null;
@@ -103,7 +103,7 @@ async function getTopCoins(limit: number = 20): Promise<CoinMarketData[]> {
     const response = await fetch(`/api/coingecko?endpoint=/coins/markets&params=${params.toString()}`);
     
     if (!response.ok) {
-      console.warn('⚠️ CoinGecko API error, using fallback data');
+      console.warn('CoinGecko API error, using fallback data');
       return getFallbackCoinsData(limit);
     }
     
@@ -111,13 +111,13 @@ async function getTopCoins(limit: number = 20): Promise<CoinMarketData[]> {
     
     // Check if we got fallback data from the API
     if (data.fallback) {
-      console.warn('⚠️ Received fallback data from API');
+      console.warn('Received fallback data from API');
       return Array.isArray(data) ? data : getFallbackCoinsData(limit);
     }
     
     return Array.isArray(data) ? data : getFallbackCoinsData(limit);
   } catch (error) {
-    console.warn('⚠️ Error fetching top coins, using fallback data:', error);
+    console.warn('Error fetching top coins, using fallback data:', error);
     return getFallbackCoinsData(limit);
   }
 }
@@ -127,7 +127,7 @@ async function getGlobalMarketData(): Promise<GlobalMarketData | null> {
     const response = await fetch('/api/coingecko?endpoint=/global');
     
     if (!response.ok) {
-      console.warn('⚠️ CoinGecko Global API error, using fallback data');
+      console.warn('CoinGecko Global API error, using fallback data');
       return getFallbackGlobalData();
     }
     
@@ -135,13 +135,13 @@ async function getGlobalMarketData(): Promise<GlobalMarketData | null> {
     
     // Check if we got fallback data from the API
     if (data.fallback) {
-      console.warn('⚠️ Received fallback global data from API');
+      console.warn('Received fallback global data from API');
       return data.data ? data : getFallbackGlobalData();
     }
     
     return data;
   } catch (error) {
-    console.warn('⚠️ Error fetching global market data, using fallback data:', error);
+    console.warn('Error fetching global market data, using fallback data:', error);
     return getFallbackGlobalData();
   }
 }
@@ -157,13 +157,13 @@ async function getCoinHistory(coinId: string, days: number = 1): Promise<CoinPri
     const response = await fetch(`/api/coingecko?endpoint=/coins/${coinId}/market_chart&params=${params.toString()}`);
     
     if (!response.ok) {
-      console.warn('⚠️ CoinGecko History API error');
+      console.warn('CoinGecko History API error');
       return null;
     }
     
     return await response.json();
   } catch (error) {
-    console.warn('⚠️ Error fetching coin history:', error);
+    console.warn('Error fetching coin history:', error);
     return null;
   }
 }
@@ -774,7 +774,7 @@ export function useMarket(limit: number = 20) {
       dedupingInterval: 10 * 60 * 1000, // Increased to 10 minutes
       fallbackData: getFallbackCoinsData(limit), // Provide fallback data with correct limit
       onError: (error) => {
-        console.warn('⚠️ Market data hook error, using fallback data:', error);
+        console.warn('Market data hook error, using fallback data:', error);
       },
       onErrorRetry: (error, key, config, revalidate, { retryCount }) => {
         // Only retry up to 3 times
@@ -805,7 +805,7 @@ export function useGlobal() {
       dedupingInterval: 15 * 60 * 1000, // Increased to 15 minutes
       fallbackData: getFallbackGlobalData(), // Provide fallback data
       onError: (error) => {
-        console.warn('⚠️ Global market data hook error, using fallback data:', error);
+        console.warn('Global market data hook error, using fallback data:', error);
       },
       onErrorRetry: (error, key, config, revalidate, { retryCount }) => {
         // Only retry up to 3 times
@@ -834,7 +834,7 @@ function useCoinHistory(coinId: string, days: number = 1) {
       revalidateOnFocus: false,
       dedupingInterval: 15 * 60 * 1000, // Increased to 15 minutes
       onError: (error) => {
-        console.warn('⚠️ Coin history hook error:', error);
+        console.warn('Coin history hook error:', error);
       },
       onErrorRetry: (error, key, config, revalidate, { retryCount }) => {
         // Only retry up to 2 times for history data

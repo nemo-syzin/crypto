@@ -166,9 +166,9 @@ export function subscribeToMessages(
     .subscribe((status) => {
       console.log('Статус подписки на сообщения:', status);
       if (status === 'SUBSCRIBED') {
-        console.log('✅ Подписка на сообщения активна');
+        console.log('Подписка на сообщения активна');
       } else if (status === 'CHANNEL_ERROR') {
-        console.error('❌ Ошибка подписки на сообщения');
+        console.error('Ошибка подписки на сообщения');
         onError?.('Ошибка подключения к чату');
       }
     });

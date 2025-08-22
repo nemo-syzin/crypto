@@ -65,7 +65,7 @@ export function useFearGreed() {
       dedupingInterval: 20 * 60 * 1000, // Increased to 20 minutes
       fallbackData: getFallbackFearGreedData(), // Provide fallback data
       onError: (error) => {
-        console.warn('⚠️ Fear & Greed Index hook error, using fallback data:', error);
+        console.warn('Fear & Greed Index hook error, using fallback data:', error);
       },
       onErrorRetry: (error, key, config, revalidate, { retryCount }) => {
         // Only retry up to 3 times
