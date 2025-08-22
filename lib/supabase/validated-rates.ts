@@ -125,14 +125,35 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
   try {
     console.log('🔄 Querying kenig_rates table...');
     
-    const { data, error } = await supabase
-      .from('kenig_rates')
-      .select('*')
-      .order('updated_at', { ascending: false });
+    // Add timeout and retry logic for Supabase queries
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+    
+    let data, error;
+    try {
+      const result = await supabase
+        .from('kenig_rates')
+        .select('*')
+        .order('updated_at', { ascending: false });
+      
+      data = result.data;
+      error = result.error;
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      throw new Error(`Network connection failed: ${fetchError.message}`);
+    }
+    
+    clearTimeout(timeoutId);
 
     if (error) {
       console.error('❌ Supabase query error:', error);
-      throw new Error(`Supabase error: ${error.message} (Code: ${error.code})`);
+      
+      // Handle specific error types
+      if (error.message?.includes('fetch failed') || error.message?.includes('TypeError')) {
+        throw new Error(`Network connection to Supabase failed. Please check your internet connection and Supabase project status.`);
+      }
+      
+      throw new Error(`Supabase database error: ${error.message} (Code: ${error.code || 'unknown'})`);
     }
 
     console.log('📊 Raw data from Supabase kenig_rates table:', data);

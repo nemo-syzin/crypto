@@ -19,11 +19,34 @@ export async function GET() {
     
     // Check cache first
     if (cache && (now - cache.timestamp) < CACHE_DURATION) {
+      console.log('📦 Serving cached rates data');
       return NextResponse.json(cache.data);
     }
 
     console.log('🔄 Fetching fresh rates from database...');
-    const validationResult = await getValidatedKenigRates();
+    
+    let validationResult;
+    try {
+      validationResult = await getValidatedKenigRates();
+    } catch (error) {
+      console.error('❌ Failed to fetch rates from database:', error);
+      
+      // If we have cached data, serve it even if expired
+      if (cache && cache.data) {
+        console.warn('⚠️ Database connection failed, serving stale cached data');
+        return NextResponse.json({
+          ...cache.data,
+          error: `Database connection failed: ${error.message}`,
+          isStale: true
+        });
+      }
+      
+      // Otherwise serve fallback data
+      console.warn('⚠️ Database connection failed, serving fallback data');
+      const fallbackData = getFallbackData();
+      fallbackData.error = `Database connection failed: ${error.message}`;
+      return NextResponse.json(fallbackData);
+    }
     
     const data = {
       kenig: { sell: null, buy: null },
