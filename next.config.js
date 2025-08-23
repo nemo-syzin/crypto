@@ -1,16 +1,32 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
+// next.config.js
+/** @type {import('next').NextConfig} */
+
+function getWebpackSafe() {
+  try {
+    // обычный webpack в Node-окружении
+    return require('webpack');
+  } catch {}
+  try {
+    // бандленый webpack, который использует сам Next.js
+    return require('next/dist/compiled/webpack/webpack');
+  } catch {}
+  return null;
+}
+
+const nextConfig = {
+  reactStrictMode: true,
+
+  // если у тебя есть другие опции — оставь их
   eslint: {
-    /** Disable failing build due to ESLint errors */
     ignoreDuringBuilds: true,
   },
   typescript: {
-    /** Disable failing build due to TypeScript errors */
     ignoreBuildErrors: true,
   },
-  images: { 
+  images: {
     remotePatterns: [
       {
         protocol: "https",
@@ -54,31 +70,31 @@ const nextConfig = {
       }
     ],
   },
-  // Optimize bundle size
   experimental: {
     optimizePackageImports: ['lucide-react', 'framer-motion'],
   },
+
   webpack: (config, { isServer }) => {
-  }
-  webpack: (config, { isServer, webpack }) => {
+    const wp = getWebpackSafe();
+
     // Fix for Supabase realtime-js critical dependency warning
     config.module.exprContextCritical = false;
-    
+
     // Use IgnorePlugin to completely prevent react-fast-marquee from being processed on server
-    if (isServer) {
+    if (isServer && wp && wp.IgnorePlugin) {
       config.plugins = config.plugins || [];
       config.plugins.push(
-        new webpack.IgnorePlugin({
-          resourceRegExp: /^react-fast-marquee$/,
-        })
+        new wp.IgnorePlugin({ resourceRegExp: /^react-fast-marquee$/ })
       );
+    } else if (isServer) {
+      console.warn('[next.config] webpack.IgnorePlugin not available; skipping react-fast-marquee ignore for server build');
     }
-    
+
     config.resolve.alias = {
       ...config.resolve.alias,
       '@': require('path').resolve(__dirname, '.'),
     };
-    
+
     // Fix for client-side modules
     if (!isServer) {
       config.resolve.fallback = {
@@ -88,7 +104,7 @@ const nextConfig = {
         tls: false,
       };
     }
-    
+
     // Optimize chunks for better caching
     config.optimization = {
       ...config.optimization,
@@ -109,7 +125,7 @@ const nextConfig = {
         },
       },
     };
-    
+
     return config;
   },
 };
