@@ -59,6 +59,7 @@ const nextConfig = {
     optimizePackageImports: ['lucide-react', 'framer-motion'],
   },
   webpack: (config, { isServer }) => {
+  }
   webpack: (config, { isServer, webpack }) => {
     // Fix for Supabase realtime-js critical dependency warning
     config.module.exprContextCritical = false;
