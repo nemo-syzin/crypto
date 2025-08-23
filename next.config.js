@@ -71,6 +71,12 @@ const nextConfig = {
     // Fix for Supabase realtime-js critical dependency warning
     config.module.exprContextCritical = false;
     
+    // Exclude react-fast-marquee from server bundle to prevent 'self is not defined' error
+    if (isServer) {
+      config.externals = config.externals || [];
+      config.externals.push('react-fast-marquee');
+    }
+    
     config.resolve.alias = {
       ...config.resolve.alias,
       '@': require('path').resolve(__dirname, '.'),
