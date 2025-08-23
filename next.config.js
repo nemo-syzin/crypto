@@ -57,15 +57,6 @@ const nextConfig = {
   // Optimize bundle size
   experimental: {
     optimizePackageImports: ['lucide-react', 'framer-motion'],
-    // Enable modern bundling optimizations
-    turbo: {
-      rules: {
-        '*.svg': {
-          loaders: ['@svgr/webpack'],
-          as: '*.js',
-        },
-      },
-    },
   },
   webpack: (config, { isServer }) => {
     // Fix for Supabase realtime-js critical dependency warning
