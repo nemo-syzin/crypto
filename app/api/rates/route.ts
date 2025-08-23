@@ -26,11 +26,27 @@ export async function GET() {
 
     const result = await getValidatedKenigRates();
 
+    // Find rates by source or use fallback
+    const fallback = getFallbackData();
+    const findRateBySource = (source: string) => {
+      return result.rates.find(rate => rate.source === source && rate.isValid);
+    };
+
+    const kenigRate = findRateBySource('kenig');
+    const bestchangeRate = findRateBySource('bestchange');
+    const energoRate = findRateBySource('energo');
+
     // Схема ответа — подстрой под свой фронт:
     const payload: any = {
-      kenig: (result.hasValidRates && result.rates[0])
-        ? { sell: result.rates[0].sell, buy: result.rates[0].buy, updated_at: result.rates[0].updated_at }
-        : null,
+      kenig: kenigRate 
+        ? { sell: kenigRate.sell, buy: kenigRate.buy, updated_at: kenigRate.updated_at }
+        : fallback.kenig,
+      bestchange: bestchangeRate
+        ? { sell: bestchangeRate.sell, buy: bestchangeRate.buy, updated_at: bestchangeRate.updated_at }
+        : fallback.bestchange,
+      energo: energoRate
+        ? { sell: energoRate.sell, buy: energoRate.buy, updated_at: energoRate.updated_at }
+        : fallback.energo,
       timestamp: new Date().toISOString(),
       isFromDatabase: result.isFromDatabase,
       meta: {
@@ -42,8 +58,6 @@ export async function GET() {
     };
 
     if (!result.hasValidRates) {
-      const fb = getFallbackData();
-      payload.fallback = fb;
       payload.error = result.error || 'No valid rates';
     }
 

@@ -94,7 +94,7 @@ export default function RatesComparison() {
         name: 'KenigSwap',
         sellRate: rates.kenig?.sell || null,
         buyRate: rates.kenig?.buy || null,
-        updatedAt: rates.kenig.updated_at,
+        updatedAt: rates.kenig?.updated_at || new Date().toISOString(),
         available: rates.kenig?.sell !== null && !isNaN(rates.kenig?.sell || 0),
         description: 'Основной',
         priority: 1
@@ -103,7 +103,7 @@ export default function RatesComparison() {
         name: 'BestChange',
         sellRate: rates.bestchange?.sell || null,
         buyRate: rates.bestchange?.buy || null,
-        updatedAt: rates.bestchange.updated_at,
+        updatedAt: rates.bestchange?.updated_at || new Date().toISOString(),
         available: rates.bestchange?.sell !== null && !isNaN(rates.bestchange?.sell || 0),
         description: 'Агрегатор',
         priority: 2
