@@ -1,8 +1,10 @@
+export const runtime = 'edge'; // важно: Edge runtime → Web Fetch вместо undici
+
 import { NextResponse } from 'next/server';
 import { getValidatedKenigRates } from '@/lib/supabase/validated-rates';
 
 let cache: { data: any; timestamp: number } | null = null;
-const CACHE_DURATION = 120 * 1000; // Увеличиваем кэш до 2 минут
+const CACHE_DURATION = 120 * 1000;
 
 const getFallbackData = () => ({
   kenig: { sell: 95.50, buy: 94.80, updated_at: new Date().toISOString() },
@@ -10,99 +12,51 @@ const getFallbackData = () => ({
   energo: { sell: 95.20, buy: 94.70, updated_at: new Date().toISOString() },
   timestamp: new Date().toISOString(),
   isFromDatabase: false,
-  isFallback: true
+  isFallback: true,
 });
 
 export async function GET() {
   try {
-    const now = Date.now();
-    
-    // Check cache first
-    if (cache && (now - cache.timestamp) < CACHE_DURATION) {
-      console.log('📦 Serving cached rates data');
-      return NextResponse.json(cache.data);
+    // простой cache-guard
+    if (cache && Date.now() - cache.timestamp < CACHE_DURATION) {
+      return NextResponse.json(cache.data, {
+        headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120' },
+      });
     }
 
-    console.log('🔄 Fetching fresh rates from database...');
-    
-    let validationResult;
-    try {
-      validationResult = await getValidatedKenigRates();
-    } catch (error) {
-      console.error('❌ Failed to fetch rates from database:', error);
-      
-      // If we have cached data, serve it even if expired
-      if (cache && cache.data) {
-        console.warn('⚠️ Database connection failed, serving stale cached data');
-        return NextResponse.json({
-          ...cache.data,
-          error: `Database connection failed: ${error.message}`,
-          isStale: true
-        });
-      }
-      
-      // Otherwise serve fallback data
-      console.warn('⚠️ Database connection failed, serving fallback data');
-      const fallbackData = getFallbackData();
-      fallbackData.error = `Database connection failed: ${error.message}`;
-      return NextResponse.json(fallbackData);
-    }
-    
-    const data = {
-      kenig: { sell: null, buy: null },
-      bestchange: { sell: null, buy: null },
-      energo: { sell: null, buy: null },
+    const result = await getValidatedKenigRates();
+
+    // Схема ответа — подстрой под свой фронт:
+    const payload: any = {
+      kenig: (result.hasValidRates && result.rates[0])
+        ? { sell: result.rates[0].sell, buy: result.rates[0].buy, updated_at: result.rates[0].updated_at }
+        : null,
       timestamp: new Date().toISOString(),
-      isFromDatabase: validationResult.isFromDatabase,
-      error: validationResult.error,
-      debug: {
-        totalRates: validationResult.totalRates,
-        validRatesCount: validationResult.validRatesCount,
-        invalidRatesCount: validationResult.invalidRatesCount
-      }
+      isFromDatabase: result.isFromDatabase,
+      meta: {
+        totalRates: result.totalRates,
+        valid: result.validRatesCount,
+        invalid: result.invalidRatesCount,
+        lastUpdated: result.lastUpdated.toISOString(),
+      },
     };
 
-    if (validationResult.hasValidRates) {
-      
-      validationResult.rates.forEach(rate => {
-        if (rate.isValid) {
-          const rateData = {
-            sell: Number(rate.sell),
-            buy: Number(rate.buy),
-            updated_at: rate.updated_at
-          };
-
-          if (rate.source === 'kenig') data.kenig = rateData;
-          else if (rate.source === 'bestchange') data.bestchange = rateData;
-          else if (rate.source === 'energo') data.energo = rateData;
-        } else {
-          console.warn(`⚠️ Invalid rate for ${rate.source}:`, rate.validationErrors);
-        }
-      });
-    } else {
-      console.warn('⚠️ No valid rates found, using fallback data. Error:', validationResult.error);
-      const fallback = getFallbackData();
-      Object.assign(data, fallback);
+    if (!result.hasValidRates) {
+      const fb = getFallbackData();
+      payload.fallback = fb;
+      payload.error = result.error || 'No valid rates';
     }
 
-    // Update cache only if we have valid data or this is the first request
-    if (validationResult.hasValidRates || !cache) {
-      cache = { data, timestamp: now };
-    }
-    
-    return NextResponse.json(data, {
-      headers: {
-        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
-      },
+    cache = { data: payload, timestamp: Date.now() };
+
+    return NextResponse.json(payload, {
+      headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120' },
     });
-  } catch (error) {
-    console.error('❌ API Error in /api/rates:', error);
-    const fallbackData = getFallbackData();
-    fallbackData.error = error instanceof Error ? error.message : 'API request failed';
-    return NextResponse.json(fallbackData, {
-      headers: {
-        'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=60',
-      },
+  } catch (error: any) {
+    const fb = getFallbackData();
+    fb.error = error?.message || 'API request failed';
+    return NextResponse.json(fb, {
+      headers: { 'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=60' },
     });
   }
 }
