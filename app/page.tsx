@@ -1,5 +1,10 @@
 import HeroSection from '@/components/home/hero-section';
-import UnifiedMainSection from '@/components/home/unified-main-section';
+import dynamic from 'next/dynamic';
+
+const UnifiedMainSection = dynamic(
+  () => import('@/components/home/unified-main-section'),
+  { ssr: false }
+);
 
 export default function Home() {
   return (
