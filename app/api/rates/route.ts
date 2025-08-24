@@ -22,6 +22,31 @@ export async function GET() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   
+  // Early validation of environment variables
+  if (!supabaseUrl || !supabaseKey || 
+      supabaseUrl === 'https://your-project-id.supabase.co' ||
+      supabaseKey === 'your-anon-public-key-here' ||
+      !supabaseUrl.startsWith('https://') ||
+      supabaseKey.length < 50) {
+    
+    console.error('❌ [API /rates] Invalid Supabase configuration:', {
+      hasUrl: !!supabaseUrl,
+      hasKey: !!supabaseKey,
+      urlIsPlaceholder: supabaseUrl === 'https://your-project-id.supabase.co',
+      keyIsPlaceholder: supabaseKey === 'your-anon-public-key-here',
+      urlValid: supabaseUrl?.startsWith('https://'),
+      keyValid: supabaseKey && supabaseKey.length > 50
+    });
+    
+    const fallback = getFallbackData();
+    fallback.error = 'Supabase configuration error: Please check your environment variables';
+    
+    return NextResponse.json(fallback, {
+      status: 500,
+      headers: { 'Cache-Control': 'no-cache' },
+    });
+  }
+  
   console.log('🔧 [API /rates] Environment check:', {
     hasSupabaseUrl: !!supabaseUrl,
     supabaseUrlValid: supabaseUrl?.startsWith('https://'),
