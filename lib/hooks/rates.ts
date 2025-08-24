@@ -68,7 +68,30 @@ export function useAllRates() {
       });
       
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        // Пытаемся получить детальное сообщение об ошибке с сервера
+        let errorMessage = `HTTP error! status: ${response.status}`;
+        try {
+          const errorData = await response.json();
+          if (errorData.error) {
+            errorMessage = `${errorData.error}`;
+          } else if (errorData.message) {
+            errorMessage = `${errorData.message}`;
+          } else if (errorData.details) {
+            errorMessage = `${errorData.details}`;
+          }
+        } catch (parseError) {
+          // Если не удалось распарсить JSON, используем текст ответа
+          try {
+            const errorText = await response.text();
+            if (errorText) {
+              errorMessage = `HTTP ${response.status}: ${errorText.substring(0, 200)}`;
+            }
+          } catch (textError) {
+            // Оставляем базовое сообщение об ошибке
+            errorMessage = `HTTP error! status: ${response.status} (${response.statusText})`;
+          }
+        }
+        throw new Error(errorMessage);
       }
       
       const data = await response.json();
@@ -218,7 +241,30 @@ export function useKenigRate() {
       });
       
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        // Пытаемся получить детальное сообщение об ошибке с сервера
+        let errorMessage = `HTTP error! status: ${response.status}`;
+        try {
+          const errorData = await response.json();
+          if (errorData.error) {
+            errorMessage = `${errorData.error}`;
+          } else if (errorData.message) {
+            errorMessage = `${errorData.message}`;
+          } else if (errorData.details) {
+            errorMessage = `${errorData.details}`;
+          }
+        } catch (parseError) {
+          // Если не удалось распарсить JSON, используем текст ответа
+          try {
+            const errorText = await response.text();
+            if (errorText) {
+              errorMessage = `HTTP ${response.status}: ${errorText.substring(0, 200)}`;
+            }
+          } catch (textError) {
+            // Оставляем базовое сообщение об ошибке
+            errorMessage = `HTTP error! status: ${response.status} (${response.statusText})`;
+          }
+        }
+        throw new Error(errorMessage);
       }
       
       const data = await response.json();
