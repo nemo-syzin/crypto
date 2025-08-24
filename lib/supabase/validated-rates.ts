@@ -61,8 +61,19 @@ function validateRateRecord(rate: any): ValidatedKenigRate {
  */
 export async function getValidatedKenigRates(): Promise<RateValidationResult> {
   const status = getServerSupabaseStatus();
+  
+  console.log('🔧 [Supabase] Configuration status:', {
+    hasUrl: status.hasUrl,
+    hasAnon: status.hasAnon,
+    hasService: status.hasService,
+    url: status.url?.substring(0, 30) + '...',
+    isConfigured: isServerSupabaseConfigured()
+  });
 
   if (!isServerSupabaseConfigured()) {
+    const errorMsg = `Supabase configuration issue: URL=${status.hasUrl ? 'OK' : 'MISSING'}, ANON=${status.hasAnon ? 'OK' : 'MISSING'}`;
+    console.error('❌ [Supabase] Configuration error:', errorMsg);
+    
     return {
       rates: [],
       hasValidRates: false,
@@ -71,15 +82,17 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
       invalidRatesCount: 0,
       lastUpdated: new Date(),
       isFromDatabase: false,
-      error: `Supabase configuration issue: URL=${status.hasUrl ? 'OK' : 'MISSING'}, ANON=${status.hasAnon ? 'OK' : 'MISSING'}`,
+      error: errorMsg,
     };
   }
 
   // создаём КЛИЕНТ ЗДЕСЬ
+  console.log('🔄 [Supabase] Creating client...');
   const supabase: SupabaseClient = getServerSupabaseClient({ useServiceRole: false, timeoutMs: 8000 });
 
   try {
     // подстрой под свою схему (колонки и сортировку)
+    console.log('🔄 [Supabase] Querying kenig_rates table...');
     const { data, error } = await supabase
       .from('kenig_rates')
       .select('*')
@@ -87,10 +100,17 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
       .limit(50);
 
     if (error) {
+      console.error('❌ [Supabase] Query error:', {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint
+      });
       throw new Error(`Supabase error: ${error.message} (Code: ${error.code || ''})`);
     }
 
     if (!data || data.length === 0) {
+      console.warn('⚠️ [Supabase] No data found in kenig_rates table');
       return {
         rates: [],
         hasValidRates: false,
@@ -103,14 +123,40 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
       };
     }
 
+    console.log('📊 [Supabase] Raw data received:', {
+      recordCount: data.length,
+      firstRecord: data[0] ? {
+        id: data[0].id,
+        source: data[0].source,
+        base: data[0].base,
+        quote: data[0].quote,
+        sell: data[0].sell,
+        buy: data[0].buy,
+        updated_at: data[0].updated_at
+      } : 'no records'
+    });
+
     const validated = data.map(validateRateRecord);
     const validRates = validated.filter(r => r.isValid);
+    
+    console.log('✅ [Supabase] Validation results:', {
+      totalRecords: validated.length,
+      validRecords: validRates.length,
+      invalidRecords: validated.length - validRates.length,
+      validSources: validRates.map(r => r.source),
+      invalidRecords: validated.filter(r => !r.isValid).map(r => ({
+        source: r.source,
+        errors: r.validationErrors
+      }))
+    });
 
     const lastUpdated = new Date(
       validRates.length
         ? Math.max(...validRates.map(r => new Date(r.updated_at).getTime()))
         : new Date(data[0].updated_at ?? Date.now()).getTime()
     );
+
+    console.log('✅ [Supabase] Successfully processed rates data');
 
     return {
       rates: validated,
@@ -123,10 +169,19 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
     };
   } catch (e: any) {
     // перехватываем сетевые сбои / аборты / таймауты
+    console.error('❌ [Supabase] Exception caught:', {
+      name: e?.name,
+      message: e?.message,
+      stack: e?.stack,
+      cause: e?.cause
+    });
+    
     const msg =
       e?.name === 'AbortError'
         ? 'Supabase request timeout'
         : e?.message || 'Unknown Supabase error';
+
+    console.error('❌ [Supabase] Final error message:', msg);
 
     return {
       rates: [],
