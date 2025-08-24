@@ -73,11 +73,11 @@ export function useAllRates() {
         try {
           const errorData = await response.json();
           if (errorData.error) {
-            errorMessage = `${errorData.error}`;
+            errorMessage = errorData.error;
           } else if (errorData.message) {
-            errorMessage = `${errorData.message}`;
+            errorMessage = errorData.message;
           } else if (errorData.details) {
-            errorMessage = `${errorData.details}`;
+            errorMessage = errorData.details;
           }
         } catch (parseError) {
           // Если не удалось распарсить JSON, используем текст ответа
@@ -91,6 +91,12 @@ export function useAllRates() {
             errorMessage = `HTTP error! status: ${response.status} (${response.statusText})`;
           }
         }
+        
+        // Special handling for configuration errors
+        if (response.status === 500 && errorMessage.includes('configuration')) {
+          errorMessage = 'Ошибка конфигурации: Проверьте настройки Supabase в файле .env.local';
+        }
+        
         throw new Error(errorMessage);
       }
       
@@ -246,11 +252,11 @@ export function useKenigRate() {
         try {
           const errorData = await response.json();
           if (errorData.error) {
-            errorMessage = `${errorData.error}`;
+            errorMessage = errorData.error;
           } else if (errorData.message) {
-            errorMessage = `${errorData.message}`;
+            errorMessage = errorData.message;
           } else if (errorData.details) {
-            errorMessage = `${errorData.details}`;
+            errorMessage = errorData.details;
           }
         } catch (parseError) {
           // Если не удалось распарсить JSON, используем текст ответа
@@ -264,6 +270,12 @@ export function useKenigRate() {
             errorMessage = `HTTP error! status: ${response.status} (${response.statusText})`;
           }
         }
+        
+        // Special handling for configuration errors
+        if (response.status === 500 && errorMessage.includes('configuration')) {
+          errorMessage = 'Ошибка конфигурации: Проверьте настройки Supabase в файле .env.local';
+        }
+        
         throw new Error(errorMessage);
       }
       
