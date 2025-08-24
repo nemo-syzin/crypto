@@ -86,31 +86,39 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
     };
   }
 
-  // создаём КЛИЕНТ ЗДЕСЬ
+  // Создаём клиент Supabase с увеличенным таймаутом
   console.log('🔄 [Supabase] Creating client...');
-  const supabase: SupabaseClient = getServerSupabaseClient({ useServiceRole: false, timeoutMs: 8000 });
+  const supabase: SupabaseClient = getServerSupabaseClient({ useServiceRole: false, timeoutMs: 15000 });
+  console.log('✅ [Supabase] Client created successfully');
 
   try {
-    // подстрой под свою схему (колонки и сортировку)
+    // Выполняем запрос к таблице kenig_rates
     console.log('🔄 [Supabase] Querying kenig_rates table...');
+    console.log('🔍 [Supabase] Query details: SELECT * FROM kenig_rates ORDER BY updated_at DESC LIMIT 50');
+    
+    const queryStartTime = Date.now();
     const { data, error } = await supabase
       .from('kenig_rates')
       .select('*')
       .order('updated_at', { ascending: false })
       .limit(50);
 
+    const queryDuration = Date.now() - queryStartTime;
+    console.log(`⏱️ [Supabase] Query completed in ${queryDuration}ms`);
     if (error) {
       console.error('❌ [Supabase] Query error:', {
         message: error.message,
         code: error.code,
         details: error.details,
-        hint: error.hint
+        hint: error.hint,
+        queryDuration: queryDuration
       });
       throw new Error(`Supabase error: ${error.message} (Code: ${error.code || ''})`);
     }
 
     if (!data || data.length === 0) {
       console.warn('⚠️ [Supabase] No data found in kenig_rates table');
+      console.log('🔍 [Supabase] Table might be empty or query filters too restrictive');
       return {
         rates: [],
         hasValidRates: false,
@@ -125,6 +133,7 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
 
     console.log('📊 [Supabase] Raw data received:', {
       recordCount: data.length,
+      totalDataSize: JSON.stringify(data).length,
       firstRecord: data[0] ? {
         id: data[0].id,
         source: data[0].source,
@@ -133,9 +142,13 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
         sell: data[0].sell,
         buy: data[0].buy,
         updated_at: data[0].updated_at
-      } : 'no records'
+      } : 'no records',
+      allSources: [...new Set(data.map(r => r.source))],
+      allBaseCurrencies: [...new Set(data.map(r => r.base))],
+      allQuoteCurrencies: [...new Set(data.map(r => r.quote))]
     });
 
+    console.log('🔄 [Supabase] Starting validation process...');
     const validated = data.map(validateRateRecord);
     const validRates = validated.filter(r => r.isValid);
     
@@ -168,17 +181,23 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
       isFromDatabase: true,
     };
   } catch (e: any) {
-    // перехватываем сетевые сбои / аборты / таймауты
+    // Перехватываем все типы ошибок с детальным логированием
     console.error('❌ [Supabase] Exception caught:', {
       name: e?.name,
       message: e?.message,
-      stack: e?.stack,
-      cause: e?.cause
+      stack: e?.stack?.substring(0, 500) + '...', // Ограничиваем размер стека
+      cause: e?.cause,
+      code: e?.code,
+      details: e?.details,
+      hint: e?.hint,
+      timestamp: new Date().toISOString()
     });
     
     const msg =
       e?.name === 'AbortError'
-        ? 'Supabase request timeout'
+        ? 'Supabase request timeout (15 seconds exceeded)'
+        : e?.name === 'TypeError' && e?.message?.includes('fetch')
+        ? 'Network connection error to Supabase'
         : e?.message || 'Unknown Supabase error';
 
     console.error('❌ [Supabase] Final error message:', msg);
