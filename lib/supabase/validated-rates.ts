@@ -96,87 +96,66 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
   console.log('✅ [Supabase] Client created successfully');
 
   try {
-    // Сначала пробуем использовать оптимизированный view
-    console.log('🔄 [Supabase] Trying optimized view kenig_pairs_latest...');
-    
-    const queryStartTime = Date.now();
-    let { data, error } = await supabase
-      .from('kenig_pairs_latest')
-      .select('*')
-      .order('updated_at', { ascending: false });
+    // Пользователь явно запросил не использовать view, используем полную таблицу с пагинацией
+    console.warn('⚠️ [Supabase] User explicitly requested to not use view, fetching all records with pagination.');
+    console.log('🔄 [Supabase] Querying kenig_rates table with pagination...');
 
-    let queryDuration = Date.now() - queryStartTime;
-    
-    // Если view недоступен, используем полную таблицу с пагинацией
-    if (error && (error.message?.includes('does not exist') || error.message?.includes('relation') || error.code === '42P01')) {
-      console.warn('⚠️ [Supabase] View kenig_pairs_latest not available, falling back to full table with pagination');
-      console.log('🔄 [Supabase] Querying kenig_rates table with pagination...');
-      
-      const paginationStartTime = Date.now();
-      const allData: any[] = [];
-      let from = 0;
-      let hasMoreData = true;
-      let pageCount = 0;
-      
-      while (hasMoreData && allData.length < MAX_TOTAL_RECORDS) {
-        const to = from + PAGINATION_SIZE - 1;
-        console.log(`🔍 [Supabase] Fetching page ${pageCount + 1}: range(${from}, ${to})`);
-        
-        const { data: pageData, error: pageError } = await supabase
-          .from('kenig_rates')
-          .select('*')
-          .not('base', 'is', null)
-          .not('quote', 'is', null)
-          .not('source', 'is', null)
-          .order('updated_at', { ascending: false })
-          .range(from, to);
-        
-        if (pageError) {
-          console.error('❌ [Supabase] Pagination error:', pageError);
-          throw pageError;
-        }
-        
-        if (!pageData || pageData.length === 0) {
-          console.log('📄 [Supabase] No more data, stopping pagination');
-          hasMoreData = false;
-          break;
-        }
-        
-        allData.push(...pageData);
-        console.log(`📊 [Supabase] Page ${pageCount + 1} loaded: ${pageData.length} records (total: ${allData.length})`);
-        
-        // Если получили меньше записей, чем размер страницы, значит это последняя страница
-        if (pageData.length < PAGINATION_SIZE) {
-          console.log('📄 [Supabase] Last page reached');
-          hasMoreData = false;
-        } else {
-          from = to + 1;
-          pageCount++;
-        }
-        
-        // Защита от бесконечного цикла
-        if (pageCount > 50) {
-          console.warn('⚠️ [Supabase] Too many pages, stopping pagination for safety');
-          hasMoreData = false;
-        }
+    const paginationStartTime = Date.now();
+    const allData: any[] = [];
+    let from = 0;
+    let hasMoreData = true;
+    let pageCount = 0;
+
+    while (hasMoreData && allData.length < MAX_TOTAL_RECORDS) {
+      const to = from + PAGINATION_SIZE - 1;
+      console.log(`🔍 [Supabase] Fetching page ${pageCount + 1}: range(${from}, ${to})`);
+
+      const { data: pageData, error: pageError } = await supabase
+        .from('kenig_rates') // Используем напрямую таблицу kenig_rates
+        .select('*')
+        .not('base', 'is', null)
+        .not('quote', 'is', null)
+        .not('source', 'is', null)
+        .order('updated_at', { ascending: false })
+        .range(from, to);
+
+      if (pageError) {
+        console.error('❌ [Supabase] Pagination error:', pageError);
+        throw pageError;
       }
-      
-      data = allData;
-      error = null;
-      queryDuration = Date.now() - paginationStartTime;
-      
-      console.log(`✅ [Supabase] Pagination completed: ${allData.length} total records in ${pageCount + 1} pages`);
-    } else if (error) {
-      console.error('❌ [Supabase] View query error:', error);
-      throw error;
-    } else {
-      console.log('✅ [Supabase] Successfully used optimized view kenig_pairs_latest');
+
+      if (!pageData || pageData.length === 0) {
+        console.log('📄 [Supabase] No more data, stopping pagination');
+        hasMoreData = false;
+        break;
+      }
+
+      allData.push(...pageData);
+      console.log(`📊 [Supabase] Page ${pageCount + 1} loaded: ${pageData.length} records (total: ${allData.length})`);
+
+      // Если получили меньше записей, чем размер страницы, значит это последняя страница
+      if (pageData.length < PAGINATION_SIZE) {
+        console.log('📄 [Supabase] Last page reached');
+        hasMoreData = false;
+      } else {
+        from = to + 1;
+        pageCount++;
+      }
+
+      // Защита от бесконечного цикла
+      if (pageCount > 50) { // Ограничиваем количество страниц для безопасности
+        console.warn('⚠️ [Supabase] Too many pages, stopping pagination for safety');
+        hasMoreData = false;
+      }
     }
 
-    console.log(`⏱️ [Supabase] Query completed in ${queryDuration}ms`);
+    const data = allData; // Все собранные данные
+    const queryDuration = Date.now() - paginationStartTime;
+
+    console.log(`✅ [Supabase] Pagination completed: ${allData.length} total records in ${pageCount + 1} pages`);
 
     if (!data || data.length === 0) {
-      console.warn('⚠️ [Supabase] No data found in kenig_rates table or view');
+      console.warn('⚠️ [Supabase] No data found in kenig_rates table');
       console.log('🔍 [Supabase] Table might be empty or all records have NULL values in required fields');
       return {
         rates: [],
@@ -186,7 +165,7 @@ export async function getValidatedKenigRates(): Promise<RateValidationResult> {
         invalidRatesCount: 0,
         lastUpdated: new Date(),
         isFromDatabase: true,
-        error: 'No exchange rate data found in kenig_rates table or view',
+        error: 'No exchange rate data found in kenig_rates table',
       };
     }
 
