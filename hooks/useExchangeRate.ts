@@ -49,7 +49,8 @@ async function pickLatest(from:string, to:string, source?:string): Promise<Rate 
       rate: Number(directData[0].buy), 
       source: directData[0].source, 
       direction: 'direct', 
-      updated_at: directData[0].updated_at 
+      updated_at: directData[0].updated_at,
+      pair: `${fromUpper}/${toUpper}`
     };
   }
   
@@ -78,7 +79,8 @@ async function pickLatest(from:string, to:string, source?:string): Promise<Rate 
       rate: invertedRate, 
       source: inverseData[0].source, 
       direction: 'inverse', 
-      updated_at: inverseData[0].updated_at 
+      updated_at: inverseData[0].updated_at,
+      pair: `${fromUpper}/${toUpper}`
     };
   }
   
@@ -119,17 +121,29 @@ async function resolveRate(from:string, to:string, priority = sources): Promise<
   return null;
 }
 
+async function fetchExchangeRate(from: string, to: string): Promise<Rate> {
+  if (from === to) {
+    return { rate: 1, updated_at: new Date().toISOString(), pair: `${from.toUpperCase()}/${to.toUpperCase()}`, source: 'system', direction: 'direct' };
+  }
+  
+  const result = await resolveRate(from, to); // Используем новую функцию resolveRate
+  
+  if (!result) {
+    throw new Error(`No exchange rate found for ${from}/${to}`);
+  }
+  
+  return result;
+}
+
 export function useExchangeRate(from: string, to: string) {
-      
-      const result = await resolveRate(from, to); // Используем новую функцию resolveRate
+  const { data, error, isLoading, mutate } = useSWR(
     from && to && from !== to ? `rate-${from}-${to}` : null,
     () => (from === to
-      ? { rate: 1, updated_at: new Date().toISOString(), pair: `${from}/${to}`, source: 'system' }
+      ? { rate: 1, updated_at: new Date().toISOString(), pair: `${from}/${to}`, source: 'system', direction: 'direct' }
       : fetchExchangeRate(from, to)),
     { 
       // Если валюты одинаковые, курс всегда 1
       refreshInterval: 120_000, // 2 минуты
-        return { rate: 1, updated_at: new Date().toISOString(), pair: `${from.toUpperCase()}/${to.toUpperCase()}`, source: 'system', direction: 'direct' };
       dedupingInterval: 60_000, // 1 минута
     }
   );
