@@ -14,140 +14,123 @@ interface Rate {
   rate: number;           // Уже готовый курс
   updated_at: string;
   pair: string;
-  source: 'kenig' | 'derived';
+  source: string; // Изменено на string для поддержки всех источников
+  direction: 'direct' | 'inverse'; // Добавлено поле direction
 }
 
-const fetchExchangeRate = async (from: string, to: string): Promise<Rate> => {
-  if (!isSupabaseAvailable()) throw new Error('supabase-off');
+const sources = ['kenig','bestchange','derived','energo'] as const; // Приоритет источников
 
-  console.log(`🔄 Fetching exchange rate for ${from} -> ${to}`);
+async function pickLatest(from:string, to:string, source?:string): Promise<Rate | null> {
+  // Приводим валюты к верхнему регистру для запросов
+  const fromUpper = from.toUpperCase();
+  const toUpper = to.toUpperCase();
 
-  // Шаг 1: Ищем прямую пару (from -> to)
-  console.log(`🔍 Looking for direct pair: ${from}/${to}`);
+  console.log(`  -> Attempting direct lookup for ${fromUpper}/${toUpper} from source: ${source || 'any'}`);
   
-  let { data: directPair, error: directError } = await supabase
-    .from('kenig_rates')
-    .select('*')
-    .eq('base', from)
-    .eq('quote', to)
-    .eq('source', 'kenig')
-    .maybeSingle();
-
+  // 1. Ищем прямую пару (from -> to) и используем buy курс (обменник покупает у нас FROM)
+  let qDirect = supabase.from('kenig_rates')
+    .select('source,base,quote,buy,sell,updated_at')
+    .eq('base', fromUpper)
+    .eq('quote', toUpper)
+    .order('updated_at', { ascending:false })
+    .limit(1);
+  if (source) qDirect = qDirect.eq('source', source);
+  
+  const { data: directData, error: directError } = await qDirect;
+  
   if (directError) {
-    console.warn(`⚠️ Error fetching direct pair ${from}/${to}:`, directError);
+    console.warn(`  -> Error during direct lookup for ${fromUpper}/${toUpper} from source ${source || 'any'}:`, directError);
+    // Не выбрасываем ошибку, чтобы попробовать инверсную пару или следующий источник
   }
 
-  if (directPair && directPair.buy && directPair.buy > 0) {
-    // Для прямой пары: клиент отдает from (базовую валюту), получает to (котируемую)
-    // Клиент продает базовую валюту, обменник покупает, поэтому используем buy курс
-    console.log(`✅ Found direct pair ${from}/${to}, using buy rate (exchanger buys ${from}):`, directPair.buy);
-    return {
-      rate: directPair.buy,
-      updated_at: directPair.updated_at,
-      pair: `${from}/${to}`,
-      source: 'kenig',
+  if (directData?.length && Number(directData[0].buy) > 0) {
+    console.log(`  -> Found direct rate: ${directData[0].buy} (source: ${directData[0].source})`);
+    return { 
+      rate: Number(directData[0].buy), 
+      source: directData[0].source, 
+      direction: 'direct', 
+      updated_at: directData[0].updated_at 
     };
   }
-
-  // Шаг 2: Если прямая пара не найдена, ищем обратную пару (to -> from)
-  console.log(`🔍 Direct pair not found, looking for reverse pair: ${to}/${from}`);
   
-  let { data: reversePair, error: reverseError } = await supabase
-    .from('kenig_rates')
-    .select('*')
-    .eq('base', to)
-    .eq('quote', from)
-    .eq('source', 'kenig')
-    .maybeSingle();
-
-  if (reverseError) {
-    console.warn(`⚠️ Error fetching reverse pair ${to}/${from}:`, reverseError);
-  }
-
-  if (reversePair && reversePair.sell && reversePair.sell > 0) {
-    // Для обратной пары: клиент отдает from (котируемую), получает to (базовую)
-    // Клиент покупает базовую валюту, обменник продает, поэтому используем sell курс и инвертируем
-    const invertedRate = 1 / reversePair.sell;
-    console.log(`✅ Found reverse pair ${to}/${from}, using inverted sell rate (exchanger sells ${to}): 1/${reversePair.sell} = ${invertedRate}`);
-    
-    return {
-      rate: invertedRate,
-      updated_at: reversePair.updated_at,
-      pair: `${from}/${to}`,
-      source: 'derived',
-    };
-  }
-
-  // Шаг 3: Если ни прямая, ни обратная пара не найдены в kenig, пробуем другие источники
-  console.log(`🔍 No kenig pairs found, trying other sources for ${from}/${to}`);
+  console.log(`  -> Attempting inverse lookup for ${toUpper}/${fromUpper} from source: ${source || 'any'}`);
   
-  // Пробуем прямую пару из других источников
-  let { data: otherDirectPair, error: otherDirectError } = await supabase
-    .from('kenig_rates')
-    .select('*')
-    .eq('base', from)
-    .eq('quote', to)
-    .in('source', ['bestchange', 'derived'])
-    .order('updated_at', { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  if (otherDirectError) {
-    console.warn(`⚠️ Error fetching other direct pair ${from}/${to}:`, otherDirectError);
+  // 2. Если прямая пара не найдена, ищем обратную пару (to -> from) и используем 1 / sell курс (обменник продает нам TO)
+  let qInverse = supabase.from('kenig_rates')
+    .select('source,base,quote,buy,sell,updated_at')
+    .eq('base', toUpper)
+    .eq('quote', fromUpper)
+    .order('updated_at', { ascending:false })
+    .limit(1);
+  if (source) qInverse = qInverse.eq('source', source);
+  
+  const { data: inverseData, error: inverseError } = await qInverse;
+  
+  if (inverseError) {
+    console.warn(`  -> Error during inverse lookup for ${toUpper}/${fromUpper} from source ${source || 'any'}:`, inverseError);
+    // Не выбрасываем ошибку, чтобы следующий источник мог быть проверен
   }
 
-  if (otherDirectPair && otherDirectPair.buy && otherDirectPair.buy > 0) {
-    console.log(`✅ Found direct pair from ${otherDirectPair.source}: ${from}/${to}, using buy rate:`, otherDirectPair.buy);
-    return {
-      rate: otherDirectPair.buy,
-      updated_at: otherDirectPair.updated_at,
-      pair: `${from}/${to}`,
-      source: 'derived',
+  if (inverseData?.length && Number(inverseData[0].sell) > 0) {
+    const invertedRate = 1 / Number(inverseData[0].sell);
+    console.log(`  -> Found inverse rate: 1/${inverseData[0].sell} = ${invertedRate} (source: ${inverseData[0].source})`);
+    return { 
+      rate: invertedRate, 
+      source: inverseData[0].source, 
+      direction: 'inverse', 
+      updated_at: inverseData[0].updated_at 
     };
   }
+  
+  console.log(`  -> No rate found for ${fromUpper}/${toUpper} from source: ${source || 'any'}`);
+  return null;
+}
 
-  // Пробуем обратную пару из других источников
-  let { data: otherReversePair, error: otherReverseError } = await supabase
-    .from('kenig_rates')
-    .select('*')
-    .eq('base', to)
-    .eq('quote', from)
-    .in('source', ['bestchange', 'derived'])
-    .order('updated_at', { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  if (otherReverseError) {
-    console.warn(`⚠️ Error fetching other reverse pair ${to}/${from}:`, otherReverseError);
+async function resolveRate(from:string, to:string, priority = sources): Promise<Rate | null> {
+  console.log(`Attempting to resolve rate for ${from}/${to} with priority: ${priority.join(', ')}`);
+  
+  // 1. Пробуем источники по приоритету
+  for (const s of priority) {
+    try {
+      const hit = await pickLatest(from, to, s);
+      if (hit) {
+        console.log(`Resolved rate for ${from}/${to} from source ${s}`);
+        return hit;
+      }
+    } catch (e) {
+      console.error(`Error picking latest from source ${s}:`, e);
+      // Продолжаем к следующему источнику, если произошла ошибка с текущим
+    }
+  }
+  
+  // 2. Если ни один приоритетный источник не дал результата, пробуем без фильтра по source
+  console.log(`No rate found with priority sources, attempting without source filter.`);
+  try {
+    const hit = await pickLatest(from, to); // Вызов pickLatest без указания source
+    if (hit) {
+      console.log(`Resolved rate for ${from}/${to} without specific source filter.`);
+      return hit;
+    }
+  } catch (e) {
+    console.error(`Error picking latest without source filter:`, e);
   }
 
-  if (otherReversePair && otherReversePair.sell && otherReversePair.sell > 0) {
-    const invertedRate = 1 / otherReversePair.sell;
-    console.log(`✅ Found reverse pair from ${otherReversePair.source}: ${to}/${from}, using inverted sell rate: 1/${otherReversePair.sell} = ${invertedRate}`);
-    
-    return {
-      rate: invertedRate,
-      updated_at: otherReversePair.updated_at,
-      pair: `${from}/${to}`,
-      source: 'derived',
-    };
-  }
-
-  // Если ничего не найдено
-  console.error(`❌ No exchange rate found for ${from}/${to} in any direction or source`);
-  throw new Error(`no rate for ${from}/${to}`);
-};
+  console.log(`Failed to resolve rate for ${from}/${to} after all attempts.`);
+  return null;
+}
 
 export function useExchangeRate(from: string, to: string) {
-  const { data, error, isLoading, mutate } = useSWR(
+      
+      const result = await resolveRate(from, to); // Используем новую функцию resolveRate
     from && to && from !== to ? `rate-${from}-${to}` : null,
     () => (from === to
       ? { rate: 1, updated_at: new Date().toISOString(), pair: `${from}/${to}`, source: 'system' }
       : fetchExchangeRate(from, to)),
     { 
-      refreshInterval: 120_000, // Increased to 2 minutes
-      revalidateOnFocus: false,
-      dedupingInterval: 60_000, // Increased to 1 minute
+      // Если валюты одинаковые, курс всегда 1
+      refreshInterval: 120_000, // 2 минуты
+        return { rate: 1, updated_at: new Date().toISOString(), pair: `${from.toUpperCase()}/${to.toUpperCase()}`, source: 'system', direction: 'direct' };
+      dedupingInterval: 60_000, // 1 минута
     }
   );
 

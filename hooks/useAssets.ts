@@ -16,7 +16,7 @@ const fetchBases = async (): Promise<string[]> => {
     const { data, error } = await supabase
       .from('kenig_rates')
       .select('base')
-      .not('base', 'is', null);
+      .not('base', 'is', null); // Исключаем null значения
 
     if (error) {
       console.warn('⚠️ Error fetching base currencies:', error);
@@ -24,7 +24,7 @@ const fetchBases = async (): Promise<string[]> => {
     }
     
     if (data && data.length > 0) {
-      console.log('✅ Found base currencies:', data.length, 'records');
+      console.log('✅ Found base currencies:', data.length, 'records'); // Логируем количество найденных записей
       return [...new Set(data.map(r => r.base))].sort();
     }
     
@@ -49,8 +49,8 @@ const fetchQuotes = async (base: string): Promise<string[]> => {
     const { data, error } = await supabase
       .from('kenig_rates')
       .select('quote')
-      .eq('base', base)
-      .not('quote', 'is', null);
+      .eq('base', base.toUpperCase()) // Приводим base к верхнему регистру для запроса
+      .not('quote', 'is', null); // Исключаем null значения
 
     if (error) {
       console.warn(`⚠️ Error fetching quote currencies for ${base}:`, error);
@@ -58,7 +58,7 @@ const fetchQuotes = async (base: string): Promise<string[]> => {
     }
     
     if (data && data.length > 0) {
-      console.log(`✅ Found ${data.length} quote currencies for ${base}`);
+      console.log(`✅ Found ${data.length} quote currencies for ${base}`); // Логируем количество найденных записей
       return [...new Set(data.map(r => r.quote))].sort();
     }
     
