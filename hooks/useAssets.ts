@@ -25,7 +25,7 @@ const fetchBases = async (): Promise<string[]> => {
     
     if (data && data.length > 0) {
       console.log('✅ Found base currencies:', data.length, 'records'); // Логируем количество найденных записей
-      return [...new Set(data.map(r => r.base))].sort();
+      return [...new Set(data.map(r => r.base.toUpperCase()))].sort();
     }
     
     return ['USDT', 'RUB', 'BTC', 'ETH', 'BNB', 'USDC', 'ADA', 'DOT', 'XRP', 'SOL'].sort();
@@ -59,7 +59,7 @@ const fetchQuotes = async (base: string): Promise<string[]> => {
     
     if (data && data.length > 0) {
       console.log(`✅ Found ${data.length} quote currencies for ${base}`); // Логируем количество найденных записей
-      return [...new Set(data.map(r => r.quote))].sort();
+      return [...new Set(data.map(r => r.quote.toUpperCase()))].sort();
     }
     
     return [];
