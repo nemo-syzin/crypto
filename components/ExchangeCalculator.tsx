@@ -63,6 +63,14 @@ export default function ExchangeCalculator() {
     }
   }, [quotes, toCurrency]);
   
+  // Set valid fromCurrency when bases are loaded
+  useEffect(() => {
+    if (bases.length > 0 && !bases.includes(fromCurrency)) {
+      setFromCurrency(bases[0]);
+      setToCurrency(''); // Reset toCurrency to trigger quotes reload
+    }
+  }, [bases, fromCurrency]);
+  
   // Use exchange rate hook
   const { rate, loading, error, lastUpdated, refetch } = useExchangeRate(fromCurrency, toCurrency);
 
@@ -488,7 +496,7 @@ export default function ExchangeCalculator() {
               Отдаете
             </Label>
             <Select 
-              value={fromCurrency} 
+              value={bases.includes(fromCurrency) ? fromCurrency : undefined}
               onValueChange={handleFromCurrencyChange}
               disabled={bases.length === 0}
             >
@@ -516,7 +524,7 @@ export default function ExchangeCalculator() {
               value={amount}
               onChange={handleAmountChange}
               placeholder={`100 ${fromCurrency}`}
-              disabled={isCalculationDisabled}
+              disabled={!!error}
               className={`input-field ${error ? 'border-red-300' : ''}`}
             />
             <div className="hint-text">
@@ -528,7 +536,7 @@ export default function ExchangeCalculator() {
           <div className="flex justify-center">
             <button
               onClick={toggleDirection}
-              disabled={isCalculationDisabled || !toCurrency}
+              disabled={!fromCurrency || !toCurrency || !!error}
               className="swap-button"
             >
               <ArrowUpDown className="h-5 w-5 text-blue-600" />
@@ -541,7 +549,7 @@ export default function ExchangeCalculator() {
               Получаете
             </Label>
             <Select 
-              value={toCurrency} 
+              value={quotes.includes(toCurrency) ? toCurrency : undefined}
               onValueChange={setToCurrency}
               disabled={quotes.length === 0 || !fromCurrency}
             >
