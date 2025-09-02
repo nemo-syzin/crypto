@@ -1,37 +1,57 @@
 import useSWR from 'swr';
 import { supabase, isSupabaseAvailable } from '@/lib/supabase/client';
 
+const FALLBACK_BASES = [
+  'USDT', 'RUB', 'USD', 'BTC', 'ETH', 'SOL', 'XRP', 'LTC', 'TRX', 'BNB'
+] as const;
+
+const FALLBACK_QUOTES_BY_BASE: Record<string, string[]> = {
+  USDT: ['RUB', 'USD', 'BTC', 'ETH', 'SOL', 'XRP', 'LTC'],
+  RUB:  ['USDT', 'BTC', 'ETH', 'USD'],
+  USD:  ['USDT', 'BTC', 'ETH', 'RUB'],
+  BTC:  ['USDT', 'RUB', 'ETH', 'SOL'],
+  ETH:  ['USDT', 'RUB', 'BTC', 'SOL'],
+  SOL:  ['USDT', 'RUB', 'BTC', 'ETH'],
+  XRP:  ['USDT', 'RUB'],
+  LTC:  ['USDT', 'RUB'],
+  TRX:  ['USDT', 'RUB'],
+  BNB:  ['USDT', 'RUB'],
+};
+
 /**
  * Fetch all unique base currencies from kenig_rates table
  */
 const fetchBases = async (): Promise<string[]> => {
   if (!isSupabaseAvailable()) {
-    console.warn('⚠️ Supabase not available, using fallback bases');
-    return ['USDT', 'RUB', 'BTC', 'ETH', 'BNB', 'USDC', 'ADA', 'DOT', 'XRP', 'SOL'].sort();
+    console.warn('[Assets] ⚠️ Supabase not available, using fallback bases');
+    return Array.from(FALLBACK_BASES);
   }
 
   try {
-    console.log('🔄 Fetching base currencies from kenig_rates table...');
+    console.log('[Assets] 🔄 Fetching base currencies from kenig_rates table...');
     
     const { data, error } = await supabase
       .from('kenig_rates')
       .select('base')
-      .not('base', 'is', null); // Исключаем null значения
+      .not('base', 'is', null)
+      .limit(2000);
 
     if (error) {
-      console.warn('⚠️ Error fetching base currencies:', error);
+      console.warn('[Assets] ⚠️ Error fetching base currencies:', error);
       throw error;
     }
     
     if (data && data.length > 0) {
-      console.log('✅ Found base currencies:', data.length, 'records'); // Логируем количество найденных записей
-      return [...new Set(data.map(r => r.base.toUpperCase()))].sort();
+      const bases = [...new Set(data.map(r => r.base.toUpperCase()))].sort();
+      console.log('[Assets] ✅ bases length:', bases.length, 'records:', bases);
+      return bases.length > 0 ? bases : Array.from(FALLBACK_BASES);
     }
     
-    return ['USDT', 'RUB', 'BTC', 'ETH', 'BNB', 'USDC', 'ADA', 'DOT', 'XRP', 'SOL'].sort();
+    console.log('[Assets] ⚠️ No base currencies found, using fallback');
+    return Array.from(FALLBACK_BASES);
   } catch (error) {
-    console.error('❌ Error in fetchBases:', error);
-    return ['USDT', 'RUB', 'BTC', 'ETH', 'BNB', 'USDC', 'ADA', 'DOT', 'XRP', 'SOL'].sort();
+    console.error('[Assets] ❌ Error in fetchBases:', error);
+    return Array.from(FALLBACK_BASES);
   }
 };
 
@@ -40,32 +60,39 @@ const fetchBases = async (): Promise<string[]> => {
  */
 const fetchQuotes = async (base: string): Promise<string[]> => {
   if (!base || !isSupabaseAvailable()) {
-    return [];
+    const fallback = FALLBACK_QUOTES_BY_BASE[base] || FALLBACK_QUOTES_BY_BASE['USDT'] || ['RUB'];
+    console.log('[Assets] ⚠️ No base or Supabase unavailable, using fallback quotes for', base, ':', fallback);
+    return fallback;
   }
 
   try {
-    console.log(`🔄 Fetching quote currencies for base ${base}...`);
+    console.log(`[Assets] 🔄 Fetching quote currencies for base ${base}...`);
     
     const { data, error } = await supabase
       .from('kenig_rates')
       .select('quote')
-      .eq('base', base.toUpperCase()) // Приводим base к верхнему регистру для запроса
-      .not('quote', 'is', null); // Исключаем null значения
+      .eq('base', base.toUpperCase())
+      .not('quote', 'is', null)
+      .limit(2000);
 
     if (error) {
-      console.warn(`⚠️ Error fetching quote currencies for ${base}:`, error);
+      console.warn(`[Assets] ⚠️ Error fetching quote currencies for ${base}:`, error);
       throw error;
     }
     
     if (data && data.length > 0) {
-      console.log(`✅ Found ${data.length} quote currencies for ${base}`); // Логируем количество найденных записей
-      return [...new Set(data.map(r => r.quote.toUpperCase()))].sort();
+      const quotes = [...new Set(data.map(r => r.quote.toUpperCase()))].sort();
+      console.log(`[Assets] ✅ quotes length for ${base}:`, quotes.length, 'records:', quotes);
+      return quotes.length > 0 ? quotes : (FALLBACK_QUOTES_BY_BASE[base] || ['RUB']);
     }
     
-    return [];
+    const fallback = FALLBACK_QUOTES_BY_BASE[base] || ['RUB'];
+    console.log(`[Assets] ⚠️ No quotes found for ${base}, using fallback:`, fallback);
+    return fallback;
   } catch (error) {
-    console.error(`❌ Error in fetchQuotes for ${base}:`, error);
-    return [];
+    const fallback = FALLBACK_QUOTES_BY_BASE[base] || ['RUB'];
+    console.error(`[Assets] ❌ Error in fetchQuotes for ${base}:`, error);
+    return fallback;
   }
 };
 
@@ -76,10 +103,11 @@ export const useBaseAssets = () => {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     dedupingInterval: 60000,
+    fallbackData: Array.from(FALLBACK_BASES), // Always provide fallback
   });
 
   return {
-    bases: data || [],
+    bases: data || Array.from(FALLBACK_BASES),
     loading: isLoading,
     error: error?.message ?? null
   };
@@ -94,11 +122,12 @@ export const useQuoteAssets = (base: string) => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       dedupingInterval: 60000,
+      fallbackData: FALLBACK_QUOTES_BY_BASE[base] || ['RUB'], // Always provide fallback
     }
   );
 
   return {
-    quotes: data || [],
+    quotes: data || (FALLBACK_QUOTES_BY_BASE[base] || ['RUB']),
     loading: isLoading,
     error: error?.message ?? null
   };
