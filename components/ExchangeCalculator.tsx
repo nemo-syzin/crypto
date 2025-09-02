@@ -314,7 +314,6 @@ export default function ExchangeCalculator() {
   }, [loading, isPairSupported, hasValidRate, amount, numericAmount, result, toCurrency, formatCurrency]);
 
   const getExchangeButtonText = useMemo((): string => {
-    if (basesLoading || quotesLoading) return 'Загрузка валют...';
     if (loading) return 'Загрузка курсов...';
     if (!toCurrency) return 'Выберите валюту получения';
     if (!isPairSupported) return 'Выберите поддерживаемую валютную пару';
@@ -325,7 +324,7 @@ export default function ExchangeCalculator() {
     const toAmount = formatCurrency(result, toCurrency);
     
     return `Обменять ${fromAmount} → ${toAmount}`;
-  }, [basesLoading, quotesLoading, loading, isPairSupported, hasValidRate, amount, numericAmount, fromCurrency, toCurrency, result, formatCurrency]);
+  }, [loading, isPairSupported, hasValidRate, amount, numericAmount, fromCurrency, toCurrency, result, formatCurrency]);
 
   const getHintText = useMemo((): string => {
     if (basesError) {
@@ -345,7 +344,7 @@ export default function ExchangeCalculator() {
       return `Выберите валюту получения`;
     }
 
-    if (!isPairSupported) {
+    if (!isPairSupported && toCurrency) {
       return `Валютная пара ${fromCurrency}/${toCurrency} не поддерживается. Попробуйте другую пару.`;
     }
 
@@ -491,7 +490,7 @@ export default function ExchangeCalculator() {
             <Select 
               value={fromCurrency} 
               onValueChange={handleFromCurrencyChange}
-              disabled={basesLoading}
+              disabled={bases.length === 0}
             >
               <SelectTrigger className="input-field">
                 <SelectValue placeholder="Выберите валюту обмена" />
@@ -517,7 +516,7 @@ export default function ExchangeCalculator() {
               value={amount}
               onChange={handleAmountChange}
               placeholder={`100 ${fromCurrency}`}
-              disabled={isCalculationDisabled || basesLoading || quotesLoading}
+              disabled={isCalculationDisabled}
               className={`input-field ${error ? 'border-red-300' : ''}`}
             />
             <div className="hint-text">
@@ -529,7 +528,7 @@ export default function ExchangeCalculator() {
           <div className="flex justify-center">
             <button
               onClick={toggleDirection}
-              disabled={isCalculationDisabled || basesLoading || quotesLoading || !toCurrency}
+              disabled={isCalculationDisabled || !toCurrency}
               className="swap-button"
             >
               <ArrowUpDown className="h-5 w-5 text-blue-600" />
@@ -544,7 +543,7 @@ export default function ExchangeCalculator() {
             <Select 
               value={toCurrency} 
               onValueChange={setToCurrency}
-              disabled={quotesLoading || !fromCurrency}
+              disabled={quotes.length === 0 || !fromCurrency}
             >
               <SelectTrigger className="input-field">
                 <SelectValue placeholder="Выберите валюту получения" />
