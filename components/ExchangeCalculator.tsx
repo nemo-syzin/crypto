@@ -498,7 +498,7 @@ export default function ExchangeCalculator() {
             <Select 
               value={bases.includes(fromCurrency) ? fromCurrency : undefined}
               onValueChange={handleFromCurrencyChange}
-              disabled={bases.length === 0}
+              disabled={basesLoading}
             >
               <SelectTrigger className="input-field">
                 <SelectValue placeholder="Выберите валюту обмена" />
@@ -524,7 +524,7 @@ export default function ExchangeCalculator() {
               value={amount}
               onChange={handleAmountChange}
               placeholder={`100 ${fromCurrency}`}
-              disabled={!!error}
+              disabled={isCalculationDisabled}
               className={`input-field ${error ? 'border-red-300' : ''}`}
             />
             <div className="hint-text">
@@ -551,7 +551,7 @@ export default function ExchangeCalculator() {
             <Select 
               value={quotes.includes(toCurrency) ? toCurrency : undefined}
               onValueChange={setToCurrency}
-              disabled={quotes.length === 0 || !fromCurrency}
+              disabled={quotesLoading || !fromCurrency}
             >
               <SelectTrigger className="input-field">
                 <SelectValue placeholder="Выберите валюту получения" />
