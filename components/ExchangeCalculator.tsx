@@ -72,7 +72,7 @@ export default function ExchangeCalculator() {
   }, [bases, fromCurrency]);
   
   // Use exchange rate hook
-  const { rate, loading, error, lastUpdated, refetch } = useExchangeRate(fromCurrency, toCurrency);
+  const { rate, loading, refreshing, error, lastUpdated, refetch } = useExchangeRate(fromCurrency, toCurrency);
 
   // Memoized functions to prevent unnecessary rerenders
   const parseAmount = useMemo(() => (value: string): number => {
@@ -170,7 +170,7 @@ export default function ExchangeCalculator() {
 
   const hasValidRate = useMemo(() => rate > 0, [rate]);
 
-  const isCalculationDisabled = !hasValidRate || loading || !!error;
+  const isCalculationDisabled = !hasValidRate || !!error;
   const numericAmount = parseAmount(amount);
   const result = calculateResult();
   
@@ -313,7 +313,7 @@ export default function ExchangeCalculator() {
 
   // Memoized display functions
   const getResultDisplay = useMemo((): string => {
-    if (loading) return 'Загрузка курсов...';
+    if (loading && !hasValidRate) return 'Загрузка курсов...';
     if (!isPairSupported) return 'Данная валютная пара не поддерживается';
     if (!hasValidRate) return 'Курсы недоступны';
     if (amount === '' || numericAmount <= 0) return '';
@@ -322,7 +322,7 @@ export default function ExchangeCalculator() {
   }, [loading, isPairSupported, hasValidRate, amount, numericAmount, result, toCurrency, formatCurrency]);
 
   const getExchangeButtonText = useMemo((): string => {
-    if (loading) return 'Загрузка курсов...';
+    if (loading && !hasValidRate) return 'Загрузка курсов...';
     if (!toCurrency) return 'Выберите валюту получения';
     if (!isPairSupported) return 'Выберите поддерживаемую валютную пару';
     if (!hasValidRate) return 'Ожидание актуальных курсов...';
@@ -476,10 +476,10 @@ export default function ExchangeCalculator() {
             </span>
             <button
               onClick={refetch}
-              disabled={loading}
+              disabled={loading && !hasValidRate}
               className="refresh-button"
             >
-              <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`h-4 w-4 ${(loading && !hasValidRate) || refreshing ? 'animate-spin' : ''}`} />
               {lastUpdated && (
                 <span className="timestamp">
                   {lastUpdated.toLocaleTimeString('ru-RU')}
@@ -582,7 +582,7 @@ export default function ExchangeCalculator() {
           </div>
 
           {/* Loading State */}
-          {loading && !rate && (
+          {loading && !hasValidRate && (
             <div className="flex items-center justify-center py-8">
               <div className="flex items-center gap-3 text-[#001D8D]">
                 <RefreshCw className="h-5 w-5 animate-spin" />
@@ -594,7 +594,12 @@ export default function ExchangeCalculator() {
           {/* Current Rate Display */}
           {hasValidRate && rate && (
             <div className="rates-container">
-              <h4 className="font-semibold text-[#001D8D] mb-3">Текущий курс {fromCurrency}/{toCurrency}</h4>
+              <h4 className="font-semibold text-[#001D8D] mb-3 flex items-center gap-2">
+                Текущий курс {fromCurrency}/{toCurrency}
+                {refreshing && (
+                  <RefreshCw className="h-3 w-3 animate-spin text-[#001D8D]/60" />
+                )}
+              </h4>
               <div className="grid grid-cols-1 gap-4">
                 <div className="text-center">
                   <div className="text-sm text-[#001D8D]/70 mb-1">Курс обмена</div>
@@ -614,11 +619,11 @@ export default function ExchangeCalculator() {
             <button 
               onClick={() => setShowOrderForm(true)}
               className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 ${
-                isCalculationDisabled || amount === '' || numericAmount <= 0 || !toCurrency
+                !hasValidRate || amount === '' || numericAmount <= 0 || !toCurrency
                   ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                   : 'bg-gradient-to-r from-[#001D8D] to-blue-600 text-white hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]'
               }`}
-              disabled={isCalculationDisabled || amount === '' || numericAmount <= 0 || !toCurrency}
+              disabled={!hasValidRate || amount === '' || numericAmount <= 0 || !toCurrency}
             >
               <Send className="h-5 w-5 mr-2 inline" />
               Оставить заявку на обмен

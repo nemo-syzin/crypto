@@ -136,7 +136,7 @@ async function fetchExchangeRate(from: string, to: string): Promise<Rate> {
 }
 
 export function useExchangeRate(from: string, to: string) {
-  const { data, error, isLoading, mutate } = useSWR(
+  const { data, error, isLoading, isValidating, mutate } = useSWR(
     from && to && from !== to ? `rate-${from}-${to}` : null,
     () => (from === to
       ? { rate: 1, updated_at: new Date().toISOString(), pair: `${from}/${to}`, source: 'system', direction: 'direct' }
@@ -145,12 +145,19 @@ export function useExchangeRate(from: string, to: string) {
       // Если валюты одинаковые, курс всегда 1
       refreshInterval: 120_000, // 2 минуты
       dedupingInterval: 60_000, // 1 минута
+      keepPreviousData: true, // Сохраняем предыдущие данные при обновлении
     }
   );
 
+  // Различаем первую загрузку и фоновое обновление
+  const hasData = !!data;
+  const isFirstLoad = isLoading && !hasData;
+  const isRefreshing = isValidating && hasData;
+
   return {
     rate: data?.rate ?? 0,
-    loading: isLoading,
+    loading: isFirstLoad, // true только при первой загрузке без данных
+    refreshing: isRefreshing, // true при фоновом обновлении с данными
     error: error?.message ?? null,
     lastUpdated: data ? new Date(data.updated_at) : null,
     refetch: mutate,
