@@ -72,7 +72,7 @@ export default function ExchangeCalculator() {
   }, [bases, fromCurrency]);
   
   // Use exchange rate hook
-  const { rate, loading, refreshing, error, lastUpdated, refetch } = useExchangeRate(fromCurrency, toCurrency);
+  const { rate, meta, loading, refreshing, error, lastUpdated, refetch } = useExchangeRate(fromCurrency, toCurrency);
 
   // Memoized functions to prevent unnecessary rerenders
   const parseAmount = useMemo(() => (value: string): number => {
@@ -80,10 +80,10 @@ export default function ExchangeCalculator() {
     return isNaN(parsed) ? 0 : parsed;
   }, []);
 
-  const calculateResult = useMemo(() => (): number => {
-    const numericAmount = parseAmount(amount);
-    if (rate === 0 || numericAmount <= 0) return 0;
-    return numericAmount * rate;
+  const result = useMemo(() => {
+    const n = parseAmount(amount);
+    if (!rate || n <= 0) return 0;
+    return n * rate; // ВСЕГДА: amount_from * (TO per FROM)
   }, [amount, rate, parseAmount]);
 
   const toggleDirection = () => {
@@ -172,7 +172,6 @@ export default function ExchangeCalculator() {
 
   const isCalculationDisabled = !hasValidRate || !!error;
   const numericAmount = parseAmount(amount);
-  const result = calculateResult();
   
   // Валидация данных клиента
   const validateClientData = useCallback((): boolean => {
@@ -335,39 +334,14 @@ export default function ExchangeCalculator() {
   }, [loading, isPairSupported, hasValidRate, amount, numericAmount, fromCurrency, toCurrency, result, formatCurrency]);
 
   const getHintText = useMemo((): string => {
-    if (basesError) {
-      return `Ошибка загрузки валют: ${basesError}`;
-    }
-    
-    if (quotesError) {
-      return `Ошибка загрузки валют для ${fromCurrency}: ${quotesError}`;
-    }
-    
-    // If currencies are the same
-    if (fromCurrency === toCurrency && toCurrency) {
-      return `Выберите разные валюты для обмена`;
-    }
-
-    if (!toCurrency) {
-      return `Выберите валюту получения`;
-    }
-
-    if (!isPairSupported && toCurrency) {
-      return `Валютная пара ${fromCurrency}/${toCurrency} не поддерживается. Попробуйте другую пару.`;
-    }
-
-    if (!hasValidRate && rate === 0 && !loading) {
-      return `Курс для пары ${fromCurrency}/${toCurrency} не найден. Попробуйте другую пару.`;
-    }
-
-    // Show rate for supported pair
-    if (rate) {
-      const formattedRate = formatRate(rate, toCurrency);
-      return `Курс обмена ${fromCurrency}/${toCurrency}: ${formattedRate}`;
-    }
-
-    return `Введите количество ${fromCurrency} для обмена на ${toCurrency}`;
-  }, [basesError, quotesError, isPairSupported, hasValidRate, rate, loading, fromCurrency, toCurrency, formatRate]);
+    if (error) return `Ошибка: ${error}`;
+    if (!toCurrency) return 'Выберите валюту получения';
+    if (!rate) return 'Ожидание актуального курса...';
+    // показываем: 1 FROM ≈ RATE TO (источник, время)
+    const r = rate < 1 ? rate.toFixed(6) : rate.toFixed(4);
+    const time = lastUpdated ? lastUpdated.toLocaleTimeString('ru-RU') : 'недавно';
+    return `1 ${fromCurrency} ≈ ${r} ${toCurrency} • ${meta?.source} • ${time}`;
+  }, [error, toCurrency, rate, fromCurrency, lastUpdated, meta]);
 
   // Показываем успешную заявку
   if (orderSuccess && orderData) {
@@ -592,23 +566,19 @@ export default function ExchangeCalculator() {
           )}
 
           {/* Current Rate Display */}
-          {hasValidRate && rate && (
+          {rate > 0 && (
             <div className="rates-container">
               <h4 className="font-semibold text-[#001D8D] mb-3 flex items-center gap-2">
-                Текущий курс {fromCurrency}/{toCurrency}
-                {refreshing && (
-                  <RefreshCw className="h-3 w-3 animate-spin text-[#001D8D]/60" />
-                )}
+                Курс {fromCurrency}/{toCurrency}
+                {refreshing && <RefreshCw className="h-3 w-3 animate-spin text-[#001D8D]/60" />}
               </h4>
-              <div className="grid grid-cols-1 gap-4">
-                <div className="text-center">
-                  <div className="text-sm text-[#001D8D]/70 mb-1">Курс обмена</div>
-                  <div className="rate-value">{formatRate(rate, toCurrency)}</div>
+              <div className="text-center">
+                <div className="text-sm text-[#001D8D]/70 mb-1">1 {fromCurrency} ≈</div>
+                <div className="rate-value">
+                  {rate < 1 ? rate.toFixed(6) : rate.toFixed(4)} {toCurrency}
                 </div>
-              </div>
-              <div className="text-center mt-3">
-                <div className="text-xs text-[#001D8D]/50">
-                  Обновлено: {lastUpdated ? lastUpdated.toLocaleString('ru-RU') : 'Недавно'}
+                <div className="text-xs text-[#001D8D]/50 mt-2">
+                  Источник: {meta?.source} • {lastUpdated ? lastUpdated.toLocaleString('ru-RU') : 'недавно'} {meta?.used === 'inverse-1/sell' ? '(по обратной паре)' : ''}
                 </div>
               </div>
             </div>
@@ -619,17 +589,17 @@ export default function ExchangeCalculator() {
             <button 
               onClick={() => setShowOrderForm(true)}
               className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 ${
-                !hasValidRate || amount === '' || numericAmount <= 0 || !toCurrency
+                !rate || amount === '' || numericAmount <= 0 || !toCurrency
                   ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                   : 'bg-gradient-to-r from-[#001D8D] to-blue-600 text-white hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]'
               }`}
-              disabled={!hasValidRate || amount === '' || numericAmount <= 0 || !toCurrency}
+              disabled={!rate || amount === '' || numericAmount <= 0 || !toCurrency}
             >
               <Send className="h-5 w-5 mr-2 inline" />
               Оставить заявку на обмен
             </button>
             
-            {hasValidRate && rate && amount && numericAmount > 0 && (
+            {rate && amount && numericAmount > 0 && (
               <div className="text-center text-sm text-[#001D8D]/60">
                 {getExchangeButtonText}
               </div>
