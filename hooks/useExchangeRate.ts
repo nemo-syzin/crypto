@@ -1,156 +1,138 @@
 // hooks/useExchangeRate.ts
 import useSWR from 'swr';
-import { supabase } from '@/lib/supabase/client';
+import { supabase, isSupabaseAvailable } from '@/lib/supabase/client';
 
-type Source = 'kenig' | 'bestchange' | 'energo' | 'derived';
+type Direction = 'direct' | 'inverse';
+type Source = 'kenig' | 'bestchange' | 'energo' | 'derived' | string;
 
-const SOURCE_PRIORITY: Source[] = ['kenig', 'bestchange', 'energo', 'derived'];
-const FRESH_MS = 5 * 60 * 1000; // 5 минут
-
-type Row = {
-  source: Source | string;
+interface RateRow {
+  source: string;
   base: string;
   quote: string;
-  sell: number | string | null;
-  buy: number | string | null;
+  buy: number | null;
+  sell: number | null;
   updated_at: string;
-};
-
-export type RateMeta = {
-  rate: number;                 // всегда: сколько TO за 1 FROM
-  pair: string;                 // FROM/TO
-  source: string;               // фактический источник
-  used: 'direct-buy' | 'inverse-1/sell';
-  updatedAt: Date;
-};
-
-async function fetchRate(from: string, to: string): Promise<RateMeta> {
-  const FROM = from.toUpperCase();
-  const TO = to.toUpperCase();
-
-  if (FROM === TO) {
-    return {
-      rate: 1,
-      pair: `${FROM}/${TO}`,
-      source: 'system',
-      used: 'direct-buy',
-      updatedAt: new Date(),
-    };
-  }
-
-  // 1) забираем все записи для обоих направлений одним запросом
-  const { data, error } = await supabase
-    .from('kenig_rates')
-    .select('source,base,quote,sell,buy,updated_at')
-    .in('base', [FROM, TO])
-    .in('quote', [FROM, TO])
-    .not('buy', 'is', null)      // на всякий
-    .not('sell', 'is', null)
-    .limit(4000);
-
-  if (error) throw new Error(error.message || 'Supabase error');
-
-  const rows: Row[] = (data || []).map((r) => ({
-    ...r,
-    base: String(r.base).toUpperCase(),
-    quote: String(r.quote).toUpperCase(),
-    source: String(r.source),
-    sell: r.sell == null ? null : Number(r.sell),
-    buy: r.buy == null ? null : Number(r.buy),
-  }));
-
-  const now = Date.now();
-
-  // помощники
-  const isFresh = (r: Row) => {
-    const t = new Date(r.updated_at).getTime();
-    return Number.isFinite(t) && now - t <= FRESH_MS;
-  };
-
-  // 2) разделим на прямые и обратные
-  const direct = rows.filter((r) => r.base === FROM && r.quote === TO);
-  const inverse = rows.filter((r) => r.base === TO && r.quote === FROM);
-
-  // 3) отфильтруем по свежести; если совсем нет свежих — используем любые, но это крайний случай
-  const pickList = (arr: Row[]) => {
-    const fresh = arr.filter(isFresh);
-    return fresh.length ? fresh : arr;
-  };
-
-  const directList = pickList(direct).filter((r) => r.buy && r.buy > 0);
-  const inverseList = pickList(inverse).filter((r) => r.sell && r.sell > 0);
-
-  // 4) сортировка по приоритету источника и по времени обновления
-  const byPriorityAndTime = (a: Row, b: Row) => {
-    const pa =
-      SOURCE_PRIORITY.indexOf(a.source as Source) === -1
-        ? 999
-        : SOURCE_PRIORITY.indexOf(a.source as Source);
-    const pb =
-      SOURCE_PRIORITY.indexOf(b.source as Source) === -1
-        ? 999
-        : SOURCE_PRIORITY.indexOf(b.source as Source);
-    if (pa !== pb) return pa - pb;
-    return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
-  };
-
-  directList.sort(byPriorityAndTime);
-  inverseList.sort(byPriorityAndTime);
-
-  // 5) правило выбора:
-  //    - если есть прямая страка — берем ее .buy (вы покупаете BASE у клиента)
-  //    - иначе берем обратную и используем 1 / .sell (вы продаете BASE клиенту)
-  const directHit = directList[0];
-  if (directHit) {
-    return {
-      rate: Number(directHit.buy!),           // сколько TO за 1 FROM
-      pair: `${FROM}/${TO}`,
-      source: directHit.source,
-      used: 'direct-buy',
-      updatedAt: new Date(directHit.updated_at),
-    };
-  }
-
-  const inverseHit = inverseList[0];
-  if (inverseHit) {
-    const rate = 1 / Number(inverseHit.sell!);
-    return {
-      rate,                                   // сколько TO за 1 FROM
-      pair: `${FROM}/${TO}`,
-      source: inverseHit.source,
-      used: 'inverse-1/sell',
-      updatedAt: new Date(inverseHit.updated_at),
-    };
-  }
-
-  throw new Error(`Курс для пары ${FROM}/${TO} не найден`);
 }
 
+interface RateResult {
+  rate: number;                 // итоговый курс для пересчёта amount_from -> amount_to
+  updated_at: string;
+  pair: string;                 // "FROM/TO" в верхнем регистре
+  source: Source;
+  direction: Direction;         // direct = использовали buy; inverse = использовали 1/sell
+}
+
+// Приоритет источников — derived только в самом конце.
+const PRIORITY: Source[] = ['kenig', 'bestchange', 'energo', 'derived'];
+
+function up(s: string) { return (s || '').toUpperCase(); }
+
+/**
+ * Возвращает курс для пары (from -> to) из одного источника.
+ * Ищет ОДНОЙ выборкой обе ориентации: (base=FROM,quote=TO) и (base=TO,quote=FROM).
+ * Если найдена прямая — берём buy. Если только обратная — берём 1/sell.
+ */
+async function queryRate(from: string, to: string, source?: Source): Promise<RateResult | null> {
+  if (!isSupabaseAvailable()) throw new Error('Supabase is not configured');
+
+  const A = up(from);
+  const B = up(to);
+
+  // Ищем обе ориентации одной выборкой
+  let query = supabase
+    .from('kenig_rates')
+    .select('source,base,quote,buy,sell,updated_at')
+    .or(`and(base.eq.${A},quote.eq.${B}),and(base.eq.${B},quote.eq.${A})`)
+    .order('updated_at', { ascending: false });
+
+  if (source) query = query.eq('source', source);
+
+  const { data, error } = await query as unknown as { data: RateRow[] | null; error: any };
+
+  if (error) {
+    console.warn('[useExchangeRate] Supabase error:', error);
+    return null;
+  }
+  if (!data || data.length === 0) return null;
+
+  // Пробуем прямую запись (FROM/TO) — берём BUY
+  const direct = data.find(r => r.base === A && r.quote === B && r.buy && Number(r.buy) > 0);
+  if (direct) {
+    return {
+      rate: Number(direct.buy),
+      source: direct.source,
+      direction: 'direct',
+      updated_at: direct.updated_at,
+      pair: `${A}/${B}`,
+    };
+  }
+
+  // Пробуем обратную запись (TO/FROM) — берём 1/SELL
+  const inverse = data.find(r => r.base === B && r.quote === A && r.sell && Number(r.sell) > 0);
+  if (inverse) {
+    return {
+      rate: 1 / Number(inverse.sell),
+      source: inverse.source,
+      direction: 'inverse',
+      updated_at: inverse.updated_at,
+      pair: `${A}/${B}`,
+    };
+  }
+
+  return null;
+}
+
+/**
+ * Получение курса с учётом приоритета источников.
+ */
+async function resolveRate(from: string, to: string): Promise<RateResult> {
+  // 1) сначала пробуем по приоритетным источникам
+  for (const src of PRIORITY) {
+    const hit = await queryRate(from, to, src);
+    if (hit) return hit;
+  }
+  // 2) если ничего не нашли — пробуем без фильтра по source (любой источник)
+  const any = await queryRate(from, to);
+  if (any) return any;
+
+  throw new Error(`Курс для пары ${from}/${to} не найден`);
+}
+
+/**
+ * Хук. Возвращает курс, источник и направление.
+ * ВАЖНО: теперь "rate" всегда означает множитель для amount_from:
+ *   - USDT→RUB: rate = BUY (RUB за 1 USDT)
+ *   - RUB→USDT: rate = 1/SELL (USDT за 1 RUB)
+ */
 export function useExchangeRate(from: string, to: string) {
-  const key = from && to ? ['rate', from.toUpperCase(), to.toUpperCase()] : null;
+  const key = from && to && from !== to ? ['rate', up(from), up(to)] : null;
 
-  const { data, error, isLoading, isValidating, mutate } = useSWR(
-    key,
-    () => fetchRate(from, to),
-    {
-      refreshInterval: 60_000,   // фоновое обновление
-      dedupingInterval: 30_000,
-      revalidateOnFocus: false,
-      keepPreviousData: true,    // сохраняем предыдущие данные при обновлении
+  const fetcher = async () => {
+    if (up(from) === up(to)) {
+      return {
+        rate: 1,
+        updated_at: new Date().toISOString(),
+        pair: `${up(from)}/${up(to)}`,
+        source: 'system',
+        direction: 'direct' as Direction,
+      };
     }
-  );
+    return resolveRate(from, to);
+  };
 
-  // Различаем первую загрузку и фоновое обновление
-  const isFirstLoad = isLoading && !data;
-  const isRefreshing = isValidating && !!data;
+  const { data, error, isLoading, isValidating, mutate } = useSWR(key, fetcher, {
+    refreshInterval: 120_000,
+    dedupingInterval: 60_000,
+  });
 
   return {
     rate: data?.rate ?? 0,
-    meta: data ?? null,
-    loading: isFirstLoad,        // true только при первой загрузке без данных
-    refreshing: isRefreshing,    // true при фоновом обновлении с данными
-    error: error ? (error as Error).message : null,
-    lastUpdated: data?.updatedAt ?? null,
+    source: data?.source as Source | undefined,
+    direction: data?.direction as Direction | undefined,
+    lastUpdated: data ? new Date(data.updated_at) : null,
+    loading: isLoading,
+    refreshing: isValidating,
+    error: error?.message ?? null,
     refetch: mutate,
   };
 }
