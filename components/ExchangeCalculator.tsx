@@ -72,7 +72,8 @@ export default function ExchangeCalculator() {
   }, [bases, fromCurrency]);
   
   // Use exchange rate hook
-  const { rate, meta, loading, refreshing, error, lastUpdated, refetch } = useExchangeRate(fromCurrency, toCurrency);
+  const { rate, meta, loading, refreshing, error, lastUpdated, refetch } =
+    useExchangeRate(fromCurrency, toCurrency);
 
   // Memoized functions to prevent unnecessary rerenders
   const parseAmount = useMemo(() => (value: string): number => {

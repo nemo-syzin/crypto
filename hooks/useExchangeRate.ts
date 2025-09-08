@@ -136,14 +136,19 @@ export function useExchangeRate(from: string, to: string) {
       refreshInterval: 60_000,   // фоновое обновление
       dedupingInterval: 30_000,
       revalidateOnFocus: false,
+      keepPreviousData: true,    // сохраняем предыдущие данные при обновлении
     }
   );
+
+  // Различаем первую загрузку и фоновое обновление
+  const isFirstLoad = isLoading && !data;
+  const isRefreshing = isValidating && !!data;
 
   return {
     rate: data?.rate ?? 0,
     meta: data ?? null,
-    loading: isLoading,
-    refreshing: isValidating,
+    loading: isFirstLoad,        // true только при первой загрузке без данных
+    refreshing: isRefreshing,    // true при фоновом обновлении с данными
     error: error ? (error as Error).message : null,
     lastUpdated: data?.updatedAt ?? null,
     refetch: mutate,
