@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,15 +16,12 @@ import {
   ChevronDown,
   Info
 } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-import { ru } from 'date-fns/locale';
 
 export default function RatesComparison() {
   const { rates, loading, error, lastUpdated, refetch } = useAllRates();
   const [countdown, setCountdown] = useState<string>('');
-  const [showMobileDetails, setShowMobileDetails] = useState(false);
 
-  // Countdown timer effect - стабильный без лишних обновлений
+  // Countdown timer effect
   useEffect(() => {
     if (!lastUpdated) return;
 
@@ -46,8 +43,8 @@ export default function RatesComparison() {
     return () => clearInterval(interval);
   }, [lastUpdated]);
 
-  // Мемоизированные функции для предотвращения лишних ререндеров
-  const formatRate = useMemo(() => (rate: number | null): string => {
+  // Format rate function
+  const formatRate = (rate: number | null): string => {
     if (rate === null || rate === undefined || isNaN(rate)) return '—';
     return new Intl.NumberFormat('ru-RU', {
       style: 'currency',
@@ -55,10 +52,10 @@ export default function RatesComparison() {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(rate);
-  }, []);
+  };
 
-  // Calculate delta vs KenigSwap - мемоизировано
-  const calculateDelta = useMemo(() => (rate: number | null, kenigRate: number | null): { 
+  // Calculate delta vs KenigSwap
+  const calculateDelta = (rate: number | null, kenigRate: number | null): { 
     delta: number; 
     isPositive: boolean; 
     color: string 
@@ -69,13 +66,13 @@ export default function RatesComparison() {
     
     const delta = ((rate - kenigRate) / kenigRate) * 100;
     const isPositive = delta > 0;
-    const color = isPositive ? 'text-green-600' : 'text-gray-400';
+    const color = isPositive ? 'text-green-600' : 'text-red-600';
     
     return { delta: Math.abs(delta), isPositive, color };
-  }, []);
+  };
 
-  // Mock sparkline data - мемоизировано
-  const generateSparklineData = useMemo(() => (baseRate: number | null): number[] => {
+  // Generate simple sparkline data for visual effect
+  const generateSparklineData = (baseRate: number | null): number[] => {
     if (!baseRate) return [];
     const data = [];
     for (let i = 0; i < 6; i++) {
@@ -83,9 +80,9 @@ export default function RatesComparison() {
       data.push(baseRate * (1 + variation));
     }
     return data;
-  }, []);
+  };
 
-  // Мемоизированные данные для предотвращения лишних вычислений
+  // Exchange data - only KenigSwap and BestChange
   const exchangeData = useMemo(() => {
     if (!rates) return [];
     
@@ -107,20 +104,11 @@ export default function RatesComparison() {
         available: rates.bestchange?.sell !== null && !isNaN(rates.bestchange?.sell || 0),
         description: 'Агрегатор',
         priority: 2
-      },
-      {
-        name: 'Energo',
-        sellRate: rates.energo?.sell || null,
-        buyRate: rates.energo?.buy || null,
-        updatedAt: rates.energo?.updated_at || new Date().toISOString(),
-        available: rates.energo?.sell !== null && !isNaN(rates.energo?.sell || 0),
-        description: 'Партнер',
-        priority: 3
       }
-    ].filter(item => item.available); // Показываем только доступные источники
+    ].filter(item => item.available);
   }, [rates]);
 
-  // Логика для определения лучших курсов - мемоизировано
+  // Best rates logic
   const bestRates = useMemo(() => {
     const getBestSellRate = () => {
       const sellRates = exchangeData
@@ -159,17 +147,17 @@ export default function RatesComparison() {
     error.includes('environment variables')
   );
 
-  // Mobile: show only leader - мемоизировано
+  // Mobile leader
   const mobileLeader = useMemo(() => {
     return exchangeData.find(ex => 
       (bestRates.bestSell?.source === ex.name || bestRates.bestBuy?.source === ex.name) && ex.available
     ) || exchangeData[0];
   }, [exchangeData, bestRates]);
 
-  // Мемоизированный компонент карточки курса
-  const renderCompactRateCard = useMemo(() => (exchange: any, type: 'sell' | 'buy', isBest: boolean) => {
+  // Render rate card
+  const renderCompactRateCard = (exchange: any, type: 'sell' | 'buy', isBest: boolean) => {
     const rate = type === 'sell' ? exchange.sellRate : exchange.buyRate;
-    const kenigRate = type === 'sell' ? rates?.kenig.sell : rates?.kenig.buy;
+    const kenigRate = type === 'sell' ? rates?.kenig?.sell : rates?.kenig?.buy;
     const delta = calculateDelta(rate, kenigRate);
     const sparklineData = generateSparklineData(rate);
     const sparklineColor = delta.isPositive ? '#10b981' : '#6b7280';
@@ -185,17 +173,22 @@ export default function RatesComparison() {
             : ''
         }`}
       >
-        {/* Compact Header */}
+        {/* Header */}
         <div className="flex items-center justify-between mb-3">
           <div>
             <h4 className="text-base font-semibold text-[#001D8D]">
               {exchange.name}
             </h4>
-            <p className="text-xs text-muted/60">
+            <p className="text-xs text-[#001D8D]/60">
               {exchange.description}
             </p>
           </div>
           <div className="flex items-center gap-2">
+            {isBest && (
+              <Badge className="bg-green-100 text-green-800 text-xs">
+                Лучший
+              </Badge>
+            )}
             {sparklineData.length > 0 && (
               <TinySparkline 
                 data={sparklineData} 
@@ -226,7 +219,7 @@ export default function RatesComparison() {
         </div>
       </div>
     );
-  }, [rates, calculateDelta, generateSparklineData, formatRate]);
+  };
 
   return (
     <div className="space-y-4">
@@ -250,7 +243,7 @@ export default function RatesComparison() {
         </Alert>
       )}
 
-      {/* Main Comparison Card - Compact */}
+      {/* Main Comparison Card */}
       <Card className="glass-tile border-none shadow-lg">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
@@ -259,7 +252,7 @@ export default function RatesComparison() {
               Сравнение курсов USDT/RUB
             </CardTitle>
             
-            {/* Compact refresh section */}
+            {/* Refresh section */}
             <div className="flex items-center gap-2">
               <div className="countdown-timer text-xs">
                 {countdown}
@@ -285,22 +278,22 @@ export default function RatesComparison() {
             </div>
           ) : rates ? (
             <div className="space-y-6">
-              {/* Sell Rates Section - Compact */}
+              {/* Sell Rates Section */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <ArrowRightLeft className="h-4 w-4 text-red-500" />
                   <h3 className="text-base font-semibold">Продажа USDT → RUB</h3>
-                  <span className="text-xs text-muted/60">(лучший = минимальный)</span>
+                  <span className="text-xs text-[#001D8D]/60">(лучший = минимальный)</span>
                 </div>
 
-                {/* Desktop view - Compact grid */}
-                <div className="hidden sm:grid grid-cols-2 lg:grid-cols-3 gap-4">
+                {/* Desktop view */}
+                <div className="hidden sm:grid grid-cols-2 gap-4">
                   {exchangeData.map((exchange) => 
                     renderCompactRateCard(exchange, 'sell', bestRates.bestSell?.source === exchange.name)
                   )}
                 </div>
 
-                {/* Mobile view - Simplified */}
+                {/* Mobile view */}
                 <div className="sm:hidden">
                   {mobileLeader && renderCompactRateCard(mobileLeader, 'sell', bestRates.bestSell?.source === mobileLeader.name)}
                   
@@ -320,22 +313,22 @@ export default function RatesComparison() {
                 </div>
               </div>
 
-              {/* Buy Rates Section - Compact */}
+              {/* Buy Rates Section */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <ArrowRightLeft className="h-4 w-4 text-blue-500" />
                   <h3 className="text-base font-semibold">Покупка USDT ← RUB</h3>
-                  <span className="text-xs text-muted/60">(лучший = максимальный)</span>
+                  <span className="text-xs text-[#001D8D]/60">(лучший = максимальный)</span>
                 </div>
 
-                {/* Desktop view - Compact grid */}
-                <div className="hidden sm:grid grid-cols-2 lg:grid-cols-3 gap-4">
+                {/* Desktop view */}
+                <div className="hidden sm:grid grid-cols-2 gap-4">
                   {exchangeData.map((exchange) => 
                     renderCompactRateCard(exchange, 'buy', bestRates.bestBuy?.source === exchange.name)
                   )}
                 </div>
 
-                {/* Mobile view - Simplified */}
+                {/* Mobile view */}
                 <div className="sm:hidden">
                   {mobileLeader && renderCompactRateCard(mobileLeader, 'buy', bestRates.bestBuy?.source === mobileLeader.name)}
                   
