@@ -107,8 +107,17 @@ export default function RatesComparison() {
         available: rates.bestchange?.sell !== null && !isNaN(rates.bestchange?.sell || 0),
         description: 'Агрегатор',
         priority: 2
+      },
+      {
+        name: 'Energo',
+        sellRate: rates.energo?.sell || null,
+        buyRate: rates.energo?.buy || null,
+        updatedAt: rates.energo?.updated_at || new Date().toISOString(),
+        available: rates.energo?.sell !== null && !isNaN(rates.energo?.sell || 0),
+        description: 'Партнер',
+        priority: 3
       }
-    ];
+    ].filter(item => item.available); // Показываем только доступные источники
   }, [rates]);
 
   // Логика для определения лучших курсов - мемоизировано
@@ -119,6 +128,7 @@ export default function RatesComparison() {
         .map(item => ({ source: item.name, rate: item.sellRate! }));
       
       if (sellRates.length === 0) return null;
+      // Для продажи USDT→RUB выбираем МИНИМАЛЬНЫЙ sell (лучше для клиента)
       return sellRates.reduce((best, current) => 
         current.rate < best.rate ? current : best
       );
@@ -130,6 +140,7 @@ export default function RatesComparison() {
         .map(item => ({ source: item.name, rate: item.buyRate! }));
       
       if (buyRates.length === 0) return null;
+      // Для покупки USDT←RUB выбираем МАКСИМАЛЬНЫЙ buy (лучше для клиента)
       return buyRates.reduce((best, current) => 
         current.rate > best.rate ? current : best
       );
@@ -245,7 +256,7 @@ export default function RatesComparison() {
           <div className="flex items-center justify-between">
             <CardTitle className="text-[#001D8D] flex items-center gap-2 text-lg">
               <TrendingUp className="h-4 w-4" />
-              Сравнение курсов
+              Сравнение курсов USDT/RUB
             </CardTitle>
             
             {/* Compact refresh section */}
@@ -279,11 +290,11 @@ export default function RatesComparison() {
                 <div className="flex items-center gap-2 mb-3">
                   <ArrowRightLeft className="h-4 w-4 text-red-500" />
                   <h3 className="text-base font-semibold">Продажа USDT → RUB</h3>
-                  <span className="text-xs text-muted/60">(лучший = низкий)</span>
+                  <span className="text-xs text-muted/60">(лучший = минимальный)</span>
                 </div>
 
                 {/* Desktop view - Compact grid */}
-                <div className="hidden sm:grid grid-cols-2 gap-4">
+                <div className="hidden sm:grid grid-cols-2 lg:grid-cols-3 gap-4">
                   {exchangeData.map((exchange) => 
                     renderCompactRateCard(exchange, 'sell', bestRates.bestSell?.source === exchange.name)
                   )}
@@ -314,11 +325,11 @@ export default function RatesComparison() {
                 <div className="flex items-center gap-2 mb-3">
                   <ArrowRightLeft className="h-4 w-4 text-blue-500" />
                   <h3 className="text-base font-semibold">Покупка USDT ← RUB</h3>
-                  <span className="text-xs text-muted/60">(лучший = высокий)</span>
+                  <span className="text-xs text-muted/60">(лучший = максимальный)</span>
                 </div>
 
                 {/* Desktop view - Compact grid */}
-                <div className="hidden sm:grid grid-cols-2 gap-4">
+                <div className="hidden sm:grid grid-cols-2 lg:grid-cols-3 gap-4">
                   {exchangeData.map((exchange) => 
                     renderCompactRateCard(exchange, 'buy', bestRates.bestBuy?.source === exchange.name)
                   )}
@@ -343,6 +354,26 @@ export default function RatesComparison() {
                   )}
                 </div>
               </div>
+
+              {/* Summary */}
+              {bestRates.bestSell && bestRates.bestBuy && (
+                <div className="mt-6 p-4 bg-blue-50/50 rounded-lg border border-blue-100">
+                  <div className="flex items-start gap-3">
+                    <Info className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <div className="text-sm">
+                      <div className="font-semibold text-blue-900 mb-2">Лучшие предложения:</div>
+                      <div className="space-y-1 text-blue-800">
+                        <div>
+                          <strong>Продажа USDT:</strong> {bestRates.bestSell.source} — {formatRate(bestRates.bestSell.rate)}
+                        </div>
+                        <div>
+                          <strong>Покупка USDT:</strong> {bestRates.bestBuy.source} — {formatRate(bestRates.bestBuy.rate)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <div className="text-center py-8 text-[#001D8D]/70">
