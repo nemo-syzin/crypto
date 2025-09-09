@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { TinySparkline } from '@/components/ui/tiny-sparkline';
-import { useAllRates } from '@/lib/hooks/rates';
 import { 
   TrendingUp, 
   RefreshCw, 
@@ -17,9 +16,67 @@ import {
   Info
 } from 'lucide-react';
 
+interface RateData {
+  sell: number | null;
+  buy: number | null;
+  updated_at?: string;
+}
+
+interface AllRates {
+  kenig: RateData | null;
+  bestchange: RateData | null;
+  timestamp: string;
+  isFromDatabase: boolean;
+  error?: string;
+  meta?: {
+    lastUpdated: string;
+  };
+}
+
 export default function RatesComparison() {
-  const { rates, loading, error, lastUpdated, refetch } = useAllRates();
+  const [rates, setRates] = useState<AllRates | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [countdown, setCountdown] = useState<string>('');
+
+  // Fetch rates from API
+  const fetchRates = async () => {
+    try {
+      setError(null);
+      const response = await fetch('/api/rates', {
+        cache: 'no-cache',
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      setRates(data);
+      setLastUpdated(new Date());
+      
+      if (data.error) {
+        setError(data.error);
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch rates';
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Initial load and periodic refresh
+  useEffect(() => {
+    fetchRates();
+    const interval = setInterval(fetchRates, 60000); // 1 minute
+    return () => clearInterval(interval);
+  }, []);
 
   // Countdown timer effect
   useEffect(() => {
@@ -82,65 +139,53 @@ export default function RatesComparison() {
     return data;
   };
 
-  // Exchange data - only KenigSwap and BestChange
+  // Exchange data - только KenigSwap и BestChange
   const exchangeData = useMemo(() => {
     if (!rates) return [];
-    
     return [
       {
         name: 'KenigSwap',
-        sellRate: rates.kenig?.sell || null,
-        buyRate: rates.kenig?.buy || null,
+        sellRate: rates.kenig?.sell ?? null,   // наша продажа клиенту (RUB за 1 USDT)
+        buyRate:  rates.kenig?.buy  ?? null,   // наша покупка у клиента
         updatedAt: rates.kenig?.updated_at || new Date().toISOString(),
-        available: rates.kenig?.sell !== null && !isNaN(rates.kenig?.sell || 0),
+        available: rates.kenig?.sell != null && rates.kenig?.buy != null,
         description: 'Основной',
-        priority: 1
+        priority: 1,
       },
       {
         name: 'BestChange',
-        sellRate: rates.bestchange?.sell || null,
-        buyRate: rates.bestchange?.buy || null,
+        sellRate: rates.bestchange?.sell ?? null,
+        buyRate:  rates.bestchange?.buy  ?? null,
         updatedAt: rates.bestchange?.updated_at || new Date().toISOString(),
-        available: rates.bestchange?.sell !== null && !isNaN(rates.bestchange?.sell || 0),
+        available: rates.bestchange?.sell != null && rates.bestchange?.buy != null,
         description: 'Агрегатор',
-        priority: 2
-      }
-    ].filter(item => item.available);
+        priority: 2,
+      },
+    ];
   }, [rates]);
 
-  // Best rates logic
+  // Best rates logic - правильная ориентация
   const bestRates = useMemo(() => {
-    const getBestSellRate = () => {
-      const sellRates = exchangeData
-        .filter(item => item.sellRate !== null && !isNaN(item.sellRate!) && item.available)
-        .map(item => ({ source: item.name, rate: item.sellRate! }));
-      
-      if (sellRates.length === 0) return null;
-      // Для продажи USDT→RUB выбираем МИНИМАЛЬНЫЙ sell (лучше для клиента)
-      return sellRates.reduce((best, current) => 
-        current.rate < best.rate ? current : best
-      );
-    };
+    // Продажа USDT → RUB: сравниваем buyRate (мы покупаем у клиента), лучший = MAX
+    const sellCandidates = exchangeData
+      .filter(x => x.available && x.buyRate != null && !isNaN(Number(x.buyRate)))
+      .map(x => ({ source: x.name, rate: Number(x.buyRate) }));
+    const bestSell = sellCandidates.length
+      ? sellCandidates.reduce((a, b) => (b.rate > a.rate ? b : a))
+      : null;
 
-    const getBestBuyRate = () => {
-      const buyRates = exchangeData
-        .filter(item => item.buyRate !== null && !isNaN(item.buyRate!) && item.available)
-        .map(item => ({ source: item.name, rate: item.buyRate! }));
-      
-      if (buyRates.length === 0) return null;
-      // Для покупки USDT←RUB выбираем МАКСИМАЛЬНЫЙ buy (лучше для клиента)
-      return buyRates.reduce((best, current) => 
-        current.rate > best.rate ? current : best
-      );
-    };
+    // Покупка USDT ← RUB: сравниваем sellRate (мы продаём клиенту), лучший = MIN
+    const buyCandidates = exchangeData
+      .filter(x => x.available && x.sellRate != null && !isNaN(Number(x.sellRate)))
+      .map(x => ({ source: x.name, rate: Number(x.sellRate) }));
+    const bestBuy = buyCandidates.length
+      ? buyCandidates.reduce((a, b) => (b.rate < a.rate ? b : a))
+      : null;
 
-    return {
-      bestSell: getBestSellRate(),
-      bestBuy: getBestBuyRate()
-    };
+    return { bestSell, bestBuy };
   }, [exchangeData]);
 
-  // Check if error is configuration related
+  // Check if configuration error
   const isConfigurationError = error && (
     error.includes('not configured') || 
     error.includes('Invalid API key') || 
@@ -155,71 +200,77 @@ export default function RatesComparison() {
   }, [exchangeData, bestRates]);
 
   // Render rate card
-  const renderCompactRateCard = (exchange: any, type: 'sell' | 'buy', isBest: boolean) => {
-    const rate = type === 'sell' ? exchange.sellRate : exchange.buyRate;
-    const kenigRate = type === 'sell' ? rates?.kenig?.sell : rates?.kenig?.buy;
-    const delta = calculateDelta(rate, kenigRate);
-    const sparklineData = generateSparklineData(rate);
-    const sparklineColor = delta.isPositive ? '#10b981' : '#6b7280';
+  const renderCompactRateCard = useMemo(
+    () => (exchange: any, type: 'sell' | 'buy', isBest: boolean) => {
+      // type === 'sell' → экран «USDT → RUB»: сравниваем buyRate
+      // type === 'buy'  → экран «USDT ← RUB»: сравниваем sellRate
+      const rate = type === 'sell' ? exchange.buyRate : exchange.sellRate;
+      const kenigReference = type === 'sell' ? rates?.kenig?.buy : rates?.kenig?.sell;
 
-    return (
-      <div
-        key={`${type}-${exchange.name}`}
-        className={`glass-tile p-4 transition-all duration-200 ${
-          !exchange.available
-            ? 'opacity-60'
-            : isBest
-            ? 'ring-2 ring-green-500'
-            : ''
-        }`}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between mb-3">
-          <div>
-            <h4 className="text-base font-semibold text-[#001D8D]">
-              {exchange.name}
-            </h4>
-            <p className="text-xs text-[#001D8D]/60">
-              {exchange.description}
-            </p>
+      const delta = calculateDelta(rate, kenigReference);
+      const sparklineData = generateSparklineData(rate);
+      const sparklineColor = delta.isPositive ? '#10b981' : '#6b7280';
+
+      return (
+        <div
+          key={`${type}-${exchange.name}`}
+          className={`glass-tile p-4 transition-all duration-200 ${
+            !exchange.available
+              ? 'opacity-60'
+              : isBest
+              ? 'ring-2 ring-green-500'
+              : ''
+          }`}
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h4 className="text-base font-semibold text-[#001D8D]">
+                {exchange.name}
+              </h4>
+              <p className="text-xs text-[#001D8D]/60">
+                {exchange.description}
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              {isBest && (
+                <Badge className="bg-green-100 text-green-800 text-xs">
+                  Лучший
+                </Badge>
+              )}
+              {sparklineData.length > 0 && (
+                <TinySparkline 
+                  data={sparklineData} 
+                  color={sparklineColor}
+                  width={24}
+                  height={6}
+                />
+              )}
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            {isBest && (
-              <Badge className="bg-green-100 text-green-800 text-xs">
-                Лучший
-              </Badge>
-            )}
-            {sparklineData.length > 0 && (
-              <TinySparkline 
-                data={sparklineData} 
-                color={sparklineColor}
-                width={24}
-                height={6}
-              />
-            )}
+
+          {/* Rate and Delta */}
+          <div className="flex items-baseline justify-between">
+            <div className="text-2xl font-bold text-[#001D8D]">
+              {formatRate(rate)}
+            </div>
+            <div className="text-right">
+              {exchange.name !== 'KenigSwap' ? (
+                <div className={`text-xs ${delta.color}`}>
+                  {delta.isPositive ? '+' : '−'}{delta.delta.toFixed(2)}%
+                </div>
+              ) : (
+                <div className="text-xs text-gray-400">
+                  базовый
+                </div>
+              )}
+            </div>
           </div>
         </div>
-
-        {/* Rate and Delta */}
-        <div className="flex items-baseline justify-between">
-          <div className="text-2xl font-bold text-[#001D8D]">
-            {formatRate(rate)}
-          </div>
-          <div className="text-right">
-            {exchange.name !== 'KenigSwap' ? (
-              <div className={`text-xs ${delta.color}`}>
-                {delta.isPositive ? '+' : '−'}{delta.delta.toFixed(2)}%
-              </div>
-            ) : (
-              <div className="text-xs text-gray-400">
-                базовый
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  };
+      );
+    },
+    [rates, calculateDelta, generateSparklineData, formatRate]
+  );
 
   return (
     <div className="space-y-4">
@@ -258,7 +309,7 @@ export default function RatesComparison() {
                 {countdown}
               </div>
               <button
-                onClick={refetch}
+                onClick={fetchRates}
                 disabled={loading}
                 className="w-7 h-7 flex items-center justify-center rounded-full bg-[#001D8D]/10 hover:bg-[#001D8D]/20 transition-colors"
               >
@@ -278,12 +329,12 @@ export default function RatesComparison() {
             </div>
           ) : rates ? (
             <div className="space-y-6">
-              {/* Sell Rates Section */}
+              {/* Sell Rates Section - USDT → RUB (лучший = высокий) */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <ArrowRightLeft className="h-4 w-4 text-red-500" />
                   <h3 className="text-base font-semibold">Продажа USDT → RUB</h3>
-                  <span className="text-xs text-[#001D8D]/60">(лучший = минимальный)</span>
+                  <span className="text-xs text-[#001D8D]/60">(лучший = высокий)</span>
                 </div>
 
                 {/* Desktop view */}
@@ -313,12 +364,12 @@ export default function RatesComparison() {
                 </div>
               </div>
 
-              {/* Buy Rates Section */}
+              {/* Buy Rates Section - USDT ← RUB (лучший = низкий) */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <ArrowRightLeft className="h-4 w-4 text-blue-500" />
                   <h3 className="text-base font-semibold">Покупка USDT ← RUB</h3>
-                  <span className="text-xs text-[#001D8D]/60">(лучший = максимальный)</span>
+                  <span className="text-xs text-[#001D8D]/60">(лучший = низкий)</span>
                 </div>
 
                 {/* Desktop view */}

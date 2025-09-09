@@ -66,6 +66,41 @@ function validateRateRecord(rate: any): ValidatedKenigRate {
 export async function getValidatedKenigRates(): Promise<RateValidationResult> {
   const status = getServerSupabaseStatus();
   
+
+export async function getKenigAndBestchangeUSDT() {
+  if (!isServerSupabaseConfigured()) {
+    throw new Error('Supabase is not configured');
+  }
+
+  const supabase: SupabaseClient = getServerSupabaseClient({ useServiceRole: false, timeoutMs: 15_000 });
+
+  // Берём только нужные строки: источник ∈ {kenig, bestchange}, базовая USDT, котировка RUB
+  const { data, error } = await supabase
+    .from('kenig_rates')
+    .select('source,sell,buy,updated_at')
+    .in('source', ['kenig', 'bestchange'])
+    .eq('base', 'USDT')
+    .eq('quote', 'RUB')
+    .order('updated_at', { ascending: false });
+
+  if (error) throw error;
+
+  // Берём самые свежие по каждому источнику
+  const latest: Record<string, any> = {};
+  for (const row of data ?? []) {
+    if (!latest[row.source]) latest[row.source] = row;
+  }
+
+  const lastUpdated =
+    data && data.length ? new Date(data[0].updated_at ?? Date.now()) : new Date();
+
+  return {
+    kenig: latest['kenig'] ?? null,
+    bestchange: latest['bestchange'] ?? null,
+    isFromDatabase: true,
+    lastUpdated,
+  };
+}
   console.log('🔧 [Supabase] Configuration status:', {
     hasUrl: status.hasUrl,
     hasAnon: status.hasAnon,
