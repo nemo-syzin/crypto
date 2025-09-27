@@ -31,7 +31,9 @@ interface OrderResponse {
 
 export default function ExchangeCalculator() {
   const { toast } = useToast();
-  const [amount, setAmount] = useState<string>('');
+  const [giveAmount, setGiveAmount] = useState<string>('');
+  const [receiveAmount, setReceiveAmount] = useState<string>('');
+  const [activeInput, setActiveInput] = useState<'give' | 'receive'>('give');
   const [fromCurrency, setFromCurrency] = useState<string>('USDT');
   const [toCurrency, setToCurrency] = useState<string>('');
   const [isAnimating, setIsAnimating] = useState(false);
@@ -72,7 +74,7 @@ export default function ExchangeCalculator() {
   }, [bases, fromCurrency]);
   
   // Use exchange rate hook
-  const { rate, meta, loading, refreshing, error, lastUpdated, refetch } =
+  const { rate, source, direction, loading, refreshing, error, lastUpdated, refetch } =
     useExchangeRate(fromCurrency, toCurrency);
 
   // Добавляем логирование для отладки
@@ -88,17 +90,57 @@ export default function ExchangeCalculator() {
     });
   }, [fromCurrency, toCurrency, rate, loading, refreshing, error, lastUpdated]);
 
+  // Prevent infinite loops with useCallback
+  const updateAmounts = useCallback((newGiveAmount: string, newReceiveAmount: string, newActiveInput: 'give' | 'receive') => {
+    setGiveAmount(newGiveAmount);
+    setReceiveAmount(newReceiveAmount);
+    setActiveInput(newActiveInput);
+  }, []);
+
+  // Calculate amounts based on active input and rate
+  useEffect(() => {
+    if (!rate || rate <= 0) {
+      // If no valid rate, clear the non-active field
+      if (activeInput === 'give' && receiveAmount) {
+        setReceiveAmount('');
+      } else if (activeInput === 'receive' && giveAmount) {
+        setGiveAmount('');
+      }
+      return;
+    }
+
+    if (activeInput === 'give' && giveAmount) {
+      // User entered "give" amount, calculate "receive" amount
+      const giveNum = parseFloat(giveAmount);
+      if (!isNaN(giveNum) && giveNum > 0) {
+        const receiveNum = giveNum * rate;
+        const formattedReceive = receiveNum < 1 ? receiveNum.toFixed(6) : receiveNum.toFixed(2);
+        setReceiveAmount(formattedReceive);
+      } else if (giveAmount === '') {
+        setReceiveAmount('');
+      }
+    } else if (activeInput === 'receive' && receiveAmount) {
+      // User entered "receive" amount, calculate "give" amount
+      const receiveNum = parseFloat(receiveAmount);
+      if (!isNaN(receiveNum) && receiveNum > 0) {
+        const giveNum = receiveNum / rate;
+        const formattedGive = giveNum < 1 ? giveNum.toFixed(6) : giveNum.toFixed(2);
+        setGiveAmount(formattedGive);
+      } else if (receiveAmount === '') {
+        setGiveAmount('');
+      }
+    }
+  }, [rate, giveAmount, receiveAmount, activeInput]);
+
   // Memoized functions to prevent unnecessary rerenders
-  const parseAmount = useMemo(() => (value: string): number => {
+  const parseAmount = useCallback((value: string): number => {
     const parsed = parseFloat(value);
     return isNaN(parsed) ? 0 : parsed;
   }, []);
 
-  const result = useMemo(() => {
-    const n = parseAmount(amount);
-    if (!rate || n <= 0) return 0;
-    return n * rate; // ВСЕГДА: amount_from * (TO per FROM)
-  }, [amount, rate, parseAmount]);
+  // Get the current numeric amounts
+  const giveAmountNum = useMemo(() => parseAmount(giveAmount), [giveAmount, parseAmount]);
+  const receiveAmountNum = useMemo(() => parseAmount(receiveAmount), [receiveAmount, parseAmount]);
 
   const toggleDirection = () => {
     // Only toggle if both currencies are selected and they're a valid pair
@@ -107,6 +149,11 @@ export default function ExchangeCalculator() {
       const tempFrom = fromCurrency;
       setFromCurrency(toCurrency);
       setToCurrency(tempFrom);
+      
+      // Swap amounts as well
+      const tempGiveAmount = giveAmount;
+      setGiveAmount(receiveAmount);
+      setReceiveAmount(tempGiveAmount);
       
       setIsAnimating(true);
       setTimeout(() => setIsAnimating(false), 150);
@@ -154,12 +201,23 @@ export default function ExchangeCalculator() {
   }, []);
 
   // Handle amount change
-  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleGiveAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     
     // Allow empty string, digits and one decimal point
     if (value === '' || /^\d*\.?\d*$/.test(value)) {
-      setAmount(value);
+      setGiveAmount(value);
+      setActiveInput('give');
+    }
+  };
+
+  const handleReceiveAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    
+    // Allow empty string, digits and one decimal point
+    if (value === '' || /^\d*\.?\d*$/.test(value)) {
+      setReceiveAmount(value);
+      setActiveInput('receive');
     }
   };
 
@@ -185,7 +243,8 @@ export default function ExchangeCalculator() {
   const hasValidRate = useMemo(() => rate > 0, [rate]);
 
   const isCalculationDisabled = !hasValidRate || !!error;
-  const numericAmount = parseAmount(amount);
+  const currentGiveAmount = giveAmountNum;
+  const currentReceiveAmount = receiveAmountNum;
   
   // Валидация данных клиента
   const validateClientData = useCallback((): boolean => {
@@ -253,8 +312,8 @@ export default function ExchangeCalculator() {
       const orderPayload = {
         fromCurrency,
         toCurrency,
-        amountFrom: numericAmount,
-        amountTo: result,
+        amountFrom: currentGiveAmount,
+        amountTo: currentReceiveAmount,
         exchangeRate: rate,
         clientEmail: clientData.email,
         clientPhone: clientData.phone || undefined,
@@ -284,7 +343,8 @@ export default function ExchangeCalculator() {
         setShowOrderForm(false);
         
         // Очищаем форму
-        setAmount('');
+        setGiveAmount('');
+        setReceiveAmount('');
         setClientData({
           email: '',
           phone: '',
@@ -315,7 +375,7 @@ export default function ExchangeCalculator() {
     } finally {
       setSubmittingOrder(false);
     }
-  }, [validateClientData, fromCurrency, toCurrency, numericAmount, result, rate, clientData, toast]);
+  }, [validateClientData, fromCurrency, toCurrency, currentGiveAmount, currentReceiveAmount, rate, clientData, toast]);
   
   // Сброс состояния успеха
   const resetOrderState = useCallback(() => {
@@ -324,28 +384,18 @@ export default function ExchangeCalculator() {
     setShowOrderForm(false);
   }, []);
 
-  // Memoized display functions
-  const getResultDisplay = useMemo((): string => {
-    if (loading && !hasValidRate) return 'Загрузка курсов...';
-    if (!isPairSupported) return 'Данная валютная пара не поддерживается';
-    if (!hasValidRate) return 'Курсы недоступны';
-    if (amount === '' || numericAmount <= 0) return '';
-    
-    return formatCurrency(result, toCurrency);
-  }, [loading, isPairSupported, hasValidRate, amount, numericAmount, result, toCurrency, formatCurrency]);
-
   const getExchangeButtonText = useMemo((): string => {
     if (loading && !hasValidRate) return 'Загрузка курсов...';
     if (!toCurrency) return 'Выберите валюту получения';
     if (!isPairSupported) return 'Выберите поддерживаемую валютную пару';
     if (!hasValidRate) return 'Ожидание актуальных курсов...';
-    if (amount === '' || numericAmount <= 0) return 'Введите сумму для обмена';
+    if (giveAmount === '' || currentGiveAmount <= 0) return 'Введите сумму для обмена';
     
-    const fromAmount = formatCurrency(numericAmount, fromCurrency);
-    const toAmount = formatCurrency(result, toCurrency);
+    const fromAmount = formatCurrency(currentGiveAmount, fromCurrency);
+    const toAmount = formatCurrency(currentReceiveAmount, toCurrency);
     
     return `Обменять ${fromAmount} → ${toAmount}`;
-  }, [loading, isPairSupported, hasValidRate, amount, numericAmount, fromCurrency, toCurrency, result, formatCurrency]);
+  }, [loading, isPairSupported, hasValidRate, giveAmount, currentGiveAmount, fromCurrency, toCurrency, currentReceiveAmount, formatCurrency]);
 
   const getHintText = useMemo((): string => {
     if (error) return `Ошибка: ${error}`;
@@ -354,8 +404,8 @@ export default function ExchangeCalculator() {
     // показываем: 1 FROM ≈ RATE TO (источник, время)
     const r = rate < 1 ? rate.toFixed(6) : rate.toFixed(4);
     const time = lastUpdated ? lastUpdated.toLocaleTimeString('ru-RU') : 'недавно';
-    return `1 ${fromCurrency} ≈ ${r} ${toCurrency} • ${meta?.source} • ${time}`;
-  }, [error, toCurrency, rate, fromCurrency, lastUpdated, meta]);
+    return `1 ${fromCurrency} ≈ ${r} ${toCurrency} • ${source} • ${time}`;
+  }, [error, toCurrency, rate, fromCurrency, lastUpdated, source]);
 
   // Показываем успешную заявку
   if (orderSuccess && orderData) {
@@ -509,11 +559,13 @@ export default function ExchangeCalculator() {
             <input
               id="amount"
               type="text"
-              value={amount}
-              onChange={handleAmountChange}
+              value={giveAmount}
+              onChange={handleGiveAmountChange}
               placeholder={`100 ${fromCurrency}`}
               disabled={isCalculationDisabled}
-              className={`input-field ${error ? 'border-red-300' : ''}`}
+              className={`input-field ${error ? 'border-red-300' : ''} ${
+                activeInput === 'give' ? 'ring-2 ring-blue-500/20' : ''
+              }`}
             />
             <div className="hint-text">
               {getHintText}
@@ -557,15 +609,21 @@ export default function ExchangeCalculator() {
           {/* Result */}
           <div className="space-y-3">
             <Label htmlFor="result" className="text-[#001D8D] font-semibold text-base">
-              Получите {toCurrency || ''}
+              Сумма {toCurrency || ''}
             </Label>
-            <div className={`input-field bg-gray-50 ${isAnimating ? 'result-animation' : ''}`}>
-              <div className="text-[#001D8D] font-semibold">
-                {getResultDisplay || (amount === '' ? 'Результат появится здесь' : '')}
-              </div>
-            </div>
+            <input
+              id="result"
+              type="text"
+              value={receiveAmount}
+              onChange={handleReceiveAmountChange}
+              placeholder={`Сумма ${toCurrency}`}
+              disabled={isCalculationDisabled}
+              className={`input-field ${error ? 'border-red-300' : ''} ${
+                activeInput === 'receive' ? 'ring-2 ring-blue-500/20' : ''
+              } ${isAnimating ? 'result-animation' : ''}`}
+            />
             <div className="hint-text">
-              Итоговая сумма к получению без скрытых комиссий
+              {activeInput === 'give' ? 'Итоговая сумма к получению' : 'Введите желаемую сумму получения'}
             </div>
           </div>
 
@@ -592,7 +650,7 @@ export default function ExchangeCalculator() {
                   {rate < 1 ? rate.toFixed(6) : rate.toFixed(4)} {toCurrency}
                 </div>
                 <div className="text-xs text-[#001D8D]/50 mt-2">
-                  Источник: {meta?.source} • {lastUpdated ? lastUpdated.toLocaleString('ru-RU') : 'недавно'} {meta?.used === 'inverse-1/sell' ? '(по обратной паре)' : ''}
+                  Источник: {source} • {lastUpdated ? lastUpdated.toLocaleString('ru-RU') : 'недавно'} {direction === 'inverse' ? '(по обратной паре)' : ''}
                 </div>
               </div>
             </div>
@@ -603,17 +661,17 @@ export default function ExchangeCalculator() {
             <button 
               onClick={() => setShowOrderForm(true)}
               className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 ${
-                !rate || amount === '' || numericAmount <= 0 || !toCurrency
+                !rate || (giveAmount === '' && receiveAmount === '') || (currentGiveAmount <= 0 && currentReceiveAmount <= 0) || !toCurrency
                   ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                   : 'bg-gradient-to-r from-[#001D8D] to-blue-600 text-white hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]'
               }`}
-              disabled={!rate || amount === '' || numericAmount <= 0 || !toCurrency}
+              disabled={!rate || (giveAmount === '' && receiveAmount === '') || (currentGiveAmount <= 0 && currentReceiveAmount <= 0) || !toCurrency}
             >
               <Send className="h-5 w-5 mr-2 inline" />
               Оставить заявку на обмен
             </button>
             
-            {rate && amount && numericAmount > 0 && (
+            {rate && (giveAmount || receiveAmount) && (currentGiveAmount > 0 || currentReceiveAmount > 0) && (
               <div className="text-center text-sm text-[#001D8D]/60">
                 {getExchangeButtonText}
               </div>
@@ -642,13 +700,13 @@ export default function ExchangeCalculator() {
                       <div className="flex justify-between">
                         <span className="text-[#001D8D]/70">Отдаете:</span>
                         <span className="font-semibold text-[#001D8D]">
-                          {formatCurrency(numericAmount, fromCurrency)}
+                          {formatCurrency(currentGiveAmount, fromCurrency)}
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-[#001D8D]/70">Получаете:</span>
                         <span className="font-semibold text-[#001D8D]">
-                          {formatCurrency(result, toCurrency)}
+                          {formatCurrency(currentReceiveAmount, toCurrency)}
                         </span>
                       </div>
                       <div className="flex justify-between">
