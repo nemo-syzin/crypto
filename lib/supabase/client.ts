@@ -16,7 +16,26 @@ console.log('🔧 [Supabase Client] Configuration check:', {
 // На сервере импортируй фабрику из lib/supabase/server.ts
 export const supabase = createClient(
   supabaseUrl || 'https://placeholder.supabase.co',
-  supabaseAnonKey || 'placeholder-key'
+  supabaseAnonKey || 'placeholder-key',
+  {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+    },
+    global: {
+      headers: {
+        'x-client-info': 'kenigswap-web@1.0.0',
+      },
+    },
+    db: {
+      schema: 'public',
+    },
+    realtime: {
+      params: {
+        eventsPerSecond: 10,
+      },
+    },
+  }
 );
 
 const hasValidEnvVars = !!(
@@ -28,7 +47,18 @@ const hasValidEnvVars = !!(
   supabaseAnonKey.length > 50
 );
 
-export const isSupabaseAvailable = () => hasValidEnvVars;
+export const isSupabaseAvailable = () => {
+  const available = hasValidEnvVars;
+  if (!available) {
+    console.warn('🔧 [Supabase Client] Configuration not available:', {
+      hasUrl: !!supabaseUrl,
+      hasKey: !!supabaseAnonKey,
+      urlValid: supabaseUrl?.startsWith('https://'),
+      keyValid: supabaseAnonKey && supabaseAnonKey.length > 50
+    });
+  }
+  return available;
+};
 
 export const getSupabaseStatus = () => ({
   hasUrl: !!(supabaseUrl && supabaseUrl !== 'https://your-project-id.supabase.co'),

@@ -75,6 +75,19 @@ export default function ExchangeCalculator() {
   const { rate, meta, loading, refreshing, error, lastUpdated, refetch } =
     useExchangeRate(fromCurrency, toCurrency);
 
+  // Добавляем логирование для отладки
+  useEffect(() => {
+    console.log('[ExchangeCalculator] Rate data:', {
+      fromCurrency,
+      toCurrency,
+      rate,
+      loading,
+      refreshing,
+      error,
+      lastUpdated
+    });
+  }, [fromCurrency, toCurrency, rate, loading, refreshing, error, lastUpdated]);
+
   // Memoized functions to prevent unnecessary rerenders
   const parseAmount = useMemo(() => (value: string): number => {
     const parsed = parseFloat(value);

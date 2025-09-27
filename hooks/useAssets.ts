@@ -34,7 +34,7 @@ const fetchBases = async (): Promise<string[]> => {
       .from('kenig_rates')
       .select('base')
       .not('base', 'is', null)
-      .limit(2000);
+      .limit(1000); // Уменьшаем лимит для быстрой загрузки
 
     if (error) {
       console.warn('[Assets] ⚠️ Error fetching base currencies:', error);
@@ -73,7 +73,7 @@ const fetchQuotes = async (base: string): Promise<string[]> => {
       .select('quote')
       .eq('base', base.toUpperCase())
       .not('quote', 'is', null)
-      .limit(2000);
+      .limit(1000); // Уменьшаем лимит для быстрой загрузки
 
     if (error) {
       console.warn(`[Assets] ⚠️ Error fetching quote currencies for ${base}:`, error);
@@ -99,11 +99,14 @@ const fetchQuotes = async (base: string): Promise<string[]> => {
 // Export hooks for base and quote assets
 export const useBaseAssets = () => {
   const { data, error, isLoading } = useSWR('bases', fetchBases, {
-    refreshInterval: 10 * 60 * 1000, // refresh every 10 minutes
+    refreshInterval: 5 * 60 * 1000, // Уменьшаем до 5 минут
     revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    dedupingInterval: 60000,
+    revalidateOnReconnect: true, // Включаем обновление при восстановлении соединения
+    dedupingInterval: 30000, // Уменьшаем дедупликацию
     fallbackData: Array.from(FALLBACK_BASES), // Always provide fallback
+    onError: (error) => {
+      console.error('[Assets] Base assets error:', error);
+    },
   });
 
   return {
@@ -118,11 +121,14 @@ export const useQuoteAssets = (base: string) => {
     base ? `quotes-${base}` : null, 
     () => fetchQuotes(base),
     {
-      refreshInterval: 10 * 60 * 1000,
+      refreshInterval: 5 * 60 * 1000, // Уменьшаем до 5 минут
       revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      dedupingInterval: 60000,
+      revalidateOnReconnect: true, // Включаем обновление при восстановлении соединения
+      dedupingInterval: 30000, // Уменьшаем дедупликацию
       fallbackData: FALLBACK_QUOTES_BY_BASE[base] || ['RUB'], // Always provide fallback
+      onError: (error) => {
+        console.error(`[Assets] Quote assets error for ${base}:`, error);
+      },
     }
   );
 
