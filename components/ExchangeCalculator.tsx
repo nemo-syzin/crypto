@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useExchangeRate } from '@/hooks/useExchangeRate';
 import { useBaseAssets, useQuoteAssets } from '@/hooks/useAssets';
 import { useToast } from '@/hooks/use-toast';
-import { Calculator, RefreshCw, ArrowUpDown, AlertTriangle, Settings, Info, Send, CheckCircle, User, Mail, Phone, Wallet, CreditCard } from 'lucide-react';
+import { Calculator, RefreshCw, ArrowUpDown, TriangleAlert as AlertTriangle, Settings, Info, Send, CircleCheck as CheckCircle, User, Mail, Phone, Wallet, CreditCard } from 'lucide-react';
 
 interface ClientData {
   email: string;
