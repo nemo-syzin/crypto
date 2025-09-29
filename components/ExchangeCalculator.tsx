@@ -40,11 +40,11 @@ export default function ExchangeCalculator() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   
   // Exchange data
-  const [giveAmount, setGiveAmount] = useState<string>('');
+  const [giveAmount, setGiveAmount] = useState<string>('100');
   const [receiveAmount, setReceiveAmount] = useState<string>('');
   const [activeInput, setActiveInput] = useState<'give' | 'receive'>('give');
   const [fromCurrency, setFromCurrency] = useState<string>('USDT');
-  const [toCurrency, setToCurrency] = useState<string>('');
+  const [toCurrency, setToCurrency] = useState<string>('RUB');
   const [isAnimating, setIsAnimating] = useState(false);
   
   // Order state
@@ -71,18 +71,19 @@ export default function ExchangeCalculator() {
 
   // Set initial toCurrency when quotes are loaded
   useEffect(() => {
-    if (quotes.length > 0 && !toCurrency) {
-      setToCurrency(quotes[0]);
+    if (quotes.length > 0 && (!toCurrency || !quotes.includes(toCurrency))) {
+      const defaultQuote = quotes.includes('RUB') ? 'RUB' : quotes[0];
+      setToCurrency(defaultQuote);
     }
-  }, [quotes, toCurrency]);
+  }, [quotes]);
   
   // Set valid fromCurrency when bases are loaded
   useEffect(() => {
-    if (bases.length > 0 && !bases.includes(fromCurrency)) {
-      setFromCurrency(bases[0]);
-      setToCurrency('');
+    if (bases.length > 0 && (!fromCurrency || !bases.includes(fromCurrency))) {
+      const defaultBase = bases.includes('USDT') ? 'USDT' : bases[0];
+      setFromCurrency(defaultBase);
     }
-  }, [bases, fromCurrency]);
+  }, [bases]);
 
   // Calculate amounts based on active input and rate
   useEffect(() => {
@@ -165,6 +166,8 @@ export default function ExchangeCalculator() {
 
   // Step navigation
   const goToStep = useCallback(async (step: WizardStep) => {
+    if (isTransitioning) return; // Предотвращаем множественные переходы
+    
     setIsTransitioning(true);
     await new Promise(resolve => setTimeout(resolve, 150));
     setCurrentStep(step);
@@ -172,6 +175,10 @@ export default function ExchangeCalculator() {
   }, []);
 
   const nextStep = useCallback(() => {
+    if (isTransitioning) return; // Предотвращаем множественные переходы
+    
+    console.log('Moving to next step from:', currentStep);
+    
     const steps: WizardStep[] = ['exchange', 'contact', 'confirmation'];
     const currentIndex = steps.indexOf(currentStep);
     if (currentIndex < steps.length - 1) {
@@ -180,6 +187,10 @@ export default function ExchangeCalculator() {
   }, [currentStep, goToStep]);
 
   const prevStep = useCallback(() => {
+    if (isTransitioning) return; // Предотвращаем множественные переходы
+    
+    console.log('Moving to previous step from:', currentStep);
+    
     const steps: WizardStep[] = ['exchange', 'contact', 'confirmation'];
     const currentIndex = steps.indexOf(currentStep);
     if (currentIndex > 0) {
@@ -189,6 +200,8 @@ export default function ExchangeCalculator() {
 
   // Handle amount changes
   const handleGiveAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target) return;
+    
     const value = e.target.value;
     if (value === '' || /^\d*\.?\d*$/.test(value)) {
       setGiveAmount(value);
@@ -197,6 +210,8 @@ export default function ExchangeCalculator() {
   };
 
   const handleReceiveAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target) return;
+    
     const value = e.target.value;
     if (value === '' || /^\d*\.?\d*$/.test(value)) {
       setReceiveAmount(value);
@@ -205,8 +220,11 @@ export default function ExchangeCalculator() {
   };
 
   const handleFromCurrencyChange = (value: string) => {
+    if (!value) return;
+    
     setFromCurrency(value);
-    setToCurrency('');
+    // Не сбрасываем toCurrency, позволяем useEffect обработать это
+    console.log('From currency changed to:', value);
   };
 
   const toggleDirection = () => {
@@ -226,10 +244,18 @@ export default function ExchangeCalculator() {
 
   // Validation
   const validateExchangeStep = useCallback((): boolean => {
-    return !!(rate && rate > 0 && toCurrency && (giveAmountNum > 0 || receiveAmountNum > 0));
+    const isValid = !!(
+      rate && rate > 0 && 
+      fromCurrency && toCurrency && 
+      (giveAmountNum > 0 || receiveAmountNum > 0)
+    );
+    console.log('Exchange step validation:', { rate, fromCurrency, toCurrency, giveAmountNum, receiveAmountNum, isValid });
+    return isValid;
   }, [rate, toCurrency, giveAmountNum, receiveAmountNum]);
 
   const validateClientData = useCallback((): boolean => {
+    console.log('Validating client data:', clientData);
+    
     const errors: Partial<ClientData> = {};
     
     if (!clientData.email) {
@@ -262,6 +288,7 @@ export default function ExchangeCalculator() {
     }
     
     setClientErrors(errors);
+    console.log('Client validation errors:', errors);
     return Object.keys(errors).length === 0;
   }, [clientData, toCurrency]);
 
@@ -275,6 +302,8 @@ export default function ExchangeCalculator() {
   // Submit order
   const handleSubmitOrder = useCallback(async () => {
     if (!validateClientData()) {
+      console.error('Client data validation failed');
+      
       toast({
         title: "Ошибка валидации",
         description: "Пожалуйста, исправьте ошибки в форме",
@@ -282,6 +311,8 @@ export default function ExchangeCalculator() {
       });
       return;
     }
+    
+    console.log('Submitting order with data:', { fromCurrency, toCurrency, giveAmountNum, receiveAmountNum, rate, clientData });
     
     setSubmittingOrder(true);
     
@@ -340,6 +371,8 @@ export default function ExchangeCalculator() {
   }, [validateClientData, fromCurrency, toCurrency, giveAmountNum, receiveAmountNum, rate, clientData, toast, goToStep]);
 
   const resetWizard = useCallback(() => {
+    console.log('Resetting wizard');
+    
     setCurrentStep('exchange');
     setGiveAmount('');
     setReceiveAmount('');
@@ -354,9 +387,16 @@ export default function ExchangeCalculator() {
   }, []);
 
   // Step progress
+  const stepOrder: WizardStep[] = ['exchange', 'contact', 'confirmation', 'success'];
+  const stepTitles = {
+    exchange: 'Детали обмена',
+    contact: 'Контактные данные',
+    confirmation: 'Подтверждение',
+    success: 'Готово'
+  };
+  
   const getStepNumber = (step: WizardStep): number => {
-    const stepMap = { exchange: 1, contact: 2, confirmation: 3, success: 4 };
-    return stepMap[step];
+    return stepOrder.indexOf(step) + 1;
   };
 
   const getCurrentStepNumber = () => getStepNumber(currentStep);
@@ -385,9 +425,31 @@ export default function ExchangeCalculator() {
     }
   };
 
+  // Безопасные варианты анимации для предотвращения ошибок
+  const safeStepVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1, 
+      transition: { 
+        duration: 0.3, 
+        ease: "easeOut" 
+      }
+    },
+    exit: { 
+      opacity: 0, 
+      transition: { 
+        duration: 0.2, 
+        ease: "easeIn" 
+      }
+    }
+  };
+
   // Progress indicator component
   const ProgressIndicator = () => (
     <div className="flex items-center justify-center mb-8">
+      <div className="text-sm font-medium text-[#001D8D]/60 mb-4 text-center">
+        {stepTitles[currentStep]} • Шаг {getCurrentStepNumber()} из {getTotalSteps()}
+      </div>
       <div className="flex items-center gap-4">
         {[1, 2, 3].map((step) => (
           <div key={step} className="flex items-center">
@@ -419,8 +481,217 @@ export default function ExchangeCalculator() {
   // Step 1: Exchange Details
   const ExchangeStep = () => (
     <motion.div
-      key="exchange"
-      variants={stepVariants}
+      key="exchange-step"
+      variants={safeStepVariants}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+      className="space-y-8"
+    >
+      <div className="text-center mb-8">
+        <h2 className="text-2xl md:text-3xl font-bold text-[#001D8D] mb-3">
+          Детали обмена
+        </h2>
+        <p className="text-[#001D8D]/70 text-lg">
+          Выберите валюты и укажите сумму для обмена
+        </p>
+      </div>
+
+      {/* Configuration Error Alert */}
+      {error && error.includes('not configured') && (
+        <Alert className="bg-orange-50 border-orange-200 mb-6">
+          <Settings className="h-4 w-4 text-orange-600" />
+          <AlertDescription className="text-orange-800">
+            <strong>Требуется настройка:</strong> {error}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Left Column - Currency Selection */}
+        <div className="space-y-6">
+          {/* From Currency */}
+          <div className="space-y-3">
+            <Label htmlFor="fromCurrency" className="text-[#001D8D] font-semibold text-base flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" />
+              Отдаёте
+            </Label>
+            <Select 
+              value={fromCurrency}
+              onValueChange={handleFromCurrencyChange}
+              disabled={basesLoading}
+            >
+              <SelectTrigger className="h-12 text-base">
+                <SelectValue placeholder="Выберите валюту" />
+              </SelectTrigger>
+              <SelectContent>
+                {bases.map((base) => (
+                  <SelectItem key={base} value={base}>
+                    {base}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Give Amount */}
+          <div className="space-y-3">
+            <Label htmlFor="giveAmount" className="text-[#001D8D] font-semibold text-base">
+              Сумма {fromCurrency}
+            </Label>
+            <Input
+              id="giveAmount"
+              type="text"
+              value={giveAmount}
+              onChange={handleGiveAmountChange}
+              placeholder={`Введите сумму ${fromCurrency}`}
+              className={`h-12 text-base ${
+                activeInput === 'give' ? 'ring-2 ring-blue-500/20 border-blue-500' : ''
+              }`}
+            />
+          </div>
+
+          {/* Direction Toggle */}
+          <div className="flex justify-center py-4">
+            <button
+              onClick={toggleDirection}
+              disabled={!fromCurrency || !toCurrency || !!error || loading}
+              className="p-3 rounded-full bg-blue-100 hover:bg-blue-200 transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <ArrowUpDown className="h-6 w-6 text-blue-600" />
+            </button>
+          </div>
+
+          {/* To Currency */}
+          <div className="space-y-3">
+            <Label htmlFor="toCurrency" className="text-[#001D8D] font-semibold text-base flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" />
+              Получаете
+            </Label>
+            <Select 
+              value={toCurrency}
+              onValueChange={setToCurrency}
+              disabled={quotesLoading || !fromCurrency}
+            >
+              <SelectTrigger className="h-12 text-base">
+                <SelectValue placeholder="Выберите валюту" />
+              </SelectTrigger>
+              <SelectContent>
+                {quotes.map((quote) => (
+                  <SelectItem key={quote} value={quote}>
+                    {quote}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Receive Amount */}
+          <div className="space-y-3">
+            <Label htmlFor="receiveAmount" className="text-[#001D8D] font-semibold text-base">
+              Сумма {toCurrency || ''}
+            </Label>
+            <Input
+              id="receiveAmount"
+              type="text"
+              value={receiveAmount}
+              onChange={handleReceiveAmountChange}
+              placeholder={`Введите сумму ${toCurrency}`}
+              className={`h-12 text-base ${
+                activeInput === 'receive' ? 'ring-2 ring-blue-500/20 border-blue-500' : ''
+              }`}
+            />
+          </div>
+        </div>
+
+        {/* Right Column - Exchange Summary */}
+        <div className="space-y-6">
+          {loading && !rate ? (
+            <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-[#001D8D]/10">
+              <div className="flex items-center justify-center">
+                <div className="flex items-center gap-3 text-[#001D8D]">
+                  <RefreshCw className="h-6 w-6 animate-spin" />
+                  <span className="font-medium">Загрузка курсов...</span>
+                </div>
+              </div>
+            </div>
+          ) : rate > 0 ? (
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 shadow-lg border border-blue-200">
+              <h3 className="text-xl font-bold text-[#001D8D] mb-6 flex items-center gap-2">
+                <Calculator className="h-5 w-5" />
+                Сводка обмена
+              </h3>
+              
+              <div className="space-y-4">
+                <div className="flex justify-between items-center p-4 bg-white/80 rounded-xl">
+                  <span className="text-[#001D8D]/70 font-medium">Отдаёте:</span>
+                  <span className="font-bold text-[#001D8D] text-lg">
+                    {giveAmountNum > 0 ? formatCurrency(giveAmountNum, fromCurrency) : '—'}
+                  </span>
+                </div>
+                
+                <div className="flex justify-between items-center p-4 bg-white/80 rounded-xl">
+                  <span className="text-[#001D8D]/70 font-medium">Получаете:</span>
+                  <span className="font-bold text-[#001D8D] text-lg">
+                    {receiveAmountNum > 0 ? formatCurrency(receiveAmountNum, toCurrency) : '—'}
+                  </span>
+                </div>
+                
+                <div className="flex justify-between items-center p-4 bg-white/80 rounded-xl">
+                  <span className="text-[#001D8D]/70 font-medium">Курс:</span>
+                  <span className="font-bold text-[#001D8D]">
+                    1 {fromCurrency} = {formatRate(rate, toCurrency)}
+                  </span>
+                </div>
+                
+                {lastUpdated && (
+                  <div className="text-center text-sm text-[#001D8D]/60 flex items-center justify-center gap-2">
+                    <Clock className="h-4 w-4" />
+                    Обновлено: {lastUpdated.toLocaleTimeString('ru-RU')} • {source}
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="bg-gray-50 rounded-2xl p-8 shadow-lg border border-gray-200">
+              <div className="text-center text-gray-500">
+                <Info className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                <p>Выберите валюты и введите сумму для расчёта</p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Continue Button */}
+      <div className="flex justify-center pt-6">
+        <Button
+          onClick={nextStep}
+          disabled={!validateExchangeStep() || isTransitioning}
+          size="lg"
+          className="px-8 py-4 text-lg font-semibold bg-gradient-to-r from-[#001D8D] to-blue-600 text-white hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isTransitioning ? (
+            <>
+              <RefreshCw className="h-5 w-5 mr-2 animate-spin" />
+              Загрузка...
+            </>
+          ) : (
+            <>
+              Продолжить
+              <ArrowRight className="h-5 w-5 ml-2" />
+            </>
+          )}
+        </Button>
+      </div>
+    </motion.div>
+  );
+
+  // Step 2: Contact Information
+  const ContactStep = () => (
+    <motion.div
+      key="contact-step"
+      variants={safeStepVariants}
       initial="hidden"
       animate="visible"
       exit="exit"
@@ -742,6 +1013,7 @@ export default function ExchangeCalculator() {
         <Button
           onClick={nextStep}
           disabled={!validateClientData()}
+          disabled={!validateClientData() || isTransitioning}
           size="lg"
           className="px-8 py-3 text-lg font-semibold bg-gradient-to-r from-[#001D8D] to-blue-600 text-white hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50"
         >
@@ -755,17 +1027,14 @@ export default function ExchangeCalculator() {
   // Step 3: Confirmation
   const ConfirmationStep = () => (
     <motion.div
-      key="confirmation"
-      variants={stepVariants}
+      key="confirmation-step"
+      variants={safeStepVariants}
       initial="hidden"
       animate="visible"
       exit="exit"
       className="space-y-8"
     >
       <div className="text-center mb-8">
-        <div className="text-sm font-medium text-[#001D8D]/60 mb-2">
-          Шаг {getCurrentStepNumber()} из {getTotalSteps()}
-        </div>
         <h2 className="text-2xl md:text-3xl font-bold text-[#001D8D] mb-3">
           Подтверждение обмена
         </h2>
@@ -883,7 +1152,7 @@ export default function ExchangeCalculator() {
         
         <Button
           onClick={handleSubmitOrder}
-          disabled={submittingOrder}
+          disabled={submittingOrder || isTransitioning}
           size="lg"
           className="px-8 py-3 text-lg font-semibold bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50"
         >
@@ -906,8 +1175,8 @@ export default function ExchangeCalculator() {
   // Success Step
   const SuccessStep = () => (
     <motion.div
-      key="success"
-      variants={stepVariants}
+      key="success-step"
+      variants={safeStepVariants}
       initial="hidden"
       animate="visible"
       exit="exit"
@@ -915,6 +1184,124 @@ export default function ExchangeCalculator() {
     >
       <div className="flex justify-center mb-6">
         <div className="p-6 bg-green-100 rounded-full">
+          <CheckCircle className="h-16 w-16 text-green-600" />
+        </div>
+      </div>
+      
+      <div>
+        <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-4">
+          Заявка успешно отправлена!
+        </h2>
+        <p className="text-xl text-[#001D8D]/70 mb-8">
+          Мы получили вашу заявку и свяжемся с вами в ближайшее время
+        </p>
+      </div>
+
+      {orderData && (
+        <div className="bg-blue-50 rounded-2xl p-6 max-w-md mx-auto">
+          <div className="text-sm text-[#001D8D]/70 mb-2">Номер заявки:</div>
+          <div className="text-2xl font-bold text-[#001D8D] mb-4">
+            #{orderData.id?.substring(0, 8)?.toUpperCase() || 'N/A'}
+          </div>
+          <div className="text-sm text-[#001D8D]/70">
+            Проверьте вашу электронную почту для получения дальнейших инструкций
+          </div>
+        </div>
+      )}
+
+      <div className="space-y-4 max-w-md mx-auto">
+        <Button 
+          onClick={resetWizard}
+          size="lg"
+          className="w-full bg-gradient-to-r from-[#001D8D] to-blue-600 text-white hover:opacity-90 py-3 text-lg font-semibold"
+        >
+          Создать новую заявку
+        </Button>
+        
+        <Button 
+          variant="outline"
+          onClick={() => window.location.href = '/dashboard'}
+          className="w-full text-[#001D8D] border-[#001D8D]/20 py-3"
+        >
+          Перейти в личный кабинет
+        </Button>
+      </div>
+    </motion.div>
+  );
+
+  // Обработка ошибок рендеринга
+  if (basesError || quotesError) {
+    return (
+      <div className="w-full max-w-4xl mx-auto">
+        <Card className="bg-white/95 backdrop-blur-sm shadow-2xl border-2 border-red-200 rounded-2xl">
+          <CardContent className="p-8 text-center">
+            <AlertTriangle className="h-12 w-12 text-red-600 mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-red-800 mb-2">Ошибка загрузки данных</h3>
+            <p className="text-red-600 mb-4">
+              {basesError || quotesError}
+            </p>
+            <Button 
+              onClick={() => window.location.reload()}
+              className="bg-red-600 text-white hover:bg-red-700"
+            >
+              Обновить страницу
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Main render
+  return (
+    <div className="w-full max-w-4xl mx-auto">
+      <Card className="bg-white/95 backdrop-blur-sm shadow-2xl border-2 border-[#001D8D]/20 rounded-2xl overflow-hidden">
+        <CardHeader className="bg-gradient-to-r from-[#001D8D] to-blue-600 text-white py-6">
+          <CardTitle className="text-center">
+            <div className="flex items-center justify-center gap-3 mb-2">
+              <Calculator className="h-8 w-8" />
+              <span className="text-2xl md:text-3xl font-bold">
+                Калькулятор обмена KenigSwap
+              </span>
+            </div>
+            {currentStep !== 'success' && (
+              <p className="text-white/90 text-lg">
+                Безопасный и быстрый обмен криптовалют
+              </p>
+            )}
+          </CardTitle>
+        </CardHeader>
+        
+        <CardContent className="p-8 md:p-12">
+          {/* Progress Indicator */}
+          {currentStep !== 'success' && <ProgressIndicator />}
+          
+          {/* Step Content */}
+          <AnimatePresence mode="wait">
+            {!isTransitioning && (
+              <>
+                {currentStep === 'exchange' && <ExchangeStep />}
+                {currentStep === 'contact' && <ContactStep />}
+                {currentStep === 'confirmation' && <ConfirmationStep />}
+                {currentStep === 'success' && <SuccessStep />}
+              </>
+            )}
+          </AnimatePresence>
+          
+          {/* Loading state during transitions */}
+          {isTransitioning && (
+            <div className="flex items-center justify-center py-12">
+              <div className="flex items-center gap-3 text-[#001D8D]">
+                <RefreshCw className="h-6 w-6 animate-spin" />
+                <span className="font-medium">Переход к следующему шагу...</span>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
           <CheckCircle className="h-16 w-16 text-green-600" />
         </div>
       </div>
