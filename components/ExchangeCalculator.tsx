@@ -1,0 +1,874 @@
+"use client";
+
+import { useState, useMemo, useEffect, useCallback } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useExchangeRate } from '@/hooks/useExchangeRate';
+import { useBaseAssets, useQuoteAssets } from '@/hooks/useAssets';
+import { useToast } from '@/hooks/use-toast';
+import { Calculator, RefreshCw, ArrowUpDown, TriangleAlert as AlertTriangle, Settings, Info, Send, CircleCheck as CheckCircle, User, Mail, Phone, Wallet, CreditCard } from 'lucide-react';
+
+interface ClientData {
+  email: string;
+  phone: string;
+  walletAddress: string;
+  bankDetails: string;
+}
+
+interface OrderResponse {
+  success: boolean;
+  message: string;
+  orderId?: string;
+  order?: any;
+  error?: string;
+  details?: string[];
+}
+
+export default function ExchangeCalculator() {
+  const { toast } = useToast();
+  const [giveAmount, setGiveAmount] = useState<string>('');
+  const [receiveAmount, setReceiveAmount] = useState<string>('');
+  const [activeInput, setActiveInput] = useState<'give' | 'receive'>('give');
+  const [fromCurrency, setFromCurrency] = useState<string>('USDT');
+  const [toCurrency, setToCurrency] = useState<string>('');
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [showOrderForm, setShowOrderForm] = useState(false);
+  const [submittingOrder, setSubmittingOrder] = useState(false);
+  const [orderSuccess, setOrderSuccess] = useState(false);
+  const [orderData, setOrderData] = useState<any>(null);
+  
+  // Данные клиента
+  const [clientData, setClientData] = useState<ClientData>({
+    email: '',
+    phone: '',
+    walletAddress: '',
+    bankDetails: ''
+  });
+  
+  const [clientErrors, setClientErrors] = useState<Partial<ClientData>>({});
+  
+  // Get available base currencies
+  const { bases, loading: basesLoading, error: basesError } = useBaseAssets();
+  
+  // Get available quote currencies for selected base
+  const { quotes, loading: quotesLoading, error: quotesError } = useQuoteAssets(fromCurrency);
+  
+  // Set initial toCurrency when quotes are loaded
+  useEffect(() => {
+    if (quotes.length > 0 && !toCurrency) {
+      setToCurrency(quotes[0]);
+    }
+  }, [quotes, toCurrency]);
+  
+  // Set valid fromCurrency when bases are loaded
+  useEffect(() => {
+    if (bases.length > 0 && !bases.includes(fromCurrency)) {
+      setFromCurrency(bases[0]);
+      setToCurrency(''); // Reset toCurrency to trigger quotes reload
+    }
+  }, [bases, fromCurrency]);
+  
+  // Use exchange rate hook
+  const { rate, source, direction, loading, refreshing, error, lastUpdated, refetch } =
+    useExchangeRate(fromCurrency, toCurrency);
+
+  // Добавляем логирование для отладки
+  useEffect(() => {
+    console.log('[ExchangeCalculator] Rate data:', {
+      fromCurrency,
+      toCurrency,
+      rate,
+      loading,
+      refreshing,
+      error,
+      lastUpdated
+    });
+  }, [fromCurrency, toCurrency, rate, loading, refreshing, error, lastUpdated]);
+
+  // Prevent infinite loops with useCallback
+  const updateAmounts = useCallback((newGiveAmount: string, newReceiveAmount: string, newActiveInput: 'give' | 'receive') => {
+    setGiveAmount(newGiveAmount);
+    setReceiveAmount(newReceiveAmount);
+    setActiveInput(newActiveInput);
+  }, []);
+
+  // Calculate amounts based on active input and rate
+  useEffect(() => {
+    if (!rate || rate <= 0) {
+      // If no valid rate, clear the non-active field
+      if (activeInput === 'give' && receiveAmount) {
+        setReceiveAmount('');
+      } else if (activeInput === 'receive' && giveAmount) {
+        setGiveAmount('');
+      }
+      return;
+    }
+
+    if (activeInput === 'give' && giveAmount) {
+      // User entered "give" amount, calculate "receive" amount
+      const giveNum = parseFloat(giveAmount);
+      if (!isNaN(giveNum) && giveNum > 0) {
+        const receiveNum = giveNum * rate;
+        const formattedReceive = receiveNum < 1 ? receiveNum.toFixed(6) : receiveNum.toFixed(2);
+        setReceiveAmount(formattedReceive);
+      } else if (giveAmount === '') {
+        setReceiveAmount('');
+      }
+    } else if (activeInput === 'receive' && receiveAmount) {
+      // User entered "receive" amount, calculate "give" amount
+      const receiveNum = parseFloat(receiveAmount);
+      if (!isNaN(receiveNum) && receiveNum > 0) {
+        const giveNum = receiveNum / rate;
+        const formattedGive = giveNum < 1 ? giveNum.toFixed(6) : giveNum.toFixed(2);
+        setGiveAmount(formattedGive);
+      } else if (receiveAmount === '') {
+        setGiveAmount('');
+      }
+    }
+  }, [rate, giveAmount, receiveAmount, activeInput]);
+
+  // Memoized functions to prevent unnecessary rerenders
+  const parseAmount = useCallback((value: string): number => {
+    const parsed = parseFloat(value);
+    return isNaN(parsed) ? 0 : parsed;
+  }, []);
+
+  // Get the current numeric amounts
+  const giveAmountNum = useMemo(() => parseAmount(giveAmount), [giveAmount, parseAmount]);
+  const receiveAmountNum = useMemo(() => parseAmount(receiveAmount), [receiveAmount, parseAmount]);
+
+  const toggleDirection = () => {
+    // Only toggle if both currencies are selected and they're a valid pair
+    if (fromCurrency && toCurrency && !error) {
+      // Swap currencies
+      const tempFrom = fromCurrency;
+      setFromCurrency(toCurrency);
+      setToCurrency(tempFrom);
+      
+      // Swap amounts as well
+      const tempGiveAmount = giveAmount;
+      setGiveAmount(receiveAmount);
+      setReceiveAmount(tempGiveAmount);
+      
+      setIsAnimating(true);
+      setTimeout(() => setIsAnimating(false), 150);
+    }
+  };
+
+  // Memoized formatting functions
+  const formatCurrency = useMemo(() => (value: number, currency: string): string => {
+    if (value === 0) return '';
+    
+    if (currency === 'RUB') {
+      return new Intl.NumberFormat('ru-RU', {
+        style: 'currency',
+        currency: 'RUB',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(value);
+    } else {
+      // For cryptocurrencies use different decimal places based on value
+      const decimals = value < 1 ? 6 : value < 100 ? 4 : 2;
+      return new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: decimals,
+      }).format(value) + ` ${currency}`;
+    }
+  }, []);
+
+  const formatRate = useMemo(() => (rateValue: number | null, currency: string = 'RUB'): string => {
+    if (!rateValue || isNaN(rateValue)) return '—';
+    
+    if (currency === 'RUB') {
+      return new Intl.NumberFormat('ru-RU', {
+        style: 'currency',
+        currency: 'RUB',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(rateValue);
+    } else {
+      const decimals = rateValue < 1 ? 6 : rateValue < 100 ? 4 : 2;
+      return new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: decimals,
+      }).format(rateValue) + ` ${currency}`;
+    }
+  }, []);
+
+  // Handle amount change
+  const handleGiveAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    
+    // Allow empty string, digits and one decimal point
+    if (value === '' || /^\d*\.?\d*$/.test(value)) {
+      setGiveAmount(value);
+      setActiveInput('give');
+    }
+  };
+
+  const handleReceiveAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    
+    // Allow empty string, digits and one decimal point
+    if (value === '' || /^\d*\.?\d*$/.test(value)) {
+      setReceiveAmount(value);
+      setActiveInput('receive');
+    }
+  };
+
+  // Handle from currency change
+  const handleFromCurrencyChange = (value: string) => {
+    setFromCurrency(value);
+    // Reset toCurrency when base currency changes
+    setToCurrency('');
+  };
+
+  // Check if configuration error
+  const isConfigurationError = error && (
+    error.includes('not configured') || 
+    error.includes('Invalid API key') || 
+    error.includes('environment variables')
+  );
+
+  // Memoized calculations
+  const isPairSupported = useMemo(() => {
+    return rate !== 0 || (fromCurrency === toCurrency);
+  }, [rate, fromCurrency, toCurrency]);
+
+  const hasValidRate = useMemo(() => rate > 0, [rate]);
+
+  const isCalculationDisabled = !hasValidRate || !!error;
+  const currentGiveAmount = giveAmountNum;
+  const currentReceiveAmount = receiveAmountNum;
+  
+  // Валидация данных клиента
+  const validateClientData = useCallback((): boolean => {
+    const errors: Partial<ClientData> = {};
+    
+    // Email обязателен
+    if (!clientData.email) {
+      errors.email = 'Введите email адрес';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clientData.email)) {
+      errors.email = 'Введите корректный email адрес';
+    }
+    
+    // Телефон опционален, но если указан - должен быть валидным
+    if (clientData.phone && !/^[\+]?[1-9][\d]{0,15}$/.test(clientData.phone.replace(/[\s\-\(\)]/g, ''))) {
+      errors.phone = 'Введите корректный номер телефона';
+    }
+    
+    // Адрес кошелька нужен для криптовалют
+    const cryptoCurrencies = ['BTC', 'ETH', 'USDT', 'USDC', 'BNB', 'ADA', 'DOT', 'SOL', 'XRP', 'DOGE', 'SHIB', 'LTC', 'LINK', 'UNI', 'ATOM', 'XLM', 'TRX', 'FIL', 'NEAR'];
+    if (cryptoCurrencies.includes(toCurrency.toUpperCase())) {
+      if (!clientData.walletAddress) {
+        errors.walletAddress = `Введите адрес кошелька для получения ${toCurrency}`;
+      } else if (clientData.walletAddress.length < 10) {
+        errors.walletAddress = 'Адрес кошелька слишком короткий';
+      }
+    }
+    
+    // Банковские реквизиты нужны для рублей
+    if (toCurrency.toUpperCase() === 'RUB') {
+      if (!clientData.bankDetails) {
+        errors.bankDetails = 'Введите банковские реквизиты для получения рублей';
+      } else if (clientData.bankDetails.length < 10) {
+        errors.bankDetails = 'Банковские реквизиты слишком короткие';
+      }
+    }
+    
+    setClientErrors(errors);
+    return Object.keys(errors).length === 0;
+  }, [clientData, toCurrency]);
+  
+  // Обработка изменения данных клиента
+  const handleClientDataChange = useCallback((field: keyof ClientData, value: string) => {
+    setClientData(prev => ({ ...prev, [field]: value }));
+    
+    // Очищаем ошибку для этого поля
+    if (clientErrors[field]) {
+      setClientErrors(prev => ({ ...prev, [field]: undefined }));
+    }
+  }, [clientErrors]);
+  
+  // Отправка заявки
+  const handleSubmitOrder = useCallback(async () => {
+    if (!validateClientData()) {
+      toast({
+        title: "Ошибка валидации",
+        description: "Пожалуйста, исправьте ошибки в форме",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setSubmittingOrder(true);
+    
+    try {
+      const orderPayload = {
+        fromCurrency,
+        toCurrency,
+        amountFrom: currentGiveAmount,
+        amountTo: currentReceiveAmount,
+        exchangeRate: rate,
+        clientEmail: clientData.email,
+        clientPhone: clientData.phone || undefined,
+        clientWalletAddress: clientData.walletAddress || undefined,
+        clientBankDetails: clientData.bankDetails || undefined
+      };
+      
+      console.log('📤 Отправка заявки на сервер...');
+      
+      const response = await fetch('/api/exchange-orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderPayload),
+      });
+      
+      const responseData: OrderResponse = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(responseData.message || responseData.error || 'Ошибка отправки заявки');
+      }
+      
+      if (responseData.success) {
+        setOrderSuccess(true);
+        setOrderData(responseData.order);
+        setShowOrderForm(false);
+        
+        // Очищаем форму
+        setGiveAmount('');
+        setReceiveAmount('');
+        setClientData({
+          email: '',
+          phone: '',
+          walletAddress: '',
+          bankDetails: ''
+        });
+        
+        toast({
+          title: "Заявка создана!",
+          description: `Заявка №${responseData.orderId?.substring(0, 8)} успешно отправлена. Мы свяжемся с вами в ближайшее время.`,
+        });
+        
+        console.log('✅ Заявка успешно создана:', responseData.orderId);
+      } else {
+        throw new Error(responseData.message || 'Неизвестная ошибка');
+      }
+      
+    } catch (error) {
+      console.error('❌ Ошибка при отправке заявки:', error);
+      
+      const errorMessage = error instanceof Error ? error.message : 'Произошла ошибка при отправке заявки';
+      
+      toast({
+        title: "Ошибка отправки заявки",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setSubmittingOrder(false);
+    }
+  }, [validateClientData, fromCurrency, toCurrency, currentGiveAmount, currentReceiveAmount, rate, clientData, toast]);
+  
+  // Сброс состояния успеха
+  const resetOrderState = useCallback(() => {
+    setOrderSuccess(false);
+    setOrderData(null);
+    setShowOrderForm(false);
+  }, []);
+
+  const getExchangeButtonText = useMemo((): string => {
+    if (loading && !hasValidRate) return 'Загрузка курсов...';
+    if (!toCurrency) return 'Выберите валюту получения';
+    if (!isPairSupported) return 'Выберите поддерживаемую валютную пару';
+    if (!hasValidRate) return 'Ожидание актуальных курсов...';
+    if (giveAmount === '' || currentGiveAmount <= 0) return 'Введите сумму для обмена';
+    
+    const fromAmount = formatCurrency(currentGiveAmount, fromCurrency);
+    const toAmount = formatCurrency(currentReceiveAmount, toCurrency);
+    
+    return `Обменять ${fromAmount} → ${toAmount}`;
+  }, [loading, isPairSupported, hasValidRate, giveAmount, currentGiveAmount, fromCurrency, toCurrency, currentReceiveAmount, formatCurrency]);
+
+  const getHintText = useMemo((): string => {
+    if (error) return `Ошибка: ${error}`;
+    if (!toCurrency) return 'Выберите валюту получения';
+    if (!rate) return 'Ожидание актуального курса...';
+    // показываем: 1 FROM ≈ RATE TO (источник, время)
+    const r = rate < 1 ? rate.toFixed(6) : rate.toFixed(4);
+    const time = lastUpdated ? lastUpdated.toLocaleTimeString('ru-RU') : 'недавно';
+    return `1 ${fromCurrency} ≈ ${r} ${toCurrency} • ${source} • ${time}`;
+  }, [error, toCurrency, rate, fromCurrency, lastUpdated, source]);
+
+  // Показываем успешную заявку
+  if (orderSuccess && orderData) {
+    return (
+      <div className="space-y-6">
+        <div className="calculator-container">
+          <div className="text-center py-8">
+            <div className="flex justify-center mb-6">
+              <div className="p-4 bg-green-100 rounded-full">
+                <CheckCircle className="h-12 w-12 text-green-600" />
+              </div>
+            </div>
+            <h2 className="text-2xl font-bold text-[#001D8D] mb-4">
+              Заявка успешно отправлена!
+            </h2>
+            <div className="bg-blue-50 p-4 rounded-lg mb-6">
+              <div className="text-sm text-[#001D8D]/70 mb-2">Номер заявки:</div>
+              <div className="text-lg font-bold text-[#001D8D] mb-4">
+                #{orderData.id.substring(0, 8).toUpperCase()}
+              </div>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <div className="text-[#001D8D]/70">Отдаете:</div>
+                  <div className="font-semibold text-[#001D8D]">
+                    {formatCurrency(orderData.amountFrom, orderData.fromCurrency)}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[#001D8D]/70">Получаете:</div>
+                  <div className="font-semibold text-[#001D8D]">
+                    {formatCurrency(orderData.amountTo, orderData.toCurrency)}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p className="text-[#001D8D]/70 mb-6 leading-relaxed">
+              Мы получили вашу заявку и свяжемся с вами в ближайшее время для подтверждения деталей обмена. 
+              Проверьте вашу электронную почту для получения дальнейших инструкций.
+            </p>
+            <div className="space-y-3">
+              <Button 
+                onClick={resetOrderState}
+                className="w-full bg-gradient-to-r from-[#001D8D] to-blue-600 text-white hover:opacity-90"
+              >
+                Создать новую заявку
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={() => window.location.href = '/dashboard'}
+                className="w-full text-[#001D8D] border-[#001D8D]/20"
+              >
+                Перейти в личный кабинет
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Configuration Error Alert */}
+      {isConfigurationError && (
+        <Alert className="bg-orange-50 border-orange-200">
+          <Settings className="h-4 w-4 text-orange-600" />
+          <AlertDescription className="text-orange-800">
+            <strong>Требуется настройка:</strong>
+            <br />
+            {error}
+            <br />
+            <span className="text-sm mt-2 block">
+              Проверьте файл .env.local и убедитесь, что указаны правильные значения для NEXT_PUBLIC_SUPABASE_URL и NEXT_PUBLIC_SUPABASE_ANON_KEY
+            </span>
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Other Errors Alert */}
+      {error && !isConfigurationError && (
+        <div className="error-toast">
+          <strong>Ошибка загрузки курсов:</strong> {error}
+          <br />
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={refetch}
+            className="mt-2 text-red-800 border-red-300 hover:bg-red-100"
+          >
+            Повторить загрузку
+          </Button>
+        </div>
+      )}
+
+      {/* Main Calculator */}
+      <div className="calculator-container">
+        <CardHeader className="pb-6">
+          <CardTitle className="flex items-center justify-between">
+            <span className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600">
+                <Calculator className="h-5 w-5 text-white" />
+              </div>
+              <span className="text-[#001D8D] text-xl font-bold">
+                Калькулятор обмена KenigSwap
+              </span>
+            </span>
+            <button
+              onClick={refetch}
+              disabled={loading && !hasValidRate}
+              className="refresh-button"
+            >
+              <RefreshCw className={`h-4 w-4 ${(loading && !hasValidRate) || refreshing ? 'animate-spin' : ''}`} />
+              {lastUpdated && (
+                <span className="timestamp">
+                  {lastUpdated.toLocaleTimeString('ru-RU')}
+                </span>
+              )}
+            </button>
+          </CardTitle>
+        </CardHeader>
+        
+        <CardContent className="space-y-8">
+          {/* From Currency Selection */}
+          <div className="space-y-3">
+            <Label htmlFor="fromCurrency" className="text-[#001D8D] font-semibold text-base">
+              Отдаете
+            </Label>
+            <Select 
+              value={bases.includes(fromCurrency) ? fromCurrency : undefined}
+              onValueChange={handleFromCurrencyChange}
+              disabled={basesLoading}
+            >
+              <SelectTrigger className="input-field">
+                <SelectValue placeholder="Выберите валюту обмена" />
+              </SelectTrigger>
+              <SelectContent>
+                {bases.map((base) => (
+                  <SelectItem key={base} value={base}>
+                    {base}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Amount Input */}
+          <div className="space-y-3">
+            <Label htmlFor="amount" className="text-[#001D8D] font-semibold text-base">
+              Сумма {fromCurrency}
+            </Label>
+            <input
+              id="amount"
+              type="text"
+              value={giveAmount}
+              onChange={handleGiveAmountChange}
+              placeholder={`100 ${fromCurrency}`}
+              disabled={isCalculationDisabled}
+              className={`input-field ${error ? 'border-red-300' : ''} ${
+                activeInput === 'give' ? 'ring-2 ring-blue-500/20' : ''
+              }`}
+            />
+            <div className="hint-text">
+              {getHintText}
+            </div>
+          </div>
+
+          {/* Direction Toggle */}
+          <div className="flex justify-center">
+            <button
+              onClick={toggleDirection}
+              disabled={!fromCurrency || !toCurrency || !!error}
+              className="swap-button"
+            >
+              <ArrowUpDown className="h-5 w-5 text-blue-600" />
+            </button>
+          </div>
+
+          {/* To Currency Selection */}
+          <div className="space-y-3">
+            <Label htmlFor="toCurrency" className="text-[#001D8D] font-semibold text-base">
+              Получаете
+            </Label>
+            <Select 
+              value={quotes.includes(toCurrency) ? toCurrency : undefined}
+              onValueChange={setToCurrency}
+              disabled={quotesLoading || !fromCurrency}
+            >
+              <SelectTrigger className="input-field">
+                <SelectValue placeholder="Выберите валюту получения" />
+              </SelectTrigger>
+              <SelectContent>
+                {quotes.map((quote) => (
+                  <SelectItem key={quote} value={quote}>
+                    {quote}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Result */}
+          <div className="space-y-3">
+            <Label htmlFor="result" className="text-[#001D8D] font-semibold text-base">
+              Сумма {toCurrency || ''}
+            </Label>
+            <input
+              id="result"
+              type="text"
+              value={receiveAmount}
+              onChange={handleReceiveAmountChange}
+              placeholder={`Сумма ${toCurrency}`}
+              disabled={isCalculationDisabled}
+              className={`input-field ${error ? 'border-red-300' : ''} ${
+                activeInput === 'receive' ? 'ring-2 ring-blue-500/20' : ''
+              } ${isAnimating ? 'result-animation' : ''}`}
+            />
+            <div className="hint-text">
+              {activeInput === 'give' ? 'Итоговая сумма к получению' : 'Введите желаемую сумму получения'}
+            </div>
+          </div>
+
+          {/* Loading State */}
+          {loading && !hasValidRate && (
+            <div className="flex items-center justify-center py-8">
+              <div className="flex items-center gap-3 text-[#001D8D]">
+                <RefreshCw className="h-5 w-5 animate-spin" />
+                <span className="font-medium">Загрузка актуальных курсов...</span>
+              </div>
+            </div>
+          )}
+
+          {/* Current Rate Display */}
+          {rate > 0 && (
+            <div className="rates-container">
+              <h4 className="font-semibold text-[#001D8D] mb-3 flex items-center gap-2">
+                Курс {fromCurrency}/{toCurrency}
+                {refreshing && <RefreshCw className="h-3 w-3 animate-spin text-[#001D8D]/60" />}
+              </h4>
+              <div className="text-center">
+                <div className="text-sm text-[#001D8D]/70 mb-1">1 {fromCurrency} ≈</div>
+                <div className="rate-value">
+                  {rate < 1 ? rate.toFixed(6) : rate.toFixed(4)} {toCurrency}
+                </div>
+                <div className="text-xs text-[#001D8D]/50 mt-2">
+                  Источник: {source} • {lastUpdated ? lastUpdated.toLocaleString('ru-RU') : 'недавно'} {direction === 'inverse' ? '(по обратной паре)' : ''}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Exchange Button */}
+          <div className="space-y-4">
+            <button 
+              onClick={() => setShowOrderForm(true)}
+              className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 ${
+                !rate || (giveAmount === '' && receiveAmount === '') || (currentGiveAmount <= 0 && currentReceiveAmount <= 0) || !toCurrency
+                  ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-[#001D8D] to-blue-600 text-white hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]'
+              }`}
+              disabled={!rate || (giveAmount === '' && receiveAmount === '') || (currentGiveAmount <= 0 && currentReceiveAmount <= 0) || !toCurrency}
+            >
+              <Send className="h-5 w-5 mr-2 inline" />
+              Оставить заявку на обмен
+            </button>
+            
+            {rate && (giveAmount || receiveAmount) && (currentGiveAmount > 0 || currentReceiveAmount > 0) && (
+              <div className="text-center text-sm text-[#001D8D]/60">
+                {getExchangeButtonText}
+              </div>
+            )}
+          </div>
+
+          {/* Order Form Modal */}
+          {showOrderForm && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+              <div className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-xl font-bold text-[#001D8D]">Заявка на обмен</h3>
+                    <button
+                      onClick={() => setShowOrderForm(false)}
+                      className="text-gray-500 hover:text-gray-700"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  
+                  {/* Сводка обмена */}
+                  <div className="bg-blue-50 p-4 rounded-lg mb-6">
+                    <h4 className="font-semibold text-[#001D8D] mb-3">Детали обмена:</h4>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-[#001D8D]/70">Отдаете:</span>
+                        <span className="font-semibold text-[#001D8D]">
+                          {formatCurrency(currentGiveAmount, fromCurrency)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-[#001D8D]/70">Получаете:</span>
+                        <span className="font-semibold text-[#001D8D]">
+                          {formatCurrency(currentReceiveAmount, toCurrency)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-[#001D8D]/70">Курс:</span>
+                        <span className="font-semibold text-[#001D8D]">
+                          {formatRate(rate, toCurrency)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Форма данных клиента */}
+                  <div className="space-y-4">
+                    {/* Email */}
+                    <div>
+                      <Label htmlFor="clientEmail" className="text-[#001D8D] font-medium">
+                        Email адрес *
+                      </Label>
+                      <div className="relative mt-2">
+                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[#001D8D]/60" />
+                        <Input
+                          id="clientEmail"
+                          type="email"
+                          value={clientData.email}
+                          onChange={(e) => handleClientDataChange('email', e.target.value)}
+                          placeholder="your@email.com"
+                          className={`pl-10 border-[#001D8D]/20 focus:border-[#001D8D] ${
+                            clientErrors.email ? 'border-red-300' : ''
+                          }`}
+                        />
+                      </div>
+                      {clientErrors.email && (
+                        <p className="text-sm text-red-600 mt-1">{clientErrors.email}</p>
+                      )}
+                    </div>
+                    
+                    {/* Телефон */}
+                    <div>
+                      <Label htmlFor="clientPhone" className="text-[#001D8D] font-medium">
+                        Номер телефона
+                      </Label>
+                      <div className="relative mt-2">
+                        <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[#001D8D]/60" />
+                        <Input
+                          id="clientPhone"
+                          type="tel"
+                          value={clientData.phone}
+                          onChange={(e) => handleClientDataChange('phone', e.target.value)}
+                          placeholder="+7 (999) 123-45-67"
+                          className={`pl-10 border-[#001D8D]/20 focus:border-[#001D8D] ${
+                            clientErrors.phone ? 'border-red-300' : ''
+                          }`}
+                        />
+                      </div>
+                      {clientErrors.phone && (
+                        <p className="text-sm text-red-600 mt-1">{clientErrors.phone}</p>
+                      )}
+                    </div>
+                    
+                    {/* Адрес кошелька (для криптовалют) */}
+                    {['BTC', 'ETH', 'USDT', 'USDC', 'BNB', 'ADA', 'DOT', 'SOL', 'XRP', 'DOGE', 'SHIB', 'LTC', 'LINK', 'UNI', 'ATOM', 'XLM', 'TRX', 'FIL', 'NEAR'].includes(toCurrency.toUpperCase()) && (
+                      <div>
+                        <Label htmlFor="clientWalletAddress" className="text-[#001D8D] font-medium">
+                          Адрес кошелька {toCurrency} *
+                        </Label>
+                        <div className="relative mt-2">
+                          <Wallet className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[#001D8D]/60" />
+                          <Input
+                            id="clientWalletAddress"
+                            type="text"
+                            value={clientData.walletAddress}
+                            onChange={(e) => handleClientDataChange('walletAddress', e.target.value)}
+                            placeholder={`Введите адрес ${toCurrency} кошелька`}
+                            className={`pl-10 border-[#001D8D]/20 focus:border-[#001D8D] ${
+                              clientErrors.walletAddress ? 'border-red-300' : ''
+                            }`}
+                          />
+                        </div>
+                        {clientErrors.walletAddress && (
+                          <p className="text-sm text-red-600 mt-1">{clientErrors.walletAddress}</p>
+                        )}
+                        <p className="text-xs text-[#001D8D]/60 mt-1">
+                          Убедитесь, что адрес корректный. Неверный адрес может привести к потере средств.
+                        </p>
+                      </div>
+                    )}
+                    
+                    {/* Банковские реквизиты (для рублей) */}
+                    {toCurrency.toUpperCase() === 'RUB' && (
+                      <div>
+                        <Label htmlFor="clientBankDetails" className="text-[#001D8D] font-medium">
+                          Банковские реквизиты *
+                        </Label>
+                        <div className="relative mt-2">
+                          <CreditCard className="absolute left-3 top-3 h-5 w-5 text-[#001D8D]/60" />
+                          <Textarea
+                            id="clientBankDetails"
+                            value={clientData.bankDetails}
+                            onChange={(e) => handleClientDataChange('bankDetails', e.target.value)}
+                            placeholder="Номер карты или банковские реквизиты для получения рублей"
+                            className={`pl-10 border-[#001D8D]/20 focus:border-[#001D8D] min-h-[80px] ${
+                              clientErrors.bankDetails ? 'border-red-300' : ''
+                            }`}
+                          />
+                        </div>
+                        {clientErrors.bankDetails && (
+                          <p className="text-sm text-red-600 mt-1">{clientErrors.bankDetails}</p>
+                        )}
+                        <p className="text-xs text-[#001D8D]/60 mt-1">
+                          Укажите номер карты или полные банковские реквизиты для перевода рублей.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Кнопки */}
+                  <div className="flex gap-3 mt-6">
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowOrderForm(false)}
+                      className="flex-1 text-[#001D8D] border-[#001D8D]/20"
+                      disabled={submittingOrder}
+                    >
+                      Отмена
+                    </Button>
+                    <Button
+                      onClick={handleSubmitOrder}
+                      disabled={submittingOrder}
+                      className="flex-1 bg-gradient-to-r from-[#001D8D] to-blue-600 text-white hover:opacity-90"
+                    >
+                      {submittingOrder ? (
+                        <>
+                          <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                          Отправка...
+                        </>
+                      ) : (
+                        <>
+                          <Send className="h-4 w-4 mr-2" />
+                          Отправить заявку
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                  
+                  {/* Информация о безопасности */}
+                  <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                    <h5 className="text-sm font-semibold text-[#001D8D] mb-2">
+                      Безопасность ваших данных
+                    </h5>
+                    <ul className="text-xs text-[#001D8D]/70 space-y-1">
+                      <li>• Все данные передаются по защищенному соединению</li>
+                      <li>• Мы не храним банковские данные после завершения обмена</li>
+                      <li>• Ваши персональные данные защищены согласно политике конфиденциальности</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+        </CardContent>
+      </div>
+    </div>
+  );
+}
