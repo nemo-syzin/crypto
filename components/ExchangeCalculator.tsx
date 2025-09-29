@@ -166,70 +166,65 @@ export default function ExchangeCalculator() {
             placeholder="0"
             disabled={rateLoading}
           />
-    {/* Основной контейнер */}
-    <div className="flex items-center gap-2 w-full max-w-2xl">
-      {/* Отдаёте */}
-      <div className="flex flex-1 border border-gray-300 rounded-md px-4 py-2 items-center bg-white h-[48px]">
-        <Input
-          type="text"
-          value={fromAmount}
-          onChange={(e) => {
-            setFromAmount(e.target.value);
-            setActiveInput("give");
-          }}
-          className="flex-1 border-0 shadow-none focus-visible:ring-0 text-lg font-medium bg-white"
-          placeholder="0"
+          <Select value={fromCurrency} onValueChange={setFromCurrency} disabled={basesLoading}>
+            <SelectTrigger className="w-[100px] border-0 focus:ring-0 font-medium text-lg bg-transparent">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {bases.map((currency) => (
+                <SelectItem key={currency} value={currency}>
+                  {currency}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Кнопка swap */}
+        <button
+          onClick={swapCurrencies}
           disabled={rateLoading}
-        />
-        <Select value={fromCurrency} onValueChange={setFromCurrency} disabled={basesLoading}>
-          <SelectTrigger className="w-[100px] border-0 focus:ring-0 font-medium text-lg bg-white">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {bases.map((currency) => (
-              <SelectItem key={currency} value={currency}>
-                {currency}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          className="p-3 rounded-md border border-gray-300 bg-white hover:bg-gray-50 transition disabled:opacity-50"
+        >
+          <ArrowLeftRight className="w-5 h-5 text-gray-600" />
+        </button>
+
+        {/* Получаете */}
+        <div className="flex flex-1 border border-gray-300 rounded-lg px-6 py-4 items-center h-[60px]">
+          <Input
+            type="text"
+            value={toAmount}
+            onChange={(e) => {
+              setToAmount(e.target.value);
+              setActiveInput("receive");
+            }}
+            className="flex-1 border-0 shadow-none focus-visible:ring-0 text-2xl font-medium bg-transparent"
+            placeholder="0"
+            disabled={rateLoading}
+          />
+          <Select value={toCurrency} onValueChange={setToCurrency} disabled={quotesLoading}>
+            <SelectTrigger className="w-[100px] border-0 focus:ring-0 font-medium text-lg bg-transparent">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {quotes.map((currency) => (
+                <SelectItem key={currency} value={currency}>
+                  {currency}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
-      {/* Кнопка swap */}
-      <button
-        onClick={swapCurrencies}
-        disabled={rateLoading}
-        className="p-3 rounded-md border border-gray-300 bg-white hover:bg-gray-50 transition disabled:opacity-50"
+      {/* Кнопка создания заявки */}
+      <Button
+        onClick={handleSubmit}
+        disabled={isSubmitting || rateLoading || !rate || !fromAmount || !toAmount}
+        className="mt-6 px-8 py-2"
       >
-        <ArrowLeftRight className="w-5 h-5 text-gray-600" />
-      </button>
-
-      {/* Получаете */}
-      <div className="flex flex-1 border border-gray-300 rounded-md px-4 py-2 items-center bg-white h-[48px]">
-        <Input
-          type="text"
-          value={toAmount}
-          onChange={(e) => {
-            setToAmount(e.target.value);
-            setActiveInput("receive");
-          }}
-          className="flex-1 border-0 shadow-none focus-visible:ring-0 text-lg font-medium bg-white"
-          placeholder="0"
-          disabled={rateLoading}
-        />
-        <Select value={toCurrency} onValueChange={setToCurrency} disabled={quotesLoading}>
-          <SelectTrigger className="w-[100px] border-0 focus:ring-0 font-medium text-lg bg-white">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {quotes.map((currency) => (
-              <SelectItem key={currency} value={currency}>
-                {currency}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+        {isSubmitting ? "Создание заявки..." : "Создать заявку"}
+      </Button>
     </div>
   );
 }
