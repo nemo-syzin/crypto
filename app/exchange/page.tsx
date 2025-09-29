@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import dynamic from 'next/dynamic';
 import { 
   Card, 
   CardContent, 
@@ -10,28 +9,18 @@ import {
   CardHeader, 
   CardTitle 
 } from "@/components/ui/card";
-import { CircleCheck as CheckCircle, ChartBar as BarChart3, Shield, Award, Zap, TrendingUp } from 'lucide-react';
+import { 
+  CheckCircle, 
+  BarChart3,
+  Shield,
+  Award,
+  Zap,
+  TrendingUp
+} from 'lucide-react';
 import { ManifestoStrip } from '@/components/ui/manifesto-strip';
+import ExchangeCalculator from '@/components/ExchangeCalculator';
 import RatesComparison from '@/components/RatesComparison';
 import Image from 'next/image';
-
-// Динамический импорт калькулятора для предотвращения SSR ошибок
-const ExchangeCalculator = dynamic(
-  () => import('@/components/ExchangeCalculator'),
-  { 
-    ssr: false,
-    loading: () => (
-      <div className="calculator-container animate-pulse">
-        <div className="h-8 bg-gray-200 rounded w-1/3 mb-6"></div>
-        <div className="space-y-4">
-          <div className="h-12 bg-gray-200 rounded"></div>
-          <div className="h-12 bg-gray-200 rounded"></div>
-          <div className="h-10 bg-gray-200 rounded w-1/2"></div>
-        </div>
-      </div>
-    )
-  }
-);
 
 export default function ExchangePage() {
   const controls = useAnimation();
