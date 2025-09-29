@@ -82,7 +82,10 @@ export async function POST(request: NextRequest) {
       toCurrency,
       amountFrom,
       amountTo,
-      clientEmail: clientEmail ? `${clientEmail.substring(0, 3)}***` : 'не указан'
+      clientEmail: clientEmail ? `${clientEmail.substring(0, 3)}***` : 'не указан',
+      network,
+      clientWalletAddress: clientWalletAddress ? 'указан' : 'не указан',
+      clientBankDetails: clientBankDetails ? 'указаны' : 'не указаны'
     });
 
     // Валидация обязательных полей
@@ -176,9 +179,12 @@ export async function POST(request: NextRequest) {
       client_phone: clientPhone || null,
       client_wallet_address: clientWalletAddress || null,
       client_bank_details: clientBankDetails || null,
+      network: network || null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };
+
+    console.log('💾 Данные для вставки в БД:', orderData);
 
     console.log('💾 Сохранение заявки в базу данных...');
 
@@ -191,10 +197,18 @@ export async function POST(request: NextRequest) {
 
     if (insertError) {
       console.error('❌ Ошибка при сохранении заявки:', insertError);
+      console.error('❌ Детали ошибки Supabase:', {
+        code: insertError.code,
+        message: insertError.message,
+        details: insertError.details,
+        hint: insertError.hint
+      });
       return NextResponse.json(
         { 
           error: 'Ошибка сохранения заявки',
-          message: 'Не удалось сохранить заявку в базе данных. Попробуйте позже.'
+          message: 'Не удалось сохранить заявку в базе данных. Попробуйте позже.',
+          details: insertError.message,
+          supabaseError: insertError
         },
         { status: 500 }
       );

@@ -242,12 +242,22 @@ export default function ExchangeStepForm() {
           result
         });
         
+        console.error('❌ API Error Response:', {
+          status: response.status,
+          statusText: response.statusText,
+          result
+        });
+        
         // Обработка ошибок валидации
         if (result.details && Array.isArray(result.details)) {
+          console.error('❌ Детальные ошибки валидации:', result.details);
           console.error('❌ Детальные ошибки валидации:', result.details);
           throw new Error(`Ошибки валидации: ${result.details.join(', ')}`);
         }
         
+        // Показываем более детальную ошибку
+        const errorMessage = result.message || result.error || 'Ошибка создания заявки';
+        console.error('❌ Финальная ошибка:', errorMessage);
         // Показываем более детальную ошибку
         const errorMessage = result.message || result.error || 'Ошибка создания заявки';
         console.error('❌ Финальная ошибка:', errorMessage);
@@ -265,6 +275,22 @@ export default function ExchangeStepForm() {
     } catch (error) {
       console.error('❌ Ошибка создания заявки:', error);
       
+      let errorMessage = 'Не удалось создать заявку. Попробуйте позже.';
+      
+      if (error instanceof Error) {
+        if (error.message.includes('валидации') || error.message.includes('validation')) {
+          errorMessage = `Ошибки валидации: ${error.message}`;
+        } else if (error.message.includes('Ошибки валидации:')) {
+          errorMessage = error.message;
+        } else if (error.message.includes('network')) {
+          errorMessage = 'Ошибка сети. Проверьте подключение к интернету';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
+      console.error('❌ Показываем пользователю ошибку:', errorMessage);
+
       let errorMessage = 'Не удалось создать заявку. Попробуйте позже.';
       
       if (error instanceof Error) {
