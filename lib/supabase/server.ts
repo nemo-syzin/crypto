@@ -18,7 +18,7 @@ export function getServerSupabaseClient(options?: { useServiceRole?: boolean; ti
       const id = setTimeout(() => controller.abort(), ms);
       try {
         const startTime = Date.now();
-        const response = await fetch(input, { ...init, signal: controller.signal });
+        const response = await fetch(input, { ...init, signal: controller.signal, keepalive: false });
         const duration = Date.now() - startTime;
         console.log(`✅ [Supabase Fetch] Request completed in ${duration}ms, status: ${response.status}`);
         return response;

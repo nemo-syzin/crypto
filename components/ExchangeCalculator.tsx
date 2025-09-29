@@ -61,8 +61,8 @@ const ExchangeCalculator: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Хуки для данных
-  const baseAssets = useBaseAssets();
-  const quoteAssets = useQuoteAssets();
+  const { bases: baseAssets } = useBaseAssets();
+  const { quotes: quoteAssets } = useQuoteAssets();
   const { data: rateData, isLoading: rateLoading, error: rateError } = useExchangeRate(
     exchangeData.fromCurrency,
     exchangeData.toCurrency
