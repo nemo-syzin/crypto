@@ -5,7 +5,7 @@ import { useExchangeRate } from '@/hooks/useExchangeRate';
 import { useBaseAssets, useQuoteAssets } from '@/hooks/useAssets';
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeftRight, Mail, Phone, CreditCard, Wallet, CheckCircle, ArrowLeft, ArrowRight, AlertCircle, RefreshCw } from 'lucide-react';
+import { ArrowLeftRight, Mail, Phone, CreditCard, Wallet, CircleCheck as CheckCircle, ArrowLeft, ArrowRight, CircleAlert as AlertCircle, RefreshCw } from 'lucide-react';
 
 // Типы для wizard состояния
 interface ExchangeData {
