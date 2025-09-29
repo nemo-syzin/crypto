@@ -75,6 +75,16 @@ export default function ExchangeStepForm() {
   const validateForm = () => {
     const errors: string[] = [];
 
+    console.log('🔍 Валидация формы - проверяем поля:', {
+      fio: fio.trim(),
+      email: email.trim(),
+      wallet: wallet.trim(),
+      bank: bank.trim(),
+      fromCurrency,
+      toCurrency,
+      network
+    });
+
     // Базовая валидация
     if (!fio.trim()) {
       errors.push("Введите ФИО");
@@ -91,13 +101,19 @@ export default function ExchangeStepForm() {
     // Валидация в зависимости от типа валют
     const cryptoCurrencies = ['USDT', 'BTC', 'ETH', 'BNB', 'ADA', 'SOL'];
     
+    console.log('🔍 Проверяем валюту получения:', { toCurrency, isCrypto: cryptoCurrencies.includes(toCurrency) });
+    
     if (cryptoCurrencies.includes(toCurrency) && !wallet.trim()) {
       errors.push("Введите адрес кошелька для получения криптовалюты");
     }
     
+    console.log('🔍 Проверяем рубли:', { toCurrency, isRub: toCurrency === 'RUB' });
+    
     if (toCurrency === 'RUB' && !bank.trim()) {
       errors.push("Введите банковские реквизиты для получения рублей");
     }
+
+    console.log('🔍 Проверяем сеть для криптовалют:', { fromCurrency, isCrypto: cryptoCurrencies.includes(fromCurrency), network });
 
     if (cryptoCurrencies.includes(fromCurrency) && !network) {
       errors.push("Выберите сеть для отправки криптовалюты");
@@ -106,6 +122,8 @@ export default function ExchangeStepForm() {
     // Валидация сумм
     const numFromAmount = parseFloat(fromAmount);
     const numToAmount = parseFloat(toAmount);
+    
+    console.log('🔍 Проверяем суммы:', { fromAmount, toAmount, numFromAmount, numToAmount });
     
     if (!fromAmount || isNaN(numFromAmount) || numFromAmount <= 0) {
       errors.push("Введите корректную сумму отправления");
@@ -128,14 +146,31 @@ export default function ExchangeStepForm() {
       }
     }
 
+    console.log('🔍 Результат валидации:', { errorsCount: errors.length, errors });
     return errors;
   };
 
   // Обработка отправки заявки
   const handleConfirm = async () => {
+    console.log('🔍 Начинаем валидацию формы...');
+    console.log('📋 Данные формы:', {
+      fromCurrency,
+      toCurrency,
+      fromAmount,
+      toAmount,
+      network,
+      wallet,
+      fio,
+      email,
+      phone,
+      bank,
+      rate
+    });
+
     // Валидация формы
     const validationErrors = validateForm();
     if (validationErrors.length > 0) {
+      console.warn('❌ Ошибки валидации на клиенте:', validationErrors);
       toast({
         title: "Ошибки в форме",
         description: validationErrors.join(", "),
@@ -145,6 +180,7 @@ export default function ExchangeStepForm() {
     }
 
     if (!fromAmount || !toAmount || !rate) {
+      console.warn('❌ Отсутствуют обязательные данные:', { fromAmount, toAmount, rate });
       toast({
         title: "Ошибка",
         description: "Заполните все поля для создания заявки",
@@ -157,6 +193,7 @@ export default function ExchangeStepForm() {
     const numToAmount = parseFloat(toAmount);
 
     if (isNaN(numFromAmount) || isNaN(numToAmount) || numFromAmount <= 0 || numToAmount <= 0) {
+      console.warn('❌ Некорректные суммы:', { numFromAmount, numToAmount });
       toast({
         title: "Ошибка",
         description: "Введите корректные суммы для обмена",
@@ -182,7 +219,7 @@ export default function ExchangeStepForm() {
         network: network,
       };
 
-      console.log("Отправка заявки:", orderData);
+      console.log("📤 Отправка заявки на сервер:", orderData);
 
       // Отправляем заявку на сервер
       const response = await fetch('/api/exchange-orders', {
@@ -193,20 +230,31 @@ export default function ExchangeStepForm() {
         body: JSON.stringify(orderData),
       });
 
+      console.log('📡 Ответ сервера - статус:', response.status);
+      
       const result = await response.json();
+      console.log('📡 Ответ сервера - данные:', result);
 
       if (!response.ok) {
-        console.error('API Error Response:', result);
+        console.error('❌ API Error Response:', {
+          status: response.status,
+          statusText: response.statusText,
+          result
+        });
         
         // Обработка ошибок валидации
         if (result.details && Array.isArray(result.details)) {
+          console.error('❌ Детальные ошибки валидации:', result.details);
           throw new Error(`Ошибки валидации: ${result.details.join(', ')}`);
         }
         
+        // Показываем более детальную ошибку
+        const errorMessage = result.message || result.error || 'Ошибка создания заявки';
+        console.error('❌ Финальная ошибка:', errorMessage);
         throw new Error(result.message || result.error || 'Ошибка создания заявки');
       }
 
-      console.log("Заявка успешно создана:", result);
+      console.log("✅ Заявка успешно создана:", result);
 
       toast({
         title: "Заявка создана!",
@@ -215,13 +263,13 @@ export default function ExchangeStepForm() {
 
       setStep(3);
     } catch (error) {
-      console.error('Ошибка создания заявки:', error);
+      console.error('❌ Ошибка создания заявки:', error);
       
       let errorMessage = 'Не удалось создать заявку. Попробуйте позже.';
       
       if (error instanceof Error) {
         if (error.message.includes('валидации') || error.message.includes('validation')) {
-          errorMessage = 'Проверьте правильность заполнения всех полей';
+          errorMessage = `Ошибки валидации: ${error.message}`;
         } else if (error.message.includes('Ошибки валидации:')) {
           errorMessage = error.message;
         } else if (error.message.includes('network')) {
@@ -230,6 +278,8 @@ export default function ExchangeStepForm() {
           errorMessage = error.message;
         }
       }
+
+      console.error('❌ Показываем пользователю ошибку:', errorMessage);
 
       toast({
         title: "Ошибка создания заявки",
