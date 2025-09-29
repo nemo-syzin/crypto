@@ -75,9 +75,18 @@ export default function ExchangeStepForm() {
   const validateForm = () => {
     const errors: string[] = [];
 
-    if (!fio.trim()) errors.push("Введите ФИО");
-    if (!email.trim()) errors.push("Введите email");
-    if (!email.includes("@")) errors.push("Введите корректный email");
+    // Базовая валидация
+    if (!fio.trim()) {
+      errors.push("Введите ФИО");
+    } else if (fio.trim().length < 2) {
+      errors.push("ФИО должно содержать минимум 2 символа");
+    }
+    
+    if (!email.trim()) {
+      errors.push("Введите email");
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      errors.push("Введите корректный email адрес");
+    }
     
     // Валидация в зависимости от типа валют
     const cryptoCurrencies = ['USDT', 'BTC', 'ETH', 'BNB', 'ADA', 'SOL'];
@@ -92,6 +101,31 @@ export default function ExchangeStepForm() {
 
     if (cryptoCurrencies.includes(fromCurrency) && !network) {
       errors.push("Выберите сеть для отправки криптовалюты");
+    }
+    
+    // Валидация сумм
+    const numFromAmount = parseFloat(fromAmount);
+    const numToAmount = parseFloat(toAmount);
+    
+    if (!fromAmount || isNaN(numFromAmount) || numFromAmount <= 0) {
+      errors.push("Введите корректную сумму отправления");
+    }
+    
+    if (!toAmount || isNaN(numToAmount) || numToAmount <= 0) {
+      errors.push("Введите корректную сумму получения");
+    }
+    
+    // Проверка минимальных сумм
+    if (numFromAmount > 0) {
+      if (fromCurrency === 'USDT' && numFromAmount < 100) {
+        errors.push("Минимальная сумма USDT: 100");
+      } else if (fromCurrency === 'BTC' && numFromAmount < 0.001) {
+        errors.push("Минимальная сумма BTC: 0.001");
+      } else if (fromCurrency === 'ETH' && numFromAmount < 0.01) {
+        errors.push("Минимальная сумма ETH: 0.01");
+      } else if (fromCurrency === 'RUB' && numFromAmount < 10000) {
+        errors.push("Минимальная сумма RUB: 10,000");
+      }
     }
 
     return errors;
@@ -145,7 +179,7 @@ export default function ExchangeStepForm() {
         clientPhone: phone || null,
         clientWalletAddress: wallet || null,
         clientBankDetails: bank || null,
-        network: network || null,
+        network: network,
       };
 
       console.log("Отправка заявки:", orderData);
@@ -162,6 +196,13 @@ export default function ExchangeStepForm() {
       const result = await response.json();
 
       if (!response.ok) {
+        console.error('API Error Response:', result);
+        
+        // Обработка ошибок валидации
+        if (result.details && Array.isArray(result.details)) {
+          throw new Error(`Ошибки валидации: ${result.details.join(', ')}`);
+        }
+        
         throw new Error(result.message || result.error || 'Ошибка создания заявки');
       }
 
@@ -179,8 +220,10 @@ export default function ExchangeStepForm() {
       let errorMessage = 'Не удалось создать заявку. Попробуйте позже.';
       
       if (error instanceof Error) {
-        if (error.message.includes('validation')) {
+        if (error.message.includes('валидации') || error.message.includes('validation')) {
           errorMessage = 'Проверьте правильность заполнения всех полей';
+        } else if (error.message.includes('Ошибки валидации:')) {
+          errorMessage = error.message;
         } else if (error.message.includes('network')) {
           errorMessage = 'Ошибка сети. Проверьте подключение к интернету';
         } else {
