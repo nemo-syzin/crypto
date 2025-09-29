@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { CircleCheck as CheckCircle, ChartBar as BarChart3, Shield, Award, Zap, TrendingUp } from 'lucide-react';
 import { ManifestoStrip } from '@/components/ui/manifesto-strip';
-import ExchangeCalculator from '@/components/ExchangeCalculator';
+import ExchangeStepForm from '@/components/ExchangeStepForm';
 import RatesComparison from '@/components/RatesComparison';
 import Image from 'next/image';
 
@@ -128,7 +128,7 @@ export default function ExchangePage() {
                 transition={{ duration: 0.5, delay: 0.2 }}
                 className="w-full"
               >
-                <ExchangeCalculator />
+                <ExchangeStepForm />
               </motion.div>
 
               {/* Rates Comparison - Full Width */}
