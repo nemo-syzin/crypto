@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useExchangeRate } from '@/hooks/useExchangeRate';
 import { useBaseAssets, useQuoteAssets } from '@/hooks/useAssets';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowUpDown, RefreshCw, Send, Loader2 } from 'lucide-react';
+import { ArrowUpDown, RefreshCw, Send, Loader as Loader2 } from 'lucide-react';
 
 export default function ExchangeCalculator() {
   const { toast } = useToast();
