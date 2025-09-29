@@ -152,9 +152,9 @@ export default function ExchangeCalculator() {
       </p>
 
       {/* Основной контейнер */}
-      <div className="w-full max-w-2xl bg-white shadow-sm rounded-2xl border border-gray-200 p-8 space-y-4">
+      <div className="flex items-center gap-4 w-full max-w-2xl">
         {/* Отдаёте */}
-        <div className="flex items-center border border-gray-300 rounded-lg px-6 py-4 h-[60px]">
+        <div className="flex flex-1 border border-gray-300 rounded-lg px-6 py-4 items-center h-[60px]">
           <Input
             type="text"
             value={fromAmount}
@@ -181,18 +181,16 @@ export default function ExchangeCalculator() {
         </div>
 
         {/* Кнопка swap */}
-        <div className="flex justify-center">
-          <button
-            onClick={swapCurrencies}
-            disabled={rateLoading}
-            className="p-3 rounded-full border border-gray-300 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <ArrowLeftRight className="w-5 h-5 text-gray-600" />
-          </button>
-        </div>
+        <button
+          onClick={swapCurrencies}
+          disabled={rateLoading}
+          className="p-3 rounded-full border border-gray-300 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <ArrowLeftRight className="w-5 h-5 text-gray-600" />
+        </button>
 
         {/* Получаете */}
-        <div className="flex items-center border border-gray-300 rounded-lg px-6 py-4 h-[60px]">
+        <div className="flex flex-1 border border-gray-300 rounded-lg px-6 py-4 items-center h-[60px]">
           <Input
             type="text"
             value={toAmount}
@@ -217,21 +215,22 @@ export default function ExchangeCalculator() {
             </SelectContent>
           </Select>
         </div>
-
-        {/* Кнопка заявки */}
-        <Button 
-          onClick={handleSubmit}
-          disabled={!rate || isSubmitting || rateLoading}
-          className="mt-8 w-full h-12 text-lg bg-blue-600 hover:bg-blue-700 font-semibold rounded-xl transition-colors disabled:opacity-50"
-        >
-          {isSubmitting ? "Создание заявки..." : "Оставить заявку на обмен"}
-        </Button>
-
-        {/* Подпись */}
-        <p className="text-center text-sm text-gray-500 mt-4">
-          Курс действителен в течение 15 минут
-        </p>
       </div>
+
+      {/* Кнопка заявки */}
+      <Button 
+        onClick={handleSubmit}
+        disabled={!rate || isSubmitting || rateLoading}
+        className="mt-8 w-full max-w-2xl h-12 text-lg bg-blue-600 hover:bg-blue-700 font-semibold rounded-xl transition-colors disabled:opacity-50"
+      >
+        {isSubmitting ? "Создание заявки..." : "Оставить заявку на обмен"}
+      </Button>
+
+      {/* Подпись */}
+      <p className="text-center text-sm text-gray-500 mt-4">
+        Курс действителен в течение 15 минут
+      </p>
     </div>
   );
 }
+
