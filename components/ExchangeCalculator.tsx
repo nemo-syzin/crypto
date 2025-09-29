@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useExchangeRate } from '@/hooks/useExchangeRate';
 import { useBaseAssets, useQuoteAssets } from '@/hooks/useAssets';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowUpDown, RefreshCw, Send, Loader as Loader2 } from 'lucide-react';
+import { ArrowUpDown, RefreshCw } from 'lucide-react';
 
 export default function ExchangeCalculator() {
   const { toast } = useToast();
@@ -142,16 +142,16 @@ export default function ExchangeCalculator() {
   const isButtonDisabled = !rate || !giveAmount || parseFloat(giveAmount) <= 0 || !toCurrency;
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
-      {/* Header with rate */}
+    <div className="max-w-2xl mx-auto px-4">
+      {/* Заголовок */}
       <div className="text-center mb-8">
-        <h1 className="text-2xl md:text-3xl font-semibold text-gray-900 mb-4">
+        <h1 className="text-3xl font-semibold text-gray-900 mb-4">
           Обмен криптовалют
         </h1>
         
-        {/* Current Rate Display */}
-        <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
-          <span>
+        {/* Курс */}
+        <div className="flex items-center justify-center gap-2 text-gray-600">
+          <span className="text-base">
             1 {fromCurrency} ≈ {formatRate(rate)}
           </span>
           {source && (
@@ -171,34 +171,34 @@ export default function ExchangeCalculator() {
             disabled={loading}
             className="ml-2 p-1 rounded-full hover:bg-gray-100 transition-colors"
           >
-            <RefreshCw className={`h-4 w-4 ${loading || refreshing ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-4 w-4 text-gray-500 ${loading || refreshing ? 'animate-spin' : ''}`} />
           </button>
         </div>
       </div>
 
-      {/* Main Calculator Card */}
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-6">
-        <div className="space-y-4">
-          {/* Give Input */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">Отдаете</label>
-            <div className="relative">
-              <div className="flex items-center border border-gray-300 rounded-xl px-4 py-4 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all">
+      {/* Основной калькулятор */}
+      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm mb-8">
+        <div className="p-8">
+          <div className="flex flex-col md:flex-row items-center gap-4">
+            
+            {/* Отдаете */}
+            <div className="flex-1 w-full">
+              <div className="flex items-center border border-gray-300 rounded-xl px-6 py-5 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all bg-white hover:border-gray-400">
                 <input
                   type="text"
                   value={giveAmount}
                   onChange={handleGiveAmountChange}
                   placeholder="0"
-                  className="flex-1 text-2xl font-semibold bg-transparent outline-none text-gray-900 placeholder-gray-400"
+                  className="flex-1 text-3xl font-semibold bg-transparent outline-none text-gray-900 placeholder-gray-400 text-right pr-4"
                   disabled={!rate}
                 />
-                <div className="ml-4">
+                <div className="flex-shrink-0">
                   <Select 
                     value={bases.includes(fromCurrency) ? fromCurrency : undefined}
                     onValueChange={handleFromCurrencyChange}
                     disabled={basesLoading}
                   >
-                    <SelectTrigger className="w-24 border-0 shadow-none text-lg font-semibold text-gray-900 hover:bg-gray-50 rounded-lg">
+                    <SelectTrigger className="w-auto min-w-[80px] border-0 shadow-none text-xl font-semibold text-gray-900 hover:bg-gray-50 rounded-lg px-3 py-2">
                       <SelectValue placeholder="Валюта" />
                     </SelectTrigger>
                     <SelectContent>
@@ -212,39 +212,36 @@ export default function ExchangeCalculator() {
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Swap Button */}
-          <div className="flex justify-center">
-            <button
-              onClick={toggleDirection}
-              disabled={!fromCurrency || !toCurrency || !!error}
-              className="p-3 rounded-full border border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <ArrowUpDown className="h-5 w-5 text-gray-600" />
-            </button>
-          </div>
+            {/* Кнопка обмена */}
+            <div className="flex-shrink-0">
+              <button
+                onClick={toggleDirection}
+                disabled={!fromCurrency || !toCurrency || !!error}
+                className="p-4 rounded-full border border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-white shadow-sm"
+              >
+                <ArrowUpDown className="h-6 w-6 text-gray-600" />
+              </button>
+            </div>
 
-          {/* Receive Input */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">Получаете</label>
-            <div className="relative">
-              <div className="flex items-center border border-gray-300 rounded-xl px-4 py-4 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all">
+            {/* Получаете */}
+            <div className="flex-1 w-full">
+              <div className="flex items-center border border-gray-300 rounded-xl px-6 py-5 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all bg-white hover:border-gray-400">
                 <input
                   type="text"
                   value={receiveAmount}
                   onChange={handleReceiveAmountChange}
                   placeholder="0"
-                  className="flex-1 text-2xl font-semibold bg-transparent outline-none text-gray-900 placeholder-gray-400"
+                  className="flex-1 text-3xl font-semibold bg-transparent outline-none text-gray-900 placeholder-gray-400 text-right pr-4"
                   disabled={!rate}
                 />
-                <div className="ml-4">
+                <div className="flex-shrink-0">
                   <Select 
                     value={quotes.includes(toCurrency) ? toCurrency : undefined}
                     onValueChange={setToCurrency}
                     disabled={quotesLoading || !fromCurrency}
                   >
-                    <SelectTrigger className="w-24 border-0 shadow-none text-lg font-semibold text-gray-900 hover:bg-gray-50 rounded-lg">
+                    <SelectTrigger className="w-auto min-w-[80px] border-0 shadow-none text-xl font-semibold text-gray-900 hover:bg-gray-50 rounded-lg px-3 py-2">
                       <SelectValue placeholder="Валюта" />
                     </SelectTrigger>
                     <SelectContent>
@@ -258,6 +255,7 @@ export default function ExchangeCalculator() {
                 </div>
               </div>
             </div>
+
           </div>
         </div>
       </div>
@@ -273,7 +271,7 @@ export default function ExchangeCalculator() {
       {loading && !rate && (
         <div className="mb-6 flex items-center justify-center py-8">
           <div className="flex items-center gap-3 text-gray-600">
-            <Loader2 className="h-5 w-5 animate-spin" />
+            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-600"></div>
             <span>Загрузка курсов...</span>
           </div>
         </div>
@@ -284,9 +282,8 @@ export default function ExchangeCalculator() {
         onClick={handleSubmitOrder}
         disabled={isButtonDisabled}
         size="lg"
-        className="w-full py-4 text-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-sm hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full py-6 text-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-sm hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        <Send className="h-5 w-5 mr-2" />
         Оставить заявку на обмен
       </Button>
 
