@@ -1,28 +1,23 @@
 "use client";
 
-import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/components/auth/SupabaseAuthProvider";
+import { useState, useEffect } from "react";
+import { ArrowLeftRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { useExchangeRate } from "@/hooks/useExchangeRate";
+import { useBaseAssets, useQuoteAssets } from "@/hooks/useAssets";
 
 export default function ExchangeStepForm() {
   const { toast } = useToast();
-  const { user } = useAuth();
   const [step, setStep] = useState(1);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Данные обмена
+  const [fromAmount, setFromAmount] = useState("1");
+  const [toAmount, setToAmount] = useState("");
   const [fromCurrency, setFromCurrency] = useState("USDT");
   const [toCurrency, setToCurrency] = useState("RUB");
-  const [fromAmount, setFromAmount] = useState("1");
-  const [toAmount, setToAmount] = useState("83.21"); // подтягивается из калькулятора
+  const [activeInput, setActiveInput] = useState<"give" | "receive">("give");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Данные клиента
   const [network, setNetwork] = useState("trc20");
@@ -31,6 +26,50 @@ export default function ExchangeStepForm() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [bank, setBank] = useState("");
+
+  // Хуки для получения данных
+  const { bases, loading: basesLoading, error: basesError } = useBaseAssets();
+  const { quotes, loading: quotesLoading, error: quotesError } = useQuoteAssets(fromCurrency);
+  const { rate, source, lastUpdated, loading: rateLoading, error: rateError, refetch } = useExchangeRate(fromCurrency, toCurrency);
+
+  // Пересчёт при изменении курса или сумм
+  useEffect(() => {
+    if (!rate || rate <= 0) {
+      if (activeInput === "give") {
+        setToAmount("");
+      } else {
+        setFromAmount("");
+      }
+      return;
+    }
+
+    if (activeInput === "give" && fromAmount) {
+      const numAmount = parseFloat(fromAmount);
+      if (!isNaN(numAmount) && numAmount > 0) {
+        const result = numAmount * rate;
+        setToAmount(result.toFixed(2));
+      } else {
+        setToAmount("");
+      }
+    } else if (activeInput === "receive" && toAmount) {
+      const numAmount = parseFloat(toAmount);
+      if (!isNaN(numAmount) && numAmount > 0) {
+        const result = numAmount / rate;
+        setFromAmount(result.toFixed(6));
+      } else {
+        setFromAmount("");
+      }
+    }
+  }, [rate, fromAmount, toAmount, activeInput]);
+
+  // Смена направления обмена
+  const swapCurrencies = () => {
+    setFromCurrency(toCurrency);
+    setToCurrency(fromCurrency);
+    setFromAmount(toAmount);
+    setToAmount(fromAmount);
+    setActiveInput(activeInput === "give" ? "receive" : "give");
+  };
 
   // Валидация формы
   const validateForm = () => {
@@ -58,6 +97,7 @@ export default function ExchangeStepForm() {
     return errors;
   };
 
+  // Обработка отправки заявки
   const handleConfirm = async () => {
     // Валидация формы
     const validationErrors = validateForm();
@@ -70,6 +110,27 @@ export default function ExchangeStepForm() {
       return;
     }
 
+    if (!fromAmount || !toAmount || !rate) {
+      toast({
+        title: "Ошибка",
+        description: "Заполните все поля для создания заявки",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const numFromAmount = parseFloat(fromAmount);
+    const numToAmount = parseFloat(toAmount);
+
+    if (isNaN(numFromAmount) || isNaN(numToAmount) || numFromAmount <= 0 || numToAmount <= 0) {
+      toast({
+        title: "Ошибка",
+        description: "Введите корректные суммы для обмена",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -77,9 +138,9 @@ export default function ExchangeStepForm() {
       const orderData = {
         fromCurrency,
         toCurrency,
-        amountFrom: parseFloat(fromAmount),
-        amountTo: parseFloat(toAmount),
-        exchangeRate: parseFloat(toAmount) / parseFloat(fromAmount),
+        amountFrom: numFromAmount,
+        amountTo: numToAmount,
+        exchangeRate: rate,
         clientEmail: email,
         clientPhone: phone || null,
         clientWalletAddress: wallet || null,
@@ -137,6 +198,31 @@ export default function ExchangeStepForm() {
     }
   };
 
+  // Обработка ошибок загрузки
+  useEffect(() => {
+    if (basesError) {
+      toast({
+        title: "Ошибка загрузки валют",
+        description: basesError,
+        variant: "destructive",
+      });
+    }
+    if (quotesError) {
+      toast({
+        title: "Ошибка загрузки валют",
+        description: quotesError,
+        variant: "destructive",
+      });
+    }
+    if (rateError) {
+      toast({
+        title: "Ошибка загрузки курса",
+        description: rateError,
+        variant: "destructive",
+      });
+    }
+  }, [basesError, quotesError, rateError, toast]);
+
   return (
     <div className="w-full max-w-2xl mx-auto py-10 text-center">
       {/* === Шаг 1: Калькулятор === */}
@@ -144,52 +230,83 @@ export default function ExchangeStepForm() {
         <div className="space-y-8">
           <h2 className="text-3xl font-bold">Конвертер и калькулятор криптовалют</h2>
           <p className="text-gray-500">
-            {fromCurrency} в {toCurrency}: 1 {fromCurrency} конвертируется в {toAmount}{" "}
-            {toCurrency} по состоянию на {new Date().toLocaleString("ru-RU")}
+            {fromCurrency} в {toCurrency}: 1 {fromCurrency} конвертируется в{" "}
+            {rate ? rate.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "—"}{" "}
+            {toCurrency} по состоянию на{" "}
+            {lastUpdated ? lastUpdated.toLocaleString("ru-RU", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—"}
           </p>
 
-          {/* Поле 1 */}
-          <div className="flex gap-3">
-            <Input
-              value={fromAmount}
-              onChange={(e) => setFromAmount(e.target.value)}
-              className="flex-1 h-14 text-xl rounded-full border-gray-300"
-            />
-            <Select value={fromCurrency} onValueChange={setFromCurrency}>
-              <SelectTrigger className="w-[120px] h-14 text-xl rounded-full border-gray-300">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="USDT">USDT</SelectItem>
-                <SelectItem value="BTC">BTC</SelectItem>
-                <SelectItem value="ETH">ETH</SelectItem>
-              </SelectContent>
-            </Select>
+          {/* Основной контейнер */}
+          <div className="flex items-center gap-4 w-full max-w-2xl mx-auto">
+            {/* Отдаёте */}
+            <div className="flex flex-1 border border-gray-300 rounded-full px-6 py-3 items-center h-[60px]">
+              <Input
+                type="text"
+                value={fromAmount}
+                onChange={(e) => {
+                  setFromAmount(e.target.value);
+                  setActiveInput("give");
+                }}
+                className="flex-1 border-0 shadow-none focus-visible:ring-0 text-2xl font-medium bg-transparent rounded-full px-6"
+                placeholder="0"
+                disabled={rateLoading}
+              />
+              <Select value={fromCurrency} onValueChange={setFromCurrency} disabled={basesLoading}>
+                <SelectTrigger className="w-[100px] border-0 focus:ring-0 font-medium text-lg bg-transparent">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {bases.map((currency) => (
+                    <SelectItem key={currency} value={currency}>
+                      {currency}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Кнопка swap */}
+            <button
+              onClick={swapCurrencies}
+              disabled={rateLoading}
+              className="p-3 rounded-md border border-gray-300 bg-white hover:bg-gray-50 transition disabled:opacity-50"
+            >
+              <ArrowLeftRight className="w-5 h-5 text-gray-600" />
+            </button>
+
+            {/* Получаете */}
+            <div className="flex flex-1 border border-gray-300 rounded-full px-6 py-3 items-center h-[60px]">
+              <Input
+                type="text"
+                value={toAmount}
+                onChange={(e) => {
+                  setToAmount(e.target.value);
+                  setActiveInput("receive");
+                }}
+                className="flex-1 border-0 shadow-none focus-visible:ring-0 text-2xl font-medium bg-transparent rounded-full px-6"
+                placeholder="0"
+                disabled={rateLoading}
+              />
+              <Select value={toCurrency} onValueChange={setToCurrency} disabled={quotesLoading}>
+                <SelectTrigger className="w-[100px] border-0 focus:ring-0 font-medium text-lg bg-transparent">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {quotes.map((currency) => (
+                    <SelectItem key={currency} value={currency}>
+                      {currency}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
-          {/* Поле 2 */}
-          <div className="flex gap-3">
-            <Input
-              value={toAmount}
-              onChange={(e) => setToAmount(e.target.value)}
-              className="flex-1 h-14 text-xl rounded-full border-gray-300"
-            />
-            <Select value={toCurrency} onValueChange={setToCurrency}>
-              <SelectTrigger className="w-[120px] h-14 text-xl rounded-full border-gray-300">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="RUB">RUB</SelectItem>
-                <SelectItem value="USDT">USDT</SelectItem>
-                <SelectItem value="BTC">BTC</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Кнопка */}
+          {/* Кнопка создания заявки */}
           <button
             onClick={() => setStep(2)}
-            className="w-full h-14 bg-[#0052FF] hover:bg-[#0041CC] text-white text-lg font-semibold rounded-full transition"
+            disabled={!rate || rateLoading}
+            className="w-full h-14 bg-[#0052FF] hover:bg-[#0041CC] text-white text-lg font-semibold rounded-full transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Оставить заявку на обмен
           </button>
