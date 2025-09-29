@@ -155,7 +155,7 @@ export default function ExchangeCalculator() {
       {/* Основной контейнер */}
       <div className="flex items-center gap-4 w-full max-w-2xl">
         {/* Отдаёте */}
-        <div className="flex flex-1 border border-gray-300 rounded-lg px-6 py-4 items-center h-[60px]">
+        <div className="flex flex-1 border border-gray-300 rounded-full px-6 py-3 items-center h-[60px]">
           <Input
             type="text"
             value={fromAmount}
@@ -163,7 +163,7 @@ export default function ExchangeCalculator() {
               setFromAmount(e.target.value);
               setActiveInput("give");
             }}
-            className="flex-1 border-0 shadow-none focus-visible:ring-0 text-2xl font-medium bg-transparent"
+            className="flex-1 border-0 shadow-none focus-visible:ring-0 text-2xl font-medium bg-transparent rounded-full px-6"
             placeholder="0"
             disabled={rateLoading}
           />
@@ -191,7 +191,7 @@ export default function ExchangeCalculator() {
         </button>
 
         {/* Получаете */}
-        <div className="flex flex-1 border border-gray-300 rounded-lg px-6 py-4 items-center h-[60px]">
+        <div className="flex flex-1 border border-gray-300 rounded-full px-6 py-3 items-center h-[60px]">
           <Input
             type="text"
             value={toAmount}
@@ -199,7 +199,7 @@ export default function ExchangeCalculator() {
               setToAmount(e.target.value);
               setActiveInput("receive");
             }}
-            className="flex-1 border-0 shadow-none focus-visible:ring-0 text-2xl font-medium bg-transparent"
+            className="flex-1 border-0 shadow-none focus-visible:ring-0 text-2xl font-medium bg-transparent rounded-full px-6"
             placeholder="0"
             disabled={rateLoading}
           />
@@ -222,7 +222,7 @@ export default function ExchangeCalculator() {
       <button
         onClick={handleSubmit}
         disabled={!rate || isSubmitting || rateLoading}
-        className="mt-8 w-full max-w-2xl h-14 rounded-md bg-[#0052FF] text-white text-lg font-semibold 
+        className="mt-8 w-full max-w-2xl h-14 text-lg bg-[#0052FF] hover:bg-[#0041cc] font-semibold rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                    hover:bg-[#0041cc] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {isSubmitting ? "Создание заявки..." : "Оставить заявку на обмен"}
