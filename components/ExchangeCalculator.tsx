@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -11,7 +12,28 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useExchangeRate } from '@/hooks/useExchangeRate';
 import { useBaseAssets, useQuoteAssets } from '@/hooks/useAssets';
 import { useToast } from '@/hooks/use-toast';
-import { Calculator, RefreshCw, ArrowUpDown, TriangleAlert as AlertTriangle, Settings, Info, Send, CircleCheck as CheckCircle, User, Mail, Phone, Wallet, CreditCard } from 'lucide-react';
+import { 
+  Calculator, 
+  RefreshCw, 
+  ArrowUpDown, 
+  AlertTriangle, 
+  Settings, 
+  Info, 
+  Send, 
+  CheckCircle, 
+  User, 
+  Mail, 
+  Phone, 
+  Wallet, 
+  CreditCard,
+  ArrowRight,
+  ArrowLeft,
+  Edit3,
+  Shield,
+  Clock,
+  TrendingUp,
+  Check
+} from 'lucide-react';
 
 interface ClientData {
   email: string;
@@ -29,20 +51,28 @@ interface OrderResponse {
   details?: string[];
 }
 
+type WizardStep = 'exchange' | 'contact' | 'confirmation' | 'success';
+
 export default function ExchangeCalculator() {
   const { toast } = useToast();
+  
+  // Wizard state
+  const [currentStep, setCurrentStep] = useState<WizardStep>('exchange');
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  
+  // Exchange data
   const [giveAmount, setGiveAmount] = useState<string>('');
   const [receiveAmount, setReceiveAmount] = useState<string>('');
   const [activeInput, setActiveInput] = useState<'give' | 'receive'>('give');
   const [fromCurrency, setFromCurrency] = useState<string>('USDT');
   const [toCurrency, setToCurrency] = useState<string>('');
   const [isAnimating, setIsAnimating] = useState(false);
-  const [showOrderForm, setShowOrderForm] = useState(false);
+  
+  // Order state
   const [submittingOrder, setSubmittingOrder] = useState(false);
-  const [orderSuccess, setOrderSuccess] = useState(false);
   const [orderData, setOrderData] = useState<any>(null);
   
-  // Данные клиента
+  // Client data
   const [clientData, setClientData] = useState<ClientData>({
     email: '',
     phone: '',
@@ -52,12 +82,14 @@ export default function ExchangeCalculator() {
   
   const [clientErrors, setClientErrors] = useState<Partial<ClientData>>({});
   
-  // Get available base currencies
+  // Get available currencies
   const { bases, loading: basesLoading, error: basesError } = useBaseAssets();
-  
-  // Get available quote currencies for selected base
   const { quotes, loading: quotesLoading, error: quotesError } = useQuoteAssets(fromCurrency);
   
+  // Get exchange rate
+  const { rate, source, direction, loading, refreshing, error, lastUpdated, refetch } =
+    useExchangeRate(fromCurrency, toCurrency);
+
   // Set initial toCurrency when quotes are loaded
   useEffect(() => {
     if (quotes.length > 0 && !toCurrency) {
@@ -69,38 +101,13 @@ export default function ExchangeCalculator() {
   useEffect(() => {
     if (bases.length > 0 && !bases.includes(fromCurrency)) {
       setFromCurrency(bases[0]);
-      setToCurrency(''); // Reset toCurrency to trigger quotes reload
+      setToCurrency('');
     }
   }, [bases, fromCurrency]);
-  
-  // Use exchange rate hook
-  const { rate, source, direction, loading, refreshing, error, lastUpdated, refetch } =
-    useExchangeRate(fromCurrency, toCurrency);
-
-  // Добавляем логирование для отладки
-  useEffect(() => {
-    console.log('[ExchangeCalculator] Rate data:', {
-      fromCurrency,
-      toCurrency,
-      rate,
-      loading,
-      refreshing,
-      error,
-      lastUpdated
-    });
-  }, [fromCurrency, toCurrency, rate, loading, refreshing, error, lastUpdated]);
-
-  // Prevent infinite loops with useCallback
-  const updateAmounts = useCallback((newGiveAmount: string, newReceiveAmount: string, newActiveInput: 'give' | 'receive') => {
-    setGiveAmount(newGiveAmount);
-    setReceiveAmount(newReceiveAmount);
-    setActiveInput(newActiveInput);
-  }, []);
 
   // Calculate amounts based on active input and rate
   useEffect(() => {
     if (!rate || rate <= 0) {
-      // If no valid rate, clear the non-active field
       if (activeInput === 'give' && receiveAmount) {
         setReceiveAmount('');
       } else if (activeInput === 'receive' && giveAmount) {
@@ -110,7 +117,6 @@ export default function ExchangeCalculator() {
     }
 
     if (activeInput === 'give' && giveAmount) {
-      // User entered "give" amount, calculate "receive" amount
       const giveNum = parseFloat(giveAmount);
       if (!isNaN(giveNum) && giveNum > 0) {
         const receiveNum = giveNum * rate;
@@ -120,7 +126,6 @@ export default function ExchangeCalculator() {
         setReceiveAmount('');
       }
     } else if (activeInput === 'receive' && receiveAmount) {
-      // User entered "receive" amount, calculate "give" amount
       const receiveNum = parseFloat(receiveAmount);
       if (!isNaN(receiveNum) && receiveNum > 0) {
         const giveNum = receiveNum / rate;
@@ -132,35 +137,15 @@ export default function ExchangeCalculator() {
     }
   }, [rate, giveAmount, receiveAmount, activeInput]);
 
-  // Memoized functions to prevent unnecessary rerenders
+  // Utility functions
   const parseAmount = useCallback((value: string): number => {
     const parsed = parseFloat(value);
     return isNaN(parsed) ? 0 : parsed;
   }, []);
 
-  // Get the current numeric amounts
   const giveAmountNum = useMemo(() => parseAmount(giveAmount), [giveAmount, parseAmount]);
   const receiveAmountNum = useMemo(() => parseAmount(receiveAmount), [receiveAmount, parseAmount]);
 
-  const toggleDirection = () => {
-    // Only toggle if both currencies are selected and they're a valid pair
-    if (fromCurrency && toCurrency && !error) {
-      // Swap currencies
-      const tempFrom = fromCurrency;
-      setFromCurrency(toCurrency);
-      setToCurrency(tempFrom);
-      
-      // Swap amounts as well
-      const tempGiveAmount = giveAmount;
-      setGiveAmount(receiveAmount);
-      setReceiveAmount(tempGiveAmount);
-      
-      setIsAnimating(true);
-      setTimeout(() => setIsAnimating(false), 150);
-    }
-  };
-
-  // Memoized formatting functions
   const formatCurrency = useMemo(() => (value: number, currency: string): string => {
     if (value === 0) return '';
     
@@ -172,7 +157,6 @@ export default function ExchangeCalculator() {
         maximumFractionDigits: 2,
       }).format(value);
     } else {
-      // For cryptocurrencies use different decimal places based on value
       const decimals = value < 1 ? 6 : value < 100 ? 4 : 2;
       return new Intl.NumberFormat('en-US', {
         minimumFractionDigits: 2,
@@ -200,11 +184,33 @@ export default function ExchangeCalculator() {
     }
   }, []);
 
-  // Handle amount change
+  // Step navigation
+  const goToStep = useCallback(async (step: WizardStep) => {
+    setIsTransitioning(true);
+    await new Promise(resolve => setTimeout(resolve, 150));
+    setCurrentStep(step);
+    setIsTransitioning(false);
+  }, []);
+
+  const nextStep = useCallback(() => {
+    const steps: WizardStep[] = ['exchange', 'contact', 'confirmation'];
+    const currentIndex = steps.indexOf(currentStep);
+    if (currentIndex < steps.length - 1) {
+      goToStep(steps[currentIndex + 1]);
+    }
+  }, [currentStep, goToStep]);
+
+  const prevStep = useCallback(() => {
+    const steps: WizardStep[] = ['exchange', 'contact', 'confirmation'];
+    const currentIndex = steps.indexOf(currentStep);
+    if (currentIndex > 0) {
+      goToStep(steps[currentIndex - 1]);
+    }
+  }, [currentStep, goToStep]);
+
+  // Handle amount changes
   const handleGiveAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    
-    // Allow empty string, digits and one decimal point
     if (value === '' || /^\d*\.?\d*$/.test(value)) {
       setGiveAmount(value);
       setActiveInput('give');
@@ -213,56 +219,52 @@ export default function ExchangeCalculator() {
 
   const handleReceiveAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    
-    // Allow empty string, digits and one decimal point
     if (value === '' || /^\d*\.?\d*$/.test(value)) {
       setReceiveAmount(value);
       setActiveInput('receive');
     }
   };
 
-  // Handle from currency change
   const handleFromCurrencyChange = (value: string) => {
     setFromCurrency(value);
-    // Reset toCurrency when base currency changes
     setToCurrency('');
   };
 
-  // Check if configuration error
-  const isConfigurationError = error && (
-    error.includes('not configured') || 
-    error.includes('Invalid API key') || 
-    error.includes('environment variables')
-  );
+  const toggleDirection = () => {
+    if (fromCurrency && toCurrency && !error) {
+      const tempFrom = fromCurrency;
+      setFromCurrency(toCurrency);
+      setToCurrency(tempFrom);
+      
+      const tempGiveAmount = giveAmount;
+      setGiveAmount(receiveAmount);
+      setReceiveAmount(tempGiveAmount);
+      
+      setIsAnimating(true);
+      setTimeout(() => setIsAnimating(false), 150);
+    }
+  };
 
-  // Memoized calculations
-  const isPairSupported = useMemo(() => {
-    return rate !== 0 || (fromCurrency === toCurrency);
-  }, [rate, fromCurrency, toCurrency]);
+  // Validation
+  const validateExchangeStep = useCallback((): boolean => {
+    return !!(rate && rate > 0 && toCurrency && (giveAmountNum > 0 || receiveAmountNum > 0));
+  }, [rate, toCurrency, giveAmountNum, receiveAmountNum]);
 
-  const hasValidRate = useMemo(() => rate > 0, [rate]);
-
-  const isCalculationDisabled = !hasValidRate || !!error;
-  const currentGiveAmount = giveAmountNum;
-  const currentReceiveAmount = receiveAmountNum;
-  
-  // Валидация данных клиента
   const validateClientData = useCallback((): boolean => {
     const errors: Partial<ClientData> = {};
     
-    // Email обязателен
     if (!clientData.email) {
       errors.email = 'Введите email адрес';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clientData.email)) {
       errors.email = 'Введите корректный email адрес';
     }
     
-    // Телефон опционален, но если указан - должен быть валидным
-    if (clientData.phone && !/^[\+]?[1-9][\d]{0,15}$/.test(clientData.phone.replace(/[\s\-\(\)]/g, ''))) {
+    if (!clientData.phone) {
+      errors.phone = 'Введите номер телефона';
+    } else if (!/^[\+]?[1-9][\d]{0,15}$/.test(clientData.phone.replace(/[\s\-\(\)]/g, ''))) {
       errors.phone = 'Введите корректный номер телефона';
     }
     
-    // Адрес кошелька нужен для криптовалют
     const cryptoCurrencies = ['BTC', 'ETH', 'USDT', 'USDC', 'BNB', 'ADA', 'DOT', 'SOL', 'XRP', 'DOGE', 'SHIB', 'LTC', 'LINK', 'UNI', 'ATOM', 'XLM', 'TRX', 'FIL', 'NEAR'];
     if (cryptoCurrencies.includes(toCurrency.toUpperCase())) {
       if (!clientData.walletAddress) {
@@ -272,7 +274,6 @@ export default function ExchangeCalculator() {
       }
     }
     
-    // Банковские реквизиты нужны для рублей
     if (toCurrency.toUpperCase() === 'RUB') {
       if (!clientData.bankDetails) {
         errors.bankDetails = 'Введите банковские реквизиты для получения рублей';
@@ -284,18 +285,15 @@ export default function ExchangeCalculator() {
     setClientErrors(errors);
     return Object.keys(errors).length === 0;
   }, [clientData, toCurrency]);
-  
-  // Обработка изменения данных клиента
+
   const handleClientDataChange = useCallback((field: keyof ClientData, value: string) => {
     setClientData(prev => ({ ...prev, [field]: value }));
-    
-    // Очищаем ошибку для этого поля
     if (clientErrors[field]) {
       setClientErrors(prev => ({ ...prev, [field]: undefined }));
     }
   }, [clientErrors]);
-  
-  // Отправка заявки
+
+  // Submit order
   const handleSubmitOrder = useCallback(async () => {
     if (!validateClientData()) {
       toast({
@@ -312,16 +310,14 @@ export default function ExchangeCalculator() {
       const orderPayload = {
         fromCurrency,
         toCurrency,
-        amountFrom: currentGiveAmount,
-        amountTo: currentReceiveAmount,
+        amountFrom: giveAmountNum,
+        amountTo: receiveAmountNum,
         exchangeRate: rate,
         clientEmail: clientData.email,
         clientPhone: clientData.phone || undefined,
         clientWalletAddress: clientData.walletAddress || undefined,
         clientBankDetails: clientData.bankDetails || undefined
       };
-      
-      console.log('📤 Отправка заявки на сервер...');
       
       const response = await fetch('/api/exchange-orders', {
         method: 'POST',
@@ -338,26 +334,13 @@ export default function ExchangeCalculator() {
       }
       
       if (responseData.success) {
-        setOrderSuccess(true);
         setOrderData(responseData.order);
-        setShowOrderForm(false);
-        
-        // Очищаем форму
-        setGiveAmount('');
-        setReceiveAmount('');
-        setClientData({
-          email: '',
-          phone: '',
-          walletAddress: '',
-          bankDetails: ''
-        });
+        goToStep('success');
         
         toast({
           title: "Заявка создана!",
-          description: `Заявка №${responseData.orderId?.substring(0, 8)} успешно отправлена. Мы свяжемся с вами в ближайшее время.`,
+          description: `Заявка №${responseData.orderId?.substring(0, 8)} успешно отправлена.`,
         });
-        
-        console.log('✅ Заявка успешно создана:', responseData.orderId);
       } else {
         throw new Error(responseData.message || 'Неизвестная ошибка');
       }
@@ -375,171 +358,130 @@ export default function ExchangeCalculator() {
     } finally {
       setSubmittingOrder(false);
     }
-  }, [validateClientData, fromCurrency, toCurrency, currentGiveAmount, currentReceiveAmount, rate, clientData, toast]);
-  
-  // Сброс состояния успеха
-  const resetOrderState = useCallback(() => {
-    setOrderSuccess(false);
+  }, [validateClientData, fromCurrency, toCurrency, giveAmountNum, receiveAmountNum, rate, clientData, toast, goToStep]);
+
+  const resetWizard = useCallback(() => {
+    setCurrentStep('exchange');
+    setGiveAmount('');
+    setReceiveAmount('');
+    setClientData({
+      email: '',
+      phone: '',
+      walletAddress: '',
+      bankDetails: ''
+    });
+    setClientErrors({});
     setOrderData(null);
-    setShowOrderForm(false);
   }, []);
 
-  const getExchangeButtonText = useMemo((): string => {
-    if (loading && !hasValidRate) return 'Загрузка курсов...';
-    if (!toCurrency) return 'Выберите валюту получения';
-    if (!isPairSupported) return 'Выберите поддерживаемую валютную пару';
-    if (!hasValidRate) return 'Ожидание актуальных курсов...';
-    if (giveAmount === '' || currentGiveAmount <= 0) return 'Введите сумму для обмена';
-    
-    const fromAmount = formatCurrency(currentGiveAmount, fromCurrency);
-    const toAmount = formatCurrency(currentReceiveAmount, toCurrency);
-    
-    return `Обменять ${fromAmount} → ${toAmount}`;
-  }, [loading, isPairSupported, hasValidRate, giveAmount, currentGiveAmount, fromCurrency, toCurrency, currentReceiveAmount, formatCurrency]);
+  // Step progress
+  const getStepNumber = (step: WizardStep): number => {
+    const stepMap = { exchange: 1, contact: 2, confirmation: 3, success: 4 };
+    return stepMap[step];
+  };
 
-  const getHintText = useMemo((): string => {
-    if (error) return `Ошибка: ${error}`;
-    if (!toCurrency) return 'Выберите валюту получения';
-    if (!rate) return 'Ожидание актуального курса...';
-    // показываем: 1 FROM ≈ RATE TO (источник, время)
-    const r = rate < 1 ? rate.toFixed(6) : rate.toFixed(4);
-    const time = lastUpdated ? lastUpdated.toLocaleTimeString('ru-RU') : 'недавно';
-    return `1 ${fromCurrency} ≈ ${r} ${toCurrency} • ${source} • ${time}`;
-  }, [error, toCurrency, rate, fromCurrency, lastUpdated, source]);
+  const getCurrentStepNumber = () => getStepNumber(currentStep);
+  const getTotalSteps = () => 3;
 
-  // Показываем успешную заявку
-  if (orderSuccess && orderData) {
-    return (
-      <div className="space-y-6">
-        <div className="calculator-container">
-          <div className="text-center py-8">
-            <div className="flex justify-center mb-6">
-              <div className="p-4 bg-green-100 rounded-full">
-                <CheckCircle className="h-12 w-12 text-green-600" />
-              </div>
+  // Animation variants
+  const stepVariants = {
+    hidden: { opacity: 0, x: 50, scale: 0.95 },
+    visible: { 
+      opacity: 1, 
+      x: 0, 
+      scale: 1,
+      transition: { 
+        duration: 0.3, 
+        ease: "easeOut" 
+      }
+    },
+    exit: { 
+      opacity: 0, 
+      x: -50, 
+      scale: 0.95,
+      transition: { 
+        duration: 0.2, 
+        ease: "easeIn" 
+      }
+    }
+  };
+
+  // Progress indicator component
+  const ProgressIndicator = () => (
+    <div className="flex items-center justify-center mb-8">
+      <div className="flex items-center gap-4">
+        {[1, 2, 3].map((step) => (
+          <div key={step} className="flex items-center">
+            <div className={`
+              w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all duration-300
+              ${getCurrentStepNumber() >= step 
+                ? 'bg-gradient-to-r from-[#001D8D] to-blue-600 text-white shadow-lg' 
+                : 'bg-gray-200 text-gray-500'
+              }
+            `}>
+              {getCurrentStepNumber() > step ? (
+                <Check className="h-5 w-5" />
+              ) : (
+                step
+              )}
             </div>
-            <h2 className="text-2xl font-bold text-[#001D8D] mb-4">
-              Заявка успешно отправлена!
-            </h2>
-            <div className="bg-blue-50 p-4 rounded-lg mb-6">
-              <div className="text-sm text-[#001D8D]/70 mb-2">Номер заявки:</div>
-              <div className="text-lg font-bold text-[#001D8D] mb-4">
-                #{orderData.id.substring(0, 8).toUpperCase()}
-              </div>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <div className="text-[#001D8D]/70">Отдаете:</div>
-                  <div className="font-semibold text-[#001D8D]">
-                    {formatCurrency(orderData.amountFrom, orderData.fromCurrency)}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-[#001D8D]/70">Получаете:</div>
-                  <div className="font-semibold text-[#001D8D]">
-                    {formatCurrency(orderData.amountTo, orderData.toCurrency)}
-                  </div>
-                </div>
-              </div>
-            </div>
-            <p className="text-[#001D8D]/70 mb-6 leading-relaxed">
-              Мы получили вашу заявку и свяжемся с вами в ближайшее время для подтверждения деталей обмена. 
-              Проверьте вашу электронную почту для получения дальнейших инструкций.
-            </p>
-            <div className="space-y-3">
-              <Button 
-                onClick={resetOrderState}
-                className="w-full bg-gradient-to-r from-[#001D8D] to-blue-600 text-white hover:opacity-90"
-              >
-                Создать новую заявку
-              </Button>
-              <Button 
-                variant="outline"
-                onClick={() => window.location.href = '/dashboard'}
-                className="w-full text-[#001D8D] border-[#001D8D]/20"
-              >
-                Перейти в личный кабинет
-              </Button>
-            </div>
+            {step < 3 && (
+              <div className={`
+                w-12 h-1 mx-2 rounded-full transition-all duration-300
+                ${getCurrentStepNumber() > step ? 'bg-gradient-to-r from-[#001D8D] to-blue-600' : 'bg-gray-200'}
+              `} />
+            )}
           </div>
-        </div>
+        ))}
       </div>
-    );
-  }
+    </div>
+  );
 
-  return (
-    <div className="space-y-6">
+  // Step 1: Exchange Details
+  const ExchangeStep = () => (
+    <motion.div
+      key="exchange"
+      variants={stepVariants}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+      className="space-y-8"
+    >
+      <div className="text-center mb-8">
+        <h2 className="text-2xl md:text-3xl font-bold text-[#001D8D] mb-3">
+          Детали обмена
+        </h2>
+        <p className="text-[#001D8D]/70 text-lg">
+          Выберите валюты и укажите сумму для обмена
+        </p>
+      </div>
+
       {/* Configuration Error Alert */}
-      {isConfigurationError && (
+      {error && error.includes('not configured') && (
         <Alert className="bg-orange-50 border-orange-200">
           <Settings className="h-4 w-4 text-orange-600" />
           <AlertDescription className="text-orange-800">
-            <strong>Требуется настройка:</strong>
-            <br />
-            {error}
-            <br />
-            <span className="text-sm mt-2 block">
-              Проверьте файл .env.local и убедитесь, что указаны правильные значения для NEXT_PUBLIC_SUPABASE_URL и NEXT_PUBLIC_SUPABASE_ANON_KEY
-            </span>
+            <strong>Требуется настройка:</strong> {error}
           </AlertDescription>
         </Alert>
       )}
 
-      {/* Other Errors Alert */}
-      {error && !isConfigurationError && (
-        <div className="error-toast">
-          <strong>Ошибка загрузки курсов:</strong> {error}
-          <br />
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={refetch}
-            className="mt-2 text-red-800 border-red-300 hover:bg-red-100"
-          >
-            Повторить загрузку
-          </Button>
-        </div>
-      )}
-
-      {/* Main Calculator */}
-      <div className="calculator-container">
-        <CardHeader className="pb-6">
-          <CardTitle className="flex items-center justify-between">
-            <span className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600">
-                <Calculator className="h-5 w-5 text-white" />
-              </div>
-              <span className="text-[#001D8D] text-xl font-bold">
-                Калькулятор обмена KenigSwap
-              </span>
-            </span>
-            <button
-              onClick={refetch}
-              disabled={loading && !hasValidRate}
-              className="refresh-button"
-            >
-              <RefreshCw className={`h-4 w-4 ${(loading && !hasValidRate) || refreshing ? 'animate-spin' : ''}`} />
-              {lastUpdated && (
-                <span className="timestamp">
-                  {lastUpdated.toLocaleTimeString('ru-RU')}
-                </span>
-              )}
-            </button>
-          </CardTitle>
-        </CardHeader>
-        
-        <CardContent className="space-y-8">
-          {/* From Currency Selection */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Left Column - Currency Selection */}
+        <div className="space-y-6">
+          {/* From Currency */}
           <div className="space-y-3">
-            <Label htmlFor="fromCurrency" className="text-[#001D8D] font-semibold text-base">
-              Отдаете
+            <Label htmlFor="fromCurrency" className="text-[#001D8D] font-semibold text-base flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" />
+              Отдаёте
             </Label>
             <Select 
               value={bases.includes(fromCurrency) ? fromCurrency : undefined}
               onValueChange={handleFromCurrencyChange}
               disabled={basesLoading}
             >
-              <SelectTrigger className="input-field">
-                <SelectValue placeholder="Выберите валюту обмена" />
+              <SelectTrigger className="h-12 text-base">
+                <SelectValue placeholder="Выберите валюту" />
               </SelectTrigger>
               <SelectContent>
                 {bases.map((base) => (
@@ -551,41 +493,38 @@ export default function ExchangeCalculator() {
             </Select>
           </div>
 
-          {/* Amount Input */}
+          {/* Give Amount */}
           <div className="space-y-3">
-            <Label htmlFor="amount" className="text-[#001D8D] font-semibold text-base">
+            <Label htmlFor="giveAmount" className="text-[#001D8D] font-semibold text-base">
               Сумма {fromCurrency}
             </Label>
-            <input
-              id="amount"
+            <Input
+              id="giveAmount"
               type="text"
               value={giveAmount}
               onChange={handleGiveAmountChange}
-              placeholder={`100 ${fromCurrency}`}
-              disabled={isCalculationDisabled}
-              className={`input-field ${error ? 'border-red-300' : ''} ${
-                activeInput === 'give' ? 'ring-2 ring-blue-500/20' : ''
+              placeholder={`Введите сумму ${fromCurrency}`}
+              className={`h-12 text-base ${
+                activeInput === 'give' ? 'ring-2 ring-blue-500/20 border-blue-500' : ''
               }`}
             />
-            <div className="hint-text">
-              {getHintText}
-            </div>
           </div>
 
           {/* Direction Toggle */}
-          <div className="flex justify-center">
+          <div className="flex justify-center py-4">
             <button
               onClick={toggleDirection}
               disabled={!fromCurrency || !toCurrency || !!error}
-              className="swap-button"
+              className="p-3 rounded-full bg-blue-100 hover:bg-blue-200 transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <ArrowUpDown className="h-5 w-5 text-blue-600" />
+              <ArrowUpDown className="h-6 w-6 text-blue-600" />
             </button>
           </div>
 
-          {/* To Currency Selection */}
+          {/* To Currency */}
           <div className="space-y-3">
-            <Label htmlFor="toCurrency" className="text-[#001D8D] font-semibold text-base">
+            <Label htmlFor="toCurrency" className="text-[#001D8D] font-semibold text-base flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" />
               Получаете
             </Label>
             <Select 
@@ -593,8 +532,8 @@ export default function ExchangeCalculator() {
               onValueChange={setToCurrency}
               disabled={quotesLoading || !fromCurrency}
             >
-              <SelectTrigger className="input-field">
-                <SelectValue placeholder="Выберите валюту получения" />
+              <SelectTrigger className="h-12 text-base">
+                <SelectValue placeholder="Выберите валюту" />
               </SelectTrigger>
               <SelectContent>
                 {quotes.map((quote) => (
@@ -606,269 +545,475 @@ export default function ExchangeCalculator() {
             </Select>
           </div>
 
-          {/* Result */}
+          {/* Receive Amount */}
           <div className="space-y-3">
-            <Label htmlFor="result" className="text-[#001D8D] font-semibold text-base">
+            <Label htmlFor="receiveAmount" className="text-[#001D8D] font-semibold text-base">
               Сумма {toCurrency || ''}
             </Label>
-            <input
-              id="result"
+            <Input
+              id="receiveAmount"
               type="text"
               value={receiveAmount}
               onChange={handleReceiveAmountChange}
-              placeholder={`Сумма ${toCurrency}`}
-              disabled={isCalculationDisabled}
-              className={`input-field ${error ? 'border-red-300' : ''} ${
-                activeInput === 'receive' ? 'ring-2 ring-blue-500/20' : ''
-              } ${isAnimating ? 'result-animation' : ''}`}
+              placeholder={`Введите сумму ${toCurrency}`}
+              className={`h-12 text-base ${
+                activeInput === 'receive' ? 'ring-2 ring-blue-500/20 border-blue-500' : ''
+              }`}
             />
-            <div className="hint-text">
-              {activeInput === 'give' ? 'Итоговая сумма к получению' : 'Введите желаемую сумму получения'}
+          </div>
+        </div>
+
+        {/* Right Column - Exchange Summary */}
+        <div className="space-y-6">
+          {loading && !rate ? (
+            <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-[#001D8D]/10">
+              <div className="flex items-center justify-center">
+                <div className="flex items-center gap-3 text-[#001D8D]">
+                  <RefreshCw className="h-6 w-6 animate-spin" />
+                  <span className="font-medium">Загрузка курсов...</span>
+                </div>
+              </div>
+            </div>
+          ) : rate > 0 ? (
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 shadow-lg border border-blue-200">
+              <h3 className="text-xl font-bold text-[#001D8D] mb-6 flex items-center gap-2">
+                <Calculator className="h-5 w-5" />
+                Сводка обмена
+              </h3>
+              
+              <div className="space-y-4">
+                <div className="flex justify-between items-center p-4 bg-white/80 rounded-xl">
+                  <span className="text-[#001D8D]/70 font-medium">Отдаёте:</span>
+                  <span className="font-bold text-[#001D8D] text-lg">
+                    {giveAmountNum > 0 ? formatCurrency(giveAmountNum, fromCurrency) : '—'}
+                  </span>
+                </div>
+                
+                <div className="flex justify-between items-center p-4 bg-white/80 rounded-xl">
+                  <span className="text-[#001D8D]/70 font-medium">Получаете:</span>
+                  <span className="font-bold text-[#001D8D] text-lg">
+                    {receiveAmountNum > 0 ? formatCurrency(receiveAmountNum, toCurrency) : '—'}
+                  </span>
+                </div>
+                
+                <div className="flex justify-between items-center p-4 bg-white/80 rounded-xl">
+                  <span className="text-[#001D8D]/70 font-medium">Курс:</span>
+                  <span className="font-bold text-[#001D8D]">
+                    1 {fromCurrency} = {formatRate(rate, toCurrency)}
+                  </span>
+                </div>
+                
+                {lastUpdated && (
+                  <div className="text-center text-sm text-[#001D8D]/60 flex items-center justify-center gap-2">
+                    <Clock className="h-4 w-4" />
+                    Обновлено: {lastUpdated.toLocaleTimeString('ru-RU')} • {source}
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="bg-gray-50 rounded-2xl p-8 shadow-lg border border-gray-200">
+              <div className="text-center text-gray-500">
+                <Info className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                <p>Выберите валюты и введите сумму для расчёта</p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Continue Button */}
+      <div className="flex justify-center pt-6">
+        <Button
+          onClick={nextStep}
+          disabled={!validateExchangeStep()}
+          size="lg"
+          className="px-8 py-4 text-lg font-semibold bg-gradient-to-r from-[#001D8D] to-blue-600 text-white hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Продолжить
+          <ArrowRight className="h-5 w-5 ml-2" />
+        </Button>
+      </div>
+    </motion.div>
+  );
+
+  // Step 2: Contact Information
+  const ContactStep = () => (
+    <motion.div
+      key="contact"
+      variants={stepVariants}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+      className="space-y-8"
+    >
+      <div className="text-center mb-8">
+        <div className="text-sm font-medium text-[#001D8D]/60 mb-2">
+          Шаг {getCurrentStepNumber()} из {getTotalSteps()}
+        </div>
+        <h2 className="text-2xl md:text-3xl font-bold text-[#001D8D] mb-3">
+          Контактные данные
+        </h2>
+        <p className="text-[#001D8D]/70 text-lg">
+          Укажите ваши контактные данные для завершения обмена
+        </p>
+      </div>
+
+      <div className="max-w-md mx-auto space-y-6">
+        {/* Email */}
+        <div className="space-y-3">
+          <Label htmlFor="clientEmail" className="text-[#001D8D] font-semibold text-base flex items-center gap-2">
+            <Mail className="h-4 w-4" />
+            Email адрес *
+          </Label>
+          <Input
+            id="clientEmail"
+            type="email"
+            value={clientData.email}
+            onChange={(e) => handleClientDataChange('email', e.target.value)}
+            placeholder="your@email.com"
+            className={`h-12 text-base ${clientErrors.email ? 'border-red-300' : ''}`}
+          />
+          {clientErrors.email && (
+            <p className="text-sm text-red-600">{clientErrors.email}</p>
+          )}
+        </div>
+
+        {/* Phone */}
+        <div className="space-y-3">
+          <Label htmlFor="clientPhone" className="text-[#001D8D] font-semibold text-base flex items-center gap-2">
+            <Phone className="h-4 w-4" />
+            Номер телефона *
+          </Label>
+          <Input
+            id="clientPhone"
+            type="tel"
+            value={clientData.phone}
+            onChange={(e) => handleClientDataChange('phone', e.target.value)}
+            placeholder="+7 (999) 123-45-67"
+            className={`h-12 text-base ${clientErrors.phone ? 'border-red-300' : ''}`}
+          />
+          {clientErrors.phone && (
+            <p className="text-sm text-red-600">{clientErrors.phone}</p>
+          )}
+        </div>
+
+        {/* Wallet Address (for crypto) */}
+        {['BTC', 'ETH', 'USDT', 'USDC', 'BNB', 'ADA', 'DOT', 'SOL', 'XRP', 'DOGE', 'SHIB', 'LTC', 'LINK', 'UNI', 'ATOM', 'XLM', 'TRX', 'FIL', 'NEAR'].includes(toCurrency.toUpperCase()) && (
+          <div className="space-y-3">
+            <Label htmlFor="clientWalletAddress" className="text-[#001D8D] font-semibold text-base flex items-center gap-2">
+              <Wallet className="h-4 w-4" />
+              Адрес кошелька {toCurrency} *
+            </Label>
+            <Input
+              id="clientWalletAddress"
+              type="text"
+              value={clientData.walletAddress}
+              onChange={(e) => handleClientDataChange('walletAddress', e.target.value)}
+              placeholder={`Введите адрес ${toCurrency} кошелька`}
+              className={`h-12 text-base ${clientErrors.walletAddress ? 'border-red-300' : ''}`}
+            />
+            {clientErrors.walletAddress && (
+              <p className="text-sm text-red-600">{clientErrors.walletAddress}</p>
+            )}
+            <p className="text-xs text-[#001D8D]/60 flex items-center gap-2">
+              <Shield className="h-3 w-3" />
+              Убедитесь, что адрес корректный. Неверный адрес может привести к потере средств.
+            </p>
+          </div>
+        )}
+
+        {/* Bank Details (for RUB) */}
+        {toCurrency.toUpperCase() === 'RUB' && (
+          <div className="space-y-3">
+            <Label htmlFor="clientBankDetails" className="text-[#001D8D] font-semibold text-base flex items-center gap-2">
+              <CreditCard className="h-4 w-4" />
+              Банковские реквизиты *
+            </Label>
+            <Textarea
+              id="clientBankDetails"
+              value={clientData.bankDetails}
+              onChange={(e) => handleClientDataChange('bankDetails', e.target.value)}
+              placeholder="Номер карты или банковские реквизиты для получения рублей"
+              className={`min-h-[100px] text-base ${clientErrors.bankDetails ? 'border-red-300' : ''}`}
+            />
+            {clientErrors.bankDetails && (
+              <p className="text-sm text-red-600">{clientErrors.bankDetails}</p>
+            )}
+            <p className="text-xs text-[#001D8D]/60 flex items-center gap-2">
+              <Shield className="h-3 w-3" />
+              Укажите номер карты или полные банковские реквизиты для перевода рублей.
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Navigation */}
+      <div className="flex justify-between pt-6">
+        <Button
+          onClick={prevStep}
+          variant="outline"
+          size="lg"
+          className="px-6 py-3 text-[#001D8D] border-[#001D8D]/20"
+        >
+          <ArrowLeft className="h-5 w-5 mr-2" />
+          Назад
+        </Button>
+        
+        <Button
+          onClick={nextStep}
+          disabled={!validateClientData()}
+          size="lg"
+          className="px-8 py-3 text-lg font-semibold bg-gradient-to-r from-[#001D8D] to-blue-600 text-white hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50"
+        >
+          Продолжить
+          <ArrowRight className="h-5 w-5 ml-2" />
+        </Button>
+      </div>
+    </motion.div>
+  );
+
+  // Step 3: Confirmation
+  const ConfirmationStep = () => (
+    <motion.div
+      key="confirmation"
+      variants={stepVariants}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+      className="space-y-8"
+    >
+      <div className="text-center mb-8">
+        <div className="text-sm font-medium text-[#001D8D]/60 mb-2">
+          Шаг {getCurrentStepNumber()} из {getTotalSteps()}
+        </div>
+        <h2 className="text-2xl md:text-3xl font-bold text-[#001D8D] mb-3">
+          Подтверждение обмена
+        </h2>
+        <p className="text-[#001D8D]/70 text-lg">
+          Проверьте все данные перед отправкой заявки
+        </p>
+      </div>
+
+      <div className="max-w-2xl mx-auto space-y-6">
+        {/* Exchange Summary */}
+        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 shadow-lg border border-blue-200">
+          <h3 className="text-lg font-bold text-[#001D8D] mb-4 flex items-center gap-2">
+            <Calculator className="h-5 w-5" />
+            Детали обмена
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="text-center p-4 bg-white/80 rounded-xl">
+              <div className="text-sm text-[#001D8D]/70 mb-1">Отдаёте</div>
+              <div className="font-bold text-[#001D8D] text-lg">
+                {formatCurrency(giveAmountNum, fromCurrency)}
+              </div>
+            </div>
+            
+            <div className="text-center p-4 bg-white/80 rounded-xl">
+              <div className="text-sm text-[#001D8D]/70 mb-1">Получаете</div>
+              <div className="font-bold text-[#001D8D] text-lg">
+                {formatCurrency(receiveAmountNum, toCurrency)}
+              </div>
+            </div>
+            
+            <div className="text-center p-4 bg-white/80 rounded-xl">
+              <div className="text-sm text-[#001D8D]/70 mb-1">Курс</div>
+              <div className="font-bold text-[#001D8D]">
+                {formatRate(rate, toCurrency)}
+              </div>
             </div>
           </div>
+        </div>
 
-          {/* Loading State */}
-          {loading && !hasValidRate && (
-            <div className="flex items-center justify-center py-8">
-              <div className="flex items-center gap-3 text-[#001D8D]">
-                <RefreshCw className="h-5 w-5 animate-spin" />
-                <span className="font-medium">Загрузка актуальных курсов...</span>
-              </div>
-            </div>
-          )}
-
-          {/* Current Rate Display */}
-          {rate > 0 && (
-            <div className="rates-container">
-              <h4 className="font-semibold text-[#001D8D] mb-3 flex items-center gap-2">
-                Курс {fromCurrency}/{toCurrency}
-                {refreshing && <RefreshCw className="h-3 w-3 animate-spin text-[#001D8D]/60" />}
-              </h4>
-              <div className="text-center">
-                <div className="text-sm text-[#001D8D]/70 mb-1">1 {fromCurrency} ≈</div>
-                <div className="rate-value">
-                  {rate < 1 ? rate.toFixed(6) : rate.toFixed(4)} {toCurrency}
-                </div>
-                <div className="text-xs text-[#001D8D]/50 mt-2">
-                  Источник: {source} • {lastUpdated ? lastUpdated.toLocaleString('ru-RU') : 'недавно'} {direction === 'inverse' ? '(по обратной паре)' : ''}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Exchange Button */}
-          <div className="space-y-4">
-            <button 
-              onClick={() => setShowOrderForm(true)}
-              className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 ${
-                !rate || (giveAmount === '' && receiveAmount === '') || (currentGiveAmount <= 0 && currentReceiveAmount <= 0) || !toCurrency
-                  ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-[#001D8D] to-blue-600 text-white hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]'
-              }`}
-              disabled={!rate || (giveAmount === '' && receiveAmount === '') || (currentGiveAmount <= 0 && currentReceiveAmount <= 0) || !toCurrency}
+        {/* Contact Summary */}
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-[#001D8D]/10">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-bold text-[#001D8D] flex items-center gap-2">
+              <User className="h-5 w-5" />
+              Контактные данные
+            </h3>
+            <Button
+              onClick={() => goToStep('contact')}
+              variant="ghost"
+              size="sm"
+              className="text-[#001D8D]/60 hover:text-[#001D8D]"
             >
-              <Send className="h-5 w-5 mr-2 inline" />
-              Оставить заявку на обмен
-            </button>
+              <Edit3 className="h-4 w-4 mr-1" />
+              Изменить
+            </Button>
+          </div>
+          
+          <div className="space-y-3">
+            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+              <Mail className="h-4 w-4 text-[#001D8D]/60" />
+              <span className="text-[#001D8D]/70">{clientData.email}</span>
+            </div>
             
-            {rate && (giveAmount || receiveAmount) && (currentGiveAmount > 0 || currentReceiveAmount > 0) && (
-              <div className="text-center text-sm text-[#001D8D]/60">
-                {getExchangeButtonText}
+            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+              <Phone className="h-4 w-4 text-[#001D8D]/60" />
+              <span className="text-[#001D8D]/70">{clientData.phone}</span>
+            </div>
+            
+            {clientData.walletAddress && (
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                <Wallet className="h-4 w-4 text-[#001D8D]/60" />
+                <span className="text-[#001D8D]/70 font-mono text-sm break-all">
+                  {clientData.walletAddress}
+                </span>
+              </div>
+            )}
+            
+            {clientData.bankDetails && (
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                <CreditCard className="h-4 w-4 text-[#001D8D]/60" />
+                <span className="text-[#001D8D]/70">{clientData.bankDetails}</span>
               </div>
             )}
           </div>
+        </div>
 
-          {/* Order Form Modal */}
-          {showOrderForm && (
-            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-              <div className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-                <div className="p-6">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-xl font-bold text-[#001D8D]">Заявка на обмен</h3>
-                    <button
-                      onClick={() => setShowOrderForm(false)}
-                      className="text-gray-500 hover:text-gray-700"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                  
-                  {/* Сводка обмена */}
-                  <div className="bg-blue-50 p-4 rounded-lg mb-6">
-                    <h4 className="font-semibold text-[#001D8D] mb-3">Детали обмена:</h4>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-[#001D8D]/70">Отдаете:</span>
-                        <span className="font-semibold text-[#001D8D]">
-                          {formatCurrency(currentGiveAmount, fromCurrency)}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-[#001D8D]/70">Получаете:</span>
-                        <span className="font-semibold text-[#001D8D]">
-                          {formatCurrency(currentReceiveAmount, toCurrency)}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-[#001D8D]/70">Курс:</span>
-                        <span className="font-semibold text-[#001D8D]">
-                          {formatRate(rate, toCurrency)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Форма данных клиента */}
-                  <div className="space-y-4">
-                    {/* Email */}
-                    <div>
-                      <Label htmlFor="clientEmail" className="text-[#001D8D] font-medium">
-                        Email адрес *
-                      </Label>
-                      <div className="relative mt-2">
-                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[#001D8D]/60" />
-                        <Input
-                          id="clientEmail"
-                          type="email"
-                          value={clientData.email}
-                          onChange={(e) => handleClientDataChange('email', e.target.value)}
-                          placeholder="your@email.com"
-                          className={`pl-10 border-[#001D8D]/20 focus:border-[#001D8D] ${
-                            clientErrors.email ? 'border-red-300' : ''
-                          }`}
-                        />
-                      </div>
-                      {clientErrors.email && (
-                        <p className="text-sm text-red-600 mt-1">{clientErrors.email}</p>
-                      )}
-                    </div>
-                    
-                    {/* Телефон */}
-                    <div>
-                      <Label htmlFor="clientPhone" className="text-[#001D8D] font-medium">
-                        Номер телефона
-                      </Label>
-                      <div className="relative mt-2">
-                        <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[#001D8D]/60" />
-                        <Input
-                          id="clientPhone"
-                          type="tel"
-                          value={clientData.phone}
-                          onChange={(e) => handleClientDataChange('phone', e.target.value)}
-                          placeholder="+7 (999) 123-45-67"
-                          className={`pl-10 border-[#001D8D]/20 focus:border-[#001D8D] ${
-                            clientErrors.phone ? 'border-red-300' : ''
-                          }`}
-                        />
-                      </div>
-                      {clientErrors.phone && (
-                        <p className="text-sm text-red-600 mt-1">{clientErrors.phone}</p>
-                      )}
-                    </div>
-                    
-                    {/* Адрес кошелька (для криптовалют) */}
-                    {['BTC', 'ETH', 'USDT', 'USDC', 'BNB', 'ADA', 'DOT', 'SOL', 'XRP', 'DOGE', 'SHIB', 'LTC', 'LINK', 'UNI', 'ATOM', 'XLM', 'TRX', 'FIL', 'NEAR'].includes(toCurrency.toUpperCase()) && (
-                      <div>
-                        <Label htmlFor="clientWalletAddress" className="text-[#001D8D] font-medium">
-                          Адрес кошелька {toCurrency} *
-                        </Label>
-                        <div className="relative mt-2">
-                          <Wallet className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[#001D8D]/60" />
-                          <Input
-                            id="clientWalletAddress"
-                            type="text"
-                            value={clientData.walletAddress}
-                            onChange={(e) => handleClientDataChange('walletAddress', e.target.value)}
-                            placeholder={`Введите адрес ${toCurrency} кошелька`}
-                            className={`pl-10 border-[#001D8D]/20 focus:border-[#001D8D] ${
-                              clientErrors.walletAddress ? 'border-red-300' : ''
-                            }`}
-                          />
-                        </div>
-                        {clientErrors.walletAddress && (
-                          <p className="text-sm text-red-600 mt-1">{clientErrors.walletAddress}</p>
-                        )}
-                        <p className="text-xs text-[#001D8D]/60 mt-1">
-                          Убедитесь, что адрес корректный. Неверный адрес может привести к потере средств.
-                        </p>
-                      </div>
-                    )}
-                    
-                    {/* Банковские реквизиты (для рублей) */}
-                    {toCurrency.toUpperCase() === 'RUB' && (
-                      <div>
-                        <Label htmlFor="clientBankDetails" className="text-[#001D8D] font-medium">
-                          Банковские реквизиты *
-                        </Label>
-                        <div className="relative mt-2">
-                          <CreditCard className="absolute left-3 top-3 h-5 w-5 text-[#001D8D]/60" />
-                          <Textarea
-                            id="clientBankDetails"
-                            value={clientData.bankDetails}
-                            onChange={(e) => handleClientDataChange('bankDetails', e.target.value)}
-                            placeholder="Номер карты или банковские реквизиты для получения рублей"
-                            className={`pl-10 border-[#001D8D]/20 focus:border-[#001D8D] min-h-[80px] ${
-                              clientErrors.bankDetails ? 'border-red-300' : ''
-                            }`}
-                          />
-                        </div>
-                        {clientErrors.bankDetails && (
-                          <p className="text-sm text-red-600 mt-1">{clientErrors.bankDetails}</p>
-                        )}
-                        <p className="text-xs text-[#001D8D]/60 mt-1">
-                          Укажите номер карты или полные банковские реквизиты для перевода рублей.
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                  
-                  {/* Кнопки */}
-                  <div className="flex gap-3 mt-6">
-                    <Button
-                      variant="outline"
-                      onClick={() => setShowOrderForm(false)}
-                      className="flex-1 text-[#001D8D] border-[#001D8D]/20"
-                      disabled={submittingOrder}
-                    >
-                      Отмена
-                    </Button>
-                    <Button
-                      onClick={handleSubmitOrder}
-                      disabled={submittingOrder}
-                      className="flex-1 bg-gradient-to-r from-[#001D8D] to-blue-600 text-white hover:opacity-90"
-                    >
-                      {submittingOrder ? (
-                        <>
-                          <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                          Отправка...
-                        </>
-                      ) : (
-                        <>
-                          <Send className="h-4 w-4 mr-2" />
-                          Отправить заявку
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                  
-                  {/* Информация о безопасности */}
-                  <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-                    <h5 className="text-sm font-semibold text-[#001D8D] mb-2">
-                      Безопасность ваших данных
-                    </h5>
-                    <ul className="text-xs text-[#001D8D]/70 space-y-1">
-                      <li>• Все данные передаются по защищенному соединению</li>
-                      <li>• Мы не храним банковские данные после завершения обмена</li>
-                      <li>• Ваши персональные данные защищены согласно политике конфиденциальности</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
+        {/* Security Notice */}
+        <div className="bg-green-50 rounded-2xl p-6 border border-green-200">
+          <div className="flex items-start gap-3">
+            <Shield className="h-5 w-5 text-green-600 mt-0.5" />
+            <div>
+              <h4 className="font-semibold text-green-800 mb-2">Безопасность ваших данных</h4>
+              <ul className="text-sm text-green-700 space-y-1">
+                <li>• Все данные передаются по защищенному соединению</li>
+                <li>• Мы не храним банковские данные после завершения обмена</li>
+                <li>• Ваши персональные данные защищены согласно политике конфиденциальности</li>
+              </ul>
             </div>
-          )}
-
-        </CardContent>
+          </div>
+        </div>
       </div>
+
+      {/* Navigation */}
+      <div className="flex justify-between pt-6">
+        <Button
+          onClick={prevStep}
+          variant="outline"
+          size="lg"
+          className="px-6 py-3 text-[#001D8D] border-[#001D8D]/20"
+        >
+          <ArrowLeft className="h-5 w-5 mr-2" />
+          Назад
+        </Button>
+        
+        <Button
+          onClick={handleSubmitOrder}
+          disabled={submittingOrder}
+          size="lg"
+          className="px-8 py-3 text-lg font-semibold bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50"
+        >
+          {submittingOrder ? (
+            <>
+              <RefreshCw className="h-5 w-5 mr-2 animate-spin" />
+              Отправка заявки...
+            </>
+          ) : (
+            <>
+              <CheckCircle className="h-5 w-5 mr-2" />
+              Подтвердить обмен
+            </>
+          )}
+        </Button>
+      </div>
+    </motion.div>
+  );
+
+  // Success Step
+  const SuccessStep = () => (
+    <motion.div
+      key="success"
+      variants={stepVariants}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+      className="text-center space-y-8"
+    >
+      <div className="flex justify-center mb-6">
+        <div className="p-6 bg-green-100 rounded-full">
+          <CheckCircle className="h-16 w-16 text-green-600" />
+        </div>
+      </div>
+      
+      <div>
+        <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-4">
+          Заявка успешно отправлена!
+        </h2>
+        <p className="text-xl text-[#001D8D]/70 mb-8">
+          Мы получили вашу заявку и свяжемся с вами в ближайшее время
+        </p>
+      </div>
+
+      {orderData && (
+        <div className="bg-blue-50 rounded-2xl p-6 max-w-md mx-auto">
+          <div className="text-sm text-[#001D8D]/70 mb-2">Номер заявки:</div>
+          <div className="text-2xl font-bold text-[#001D8D] mb-4">
+            #{orderData.id.substring(0, 8).toUpperCase()}
+          </div>
+          <div className="text-sm text-[#001D8D]/70">
+            Проверьте вашу электронную почту для получения дальнейших инструкций
+          </div>
+        </div>
+      )}
+
+      <div className="space-y-4 max-w-md mx-auto">
+        <Button 
+          onClick={resetWizard}
+          size="lg"
+          className="w-full bg-gradient-to-r from-[#001D8D] to-blue-600 text-white hover:opacity-90 py-3 text-lg font-semibold"
+        >
+          Создать новую заявку
+        </Button>
+        
+        <Button 
+          variant="outline"
+          onClick={() => window.location.href = '/dashboard'}
+          className="w-full text-[#001D8D] border-[#001D8D]/20 py-3"
+        >
+          Перейти в личный кабинет
+        </Button>
+      </div>
+    </motion.div>
+  );
+
+  // Main render
+  return (
+    <div className="w-full max-w-4xl mx-auto">
+      <Card className="bg-white/95 backdrop-blur-sm shadow-2xl border-2 border-[#001D8D]/20 rounded-2xl overflow-hidden">
+        <CardHeader className="bg-gradient-to-r from-[#001D8D] to-blue-600 text-white py-6">
+          <CardTitle className="text-center">
+            <div className="flex items-center justify-center gap-3 mb-2">
+              <Calculator className="h-8 w-8" />
+              <span className="text-2xl md:text-3xl font-bold">
+                Калькулятор обмена KenigSwap
+              </span>
+            </div>
+            {currentStep !== 'success' && (
+              <p className="text-white/90 text-lg">
+                Безопасный и быстрый обмен криптовалют
+              </p>
+            )}
+          </CardTitle>
+        </CardHeader>
+        
+        <CardContent className="p-8 md:p-12">
+          {/* Progress Indicator */}
+          {currentStep !== 'success' && <ProgressIndicator />}
+          
+          {/* Step Content */}
+          <AnimatePresence mode="wait">
+            {currentStep === 'exchange' && <ExchangeStep />}
+            {currentStep === 'contact' && <ContactStep />}
+            {currentStep === 'confirmation' && <ConfirmationStep />}
+            {currentStep === 'success' && <SuccessStep />}
+          </AnimatePresence>
+        </CardContent>
+      </Card>
     </div>
   );
 }
