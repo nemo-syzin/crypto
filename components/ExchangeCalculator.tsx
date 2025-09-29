@@ -140,15 +140,16 @@ export default function ExchangeCalculator() {
   return (
     <div className="w-full flex flex-col items-center py-10">
       {/* Заголовок */}
-      <h2 className="text-2xl font-semibold text-gray-800 mb-6">
-        Обмен криптовалют
-      </h2>
+      <h1 className="text-3xl font-bold text-gray-900 text-center mb-2">
+        Конвертер и калькулятор криптовалют
+      </h1>
 
-      {/* Курс (сверху под заголовком) */}
-      <p className="text-gray-500 text-sm mb-6">
-        1 {fromCurrency} ≈ {rate ? rate.toFixed(2) : "—"} {toCurrency}
-        {source && ` • ${source}`}
-        {lastUpdated && ` • ${lastUpdated.toLocaleTimeString("ru-RU")}`}
+      {/* Подзаголовок */}
+      <p className="text-center text-gray-600 mb-8">
+        {fromCurrency} в {toCurrency}: 1 {fromCurrency} конвертируется в{" "}
+        {rate ? rate.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "—"}{" "}
+        {toCurrency} по состоянию на{" "}
+        {lastUpdated ? lastUpdated.toLocaleString("ru-RU", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—"}
       </p>
 
       {/* Основной контейнер */}
