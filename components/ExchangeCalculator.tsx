@@ -222,8 +222,7 @@ export default function ExchangeCalculator() {
       <button
         onClick={handleSubmit}
         disabled={!rate || isSubmitting || rateLoading}
-        className="mt-8 w-full max-w-2xl h-14 text-lg bg-[#0052FF] hover:bg-[#0041cc] font-semibold rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                   hover:bg-[#0041cc] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="mt-8 w-full max-w-2xl h-14 text-lg bg-[#0052FF] hover:bg-[#0041cc] font-semibold rounded-full text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {isSubmitting ? "Создание заявки..." : "Оставить заявку на обмен"}
       </button>
