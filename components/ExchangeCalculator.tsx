@@ -219,13 +219,14 @@ export default function ExchangeCalculator() {
       </div>
 
       {/* Кнопка создания заявки */}
-      <Button
+      <button
         onClick={handleSubmit}
-        disabled={isSubmitting || rateLoading || !rate || !fromAmount || !toAmount}
-        className="mt-6 px-8 py-2"
+        disabled={!rate || isSubmitting || rateLoading}
+        className="mt-8 w-full max-w-2xl h-14 rounded-md bg-[#0052FF] text-white text-lg font-semibold 
+                   hover:bg-[#0041cc] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {isSubmitting ? "Создание заявки..." : "Создать заявку"}
-      </Button>
+        {isSubmitting ? "Создание заявки..." : "Оставить заявку на обмен"}
+      </button>
     </div>
   );
 }
