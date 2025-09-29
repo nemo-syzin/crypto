@@ -88,12 +88,34 @@ export default function ExchangeCalculator() {
     setIsSubmitting(true);
 
     try {
-      // Здесь будет API вызов для создания заявки
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Симуляция API вызова
+      // Отправляем заявку на API
+      const response = await fetch('/api/exchange-orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fromCurrency,
+          toCurrency,
+          amountFrom: numFromAmount,
+          amountTo: numToAmount,
+          exchangeRate: rate,
+          clientEmail: 'user@example.com', // Временно, пока нет формы
+          clientPhone: '',
+          clientWalletAddress: '',
+          clientBankDetails: ''
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || result.error || 'Ошибка создания заявки');
+      }
 
       toast({
         title: "Заявка создана!",
-        description: `Заявка на обмен ${fromAmount} ${fromCurrency} на ${toAmount} ${toCurrency} успешно создана.`,
+        description: `Заявка #${result.orderId} на обмен ${fromAmount} ${fromCurrency} на ${toAmount} ${toCurrency} успешно создана.`,
       });
 
       // Сброс формы после успешной отправки
@@ -104,7 +126,7 @@ export default function ExchangeCalculator() {
       console.error('Ошибка создания заявки:', error);
       toast({
         title: "Ошибка",
-        description: "Не удалось создать заявку. Попробуйте позже.",
+        description: error instanceof Error ? error.message : "Не удалось создать заявку. Попробуйте позже.",
         variant: "destructive",
       });
     } finally {
@@ -152,10 +174,11 @@ export default function ExchangeCalculator() {
         {lastUpdated ? lastUpdated.toLocaleString("ru-RU", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—"}
       </p>
 
+      {/* Заголовок */}
       {/* Основной контейнер */}
-      <div className="flex items-center gap-4 w-full max-w-2xl">
+      <div className="flex items-center gap-2 w-full max-w-2xl">
         {/* Отдаёте */}
-        <div className="flex flex-1 border border-gray-300 rounded-full px-6 py-3 items-center h-[60px]">
+        <div className="flex flex-1 border border-gray-300 rounded-md px-4 py-2 items-center bg-white h-[48px]">
           <Input
             type="text"
             value={fromAmount}
@@ -163,12 +186,12 @@ export default function ExchangeCalculator() {
               setFromAmount(e.target.value);
               setActiveInput("give");
             }}
-            className="flex-1 border-0 shadow-none focus-visible:ring-0 text-2xl font-medium bg-transparent rounded-full px-6"
+            className="flex-1 border-0 shadow-none focus-visible:ring-0 text-lg font-medium bg-white"
             placeholder="0"
             disabled={rateLoading}
           />
           <Select value={fromCurrency} onValueChange={setFromCurrency} disabled={basesLoading}>
-            <SelectTrigger className="w-[100px] border-0 focus:ring-0 font-medium text-lg bg-transparent">
+            <SelectTrigger className="w-[100px] border-0 focus:ring-0 font-medium text-lg bg-white">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -191,7 +214,7 @@ export default function ExchangeCalculator() {
         </button>
 
         {/* Получаете */}
-        <div className="flex flex-1 border border-gray-300 rounded-full px-6 py-3 items-center h-[60px]">
+        <div className="flex flex-1 border border-gray-300 rounded-md px-4 py-2 items-center bg-white h-[48px]">
           <Input
             type="text"
             value={toAmount}
@@ -199,12 +222,12 @@ export default function ExchangeCalculator() {
               setToAmount(e.target.value);
               setActiveInput("receive");
             }}
-            className="flex-1 border-0 shadow-none focus-visible:ring-0 text-2xl font-medium bg-transparent rounded-full px-6"
+            className="flex-1 border-0 shadow-none focus-visible:ring-0 text-lg font-medium bg-white"
             placeholder="0"
             disabled={rateLoading}
           />
           <Select value={toCurrency} onValueChange={setToCurrency} disabled={quotesLoading}>
-            <SelectTrigger className="w-[100px] border-0 focus:ring-0 font-medium text-lg bg-transparent">
+            <SelectTrigger className="w-[100px] border-0 focus:ring-0 font-medium text-lg bg-white">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -222,7 +245,8 @@ export default function ExchangeCalculator() {
       <button
         onClick={handleSubmit}
         disabled={!rate || isSubmitting || rateLoading}
-        className="mt-8 w-full max-w-2xl h-14 text-lg bg-[#0052FF] hover:bg-[#0041cc] font-semibold rounded-full text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="mt-8 w-full max-w-2xl h-14 rounded-md bg-[#0052FF] text-white text-lg font-semibold 
+                   hover:bg-[#0041cc] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {isSubmitting ? "Создание заявки..." : "Оставить заявку на обмен"}
       </button>
