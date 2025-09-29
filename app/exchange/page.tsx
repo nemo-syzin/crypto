@@ -127,23 +127,23 @@ export default function ExchangePage() {
             </motion.div>
 
             {/* Main Exchange Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Left Column - Exchange Calculator */}
+            <div className="flex flex-col gap-8 max-w-6xl mx-auto">
+              {/* Exchange Calculator - Full Width */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className="col-span-1"
+                className="w-full"
               >
                 <ExchangeCalculator />
               </motion.div>
 
-              {/* Right Column - Rates Comparison */}
+              {/* Rates Comparison - Full Width */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
-                className="col-span-1"
+                className="w-full"
               >
                 <RatesComparison />
               </motion.div>
