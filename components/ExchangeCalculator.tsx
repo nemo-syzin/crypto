@@ -179,85 +179,79 @@ export default function ExchangeCalculator() {
 
         {/* Основной калькулятор */}
         <div className="bg-white rounded-2xl border border-gray-200 shadow-sm mb-8">
-          <div className="p-8">
-            <div className="flex flex-col md:flex-row items-center gap-4">
-              
-              {/* Отдаете */}
-              <div className="flex-1 w-full">
-                <div className="flex items-center border border-gray-300 rounded-xl px-6 py-5 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all bg-white hover:border-gray-400">
-                  <input
-                    type="text"
-                    value={giveAmount}
-                    onChange={handleGiveAmountChange}
-                    placeholder="0"
-                    className="flex-1 text-3xl font-semibold bg-transparent outline-none text-gray-900 placeholder-gray-400 text-right pr-4"
-                    disabled={!rate}
-                  />
-                  <div className="flex-shrink-0">
-                    <Select 
-                      value={bases.includes(fromCurrency) ? fromCurrency : undefined}
-                      onValueChange={handleFromCurrencyChange}
-                      disabled={basesLoading}
-                    >
-                      <SelectTrigger className="w-auto min-w-[80px] border-0 shadow-none text-xl font-semibold text-gray-900 hover:bg-gray-50 rounded-lg px-3 py-2">
-                        <SelectValue placeholder="Валюта" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {bases.map((base) => (
-                          <SelectItem key={base} value={base} className="text-lg">
-                            {base}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </div>
-
-              {/* Кнопка обмена */}
+          <div className="p-8 space-y-4">
+            
+            {/* Отдаете */}
+            <div className="flex items-center border border-gray-300 rounded-xl px-6 h-[60px] focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all bg-white hover:border-gray-400">
+              <input
+                type="text"
+                value={giveAmount}
+                onChange={handleGiveAmountChange}
+                placeholder="0"
+                className="flex-1 text-2xl font-semibold bg-transparent outline-none text-gray-900 placeholder-gray-400 text-right pr-4"
+                disabled={!rate}
+              />
               <div className="flex-shrink-0">
-                <button
-                  onClick={toggleDirection}
-                  disabled={!fromCurrency || !toCurrency || !!error}
-                  className="p-4 rounded-full border border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-white shadow-sm"
+                <Select 
+                  value={bases.includes(fromCurrency) ? fromCurrency : undefined}
+                  onValueChange={handleFromCurrencyChange}
+                  disabled={basesLoading}
                 >
-                  <ArrowUpDown className="h-6 w-6 text-gray-600" />
-                </button>
+                  <SelectTrigger className="w-auto min-w-[80px] border-0 shadow-none text-xl font-semibold text-gray-900 hover:bg-gray-50 rounded-lg px-3 py-2">
+                    <SelectValue placeholder="Валюта" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {bases.map((base) => (
+                      <SelectItem key={base} value={base} className="text-lg">
+                        {base}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-
-              {/* Получаете */}
-              <div className="flex-1 w-full">
-                <div className="flex items-center border border-gray-300 rounded-xl px-6 py-5 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all bg-white hover:border-gray-400">
-                  <input
-                    type="text"
-                    value={receiveAmount}
-                    onChange={handleReceiveAmountChange}
-                    placeholder="0"
-                    className="flex-1 text-3xl font-semibold bg-transparent outline-none text-gray-900 placeholder-gray-400 text-right pr-4"
-                    disabled={!rate}
-                  />
-                  <div className="flex-shrink-0">
-                    <Select 
-                      value={quotes.includes(toCurrency) ? toCurrency : undefined}
-                      onValueChange={setToCurrency}
-                      disabled={quotesLoading || !fromCurrency}
-                    >
-                      <SelectTrigger className="w-auto min-w-[80px] border-0 shadow-none text-xl font-semibold text-gray-900 hover:bg-gray-50 rounded-lg px-3 py-2">
-                        <SelectValue placeholder="Валюта" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {quotes.map((quote) => (
-                          <SelectItem key={quote} value={quote} className="text-lg">
-                            {quote}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </div>
-
             </div>
+
+            {/* Кнопка обмена */}
+            <div className="flex justify-center">
+              <button
+                onClick={toggleDirection}
+                disabled={!fromCurrency || !toCurrency || !!error}
+                className="p-4 rounded-full border border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-white shadow-sm"
+              >
+                <ArrowUpDown className="h-6 w-6 text-gray-600" />
+              </button>
+            </div>
+
+            {/* Получаете */}
+            <div className="flex items-center border border-gray-300 rounded-xl px-6 h-[60px] focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all bg-white hover:border-gray-400">
+              <input
+                type="text"
+                value={receiveAmount}
+                onChange={handleReceiveAmountChange}
+                placeholder="0"
+                className="flex-1 text-2xl font-semibold bg-transparent outline-none text-gray-900 placeholder-gray-400 text-right pr-4"
+                disabled={!rate}
+              />
+              <div className="flex-shrink-0">
+                <Select 
+                  value={quotes.includes(toCurrency) ? toCurrency : undefined}
+                  onValueChange={setToCurrency}
+                  disabled={quotesLoading || !fromCurrency}
+                >
+                  <SelectTrigger className="w-auto min-w-[80px] border-0 shadow-none text-xl font-semibold text-gray-900 hover:bg-gray-50 rounded-lg px-3 py-2">
+                    <SelectValue placeholder="Валюта" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {quotes.map((quote) => (
+                      <SelectItem key={quote} value={quote} className="text-lg">
+                        {quote}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
           </div>
         </div>
 
