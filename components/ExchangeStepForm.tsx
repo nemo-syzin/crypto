@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/components/auth/SupabaseAuthProvider";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -11,7 +13,10 @@ import {
 } from "@/components/ui/select";
 
 export default function ExchangeStepForm() {
+  const { toast } = useToast();
+  const { user } = useAuth();
   const [step, setStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Данные обмена
   const [fromCurrency, setFromCurrency] = useState("USDT");
@@ -27,20 +32,109 @@ export default function ExchangeStepForm() {
   const [phone, setPhone] = useState("");
   const [bank, setBank] = useState("");
 
+  // Валидация формы
+  const validateForm = () => {
+    const errors: string[] = [];
+
+    if (!fio.trim()) errors.push("Введите ФИО");
+    if (!email.trim()) errors.push("Введите email");
+    if (!email.includes("@")) errors.push("Введите корректный email");
+    
+    // Валидация в зависимости от типа валют
+    const cryptoCurrencies = ['USDT', 'BTC', 'ETH', 'BNB', 'ADA', 'SOL'];
+    
+    if (cryptoCurrencies.includes(toCurrency) && !wallet.trim()) {
+      errors.push("Введите адрес кошелька для получения криптовалюты");
+    }
+    
+    if (toCurrency === 'RUB' && !bank.trim()) {
+      errors.push("Введите банковские реквизиты для получения рублей");
+    }
+
+    if (cryptoCurrencies.includes(fromCurrency) && !network) {
+      errors.push("Выберите сеть для отправки криптовалюты");
+    }
+
+    return errors;
+  };
+
   const handleConfirm = async () => {
-    console.log("Заявка отправлена:", {
-      fromCurrency,
-      toCurrency,
-      fromAmount,
-      toAmount,
-      network,
-      wallet,
-      fio,
-      email,
-      phone,
-      bank,
-    });
-    setStep(3);
+    // Валидация формы
+    const validationErrors = validateForm();
+    if (validationErrors.length > 0) {
+      toast({
+        title: "Ошибки в форме",
+        description: validationErrors.join(", "),
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // Подготавливаем данные для отправки
+      const orderData = {
+        fromCurrency,
+        toCurrency,
+        amountFrom: parseFloat(fromAmount),
+        amountTo: parseFloat(toAmount),
+        exchangeRate: parseFloat(toAmount) / parseFloat(fromAmount),
+        clientEmail: email,
+        clientPhone: phone || null,
+        clientWalletAddress: wallet || null,
+        clientBankDetails: bank || null,
+        network: network || null,
+      };
+
+      console.log("Отправка заявки:", orderData);
+
+      // Отправляем заявку на сервер
+      const response = await fetch('/api/exchange-orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || result.error || 'Ошибка создания заявки');
+      }
+
+      console.log("Заявка успешно создана:", result);
+
+      toast({
+        title: "Заявка создана!",
+        description: `Заявка №${result.orderId} успешно создана. Мы свяжемся с вами в ближайшее время.`,
+      });
+
+      setStep(3);
+    } catch (error) {
+      console.error('Ошибка создания заявки:', error);
+      
+      let errorMessage = 'Не удалось создать заявку. Попробуйте позже.';
+      
+      if (error instanceof Error) {
+        if (error.message.includes('validation')) {
+          errorMessage = 'Проверьте правильность заполнения всех полей';
+        } else if (error.message.includes('network')) {
+          errorMessage = 'Ошибка сети. Проверьте подключение к интернету';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
+      toast({
+        title: "Ошибка создания заявки",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -142,9 +236,10 @@ export default function ExchangeStepForm() {
             </button>
             <button
               onClick={handleConfirm}
-              className="flex-1 h-12 bg-[#0052FF] hover:bg-[#0041CC] text-white rounded-full"
+              disabled={isSubmitting}
+              className="flex-1 h-12 bg-[#0052FF] hover:bg-[#0041CC] text-white rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Подтвердить заявку
+              {isSubmitting ? "Создание заявки..." : "Подтвердить заявку"}
             </button>
           </div>
         </div>
