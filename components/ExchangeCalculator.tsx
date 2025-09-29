@@ -142,157 +142,159 @@ export default function ExchangeCalculator() {
   const isButtonDisabled = !rate || !giveAmount || parseFloat(giveAmount) <= 0 || !toCurrency;
 
   return (
-    <div className="max-w-2xl mx-auto px-4">
-      {/* Заголовок */}
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-semibold text-gray-900 mb-4">
-          Обмен криптовалют
-        </h1>
-        
-        {/* Курс */}
-        <div className="flex items-center justify-center gap-2 text-gray-600">
-          <span className="text-base">
-            1 {fromCurrency} ≈ {formatRate(rate)}
-          </span>
-          {source && (
-            <>
-              <span>•</span>
-              <span>{source}</span>
-            </>
-          )}
-          {lastUpdated && (
-            <>
-              <span>•</span>
-              <span>{lastUpdated.toLocaleTimeString('ru-RU')}</span>
-            </>
-          )}
-          <button
-            onClick={refetch}
-            disabled={loading}
-            className="ml-2 p-1 rounded-full hover:bg-gray-100 transition-colors"
-          >
-            <RefreshCw className={`h-4 w-4 text-gray-500 ${loading || refreshing ? 'animate-spin' : ''}`} />
-          </button>
-        </div>
-      </div>
-
-      {/* Основной калькулятор */}
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm mb-8">
-        <div className="p-8">
-          <div className="flex flex-col md:flex-row items-center gap-4">
-            
-            {/* Отдаете */}
-            <div className="flex-1 w-full">
-              <div className="flex items-center border border-gray-300 rounded-xl px-6 py-5 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all bg-white hover:border-gray-400">
-                <input
-                  type="text"
-                  value={giveAmount}
-                  onChange={handleGiveAmountChange}
-                  placeholder="0"
-                  className="flex-1 text-3xl font-semibold bg-transparent outline-none text-gray-900 placeholder-gray-400 text-right pr-4"
-                  disabled={!rate}
-                />
-                <div className="flex-shrink-0">
-                  <Select 
-                    value={bases.includes(fromCurrency) ? fromCurrency : undefined}
-                    onValueChange={handleFromCurrencyChange}
-                    disabled={basesLoading}
-                  >
-                    <SelectTrigger className="w-auto min-w-[80px] border-0 shadow-none text-xl font-semibold text-gray-900 hover:bg-gray-50 rounded-lg px-3 py-2">
-                      <SelectValue placeholder="Валюта" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {bases.map((base) => (
-                        <SelectItem key={base} value={base} className="text-lg">
-                          {base}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </div>
-
-            {/* Кнопка обмена */}
-            <div className="flex-shrink-0">
-              <button
-                onClick={toggleDirection}
-                disabled={!fromCurrency || !toCurrency || !!error}
-                className="p-4 rounded-full border border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-white shadow-sm"
-              >
-                <ArrowUpDown className="h-6 w-6 text-gray-600" />
-              </button>
-            </div>
-
-            {/* Получаете */}
-            <div className="flex-1 w-full">
-              <div className="flex items-center border border-gray-300 rounded-xl px-6 py-5 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all bg-white hover:border-gray-400">
-                <input
-                  type="text"
-                  value={receiveAmount}
-                  onChange={handleReceiveAmountChange}
-                  placeholder="0"
-                  className="flex-1 text-3xl font-semibold bg-transparent outline-none text-gray-900 placeholder-gray-400 text-right pr-4"
-                  disabled={!rate}
-                />
-                <div className="flex-shrink-0">
-                  <Select 
-                    value={quotes.includes(toCurrency) ? toCurrency : undefined}
-                    onValueChange={setToCurrency}
-                    disabled={quotesLoading || !fromCurrency}
-                  >
-                    <SelectTrigger className="w-auto min-w-[80px] border-0 shadow-none text-xl font-semibold text-gray-900 hover:bg-gray-50 rounded-lg px-3 py-2">
-                      <SelectValue placeholder="Валюта" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {quotes.map((quote) => (
-                        <SelectItem key={quote} value={quote} className="text-lg">
-                          {quote}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </div>
-
+    <div className="flex flex-col items-center justify-center py-12 px-4">
+      <div className="w-full max-w-2xl">
+        {/* Заголовок */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-semibold text-gray-900 mb-4">
+            Обмен криптовалют
+          </h1>
+          
+          {/* Курс */}
+          <div className="flex items-center justify-center gap-2 text-gray-600">
+            <span className="text-base">
+              1 {fromCurrency} ≈ {formatRate(rate)}
+            </span>
+            {source && (
+              <>
+                <span>•</span>
+                <span>{source}</span>
+              </>
+            )}
+            {lastUpdated && (
+              <>
+                <span>•</span>
+                <span>{lastUpdated.toLocaleTimeString('ru-RU')}</span>
+              </>
+            )}
+            <button
+              onClick={refetch}
+              disabled={loading}
+              className="ml-2 p-1 rounded-full hover:bg-gray-100 transition-colors"
+            >
+              <RefreshCw className={`h-4 w-4 text-gray-500 ${loading || refreshing ? 'animate-spin' : ''}`} />
+            </button>
           </div>
         </div>
-      </div>
 
-      {/* Error Display */}
-      {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
-          <p className="text-sm text-red-800">{error}</p>
-        </div>
-      )}
+        {/* Основной калькулятор */}
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm mb-8">
+          <div className="p-8">
+            <div className="flex flex-col md:flex-row items-center gap-4">
+              
+              {/* Отдаете */}
+              <div className="flex-1 w-full">
+                <div className="flex items-center border border-gray-300 rounded-xl px-6 py-5 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all bg-white hover:border-gray-400">
+                  <input
+                    type="text"
+                    value={giveAmount}
+                    onChange={handleGiveAmountChange}
+                    placeholder="0"
+                    className="flex-1 text-3xl font-semibold bg-transparent outline-none text-gray-900 placeholder-gray-400 text-right pr-4"
+                    disabled={!rate}
+                  />
+                  <div className="flex-shrink-0">
+                    <Select 
+                      value={bases.includes(fromCurrency) ? fromCurrency : undefined}
+                      onValueChange={handleFromCurrencyChange}
+                      disabled={basesLoading}
+                    >
+                      <SelectTrigger className="w-auto min-w-[80px] border-0 shadow-none text-xl font-semibold text-gray-900 hover:bg-gray-50 rounded-lg px-3 py-2">
+                        <SelectValue placeholder="Валюта" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {bases.map((base) => (
+                          <SelectItem key={base} value={base} className="text-lg">
+                            {base}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
 
-      {/* Loading State */}
-      {loading && !rate && (
-        <div className="mb-6 flex items-center justify-center py-8">
-          <div className="flex items-center gap-3 text-gray-600">
-            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-600"></div>
-            <span>Загрузка курсов...</span>
+              {/* Кнопка обмена */}
+              <div className="flex-shrink-0">
+                <button
+                  onClick={toggleDirection}
+                  disabled={!fromCurrency || !toCurrency || !!error}
+                  className="p-4 rounded-full border border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-white shadow-sm"
+                >
+                  <ArrowUpDown className="h-6 w-6 text-gray-600" />
+                </button>
+              </div>
+
+              {/* Получаете */}
+              <div className="flex-1 w-full">
+                <div className="flex items-center border border-gray-300 rounded-xl px-6 py-5 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all bg-white hover:border-gray-400">
+                  <input
+                    type="text"
+                    value={receiveAmount}
+                    onChange={handleReceiveAmountChange}
+                    placeholder="0"
+                    className="flex-1 text-3xl font-semibold bg-transparent outline-none text-gray-900 placeholder-gray-400 text-right pr-4"
+                    disabled={!rate}
+                  />
+                  <div className="flex-shrink-0">
+                    <Select 
+                      value={quotes.includes(toCurrency) ? toCurrency : undefined}
+                      onValueChange={setToCurrency}
+                      disabled={quotesLoading || !fromCurrency}
+                    >
+                      <SelectTrigger className="w-auto min-w-[80px] border-0 shadow-none text-xl font-semibold text-gray-900 hover:bg-gray-50 rounded-lg px-3 py-2">
+                        <SelectValue placeholder="Валюта" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {quotes.map((quote) => (
+                          <SelectItem key={quote} value={quote} className="text-lg">
+                            {quote}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+
+            </div>
           </div>
         </div>
-      )}
 
-      {/* Submit Button */}
-      <Button
-        onClick={handleSubmitOrder}
-        disabled={isButtonDisabled}
-        size="lg"
-        className="w-full py-6 text-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-sm hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        Оставить заявку на обмен
-      </Button>
+        {/* Error Display */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+            <p className="text-sm text-red-800">{error}</p>
+          </div>
+        )}
 
-      {/* Additional Info */}
-      {rate && giveAmount && parseFloat(giveAmount) > 0 && (
-        <div className="mt-4 text-center text-sm text-gray-500">
-          Курс действителен в течение 15 минут
-        </div>
-      )}
+        {/* Loading State */}
+        {loading && !rate && (
+          <div className="mb-6 flex items-center justify-center py-8">
+            <div className="flex items-center gap-3 text-gray-600">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-600"></div>
+              <span>Загрузка курсов...</span>
+            </div>
+          </div>
+        )}
+
+        {/* Submit Button */}
+        <Button
+          onClick={handleSubmitOrder}
+          disabled={isButtonDisabled}
+          size="lg"
+          className="w-full py-6 text-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-sm hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Оставить заявку на обмен
+        </Button>
+
+        {/* Additional Info */}
+        {rate && giveAmount && parseFloat(giveAmount) > 0 && (
+          <div className="mt-4 text-center text-sm text-gray-500">
+            Курс действителен в течение 15 минут
+          </div>
+        )}
+      </div>
     </div>
   );
 }
