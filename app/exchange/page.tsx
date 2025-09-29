@@ -9,14 +9,7 @@ import {
   CardHeader, 
   CardTitle 
 } from "@/components/ui/card";
-import { 
-  CheckCircle, 
-  BarChart3,
-  Shield,
-  Award,
-  Zap,
-  TrendingUp
-} from 'lucide-react';
+import { CircleCheck as CheckCircle, ChartBar as BarChart3, Shield, Award, Zap, TrendingUp } from 'lucide-react';
 import { ManifestoStrip } from '@/components/ui/manifesto-strip';
 import ExchangeCalculator from '@/components/ExchangeCalculator';
 import RatesComparison from '@/components/RatesComparison';
