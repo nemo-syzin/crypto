@@ -258,9 +258,6 @@ export default function ExchangeStepForm() {
         // Показываем более детальную ошибку
         const errorMessage = result.message || result.error || 'Ошибка создания заявки';
         console.error('❌ Финальная ошибка:', errorMessage);
-        // Показываем более детальную ошибку
-        const errorMessage = result.message || result.error || 'Ошибка создания заявки';
-        console.error('❌ Финальная ошибка:', errorMessage);
         throw new Error(result.message || result.error || 'Ошибка создания заявки');
       }
 
@@ -275,41 +272,23 @@ export default function ExchangeStepForm() {
     } catch (error) {
       console.error('❌ Ошибка создания заявки:', error);
       
-      let errorMessage = 'Не удалось создать заявку. Попробуйте позже.';
+      let finalErrorMessage = 'Не удалось создать заявку. Попробуйте позже.';
       
       if (error instanceof Error) {
         if (error.message.includes('валидации') || error.message.includes('validation')) {
-          errorMessage = `Ошибки валидации: ${error.message}`;
-        } else if (error.message.includes('Ошибки валидации:')) {
-          errorMessage = error.message;
+          finalErrorMessage = `Ошибки валидации: ${error.message}`;
         } else if (error.message.includes('network')) {
-          errorMessage = 'Ошибка сети. Проверьте подключение к интернету';
+          finalErrorMessage = 'Ошибка сети. Проверьте подключение к интернету';
         } else {
-          errorMessage = error.message;
+          finalErrorMessage = error.message;
         }
       }
 
-      console.error('❌ Показываем пользователю ошибку:', errorMessage);
-
-      let errorMessage = 'Не удалось создать заявку. Попробуйте позже.';
-      
-      if (error instanceof Error) {
-        if (error.message.includes('валидации') || error.message.includes('validation')) {
-          errorMessage = `Ошибки валидации: ${error.message}`;
-        } else if (error.message.includes('Ошибки валидации:')) {
-          errorMessage = error.message;
-        } else if (error.message.includes('network')) {
-          errorMessage = 'Ошибка сети. Проверьте подключение к интернету';
-        } else {
-          errorMessage = error.message;
-        }
-      }
-
-      console.error('❌ Показываем пользователю ошибку:', errorMessage);
+      console.error('❌ Показываем пользователю ошибку:', finalErrorMessage);
 
       toast({
         title: "Ошибка создания заявки",
-        description: errorMessage,
+        description: finalErrorMessage,
         variant: "destructive",
       });
     } finally {
