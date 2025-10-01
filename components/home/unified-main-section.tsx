@@ -6,19 +6,7 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  ArrowRight, 
-  Wallet, 
-  BarChart, 
-  Shield, 
-  Clock, 
-  DollarSign,
-  Zap,
-  CheckCircle,
-  Building2,
-  Globe,
-  TrendingUp
-} from 'lucide-react';
+import { ArrowRight, Wallet, ChartBar as BarChart, Shield, Clock, DollarSign, Zap, CircleCheck as CheckCircle, Building2, Globe, TrendingUp } from 'lucide-react';
 
 // Dynamic import for Marquee to prevent SSR issues
 const Marquee = dynamic(() => import('react-fast-marquee'), {
