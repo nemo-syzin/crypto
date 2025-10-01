@@ -17,45 +17,13 @@ interface ExchangeOrderData {
   fullName: string;
 }
 
-// Валидация email
-const isValidEmail = (email: string): boolean => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-};
-
-// Валидация номера телефона (базовая)
-const isValidPhone = (phone: string): boolean => {
-  const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
-  return phoneRegex.test(phone.replace(/[\s\-\(\)]/g, ''));
-};
-
-// Валидация криптовалютного адреса (базовая)
-const isValidCryptoAddress = (address: string, currency: string): boolean => {
-  if (!address || address.length < 10) return false;
-  
-  // Базовая валидация для разных криптовалют
-  switch (currency.toUpperCase()) {
-    case 'BTC':
-      return /^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$|^bc1[a-z0-9]{39,59}$/.test(address);
-    case 'ETH':
-    case 'USDT':
-    case 'USDC':
-    case 'BNB':
-      return /^0x[a-fA-F0-9]{40}$/.test(address);
-    case 'XRP':
-      return /^r[0-9a-zA-Z]{24,34}$/.test(address);
-    case 'ADA':
-      return /^addr1[a-z0-9]{98}$|^[A-Za-z0-9]{59}$/.test(address);
-    default:
-      return address.length >= 10 && address.length <= 100;
-  }
-};
-
 export async function POST(request: NextRequest) {
+  console.log('🚀 [API] POST /api/exchange-orders - начало обработки');
+  
   try {
     // Проверяем доступность Supabase
     if (!isServerSupabaseConfigured()) {
-      console.error('❌ Supabase не настроен для создания заявок');
+      console.error('❌ [API] Supabase не настроен');
       return NextResponse.json(
         { 
           error: 'Сервис временно недоступен',
@@ -67,6 +35,11 @@ export async function POST(request: NextRequest) {
 
     // Получаем данные из запроса
     const body = await request.json();
+    console.log('📝 [API] Получены данные:', {
+      ...body,
+      clientEmail: body.clientEmail ? `${body.clientEmail.substring(0, 3)}***@${body.clientEmail.split('@')[1]}` : 'не указан'
+    });
+
     const {
       fromCurrency,
       toCurrency,
@@ -81,106 +54,37 @@ export async function POST(request: NextRequest) {
       fullName
     }: ExchangeOrderData = body;
 
-    console.log('📝 [API] Получена заявка на обмен:', {
-      fromCurrency,
-      toCurrency,
-      amountFrom,
-      amountTo,
-      exchangeRate,
-      clientEmail: clientEmail ? `${clientEmail.substring(0, 3)}***@${clientEmail.split('@')[1]}` : 'не указан',
-      clientPhone: clientPhone ? 'указан' : 'не указан',
-      network,
-      clientWalletAddress: clientWalletAddress ? 'указан' : 'не указан',
-      clientBankDetails: clientBankDetails ? 'указаны' : 'не указаны',
-      fullName: fullName ? 'указано' : 'не указано'
-    });
-
-    // Валидация обязательных полей
-    const errors: string[] = [];
-
-    if (!fromCurrency || typeof fromCurrency !== 'string') {
-      errors.push('Не указана валюта отправления');
-    }
-
-    if (!toCurrency || typeof toCurrency !== 'string') {
-      errors.push('Не указана валюта получения');
-    }
-
-    if (!amountFrom || typeof amountFrom !== 'number' || amountFrom <= 0) {
-      errors.push('Некорректная сумма отправления');
-    }
-
-    if (!amountTo || typeof amountTo !== 'number' || amountTo <= 0) {
-      errors.push('Некорректная сумма получения');
-    }
-
-    if (!exchangeRate || typeof exchangeRate !== 'number' || exchangeRate <= 0) {
-      errors.push('Некорректный курс обмена');
-    }
-
-    if (!clientEmail || !isValidEmail(clientEmail)) {
-      errors.push('Некорректный email адрес');
+    // Простая валидация как в вашем примере
+    if (!clientEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clientEmail)) {
+      console.warn('⚠️ [API] Некорректный email:', clientEmail);
+      return NextResponse.json({ message: "Некорректный email" }, { status: 400 });
     }
     
+    if (!amountFrom || !amountTo || amountFrom <= 0 || amountTo <= 0) {
+      console.warn('⚠️ [API] Некорректные суммы:', { amountFrom, amountTo });
+      return NextResponse.json({ message: "Некорректные суммы" }, { status: 400 });
+    }
+    
+    if (!fromCurrency || !toCurrency) {
+      console.warn('⚠️ [API] Не выбраны валюты:', { fromCurrency, toCurrency });
+      return NextResponse.json({ message: "Не выбраны валюты" }, { status: 400 });
+    }
+
     if (!fullName || fullName.trim().length < 2) {
-      errors.push('Введите корректное ФИО (минимум 2 символа)');
+      console.warn('⚠️ [API] Некорректное ФИО:', fullName);
+      return NextResponse.json({ message: "Введите корректное ФИО" }, { status: 400 });
     }
 
-    // Валидация номера телефона (если указан)
-    if (clientPhone && !isValidPhone(clientPhone)) {
-      errors.push('Некорректный номер телефона');
-    }
-
-    // Валидация адреса кошелька (если получаем криптовалюту)
-    const cryptoCurrencies = ['BTC', 'ETH', 'USDT', 'USDC', 'BNB', 'ADA', 'DOT', 'SOL', 'XRP', 'DOGE', 'SHIB', 'LTC', 'LINK', 'UNI', 'ATOM', 'XLM', 'TRX', 'FIL', 'NEAR'];
-    if (cryptoCurrencies.includes(toCurrency.toUpperCase())) {
-      if (!clientWalletAddress || !isValidCryptoAddress(clientWalletAddress, toCurrency)) {
-        errors.push(`Некорректный адрес кошелька для ${toCurrency}`);
-      }
-      
-      if (!network || !['ERC20', 'TRC20', 'BEP20'].includes(network.toUpperCase())) {
-        errors.push('Выберите корректную сеть (ERC20, TRC20 или BEP20)');
-      }
-    }
-
-    // Валидация банковских реквизитов (если получаем фиат)
-    if (toCurrency.toUpperCase() === 'RUB') {
-      if (!clientBankDetails || clientBankDetails.length < 10) {
-        errors.push('Укажите банковские реквизиты для получения рублей');
-      }
-    }
-
-    // Проверяем минимальные суммы
-    const minAmounts: { [key: string]: number } = {
-      'USDT': 100,
-      'BTC': 0.001,
-      'ETH': 0.01,
-      'RUB': 10000
-    };
-
-    const minAmount = minAmounts[fromCurrency.toUpperCase()] || 10;
-    if (amountFrom < minAmount) {
-      errors.push(`Минимальная сумма для ${fromCurrency}: ${minAmount}`);
-    }
-
-    if (errors.length > 0) {
-      console.warn('⚠️ [API] Ошибки валидации заявки:', errors);
-      return NextResponse.json(
-        { 
-          error: 'Ошибки валидации',
-          details: errors
-        },
-        { status: 400 }
-      );
-    }
+    // Получаем клиент Supabase
+    const supabase = getServerSupabaseClient();
+    console.log('🔗 [API] Supabase клиент создан');
 
     // Получаем текущего пользователя (если авторизован)
-    const supabase = getServerSupabaseClient();
     const { data: { user }, error: userError } = await supabase.auth.getUser();
-    
     if (userError) {
       console.warn('⚠️ [API] Ошибка получения пользователя:', userError);
     }
+    console.log('👤 [API] Пользователь:', user ? `ID: ${user.id}` : 'анонимный');
 
     // Подготавливаем данные для вставки
     const orderData = {
@@ -195,20 +99,17 @@ export async function POST(request: NextRequest) {
       client_phone: clientPhone || null,
       client_wallet_address: clientWalletAddress || null,
       client_bank_details: clientBankDetails || null,
-      full_name: fullName,
       network: network || null,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+      full_name: fullName
     };
 
-    console.log('💾 [API] Данные для вставки в БД:', {
+    console.log('💾 [API] Данные для вставки:', {
       ...orderData,
       client_email: orderData.client_email ? `${orderData.client_email.substring(0, 3)}***@${orderData.client_email.split('@')[1]}` : 'не указан'
     });
 
-    console.log('💾 [API] Сохранение заявки в базу данных...');
-
     // Вставляем заявку в базу данных
+    console.log('💾 [API] Вставляем заявку в БД...');
     const { data: insertedOrder, error: insertError } = await supabase
       .from('exchange_orders')
       .insert([orderData])
@@ -216,8 +117,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (insertError) {
-      console.error('❌ [API] Ошибка при сохранении заявки:', insertError);
-      console.error('❌ [API] Детали ошибки Supabase:', {
+      console.error('❌ [API] Ошибка Supabase при вставке:', {
         code: insertError.code,
         message: insertError.message,
         details: insertError.details,
@@ -225,41 +125,29 @@ export async function POST(request: NextRequest) {
       });
       return NextResponse.json(
         { 
-          error: 'Ошибка сохранения заявки',
-          message: `Ошибка базы данных: ${insertError.message}`,
+          message: "Ошибка записи в БД", 
           details: insertError.message,
           code: insertError.code
-        },
+        }, 
         { status: 500 }
       );
     }
 
     console.log('✅ [API] Заявка успешно создана:', insertedOrder.id);
 
-    // Возвращаем успешный ответ
-    return NextResponse.json({
-      success: true,
-      message: 'Заявка успешно создана',
-      orderId: insertedOrder.id,
-      order: {
-        id: insertedOrder.id,
-        fromCurrency: insertedOrder.from_currency,
-        toCurrency: insertedOrder.to_currency,
-        amountFrom: insertedOrder.amount_from,
-        amountTo: insertedOrder.amount_to,
-        status: insertedOrder.status,
-        createdAt: insertedOrder.created_at
-      }
+    return NextResponse.json({ 
+      success: true, 
+      orderId: insertedOrder.id, 
+      order: insertedOrder 
     });
 
-  } catch (error) {
-    console.error('❌ [API] Неожиданная ошибка в API заявок:', error);
-    
+  } catch (err: any) {
+    console.error('❌ [API] Неожиданная ошибка:', err);
     return NextResponse.json(
       { 
-        error: 'Внутренняя ошибка сервера',
-        message: 'Произошла неожиданная ошибка. Попробуйте позже.'
-      },
+        message: "Ошибка сервера", 
+        details: err.message 
+      }, 
       { status: 500 }
     );
   }
@@ -275,7 +163,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Получаем текущего пользователя
     const supabase = getServerSupabaseClient();
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     
@@ -286,7 +173,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Получаем заявки пользователя
     const { data: orders, error: ordersError } = await supabase
       .from('exchange_orders')
       .select('*')

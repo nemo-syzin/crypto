@@ -29,9 +29,9 @@ export default function ExchangeStepForm() {
   const [fullName, setFullName] = useState("");
 
   // Хуки для получения данных
-  const { bases, loading: basesLoading, error: basesError } = useBaseAssets();
-  const { quotes, loading: quotesLoading, error: quotesError } = useQuoteAssets(fromCurrency);
-  const { rate, source, lastUpdated, loading: rateLoading, error: rateError, refetch } = useExchangeRate(fromCurrency, toCurrency);
+  const { bases, loading: basesLoading } = useBaseAssets();
+  const { quotes, loading: quotesLoading } = useQuoteAssets(fromCurrency);
+  const { rate, loading: rateLoading } = useExchangeRate(fromCurrency, toCurrency);
 
   // Пересчёт при изменении курса или сумм
   useEffect(() => {
@@ -72,32 +72,22 @@ export default function ExchangeStepForm() {
     setActiveInput(activeInput === "give" ? "receive" : "give");
   };
 
-  // Обработка ошибок загрузки
-  useEffect(() => {
-    if (basesError) {
-      toast({
-        title: "Ошибка загрузки валют",
-        description: basesError,
-        variant: "destructive",
-      });
-    }
-    if (quotesError) {
-      toast({
-        title: "Ошибка загрузки валют",
-        description: quotesError,
-        variant: "destructive",
-      });
-    }
-    if (rateError) {
-      toast({
-        title: "Ошибка загрузки курса",
-        description: rateError,
-        variant: "destructive",
-      });
-    }
-  }, [basesError, quotesError, rateError, toast]);
-
   const handleSubmit = async () => {
+    console.log('🚀 [Form] Начинаем отправку заявки...');
+    console.log('📝 [Form] Данные формы:', {
+      fromCurrency,
+      toCurrency,
+      amountFrom: parseFloat(fromAmount),
+      amountTo: parseFloat(toAmount),
+      exchangeRate: rate,
+      clientEmail: email,
+      clientPhone: phone || null,
+      clientWalletAddress: walletAddress || null,
+      clientBankDetails: bankDetails || null,
+      network: network || null,
+      fullName,
+    });
+
     setLoading(true);
     try {
       const res = await fetch("/api/exchange-orders", {
@@ -118,8 +108,13 @@ export default function ExchangeStepForm() {
         }),
       });
 
+      console.log('📡 [Form] Ответ сервера - статус:', res.status);
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Ошибка при создании заявки");
+      console.log('📡 [Form] Ответ сервера - данные:', data);
+
+      if (!res.ok) {
+        throw new Error(data.message || data.error || "Ошибка при создании заявки");
+      }
 
       toast({
         title: "Заявка успешно создана",
@@ -127,6 +122,7 @@ export default function ExchangeStepForm() {
       });
       setStep(3);
     } catch (err: any) {
+      console.error('❌ [Form] Ошибка создания заявки:', err);
       toast({
         title: "Ошибка",
         description: err.message,
@@ -149,8 +145,7 @@ export default function ExchangeStepForm() {
             <p className="text-gray-600">
               {fromCurrency} в {toCurrency}: 1 {fromCurrency} конвертируется в{" "}
               {rate ? rate.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "—"}{" "}
-              {toCurrency} по состоянию на{" "}
-              {lastUpdated ? lastUpdated.toLocaleString("ru-RU", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—"}
+              {toCurrency}
             </p>
           </div>
 
@@ -248,6 +243,7 @@ export default function ExchangeStepForm() {
             value={fullName} 
             onChange={e => setFullName(e.target.value)} 
             className="h-12 rounded-full"
+            required
           />
           
           <Input 
@@ -256,6 +252,7 @@ export default function ExchangeStepForm() {
             value={email} 
             onChange={e => setEmail(e.target.value)} 
             className="h-12 rounded-full"
+            required
           />
           
           <Input 
@@ -272,6 +269,7 @@ export default function ExchangeStepForm() {
               value={bankDetails} 
               onChange={e => setBankDetails(e.target.value)} 
               className="min-h-[80px] rounded-xl"
+              required
             />
           ) : (
             <>
@@ -280,8 +278,9 @@ export default function ExchangeStepForm() {
                 value={walletAddress} 
                 onChange={e => setWalletAddress(e.target.value)} 
                 className="h-12 rounded-full"
+                required
               />
-              <Select onValueChange={setNetwork} value={network}>
+              <Select onValueChange={setNetwork} value={network} required>
                 <SelectTrigger className="h-12 rounded-full">
                   <SelectValue placeholder="Выберите сеть"/>
                 </SelectTrigger>
@@ -303,7 +302,7 @@ export default function ExchangeStepForm() {
             </button>
             <button
               onClick={handleSubmit}
-              disabled={loading}
+              disabled={loading || !fullName || !email || (toCurrency !== "RUB" && (!walletAddress || !network)) || (toCurrency === "RUB" && !bankDetails)}
               className="flex-1 h-12 bg-[#0052FF] hover:bg-[#0041cc] text-white rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Создание заявки..." : "Подтвердить заявку"}
