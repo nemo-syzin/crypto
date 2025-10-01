@@ -1,11 +1,14 @@
 // lib/supabase/server.ts
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-// Берём те же публичные переменные — для чтения обычно хватает anon key.
-// Если RLS у таблиц закрыт — добавь SUPABASE_SERVICE_ROLE_KEY и подсовывай его явно.
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const SUPABASE_ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const SUPABASE_SERVICE = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SUPABASE_ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+// Создаем admin клиент с service role ключом
+export const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE!, {
+  auth: { persistSession: false }
+});
 
 export function getServerSupabaseClient(options?: { useServiceRole?: boolean; timeoutMs?: number }): SupabaseClient {
   const { useServiceRole = false, timeoutMs = 15000 } = options ?? {};
