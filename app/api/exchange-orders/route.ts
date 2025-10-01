@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase, isSupabaseAvailable } from '@/lib/supabase/client';
+import { getServerSupabaseClient, isServerSupabaseConfigured } from '@/lib/supabase/server';
 
 interface ExchangeOrderData {
   fromCurrency: string;
@@ -13,6 +13,8 @@ interface ExchangeOrderData {
   clientPhone?: string;
   clientWalletAddress?: string;
   clientBankDetails?: string;
+  network?: string;
+  fullName: string;
 }
 
 // Валидация email
@@ -52,7 +54,7 @@ const isValidCryptoAddress = (address: string, currency: string): boolean => {
 export async function POST(request: NextRequest) {
   try {
     // Проверяем доступность Supabase
-    if (!isSupabaseAvailable()) {
+    if (!isServerSupabaseConfigured()) {
       console.error('❌ Supabase не настроен для создания заявок');
       return NextResponse.json(
         { 
@@ -74,18 +76,23 @@ export async function POST(request: NextRequest) {
       clientEmail,
       clientPhone,
       clientWalletAddress,
-      clientBankDetails
+      clientBankDetails,
+      network,
+      fullName
     }: ExchangeOrderData = body;
 
-    console.log('📝 Получена заявка на обмен:', {
+    console.log('📝 [API] Получена заявка на обмен:', {
       fromCurrency,
       toCurrency,
       amountFrom,
       amountTo,
-      clientEmail: clientEmail ? `${clientEmail.substring(0, 3)}***` : 'не указан',
+      exchangeRate,
+      clientEmail: clientEmail ? `${clientEmail.substring(0, 3)}***@${clientEmail.split('@')[1]}` : 'не указан',
+      clientPhone: clientPhone ? 'указан' : 'не указан',
       network,
       clientWalletAddress: clientWalletAddress ? 'указан' : 'не указан',
-      clientBankDetails: clientBankDetails ? 'указаны' : 'не указаны'
+      clientBankDetails: clientBankDetails ? 'указаны' : 'не указаны',
+      fullName: fullName ? 'указано' : 'не указано'
     });
 
     // Валидация обязательных полей
@@ -114,6 +121,10 @@ export async function POST(request: NextRequest) {
     if (!clientEmail || !isValidEmail(clientEmail)) {
       errors.push('Некорректный email адрес');
     }
+    
+    if (!fullName || fullName.trim().length < 2) {
+      errors.push('Введите корректное ФИО (минимум 2 символа)');
+    }
 
     // Валидация номера телефона (если указан)
     if (clientPhone && !isValidPhone(clientPhone)) {
@@ -125,6 +136,10 @@ export async function POST(request: NextRequest) {
     if (cryptoCurrencies.includes(toCurrency.toUpperCase())) {
       if (!clientWalletAddress || !isValidCryptoAddress(clientWalletAddress, toCurrency)) {
         errors.push(`Некорректный адрес кошелька для ${toCurrency}`);
+      }
+      
+      if (!network || !['ERC20', 'TRC20', 'BEP20'].includes(network.toUpperCase())) {
+        errors.push('Выберите корректную сеть (ERC20, TRC20 или BEP20)');
       }
     }
 
@@ -149,7 +164,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (errors.length > 0) {
-      console.warn('⚠️ Ошибки валидации заявки:', errors);
+      console.warn('⚠️ [API] Ошибки валидации заявки:', errors);
       return NextResponse.json(
         { 
           error: 'Ошибки валидации',
@@ -160,10 +175,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Получаем текущего пользователя (если авторизован)
+    const supabase = getServerSupabaseClient();
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     
     if (userError) {
-      console.warn('⚠️ Ошибка получения пользователя:', userError);
+      console.warn('⚠️ [API] Ошибка получения пользователя:', userError);
     }
 
     // Подготавливаем данные для вставки
@@ -179,14 +195,18 @@ export async function POST(request: NextRequest) {
       client_phone: clientPhone || null,
       client_wallet_address: clientWalletAddress || null,
       client_bank_details: clientBankDetails || null,
+      full_name: fullName,
       network: network || null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };
 
-    console.log('💾 Данные для вставки в БД:', orderData);
+    console.log('💾 [API] Данные для вставки в БД:', {
+      ...orderData,
+      client_email: orderData.client_email ? `${orderData.client_email.substring(0, 3)}***@${orderData.client_email.split('@')[1]}` : 'не указан'
+    });
 
-    console.log('💾 Сохранение заявки в базу данных...');
+    console.log('💾 [API] Сохранение заявки в базу данных...');
 
     // Вставляем заявку в базу данных
     const { data: insertedOrder, error: insertError } = await supabase
@@ -196,8 +216,8 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (insertError) {
-      console.error('❌ Ошибка при сохранении заявки:', insertError);
-      console.error('❌ Детали ошибки Supabase:', {
+      console.error('❌ [API] Ошибка при сохранении заявки:', insertError);
+      console.error('❌ [API] Детали ошибки Supabase:', {
         code: insertError.code,
         message: insertError.message,
         details: insertError.details,
@@ -206,15 +226,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { 
           error: 'Ошибка сохранения заявки',
-          message: 'Не удалось сохранить заявку в базе данных. Попробуйте позже.',
+          message: `Ошибка базы данных: ${insertError.message}`,
           details: insertError.message,
-          supabaseError: insertError
+          code: insertError.code
         },
         { status: 500 }
       );
     }
 
-    console.log('✅ Заявка успешно создана:', insertedOrder.id);
+    console.log('✅ [API] Заявка успешно создана:', insertedOrder.id);
 
     // Возвращаем успешный ответ
     return NextResponse.json({
@@ -233,7 +253,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('❌ Неожиданная ошибка в API заявок:', error);
+    console.error('❌ [API] Неожиданная ошибка в API заявок:', error);
     
     return NextResponse.json(
       { 
@@ -248,7 +268,7 @@ export async function POST(request: NextRequest) {
 // GET метод для получения заявок пользователя
 export async function GET(request: NextRequest) {
   try {
-    if (!isSupabaseAvailable()) {
+    if (!isServerSupabaseConfigured()) {
       return NextResponse.json(
         { error: 'Сервис временно недоступен' },
         { status: 503 }
@@ -256,6 +276,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Получаем текущего пользователя
+    const supabase = getServerSupabaseClient();
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     
     if (userError || !user) {
@@ -286,7 +307,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('❌ Ошибка в GET /api/exchange-orders:', error);
+    console.error('❌ [API] Ошибка в GET /api/exchange-orders:', error);
     return NextResponse.json(
       { error: 'Внутренняя ошибка сервера' },
       { status: 500 }

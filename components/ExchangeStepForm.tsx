@@ -5,6 +5,7 @@ import { ArrowLeftRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useExchangeRate } from "@/hooks/useExchangeRate";
 import { useBaseAssets, useQuoteAssets } from "@/hooks/useAssets";
@@ -17,15 +18,15 @@ export default function ExchangeStepForm() {
   const [fromCurrency, setFromCurrency] = useState("USDT");
   const [toCurrency, setToCurrency] = useState("RUB");
   const [activeInput, setActiveInput] = useState<"give" | "receive">("give");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  // Данные клиента
-  const [network, setNetwork] = useState("trc20");
-  const [wallet, setWallet] = useState("");
-  const [fio, setFio] = useState("");
+  // Поля клиента
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [bank, setBank] = useState("");
+  const [walletAddress, setWalletAddress] = useState("");
+  const [bankDetails, setBankDetails] = useState("");
+  const [network, setNetwork] = useState("");
+  const [fullName, setFullName] = useState("");
 
   // Хуки для получения данных
   const { bases, loading: basesLoading, error: basesError } = useBaseAssets();
@@ -71,231 +72,6 @@ export default function ExchangeStepForm() {
     setActiveInput(activeInput === "give" ? "receive" : "give");
   };
 
-  // Валидация формы
-  const validateForm = () => {
-    const errors: string[] = [];
-
-    console.log('🔍 Валидация формы - проверяем поля:', {
-      fio: fio.trim(),
-      email: email.trim(),
-      wallet: wallet.trim(),
-      bank: bank.trim(),
-      fromCurrency,
-      toCurrency,
-      network
-    });
-
-    // Базовая валидация
-    if (!fio.trim()) {
-      errors.push("Введите ФИО");
-    } else if (fio.trim().length < 2) {
-      errors.push("ФИО должно содержать минимум 2 символа");
-    }
-    
-    if (!email.trim()) {
-      errors.push("Введите email");
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      errors.push("Введите корректный email адрес");
-    }
-    
-    // Валидация в зависимости от типа валют
-    const cryptoCurrencies = ['USDT', 'BTC', 'ETH', 'BNB', 'ADA', 'SOL'];
-    
-    console.log('🔍 Проверяем валюту получения:', { toCurrency, isCrypto: cryptoCurrencies.includes(toCurrency) });
-    
-    if (cryptoCurrencies.includes(toCurrency) && !wallet.trim()) {
-      errors.push("Введите адрес кошелька для получения криптовалюты");
-    }
-    
-    console.log('🔍 Проверяем рубли:', { toCurrency, isRub: toCurrency === 'RUB' });
-    
-    if (toCurrency === 'RUB' && !bank.trim()) {
-      errors.push("Введите банковские реквизиты для получения рублей");
-    }
-
-    console.log('🔍 Проверяем сеть для криптовалют:', { fromCurrency, isCrypto: cryptoCurrencies.includes(fromCurrency), network });
-
-    if (cryptoCurrencies.includes(fromCurrency) && !network) {
-      errors.push("Выберите сеть для отправки криптовалюты");
-    }
-    
-    // Валидация сумм
-    const numFromAmount = parseFloat(fromAmount);
-    const numToAmount = parseFloat(toAmount);
-    
-    console.log('🔍 Проверяем суммы:', { fromAmount, toAmount, numFromAmount, numToAmount });
-    
-    if (!fromAmount || isNaN(numFromAmount) || numFromAmount <= 0) {
-      errors.push("Введите корректную сумму отправления");
-    }
-    
-    if (!toAmount || isNaN(numToAmount) || numToAmount <= 0) {
-      errors.push("Введите корректную сумму получения");
-    }
-    
-    // Проверка минимальных сумм
-    if (numFromAmount > 0) {
-      if (fromCurrency === 'USDT' && numFromAmount < 100) {
-        errors.push("Минимальная сумма USDT: 100");
-      } else if (fromCurrency === 'BTC' && numFromAmount < 0.001) {
-        errors.push("Минимальная сумма BTC: 0.001");
-      } else if (fromCurrency === 'ETH' && numFromAmount < 0.01) {
-        errors.push("Минимальная сумма ETH: 0.01");
-      } else if (fromCurrency === 'RUB' && numFromAmount < 10000) {
-        errors.push("Минимальная сумма RUB: 10,000");
-      }
-    }
-
-    console.log('🔍 Результат валидации:', { errorsCount: errors.length, errors });
-    return errors;
-  };
-
-  // Обработка отправки заявки
-  const handleConfirm = async () => {
-    console.log('🔍 Начинаем валидацию формы...');
-    console.log('📋 Данные формы:', {
-      fromCurrency,
-      toCurrency,
-      fromAmount,
-      toAmount,
-      network,
-      wallet,
-      fio,
-      email,
-      phone,
-      bank,
-      rate
-    });
-
-    // Валидация формы
-    const validationErrors = validateForm();
-    if (validationErrors.length > 0) {
-      console.warn('❌ Ошибки валидации на клиенте:', validationErrors);
-      toast({
-        title: "Ошибки в форме",
-        description: validationErrors.join(", "),
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!fromAmount || !toAmount || !rate) {
-      console.warn('❌ Отсутствуют обязательные данные:', { fromAmount, toAmount, rate });
-      toast({
-        title: "Ошибка",
-        description: "Заполните все поля для создания заявки",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const numFromAmount = parseFloat(fromAmount);
-    const numToAmount = parseFloat(toAmount);
-
-    if (isNaN(numFromAmount) || isNaN(numToAmount) || numFromAmount <= 0 || numToAmount <= 0) {
-      console.warn('❌ Некорректные суммы:', { numFromAmount, numToAmount });
-      toast({
-        title: "Ошибка",
-        description: "Введите корректные суммы для обмена",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    try {
-      // Подготавливаем данные для отправки
-      const orderData = {
-        fromCurrency,
-        toCurrency,
-        amountFrom: numFromAmount,
-        amountTo: numToAmount,
-        exchangeRate: rate,
-        clientEmail: email,
-        clientPhone: phone || null,
-        clientWalletAddress: wallet || null,
-        clientBankDetails: bank || null,
-        network: network,
-      };
-
-      console.log("📤 Отправка заявки на сервер:", orderData);
-
-      // Отправляем заявку на сервер
-      const response = await fetch('/api/exchange-orders', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(orderData),
-      });
-
-      console.log('📡 Ответ сервера - статус:', response.status);
-      
-      const result = await response.json();
-      console.log('📡 Ответ сервера - данные:', result);
-
-      if (!response.ok) {
-        console.error('❌ API Error Response:', {
-          status: response.status,
-          statusText: response.statusText,
-          result
-        });
-        
-        console.error('❌ API Error Response:', {
-          status: response.status,
-          statusText: response.statusText,
-          result
-        });
-        
-        // Обработка ошибок валидации
-        if (result.details && Array.isArray(result.details)) {
-          console.error('❌ Детальные ошибки валидации:', result.details);
-          console.error('❌ Детальные ошибки валидации:', result.details);
-          throw new Error(`Ошибки валидации: ${result.details.join(', ')}`);
-        }
-        
-        // Показываем более детальную ошибку
-        const errorMessage = result.message || result.error || 'Ошибка создания заявки';
-        console.error('❌ Финальная ошибка:', errorMessage);
-        throw new Error(result.message || result.error || 'Ошибка создания заявки');
-      }
-
-      console.log("✅ Заявка успешно создана:", result);
-
-      toast({
-        title: "Заявка создана!",
-        description: `Заявка №${result.orderId} успешно создана. Мы свяжемся с вами в ближайшее время.`,
-      });
-
-      setStep(3);
-    } catch (error) {
-      console.error('❌ Ошибка создания заявки:', error);
-      
-      let finalErrorMessage = 'Не удалось создать заявку. Попробуйте позже.';
-      
-      if (error instanceof Error) {
-        if (error.message.includes('валидации') || error.message.includes('validation')) {
-          finalErrorMessage = `Ошибки валидации: ${error.message}`;
-        } else if (error.message.includes('network')) {
-          finalErrorMessage = 'Ошибка сети. Проверьте подключение к интернету';
-        } else {
-          finalErrorMessage = error.message;
-        }
-      }
-
-      console.error('❌ Показываем пользователю ошибку:', finalErrorMessage);
-
-      toast({
-        title: "Ошибка создания заявки",
-        description: finalErrorMessage,
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   // Обработка ошибок загрузки
   useEffect(() => {
     if (basesError) {
@@ -321,21 +97,65 @@ export default function ExchangeStepForm() {
     }
   }, [basesError, quotesError, rateError, toast]);
 
+  const handleSubmit = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/exchange-orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fromCurrency,
+          toCurrency,
+          amountFrom: parseFloat(fromAmount),
+          amountTo: parseFloat(toAmount),
+          exchangeRate: rate,
+          clientEmail: email,
+          clientPhone: phone || null,
+          clientWalletAddress: walletAddress || null,
+          clientBankDetails: bankDetails || null,
+          network: network || null,
+          fullName,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Ошибка при создании заявки");
+
+      toast({
+        title: "Заявка успешно создана",
+        description: `Номер заявки: ${data.orderId}`,
+      });
+      setStep(3);
+    } catch (err: any) {
+      toast({
+        title: "Ошибка",
+        description: err.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="w-full max-w-2xl mx-auto py-10 text-center">
+    <div className="w-full max-w-2xl mx-auto py-10">
       {/* === Шаг 1: Калькулятор === */}
       {step === 1 && (
         <div className="space-y-8">
-          <h2 className="text-3xl font-bold">Конвертер и калькулятор криптовалют</h2>
-          <p className="text-gray-500">
-            {fromCurrency} в {toCurrency}: 1 {fromCurrency} конвертируется в{" "}
-            {rate ? rate.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "—"}{" "}
-            {toCurrency} по состоянию на{" "}
-            {lastUpdated ? lastUpdated.toLocaleString("ru-RU", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—"}
-          </p>
+          <div className="text-center">
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+              Конвертер и калькулятор криптовалют
+            </h2>
+            <p className="text-gray-600">
+              {fromCurrency} в {toCurrency}: 1 {fromCurrency} конвертируется в{" "}
+              {rate ? rate.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "—"}{" "}
+              {toCurrency} по состоянию на{" "}
+              {lastUpdated ? lastUpdated.toLocaleString("ru-RU", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—"}
+            </p>
+          </div>
 
           {/* Основной контейнер */}
-          <div className="flex items-center gap-4 w-full max-w-2xl mx-auto">
+          <div className="flex items-center gap-4 w-full">
             {/* Отдаёте */}
             <div className="flex flex-1 border border-gray-300 rounded-full px-6 py-3 items-center h-[60px]">
               <Input
@@ -404,7 +224,7 @@ export default function ExchangeStepForm() {
           <button
             onClick={() => setStep(2)}
             disabled={!rate || rateLoading}
-            className="w-full h-14 bg-[#0052FF] hover:bg-[#0041CC] text-white text-lg font-semibold rounded-full transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full h-14 text-lg bg-[#0052FF] hover:bg-[#0041cc] font-semibold rounded-full text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Оставить заявку на обмен
           </button>
@@ -414,47 +234,79 @@ export default function ExchangeStepForm() {
       {/* === Шаг 2: Форма заявки === */}
       {step === 2 && (
         <div className="space-y-6 bg-white shadow-md rounded-2xl p-6 text-left">
-          <h2 className="text-2xl font-bold text-center">Заполните заявку</h2>
-
-          <div className="bg-gray-50 p-4 rounded-xl text-sm space-y-1">
-            <p>
-              Отдаёте: <strong>{fromAmount} {fromCurrency}</strong>
-            </p>
-            <p>
-              Получаете: <strong>{toAmount} {toCurrency}</strong>
-            </p>
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-4">Введите данные</h2>
+            <div className="bg-gray-50 p-4 rounded-xl text-sm space-y-1">
+              <p>Отдаёте: <strong>{fromAmount} {fromCurrency}</strong></p>
+              <p>Получаете: <strong>{toAmount} {toCurrency}</strong></p>
+              <p>Курс: <strong>1 {fromCurrency} = {rate?.toFixed(4)} {toCurrency}</strong></p>
+            </div>
           </div>
 
-          <Select value={network} onValueChange={setNetwork}>
-            <SelectTrigger className="h-12 rounded-full border-gray-300">
-              <SelectValue placeholder="Сеть" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="trc20">TRC20</SelectItem>
-              <SelectItem value="erc20">ERC20</SelectItem>
-              <SelectItem value="bep20">BEP20</SelectItem>
-            </SelectContent>
-          </Select>
+          <Input 
+            placeholder="ФИО" 
+            value={fullName} 
+            onChange={e => setFullName(e.target.value)} 
+            className="h-12 rounded-full"
+          />
+          
+          <Input 
+            placeholder="Email" 
+            type="email"
+            value={email} 
+            onChange={e => setEmail(e.target.value)} 
+            className="h-12 rounded-full"
+          />
+          
+          <Input 
+            placeholder="Телефон (опционально)" 
+            value={phone} 
+            onChange={e => setPhone(e.target.value)} 
+            className="h-12 rounded-full"
+          />
 
-          <Input placeholder="Адрес кошелька" value={wallet} onChange={(e) => setWallet(e.target.value)} className="h-12 rounded-full" />
-          <Input placeholder="ФИО" value={fio} onChange={(e) => setFio(e.target.value)} className="h-12 rounded-full" />
-          <Input placeholder="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="h-12 rounded-full" />
-          <Input placeholder="Телефон" value={phone} onChange={(e) => setPhone(e.target.value)} className="h-12 rounded-full" />
-          <Input placeholder="Банковские реквизиты для получения" value={bank} onChange={(e) => setBank(e.target.value)} className="h-12 rounded-full" />
+          {/* Условные поля в зависимости от валюты получения */}
+          {toCurrency === "RUB" ? (
+            <Textarea 
+              placeholder="Банковские реквизиты для получения рублей" 
+              value={bankDetails} 
+              onChange={e => setBankDetails(e.target.value)} 
+              className="min-h-[80px] rounded-xl"
+            />
+          ) : (
+            <>
+              <Input 
+                placeholder={`Адрес кошелька ${toCurrency}`} 
+                value={walletAddress} 
+                onChange={e => setWalletAddress(e.target.value)} 
+                className="h-12 rounded-full"
+              />
+              <Select onValueChange={setNetwork} value={network}>
+                <SelectTrigger className="h-12 rounded-full">
+                  <SelectValue placeholder="Выберите сеть"/>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ERC20">ERC20 (Ethereum)</SelectItem>
+                  <SelectItem value="TRC20">TRC20 (Tron)</SelectItem>
+                  <SelectItem value="BEP20">BEP20 (BSC)</SelectItem>
+                </SelectContent>
+              </Select>
+            </>
+          )}
 
-          <div className="flex gap-4">
+          <div className="flex gap-4 pt-4">
             <button
               onClick={() => setStep(1)}
-              className="flex-1 h-12 border rounded-full"
+              className="flex-1 h-12 border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
             >
               Назад
             </button>
             <button
-              onClick={handleConfirm}
-              disabled={isSubmitting}
-              className="flex-1 h-12 bg-[#0052FF] hover:bg-[#0041CC] text-white rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={handleSubmit}
+              disabled={loading}
+              className="flex-1 h-12 bg-[#0052FF] hover:bg-[#0041cc] text-white rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? "Создание заявки..." : "Подтвердить заявку"}
+              {loading ? "Создание заявки..." : "Подтвердить заявку"}
             </button>
           </div>
         </div>
@@ -463,13 +315,24 @@ export default function ExchangeStepForm() {
       {/* === Шаг 3: Подтверждение === */}
       {step === 3 && (
         <div className="text-center space-y-6 p-6 bg-green-50 rounded-2xl">
-          <h2 className="text-2xl font-bold text-green-700">✅ Заявка создана!</h2>
+          <div className="text-6xl mb-4">✅</div>
+          <h2 className="text-2xl font-bold text-green-700">Заявка создана!</h2>
           <p className="text-gray-700">
-            Наш менеджер свяжется с вами для подтверждения деталей.
+            Наш менеджер свяжется с вами для подтверждения деталей обмена.
           </p>
           <button
-            onClick={() => setStep(1)}
-            className="px-6 py-3 bg-[#0052FF] hover:bg-[#0041CC] text-white rounded-full"
+            onClick={() => {
+              setStep(1);
+              setFromAmount("1");
+              setToAmount("");
+              setEmail("");
+              setPhone("");
+              setWalletAddress("");
+              setBankDetails("");
+              setNetwork("");
+              setFullName("");
+            }}
+            className="px-6 py-3 bg-[#0052FF] hover:bg-[#0041cc] text-white rounded-full transition-colors"
           >
             Создать новую заявку
           </button>
