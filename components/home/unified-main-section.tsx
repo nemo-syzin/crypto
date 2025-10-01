@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import Link from 'next/link';
-import Marquee from 'react-fast-marquee';
+import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
@@ -19,6 +19,12 @@ import {
   Globe,
   TrendingUp
 } from 'lucide-react';
+
+// Dynamic import for Marquee to prevent SSR issues
+const Marquee = dynamic(() => import('react-fast-marquee'), {
+  ssr: false,
+});
+
 // Данные для секций
 const features = [
   {
