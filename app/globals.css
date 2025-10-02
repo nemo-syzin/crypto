@@ -353,11 +353,22 @@
 
   /* Enhanced Calculator Styles */
   .calculator-container {
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 20px;
-    box-shadow: 0 8px 32px rgba(31,38,135,0.1);
-    padding: 24px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(31,38,135,0.12);
+    padding: 16px;
     border: 1px solid rgba(231,236,255,0.8);
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+  }
+  
+  /* Responsive padding for calculator */
+  @media (min-width: 640px) {
+    .calculator-container {
+      padding: 24px;
+      border-radius: 20px;
+    }
   }
   
   /* Desktop-only backdrop filter for calculator */
@@ -370,12 +381,12 @@
   }
 
   .input-field {
-    height: 48px;
-    border-radius: 10px;
+    height: 44px;
+    border-radius: 8px;
     background: rgba(255,255,255,0.95);
     border: 1px solid rgba(231,236,255,0.8);
-    padding: 0 16px;
-    font-size: 16px;
+    padding: 0 12px;
+    font-size: 14px;
     font-weight: 500;
     color: #001D8D;
     transition: all 0.3s ease;
@@ -383,6 +394,16 @@
     align-items: center;
     width: 100%;
     outline: none;
+  }
+  
+  /* Responsive input field sizing */
+  @media (min-width: 640px) {
+    .input-field {
+      height: 48px;
+      border-radius: 10px;
+      padding: 0 16px;
+      font-size: 16px;
+    }
   }
 
   .input-field:focus {
@@ -401,14 +422,23 @@
   .swap-button {
     background: rgba(66,99,235,0.1);
     border-radius: 50%;
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
     border: none;
     cursor: pointer;
+    flex-shrink: 0;
+  }
+  
+  /* Responsive swap button sizing */
+  @media (min-width: 640px) {
+    .swap-button {
+      width: 40px;
+      height: 40px;
+    }
   }
 
   .swap-button:hover {
@@ -432,15 +462,30 @@
 
   .rates-container {
     background: #F8F9FC;
-    border-radius: 12px;
-    padding: 16px;
+    border-radius: 8px;
+    padding: 12px;
     border: 1px solid rgba(231,236,255,0.8);
+  }
+  
+  /* Responsive rates container */
+  @media (min-width: 640px) {
+    .rates-container {
+      border-radius: 12px;
+      padding: 16px;
+    }
   }
 
   .rate-value {
     color: #4263EB;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 600;
+  }
+  
+  /* Responsive rate value sizing */
+  @media (min-width: 640px) {
+    .rate-value {
+      font-size: 16px;
+    }
   }
 
   .hint-text {
@@ -451,16 +496,26 @@
 
   .refresh-button {
     border: 1px solid #E2E8F0;
-    border-radius: 8px;
-    padding: 8px 12px;
+    border-radius: 6px;
+    padding: 6px 10px;
     background: rgba(255,255,255,0.95);
     color: #001D8D;
-    font-size: 14px;
+    font-size: 12px;
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
+  }
+  
+  /* Responsive refresh button */
+  @media (min-width: 640px) {
+    .refresh-button {
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 14px;
+      gap: 8px;
+    }
   }
 
   .refresh-button:hover {

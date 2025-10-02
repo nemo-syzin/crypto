@@ -1,11 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowLeftRight } from "lucide-react";
+import { ArrowLeftRight, Loader2, CheckCircle, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useExchangeRate } from "@/hooks/useExchangeRate";
 import { useBaseAssets, useQuoteAssets } from "@/hooks/useAssets";
@@ -134,208 +137,338 @@ export default function ExchangeStepForm() {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto py-10">
+    <div className="w-full max-w-4xl mx-auto">
       {/* === Шаг 1: Калькулятор === */}
       {step === 1 && (
-        <div className="space-y-8">
-          <div className="text-center">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">
-              Конвертер и калькулятор криптовалют
-            </h2>
-            <p className="text-gray-600">
-              {fromCurrency} в {toCurrency}: 1 {fromCurrency} конвертируется в{" "}
-              {rate ? rate.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "—"}{" "}
+        <Card className="calculator-container border-none shadow-xl">
+          <CardHeader className="text-center pb-6">
+            <CardTitle className="text-2xl md:text-3xl font-bold text-[#001D8D] mb-4">
+              Калькулятор обмена криптовалют
+            </CardTitle>
+            <p className="text-[#001D8D]/70 text-sm md:text-base">
+              {fromCurrency} в {toCurrency}: 1 {fromCurrency} = {" "}
+              {rate ? rate.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 6 }) : "—"}{" "}
               {toCurrency}
             </p>
-          </div>
+          </CardHeader>
 
-          {/* Основной контейнер */}
-          <div className="flex items-center gap-4 w-full">
-            {/* Отдаёте */}
-            <div className="flex flex-1 border border-gray-300 rounded-full px-6 py-3 items-center h-[60px]">
-              <Input
-                type="text"
-                value={fromAmount}
-                onChange={(e) => {
-                  setFromAmount(e.target.value);
-                  setActiveInput("give");
-                }}
-                className="flex-1 border-0 shadow-none focus-visible:ring-0 text-2xl font-medium bg-transparent rounded-full px-6"
-                placeholder="0"
-                disabled={rateLoading}
-              />
-              <Select value={fromCurrency} onValueChange={setFromCurrency} disabled={basesLoading}>
-                <SelectTrigger className="w-[100px] border-0 focus:ring-0 font-medium text-lg bg-transparent">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {bases.map((currency) => (
-                    <SelectItem key={currency} value={currency}>
-                      {currency}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+          <CardContent className="space-y-6">
+            {/* Основной контейнер калькулятора */}
+            <div className="space-y-4">
+              {/* Отдаёте */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-[#001D8D]/70">Отдаёте</Label>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="flex-1">
+                    <Input
+                      type="text"
+                      value={fromAmount}
+                      onChange={(e) => {
+                        setFromAmount(e.target.value);
+                        setActiveInput("give");
+                      }}
+                      className="input-field text-lg md:text-xl font-semibold"
+                      placeholder="0"
+                      disabled={rateLoading}
+                    />
+                  </div>
+                  <div className="w-full sm:w-32">
+                    <Select value={fromCurrency} onValueChange={setFromCurrency} disabled={basesLoading}>
+                      <SelectTrigger className="input-field">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {bases.map((currency) => (
+                          <SelectItem key={currency} value={currency}>
+                            {currency}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Кнопка swap */}
+              <div className="flex justify-center">
+                <button
+                  onClick={swapCurrencies}
+                  disabled={rateLoading}
+                  className="swap-button"
+                  aria-label="Поменять валюты местами"
+                >
+                  <ArrowLeftRight className="w-5 h-5 text-[#001D8D]" />
+                </button>
+              </div>
+
+              {/* Получаете */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-[#001D8D]/70">Получаете</Label>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="flex-1">
+                    <Input
+                      type="text"
+                      value={toAmount}
+                      onChange={(e) => {
+                        setToAmount(e.target.value);
+                        setActiveInput("receive");
+                      }}
+                      className="input-field text-lg md:text-xl font-semibold"
+                      placeholder="0"
+                      disabled={rateLoading}
+                    />
+                  </div>
+                  <div className="w-full sm:w-32">
+                    <Select value={toCurrency} onValueChange={setToCurrency} disabled={quotesLoading}>
+                      <SelectTrigger className="input-field">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {quotes.map((currency) => (
+                          <SelectItem key={currency} value={currency}>
+                            {currency}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            {/* Кнопка swap */}
-            <button
-              onClick={swapCurrencies}
-              disabled={rateLoading}
-              className="p-3 rounded-md border border-gray-300 bg-white hover:bg-gray-50 transition disabled:opacity-50"
+            {/* Информация о курсе */}
+            {rate && (
+              <div className="rates-container">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                  <div>
+                    <div className="rate-value">
+                      1 {fromCurrency} = {rate.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 6 })} {toCurrency}
+                    </div>
+                    <div className="hint-text">Актуальный курс обмена</div>
+                  </div>
+                  <Badge variant="outline" className="text-xs">
+                    Обновлено сейчас
+                  </Badge>
+                </div>
+              </div>
+            )}
+
+            {/* Кнопка создания заявки */}
+            <Button
+              onClick={() => setStep(2)}
+              disabled={!rate || rateLoading || !fromAmount || !toAmount}
+              className="w-full h-12 md:h-14 text-base md:text-lg bg-gradient-to-r from-[#001D8D] to-blue-600 text-white font-semibold hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl"
             >
-              <ArrowLeftRight className="w-5 h-5 text-gray-600" />
-            </button>
-
-            {/* Получаете */}
-            <div className="flex flex-1 border border-gray-300 rounded-full px-6 py-3 items-center h-[60px]">
-              <Input
-                type="text"
-                value={toAmount}
-                onChange={(e) => {
-                  setToAmount(e.target.value);
-                  setActiveInput("receive");
-                }}
-                className="flex-1 border-0 shadow-none focus-visible:ring-0 text-2xl font-medium bg-transparent rounded-full px-6"
-                placeholder="0"
-                disabled={rateLoading}
-              />
-              <Select value={toCurrency} onValueChange={setToCurrency} disabled={quotesLoading}>
-                <SelectTrigger className="w-[100px] border-0 focus:ring-0 font-medium text-lg bg-transparent">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {quotes.map((currency) => (
-                    <SelectItem key={currency} value={currency}>
-                      {currency}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Кнопка создания заявки */}
-          <button
-            onClick={() => setStep(2)}
-            disabled={!rate || rateLoading}
-            className="w-full h-14 text-lg bg-[#0052FF] hover:bg-[#0041cc] font-semibold rounded-full text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Оставить заявку на обмен
-          </button>
-        </div>
+              {rateLoading ? (
+                <>
+                  <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                  Загрузка курса...
+                </>
+              ) : (
+                "Оставить заявку на обмен"
+              )}
+            </Button>
+          </CardContent>
+        </Card>
       )}
 
       {/* === Шаг 2: Форма заявки === */}
       {step === 2 && (
-        <div className="space-y-6 bg-white shadow-md rounded-2xl p-6 text-left">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold mb-4">Введите данные</h2>
-            <div className="bg-gray-50 p-4 rounded-xl text-sm space-y-1">
-              <p>Отдаёте: <strong>{fromAmount} {fromCurrency}</strong></p>
-              <p>Получаете: <strong>{toAmount} {toCurrency}</strong></p>
-              <p>Курс: <strong>1 {fromCurrency} = {rate?.toFixed(4)} {toCurrency}</strong></p>
+        <Card className="calculator-container border-none shadow-xl">
+          <CardHeader className="text-center pb-6">
+            <CardTitle className="text-xl md:text-2xl font-bold text-[#001D8D] mb-4">
+              Данные для обмена
+            </CardTitle>
+            <div className="bg-blue-50 p-4 rounded-xl text-sm space-y-2">
+              <div className="flex flex-col sm:flex-row justify-between gap-2">
+                <span>Отдаёте:</span>
+                <strong className="text-[#001D8D]">{fromAmount} {fromCurrency}</strong>
+              </div>
+              <div className="flex flex-col sm:flex-row justify-between gap-2">
+                <span>Получаете:</span>
+                <strong className="text-[#001D8D]">{toAmount} {toCurrency}</strong>
+              </div>
+              <div className="flex flex-col sm:flex-row justify-between gap-2">
+                <span>Курс:</span>
+                <strong className="text-[#001D8D]">1 {fromCurrency} = {rate?.toFixed(4)} {toCurrency}</strong>
+              </div>
             </div>
-          </div>
+          </CardHeader>
 
-          <Input 
-            placeholder="ФИО" 
-            value={fullName} 
-            onChange={e => setFullName(e.target.value)} 
-            className="h-12 rounded-full"
-            required
-          />
-          
-          <Input 
-            placeholder="Email" 
-            type="email"
-            value={email} 
-            onChange={e => setEmail(e.target.value)} 
-            className="h-12 rounded-full"
-            required
-          />
-          
-          <Input 
-            placeholder="Телефон (опционально)" 
-            value={phone} 
-            onChange={e => setPhone(e.target.value)} 
-            className="h-12 rounded-full"
-          />
+          <CardContent className="space-y-6">
+            {/* Основная информация */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="fullName" className="text-sm font-medium text-[#001D8D]">
+                  ФИО *
+                </Label>
+                <Input 
+                  id="fullName"
+                  placeholder="Введите ваше полное имя" 
+                  value={fullName} 
+                  onChange={e => setFullName(e.target.value)} 
+                  className="input-field"
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm font-medium text-[#001D8D]">
+                  Email *
+                </Label>
+                <Input 
+                  id="email"
+                  placeholder="your@email.com" 
+                  type="email"
+                  value={email} 
+                  onChange={e => setEmail(e.target.value)} 
+                  className="input-field"
+                  required
+                />
+              </div>
+            </div>
 
-          {/* Условные поля в зависимости от валюты получения */}
-          {toCurrency === "RUB" ? (
-            <Textarea 
-              placeholder="Банковские реквизиты для получения рублей" 
-              value={bankDetails} 
-              onChange={e => setBankDetails(e.target.value)} 
-              className="min-h-[80px] rounded-xl"
-              required
-            />
-          ) : (
-            <>
+            <div className="space-y-2">
+              <Label htmlFor="phone" className="text-sm font-medium text-[#001D8D]">
+                Телефон (опционально)
+              </Label>
               <Input 
-                placeholder={`Адрес кошелька ${toCurrency}`} 
-                value={walletAddress} 
-                onChange={e => setWalletAddress(e.target.value)} 
-                className="h-12 rounded-full"
-                required
+                id="phone"
+                placeholder="+7 (999) 123-45-67" 
+                value={phone} 
+                onChange={e => setPhone(e.target.value)} 
+                className="input-field"
               />
-              <Select onValueChange={setNetwork} value={network} required>
-                <SelectTrigger className="h-12 rounded-full">
-                  <SelectValue placeholder="Выберите сеть"/>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ERC20">ERC20 (Ethereum)</SelectItem>
-                  <SelectItem value="TRC20">TRC20 (Tron)</SelectItem>
-                  <SelectItem value="BEP20">BEP20 (BSC)</SelectItem>
-                </SelectContent>
-              </Select>
-            </>
-          )}
+            </div>
 
-          <div className="flex gap-4 pt-4">
-            <button
-              onClick={() => setStep(1)}
-              className="flex-1 h-12 border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
-            >
-              Назад
-            </button>
-            <button
-              onClick={handleSubmit}
-              disabled={loading || !fullName || !email || (toCurrency !== "RUB" && (!walletAddress || !network)) || (toCurrency === "RUB" && !bankDetails)}
-              className="flex-1 h-12 bg-[#0052FF] hover:bg-[#0041cc] text-white rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? "Создание заявки..." : "Подтвердить заявку"}
-            </button>
-          </div>
-        </div>
+            {/* Условные поля в зависимости от валюты получения */}
+            {toCurrency === "RUB" ? (
+              <div className="space-y-2">
+                <Label htmlFor="bankDetails" className="text-sm font-medium text-[#001D8D]">
+                  Банковские реквизиты для получения рублей *
+                </Label>
+                <Textarea 
+                  id="bankDetails"
+                  placeholder="Номер карты или банковские реквизиты для получения рублей" 
+                  value={bankDetails} 
+                  onChange={e => setBankDetails(e.target.value)} 
+                  className="min-h-[100px] border-[#001D8D]/20 focus:border-[#001D8D]"
+                  required
+                />
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="walletAddress" className="text-sm font-medium text-[#001D8D]">
+                    Адрес кошелька {toCurrency} *
+                  </Label>
+                  <Input 
+                    id="walletAddress"
+                    placeholder={`Введите адрес кошелька ${toCurrency}`} 
+                    value={walletAddress} 
+                    onChange={e => setWalletAddress(e.target.value)} 
+                    className="input-field font-mono text-sm"
+                    required
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="network" className="text-sm font-medium text-[#001D8D]">
+                    Сеть *
+                  </Label>
+                  <Select onValueChange={setNetwork} value={network} required>
+                    <SelectTrigger className="input-field">
+                      <SelectValue placeholder="Выберите сеть для перевода"/>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ERC20">ERC20 (Ethereum)</SelectItem>
+                      <SelectItem value="TRC20">TRC20 (Tron)</SelectItem>
+                      <SelectItem value="BEP20">BEP20 (BSC)</SelectItem>
+                      <SelectItem value="POLYGON">Polygon</SelectItem>
+                      <SelectItem value="ARBITRUM">Arbitrum</SelectItem>
+                      <SelectItem value="OPTIMISM">Optimism</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            )}
+
+            {/* Кнопки действий */}
+            <div className="flex flex-col sm:flex-row gap-4 pt-6">
+              <Button
+                onClick={() => setStep(1)}
+                variant="outline"
+                className="w-full sm:w-auto flex-1 h-12 text-[#001D8D] border-[#001D8D]/20 hover:bg-[#001D8D]/5"
+              >
+                Назад к калькулятору
+              </Button>
+              <Button
+                onClick={handleSubmit}
+                disabled={loading || !fullName || !email || (toCurrency !== "RUB" && (!walletAddress || !network)) || (toCurrency === "RUB" && !bankDetails)}
+                className="w-full sm:w-auto flex-1 h-12 bg-gradient-to-r from-[#001D8D] to-blue-600 text-white font-semibold hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                    Создание заявки...
+                  </>
+                ) : (
+                  "Подтвердить заявку"
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       {/* === Шаг 3: Подтверждение === */}
       {step === 3 && (
-        <div className="text-center space-y-6 p-6 bg-green-50 rounded-2xl">
-          <div className="text-6xl mb-4">✅</div>
-          <h2 className="text-2xl font-bold text-green-700">Заявка создана!</h2>
-          <p className="text-gray-700">
-            Наш менеджер свяжется с вами для подтверждения деталей обмена.
-          </p>
-          <button
-            onClick={() => {
-              setStep(1);
-              setFromAmount("1");
-              setToAmount("");
-              setEmail("");
-              setPhone("");
-              setWalletAddress("");
-              setBankDetails("");
-              setNetwork("");
-              setFullName("");
-            }}
-            className="px-6 py-3 bg-[#0052FF] hover:bg-[#0041cc] text-white rounded-full transition-colors"
-          >
-            Создать новую заявку
-          </button>
-        </div>
+        <Card className="calculator-container border-none shadow-xl">
+          <CardContent className="p-8 text-center">
+            <div className="flex justify-center mb-6">
+              <div className="p-4 bg-green-100 rounded-full">
+                <CheckCircle className="h-12 w-12 text-green-600" />
+              </div>
+            </div>
+            
+            <h2 className="text-2xl md:text-3xl font-bold text-green-700 mb-4">
+              Заявка создана!
+            </h2>
+            
+            <p className="text-[#001D8D]/70 mb-8 leading-relaxed">
+              Наш менеджер свяжется с вами в течение 15 минут для подтверждения деталей обмена.
+              Проверьте указанный email и телефон.
+            </p>
+
+            <div className="space-y-4">
+              <div className="bg-blue-50 p-4 rounded-lg text-sm">
+                <h4 className="font-semibold text-[#001D8D] mb-2">Детали заявки:</h4>
+                <div className="space-y-1 text-[#001D8D]/70">
+                  <div>Обмен: {fromAmount} {fromCurrency} → {toAmount} {toCurrency}</div>
+                  <div>Email: {email}</div>
+                  {phone && <div>Телефон: {phone}</div>}
+                </div>
+              </div>
+
+              <Button
+                onClick={() => {
+                  setStep(1);
+                  setFromAmount("1");
+                  setToAmount("");
+                  setEmail("");
+                  setPhone("");
+                  setWalletAddress("");
+                  setBankDetails("");
+                  setNetwork("");
+                  setFullName("");
+                }}
+                className="w-full h-12 bg-gradient-to-r from-[#001D8D] to-blue-600 text-white font-semibold hover:opacity-90 transition-all duration-300"
+              >
+                Создать новую заявку
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   );
