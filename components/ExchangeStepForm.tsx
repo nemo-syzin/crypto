@@ -158,7 +158,7 @@ export default function ExchangeStepForm() {
               {/* Отдаёте */}
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-[#001D8D]/70">Отдаёте</Label>
-                <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex gap-3">
                   <div className="flex-1">
                     <Input
                       type="text"
@@ -167,12 +167,12 @@ export default function ExchangeStepForm() {
                         setFromAmount(e.target.value);
                         setActiveInput("give");
                       }}
-                      className="input-field text-lg md:text-xl font-semibold"
+                      className="input-field text-xl font-semibold"
                       placeholder="0"
                       disabled={rateLoading}
                     />
                   </div>
-                  <div className="w-full sm:w-32">
+                  <div className="w-32">
                     <Select value={fromCurrency} onValueChange={setFromCurrency} disabled={basesLoading}>
                       <SelectTrigger className="input-field">
                         <SelectValue />
@@ -204,7 +204,7 @@ export default function ExchangeStepForm() {
               {/* Получаете */}
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-[#001D8D]/70">Получаете</Label>
-                <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex gap-3">
                   <div className="flex-1">
                     <Input
                       type="text"
@@ -213,12 +213,12 @@ export default function ExchangeStepForm() {
                         setToAmount(e.target.value);
                         setActiveInput("receive");
                       }}
-                      className="input-field text-lg md:text-xl font-semibold"
+                      className="input-field text-xl font-semibold"
                       placeholder="0"
                       disabled={rateLoading}
                     />
                   </div>
-                  <div className="w-full sm:w-32">
+                  <div className="w-32">
                     <Select value={toCurrency} onValueChange={setToCurrency} disabled={quotesLoading}>
                       <SelectTrigger className="input-field">
                         <SelectValue />
@@ -239,7 +239,7 @@ export default function ExchangeStepForm() {
             {/* Информация о курсе */}
             {rate && (
               <div className="rates-container">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                <div className="flex justify-between items-center">
                   <div>
                     <div className="rate-value">
                       1 {fromCurrency} = {rate.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 6 })} {toCurrency}
@@ -257,7 +257,7 @@ export default function ExchangeStepForm() {
             <Button
               onClick={() => setStep(2)}
               disabled={!rate || rateLoading || !fromAmount || !toAmount}
-              className="w-full h-12 md:h-14 text-base md:text-lg bg-gradient-to-r from-[#001D8D] to-blue-600 text-white font-semibold hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl"
+              className="w-full h-14 text-lg bg-gradient-to-r from-[#001D8D] to-blue-600 text-white font-semibold hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl"
             >
               {rateLoading ? (
                 <>
@@ -280,15 +280,15 @@ export default function ExchangeStepForm() {
               Данные для обмена
             </CardTitle>
             <div className="bg-blue-50 p-4 rounded-xl text-sm space-y-2">
-              <div className="flex flex-col sm:flex-row justify-between gap-2">
+              <div className="flex justify-between">
                 <span>Отдаёте:</span>
                 <strong className="text-[#001D8D]">{fromAmount} {fromCurrency}</strong>
               </div>
-              <div className="flex flex-col sm:flex-row justify-between gap-2">
+              <div className="flex justify-between">
                 <span>Получаете:</span>
                 <strong className="text-[#001D8D]">{toAmount} {toCurrency}</strong>
               </div>
-              <div className="flex flex-col sm:flex-row justify-between gap-2">
+              <div className="flex justify-between">
                 <span>Курс:</span>
                 <strong className="text-[#001D8D]">1 {fromCurrency} = {rate?.toFixed(4)} {toCurrency}</strong>
               </div>
@@ -297,7 +297,7 @@ export default function ExchangeStepForm() {
 
           <CardContent className="space-y-6">
             {/* Основная информация */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="fullName" className="text-sm font-medium text-[#001D8D]">
                   ФИО *
@@ -394,18 +394,18 @@ export default function ExchangeStepForm() {
             )}
 
             {/* Кнопки действий */}
-            <div className="flex flex-col sm:flex-row gap-4 pt-6">
+            <div className="flex gap-4 pt-6">
               <Button
                 onClick={() => setStep(1)}
                 variant="outline"
-                className="w-full sm:w-auto flex-1 h-12 text-[#001D8D] border-[#001D8D]/20 hover:bg-[#001D8D]/5"
+                className="flex-1 h-12 text-[#001D8D] border-[#001D8D]/20 hover:bg-[#001D8D]/5"
               >
                 Назад к калькулятору
               </Button>
               <Button
                 onClick={handleSubmit}
                 disabled={loading || !fullName || !email || (toCurrency !== "RUB" && (!walletAddress || !network)) || (toCurrency === "RUB" && !bankDetails)}
-                className="w-full sm:w-auto flex-1 h-12 bg-gradient-to-r from-[#001D8D] to-blue-600 text-white font-semibold hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl"
+                className="flex-1 h-12 bg-gradient-to-r from-[#001D8D] to-blue-600 text-white font-semibold hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl"
               >
                 {loading ? (
                   <>
