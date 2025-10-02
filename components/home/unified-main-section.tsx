@@ -452,6 +452,18 @@ const UnifiedMainSection = () => {
                   <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
                   <span>Высокие рейтинги безопасности</span>
                 </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+                  <a 
+                    href="/api/bestchange-feed" 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#001D8D]/60 hover:text-[#001D8D] transition-colors duration-200 flex items-center gap-1"
+                  >
+                    <span>XML фид курсов</span>
+                    <Globe className="h-3 w-3" />
+                  </a>
+                </div>
               </div>
             </motion.div>
           </div>
