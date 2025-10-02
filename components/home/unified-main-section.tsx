@@ -95,39 +95,53 @@ const onlineSteps = [
 const partners = [
   {
     name: "Bitcoin",
-    logo: "https://res.coinpaper.com/coinpaper/bitcoin_btc_logo_e68b8dbb0c.svg"
+    logo: "https://res.coinpaper.com/coinpaper/bitcoin_btc_logo_e68b8dbb0c.svg",
+    link: null
   },
   {
     name: "USDC", 
-    logo: "https://res.coinpaper.com/coinpaper/usd_coin_usdc_logo_33584e28ac.svg"
+    logo: "https://res.coinpaper.com/coinpaper/usd_coin_usdc_logo_33584e28ac.svg",
+    link: null
   },
   {
     name: "USDT",
-    logo: "https://res.coinpaper.com/coinpaper/tether_usdt_logo_1c069eb107.svg"
+    logo: "https://res.coinpaper.com/coinpaper/tether_usdt_logo_1c069eb107.svg",
+    link: null
   },
   {
     name: "BNB",
-    logo: "https://res.coinpaper.com/coinpaper/bnb_bnb_logo_c9840ff036.svg"
+    logo: "https://res.coinpaper.com/coinpaper/bnb_bnb_logo_c9840ff036.svg",
+    link: null
   },
   {
     name: "XRP",
-    logo: "https://res.coinpaper.com/coinpaper/xrp_xrp_logo_4693101055.svg"
+    logo: "https://res.coinpaper.com/coinpaper/xrp_xrp_logo_4693101055.svg",
+    link: null
   },
   {
     name: "Cardano",
-    logo: "https://res.coinpaper.com/coinpaper/cardano_ada_logo_12715cd3e9.svg"
+    logo: "https://res.coinpaper.com/coinpaper/cardano_ada_logo_12715cd3e9.svg",
+    link: null
   },
   {
     name: "Polkadot",
-    logo: "https://res.coinpaper.com/coinpaper/Polkadot_Token_Polkadot_Token_Pink_6531f20385.svg"
+    logo: "https://res.coinpaper.com/coinpaper/Polkadot_Token_Polkadot_Token_Pink_6531f20385.svg",
+    link: null
   },
   {
     name: "Optimism",
-    logo: "https://res.coinpaper.com/coinpaper/optimism_logo_d197e3b2f3.svg"
+    logo: "https://res.coinpaper.com/coinpaper/optimism_logo_d197e3b2f3.svg",
+    link: null
   },
   {
     name: "Dogecoin",
-    logo: "https://res.coinpaper.com/coinpaper/dogecoin_doge_logo_477144b3df.svg"
+    logo: "https://res.coinpaper.com/coinpaper/dogecoin_doge_logo_477144b3df.svg",
+    link: null
+  },
+  {
+    name: "Exnode",
+    logo: "https://exnode.ru/exnode-logo.png",
+    link: "https://exnode.ru/"
   }
 ];
 
@@ -188,23 +202,38 @@ const UnifiedMainSection = () => {
 
   // ✅ УЛУЧШЕННЫЙ КОМПОНЕНТ ЛОГОТИПА ПАРТНЕРА - адаптивные размеры
   const PartnerLogo = ({ partner, index }: { partner: typeof partners[0]; index: number }) => {
+    const logoElement = (
+      <img
+        src={partner.logo}
+        alt={`${partner.name} - Криптовалютная биржа`}
+        className="w-8 h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 xl:w-12 xl:h-12 object-contain"
+        loading={index < 6 ? "eager" : "lazy"}
+        onError={(e) => {
+          const target = e.currentTarget as HTMLImageElement;
+          const container = target.parentElement;
+          if (container) {
+            container.style.display = 'none';
+          }
+        }}
+      />
+    );
+
     return (
       <div
         className="flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200 hover:border-[#001D8D]/30 hover:shadow-lg transition-all duration-300 hover:scale-105 flex-shrink-0 mx-4 w-16 h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 xl:w-28 xl:h-28"
       >
-        <img
-          src={partner.logo}
-          alt={`${partner.name} - Криптовалютная биржа`}
-          className="w-8 h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 xl:w-12 xl:h-12 object-contain"
-          loading={index < 6 ? "eager" : "lazy"}
-          onError={(e) => {
-            const target = e.currentTarget as HTMLImageElement;
-            const container = target.parentElement;
-            if (container) {
-              container.style.display = 'none';
-            }
-          }}
-        />
+        {partner.link ? (
+          <a 
+            href={partner.link} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex items-center justify-center w-full h-full"
+          >
+            {logoElement}
+          </a>
+        ) : (
+          logoElement
+        )}
       </div>
     );
   };
