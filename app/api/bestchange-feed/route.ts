@@ -46,11 +46,219 @@ const escapeXml = (text: string | number | null | undefined): string => {
   return str;
 };
 
+// Функция для получения кода валюты Exnode
+const getExnodeCurrencyCode = (base: string, quote: string, conditions: string): string => {
+  const currency = base || quote;
+  const conditionsLower = (conditions || '').toLowerCase();
+  
+  // Определяем сеть для криптовалют на основе условий
+  if (currency === 'USDT') {
+    if (conditionsLower.includes('trc20') || conditionsLower.includes('tron')) return 'USDTTRC';
+    if (conditionsLower.includes('erc20') || conditionsLower.includes('ethereum')) return 'USDTERC';
+    if (conditionsLower.includes('bep20') || conditionsLower.includes('bsc')) return 'USDTBEP20';
+    if (conditionsLower.includes('polygon')) return 'USDTPOLYGON';
+    if (conditionsLower.includes('arbitrum')) return 'USDTARBTM';
+    if (conditionsLower.includes('optimism')) return 'USDTOPTM';
+    if (conditionsLower.includes('solana') || conditionsLower.includes('sol')) return 'USDTSOL';
+    if (conditionsLower.includes('avalanche') || conditionsLower.includes('avax')) return 'USDTAVAXC';
+    if (conditionsLower.includes('ton')) return 'USDTTON';
+    if (conditionsLower.includes('algorand')) return 'USDTALGO';
+    return 'USDTTRC'; // По умолчанию TRC20
+  }
+  
+  if (currency === 'USDC') {
+    if (conditionsLower.includes('trc20') || conditionsLower.includes('tron')) return 'USDCTRC20';
+    if (conditionsLower.includes('erc20') || conditionsLower.includes('ethereum')) return 'USDCERC20';
+    if (conditionsLower.includes('bep20') || conditionsLower.includes('bsc')) return 'USDCBEP20';
+    if (conditionsLower.includes('polygon')) return 'USDCPOLYGON';
+    if (conditionsLower.includes('arbitrum')) return 'USDCARBTM';
+    if (conditionsLower.includes('optimism')) return 'USDCOPTM';
+    if (conditionsLower.includes('solana') || conditionsLower.includes('sol')) return 'USDCSOL';
+    return 'USDCERC20'; // По умолчанию ERC20
+  }
+  
+  if (currency === 'ETH') {
+    if (conditionsLower.includes('bep20') || conditionsLower.includes('bsc')) return 'ETHBEP20';
+    if (conditionsLower.includes('arbitrum')) return 'ETHARBTM';
+    if (conditionsLower.includes('optimism')) return 'ETHOPTM';
+    return 'ETH'; // Основная сеть Ethereum
+  }
+  
+  if (currency === 'BNB') {
+    if (conditionsLower.includes('bep2')) return 'BNBBEP2';
+    if (conditionsLower.includes('bep20')) return 'BNBBEP20';
+    return 'BNB'; // По умолчанию
+  }
+  
+  if (currency === 'SHIB') {
+    if (conditionsLower.includes('bep20') || conditionsLower.includes('bsc')) return 'SHIBBEP20';
+    return 'SHIBERC20'; // По умолчанию ERC20
+  }
+  
+  if (currency === 'AVAX') {
+    if (conditionsLower.includes('bep20') || conditionsLower.includes('bsc')) return 'AVAXBEP20';
+    return 'AVAXC'; // C-Chain
+  }
+  
+  if (currency === 'BTCB' || (currency === 'BTC' && conditionsLower.includes('bep20'))) {
+    return 'BTCBEP20';
+  }
+  
+  // Определяем тип фиатной валюты для RUB
+  if (currency === 'RUB') {
+    if (conditionsLower.includes('наличные') || conditionsLower.includes('cash')) return 'CASHRUB';
+    if (conditionsLower.includes('сбербанк') || conditionsLower.includes('sber')) return 'SBERRUB';
+    if (conditionsLower.includes('тинькофф') || conditionsLower.includes('tinkoff') || conditionsLower.includes('т-банк')) return 'TCSBRUB';
+    if (conditionsLower.includes('альфа') || conditionsLower.includes('alfa')) return 'ACRUB';
+    if (conditionsLower.includes('втб')) return 'TBRUB';
+    if (conditionsLower.includes('райффайзен')) return 'RFBRUB';
+    if (conditionsLower.includes('яндекс') || conditionsLower.includes('yandex') || conditionsLower.includes('юmoney')) return 'YAMRUB';
+    if (conditionsLower.includes('qr') && conditionsLower.includes('сбер')) return 'SBERQRUB';
+    if (conditionsLower.includes('qr') && conditionsLower.includes('тинь')) return 'TCSBQRUB';
+    if (conditionsLower.includes('сбп')) return 'SBPRUB';
+    if (conditionsLower.includes('visa') || conditionsLower.includes('mastercard') || conditionsLower.includes('карта')) return 'CARDRUB';
+    if (conditionsLower.includes('банковский счет') || conditionsLower.includes('wire')) return 'WIRERUB';
+    if (conditionsLower.includes('компания') || conditionsLower.includes('corp')) return 'CORPRUB';
+    return 'CARDRUB'; // По умолчанию банковская карта
+  }
+  
+  // Определяем тип для других фиатных валют
+  if (currency === 'USD') {
+    if (conditionsLower.includes('наличные') || conditionsLower.includes('cash')) return 'CASHUSD';
+    if (conditionsLower.includes('paypal')) return 'PPUSD';
+    if (conditionsLower.includes('visa') || conditionsLower.includes('mastercard') || conditionsLower.includes('карта')) return 'CARDUSD';
+    if (conditionsLower.includes('банковский счет') || conditionsLower.includes('wire')) return 'WIREUSD';
+    if (conditionsLower.includes('компания') || conditionsLower.includes('corp')) return 'CORPUSD';
+    return 'CARDUSD'; // По умолчанию банковская карта
+  }
+  
+  if (currency === 'EUR') {
+    if (conditionsLower.includes('наличные') || conditionsLower.includes('cash')) return 'CASHEUR';
+    if (conditionsLower.includes('paypal')) return 'PPEUR';
+    if (conditionsLower.includes('visa') || conditionsLower.includes('mastercard') || conditionsLower.includes('карта')) return 'CARDEUR';
+    if (conditionsLower.includes('банковский счет') || conditionsLower.includes('wire')) return 'WIREEUR';
+    if (conditionsLower.includes('компания') || conditionsLower.includes('corp')) return 'CORPEUR';
+    return 'CARDEUR'; // По умолчанию банковская карта
+  }
+  
+  // Для остальных криптовалют возвращаем как есть
+  return currency.toUpperCase();
+};
+
+// Функция для получения параметров Exnode
+const getExnodeParams = (operationalMode: string, conditions: string): string => {
+  const params: string[] = [];
+  const conditionsLower = (conditions || '').toLowerCase();
+  
+  // Добавляем manual для ручного режима
+  if (operationalMode === 'manual' || operationalMode === 'semi-auto') {
+    params.push('manual');
+  }
+  
+  // Добавляем veryfying если требуется верификация
+  if (conditionsLower.includes('kyc') || conditionsLower.includes('верификация') || conditionsLower.includes('документы')) {
+    params.push('veryfying');
+  }
+  
+  // Добавляем cardverify если требуется верификация карты
+  if (conditionsLower.includes('верификация карты') || conditionsLower.includes('cardverify')) {
+    params.push('cardverify');
+  }
+  
+  // Добавляем reg если требуется регистрация
+  if (conditionsLower.includes('регистрация') || conditionsLower.includes('аккаунт')) {
+    params.push('reg');
+  }
+  
+  // Добавляем juridical для переводов с юр.лица
+  if (conditionsLower.includes('юридическое лицо') || conditionsLower.includes('ип') || conditionsLower.includes('juridical')) {
+    params.push('juridical');
+  }
+  
+  // Добавляем anonim если не требуются личные данные
+  if (conditionsLower.includes('анонимно') || conditionsLower.includes('без документов') || conditionsLower.includes('anonim')) {
+    params.push('anonim');
+  }
+  
+  return params.join(',');
+};
+
+// Функция для получения города Exnode
+const getExnodeCity = (conditions: string): string => {
+  const conditionsLower = (conditions || '').toLowerCase();
+  
+  // Маппинг городов из условий в коды Exnode
+  const cityMapping: { [key: string]: string } = {
+    'москва': 'msk',
+    'санкт-петербург': 'spb',
+    'петербург': 'spb',
+    'спб': 'spb',
+    'калининград': 'klng',
+    'екатеринбург': 'ekb',
+    'новосибирск': 'nsk',
+    'казань': 'kzn',
+    'нижний новгород': 'nnov',
+    'челябинск': 'chel',
+    'омск': 'omsk',
+    'самара': 'smr',
+    'ростов-на-дону': 'rsnd',
+    'уфа': 'ufa',
+    'красноярск': 'krsk',
+    'воронеж': 'voron',
+    'пермь': 'perm',
+    'волгоград': 'vlgd',
+    'краснодар': 'krasn',
+    'саратов': 'srt',
+    'тюмень': 'tyum',
+    'тольятти': 'tltt',
+    'ижевск': 'izhv',
+    'барнаул': 'brnl',
+    'ульяновск': 'ulya',
+    'иркутск': 'irk',
+    'владивосток': 'vvo',
+    'ярославль': 'yars',
+    'хабаровск': 'khab',
+    'махачкала': 'mhkl',
+    'томск': 'tmsk',
+    'оренбург': 'oren',
+    'кемерово': 'kem',
+    'рязань': 'rzn',
+    'астрахань': 'astra',
+    'пенза': 'penza',
+    'липецк': 'lpt'
+  };
+  
+  // Ищем город в условиях
+  for (const [cityName, cityCode] of Object.entries(cityMapping)) {
+    if (conditionsLower.includes(cityName)) {
+      return cityCode;
+    }
+  }
+  
+  return '';
+};
+
+// Функция для форматирования числовых значений
+const formatNumber = (value: number | null | undefined): string => {
+  if (value === null || value === undefined || isNaN(Number(value))) return '0';
+  
+  // Преобразуем в число и форматируем с точкой как разделителем
+  const num = Number(value);
+  
+  // Избегаем научной нотации для больших и малых чисел
+  if (num === 0) return '0';
+  if (num >= 1e-8 && num < 1e15) {
+    return num.toFixed(8).replace(/\.?0+$/, ''); // Убираем лишние нули
+  }
+  
+  return num.toString();
+};
+
 export async function GET() {
   try {
     // Проверяем доступность Supabase
     if (!isSupabaseAvailable()) {
-      console.error('Supabase не настроен для BestChange фида');
+      console.error('Supabase не настроен для Exnode фида');
       return new NextResponse(
         '<?xml version="1.0" encoding="UTF-8"?>\n<error>Supabase не настроен</error>',
         {
@@ -60,7 +268,7 @@ export async function GET() {
       );
     }
 
-    console.log('🔄 Получение данных для BestChange фида...');
+    console.log('🔄 Получение данных для Exnode фида...');
 
     // Получаем все данные из kenig_rates
     const { data: rates, error } = await supabase
@@ -86,7 +294,7 @@ export async function GET() {
       .order('updated_at', { ascending: false });
 
     if (error) {
-      console.error('Ошибка при получении курсов для BestChange фида:', error);
+      console.error('Ошибка при получении курсов для Exnode фида:', error);
       return new NextResponse(
         '<?xml version="1.0" encoding="UTF-8"?>\n<error>Ошибка базы данных</error>',
         {
@@ -97,7 +305,7 @@ export async function GET() {
     }
 
     if (!rates || rates.length === 0) {
-      console.warn('Нет данных в таблице kenig_rates для BestChange фида');
+      console.warn('Нет данных в таблице kenig_rates для Exnode фида');
       return new NextResponse(
         '<?xml version="1.0" encoding="UTF-8"?>\n<rates></rates>',
         {
@@ -142,75 +350,52 @@ export async function GET() {
 
     console.log(`✅ Отфильтровано ${activeExchanges.length} активных направлений`);
 
-    // Генерируем XML
+    // Генерируем XML в формате Exnode
     let xmlOutput = '<?xml version="1.0" encoding="UTF-8"?>\n<rates>\n';
 
     activeExchanges.forEach(rate => {
-      xmlOutput += `  <item>\n`;
-      xmlOutput += `    <from>${escapeXml(rate.base)}</from>\n`;
-      xmlOutput += `    <to>${escapeXml(rate.quote)}</to>\n`;
-      xmlOutput += `    <in>${escapeXml(rate.sell)}</in>\n`;
-      xmlOutput += `    <out>${escapeXml(rate.buy)}</out>\n`;
+      // Получаем коды валют для Exnode
+      const fromCode = getExnodeCurrencyCode(rate.base, '', rate.conditions || '');
+      const toCode = getExnodeCurrencyCode(rate.quote, '', rate.conditions || '');
       
-      // Минимальная и максимальная суммы
-      if (rate.min_amount) {
-        xmlOutput += `    <min>${escapeXml(rate.min_amount)}</min>\n`;
+      xmlOutput += `    <item>\n`;
+      xmlOutput += `        <from>${escapeXml(fromCode)}</from>\n`;
+      xmlOutput += `        <to>${escapeXml(toCode)}</to>\n`;
+      
+      // Курс обмена: in - сколько клиент отдает, out - сколько получает
+      // Для направления BASE/QUOTE: клиент отдает 1 BASE, получает rate.sell QUOTE
+      xmlOutput += `        <in>1</in>\n`;
+      xmlOutput += `        <out>${formatNumber(rate.sell)}</out>\n`;
+      
+      // Резерв валюты to (которую получает клиент)
+      xmlOutput += `        <amount>${formatNumber(rate.reserve)}</amount>\n`;
+      
+      // Минимальная и максимальная суммы в валюте from
+      if (rate.min_amount && rate.min_amount > 0) {
+        xmlOutput += `        <minamount>${formatNumber(rate.min_amount)}</minamount>\n`;
       }
-      if (rate.max_amount) {
-        xmlOutput += `    <max>${escapeXml(rate.max_amount)}</max>\n`;
+      if (rate.max_amount && rate.max_amount > 0) {
+        xmlOutput += `        <maxamount>${formatNumber(rate.max_amount)}</maxamount>\n`;
       }
       
-      // Резерв
-      xmlOutput += `    <amount>${escapeXml(rate.reserve)}</amount>\n`;
-
-      // Режим работы
-      if (rate.operational_mode === 'manual') {
-        xmlOutput += `    <manual>1</manual>\n`;
-      } else if (rate.operational_mode === 'semi-auto') {
-        xmlOutput += `    <semi_auto>1</semi_auto>\n`;
+      // Параметры (метки)
+      const params = getExnodeParams(rate.operational_mode || '', rate.conditions || '');
+      if (params) {
+        xmlOutput += `        <param>${escapeXml(params)}</param>\n`;
       }
-
-      // Условия обмена
-      if (rate.conditions) {
-        // Проверяем требования верификации
-        if (rate.conditions.includes('KYC') || rate.conditions.includes('верификация')) {
-          xmlOutput += `    <verification_required>1</verification_required>\n`;
-        }
-
-        // Извлекаем количество подтверждений
-        const confirmationsMatch = rate.conditions.match(/(\d+)\s*подтверждени/);
-        if (confirmationsMatch && confirmationsMatch[1]) {
-          xmlOutput += `    <confirmations>${escapeXml(confirmationsMatch[1])}</confirmations>\n`;
-        }
-
-        // Проверяем на наличные
-        if (rate.conditions.includes('наличные') || rate.conditions.includes('офис')) {
-          xmlOutput += `    <cash>1</cash>\n`;
-        }
-
-        // Проверяем банковские переводы
-        if (rate.conditions.includes('банк') || rate.conditions.includes('карта')) {
-          xmlOutput += `    <bank>1</bank>\n`;
-        }
+      
+      // Город для наличных операций
+      const city = getExnodeCity(rate.conditions || '');
+      if (city) {
+        xmlOutput += `        <city>${escapeXml(city)}</city>\n`;
       }
-
-      // Источник курса
-      if (rate.exchange_source) {
-        xmlOutput += `    <exchange_source>${escapeXml(rate.exchange_source)}</exchange_source>\n`;
-      }
-
-      // Время последнего обновления
-      if (rate.updated_at) {
-        const lastUpdate = new Date(rate.updated_at).toISOString();
-        xmlOutput += `    <last_update>${escapeXml(lastUpdate)}</last_update>\n`;
-      }
-
-      xmlOutput += `  </item>\n`;
+      
+      xmlOutput += `    </item>\n`;
     });
 
     xmlOutput += '</rates>';
 
-    console.log(`📤 Сгенерирован XML фид с ${activeExchanges.length} направлениями`);
+    console.log(`📤 Сгенерирован Exnode XML фид с ${activeExchanges.length} направлениями`);
 
     // Возвращаем XML с правильными заголовками
     return new NextResponse(xmlOutput, {
@@ -223,7 +408,7 @@ export async function GET() {
     });
 
   } catch (error) {
-    console.error('Ошибка в BestChange фиде:', error);
+    console.error('Ошибка в Exnode фиде:', error);
     
     const errorXml = `<?xml version="1.0" encoding="UTF-8"?>
 <error>
