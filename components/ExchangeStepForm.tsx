@@ -26,8 +26,8 @@ export default function ExchangeStepForm() {
   // Поля клиента
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [telegram, setTelegram] = useState("");
   const [walletAddress, setWalletAddress] = useState("");
-  const [bankDetails, setBankDetails] = useState("");
   const [network, setNetwork] = useState("");
   const [fullName, setFullName] = useState("");
 
@@ -83,12 +83,12 @@ export default function ExchangeStepForm() {
       amountFrom: parseFloat(fromAmount),
       amountTo: parseFloat(toAmount),
       exchangeRate: rate,
-      clientEmail: email,
-      clientPhone: phone || null,
-      clientWalletAddress: walletAddress || null,
-      clientBankDetails: bankDetails || null,
-      network: network || null,
       fullName,
+      clientEmail: email,
+      clientPhone: phone,
+      clientTelegram: telegram,
+      clientWalletAddress: toCurrency !== "RUB" ? walletAddress : null,
+      network: toCurrency !== "RUB" ? network : null,
     });
 
     setLoading(true);
@@ -102,12 +102,12 @@ export default function ExchangeStepForm() {
           amountFrom: parseFloat(fromAmount),
           amountTo: parseFloat(toAmount),
           exchangeRate: rate,
-          clientEmail: email,
-          clientPhone: phone || null,
-          clientWalletAddress: walletAddress || null,
-          clientBankDetails: bankDetails || null,
-          network: network || null,
           fullName,
+          clientEmail: email,
+          clientPhone: phone,
+          clientTelegram: telegram,
+          clientWalletAddress: toCurrency !== "RUB" ? walletAddress : null,
+          network: toCurrency !== "RUB" ? network : null,
         }),
       });
 
@@ -297,82 +297,85 @@ export default function ExchangeStepForm() {
           </CardHeader>
 
           <CardContent className="space-y-6">
-            {/* Основная информация */}
-            <div className="grid grid-cols-2 gap-4">
+            {/* Основная информация - всегда обязательные поля */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="fullName" className="text-sm font-medium text-[#001D8D]">
                   ФИО *
                 </Label>
-                <Input 
+                <Input
                   id="fullName"
-                  placeholder="Введите ваше полное имя" 
-                  value={fullName} 
-                  onChange={e => setFullName(e.target.value)} 
+                  placeholder="Введите ваше полное имя"
+                  value={fullName}
+                  onChange={e => setFullName(e.target.value)}
                   className="input-field"
                   required
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium text-[#001D8D]">
                   Email *
                 </Label>
-                <Input 
+                <Input
                   id="email"
-                  placeholder="your@email.com" 
+                  placeholder="your@email.com"
                   type="email"
-                  value={email} 
-                  onChange={e => setEmail(e.target.value)} 
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
                   className="input-field"
                   required
                 />
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="phone" className="text-sm font-medium text-[#001D8D]">
-                Телефон (опционально)
-              </Label>
-              <Input 
-                id="phone"
-                placeholder="+7 (999) 123-45-67" 
-                value={phone} 
-                onChange={e => setPhone(e.target.value)} 
-                className="input-field"
-              />
-            </div>
-
-            {/* Условные поля в зависимости от валюты получения */}
-            {toCurrency === "RUB" ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="bankDetails" className="text-sm font-medium text-[#001D8D]">
-                  Банковские реквизиты для получения рублей *
+                <Label htmlFor="phone" className="text-sm font-medium text-[#001D8D]">
+                  Телефон *
                 </Label>
-                <Textarea 
-                  id="bankDetails"
-                  placeholder="Номер карты или банковские реквизиты для получения рублей" 
-                  value={bankDetails} 
-                  onChange={e => setBankDetails(e.target.value)} 
-                  className="min-h-[100px] border-[#001D8D]/20 focus:border-[#001D8D]"
+                <Input
+                  id="phone"
+                  placeholder="+7 (999) 123-45-67"
+                  value={phone}
+                  onChange={e => setPhone(e.target.value)}
+                  className="input-field"
                   required
                 />
               </div>
-            ) : (
-              <div className="space-y-4">
+
+              <div className="space-y-2">
+                <Label htmlFor="telegram" className="text-sm font-medium text-[#001D8D]">
+                  Ссылка на Telegram *
+                </Label>
+                <Input
+                  id="telegram"
+                  placeholder="@username или ссылка"
+                  value={telegram}
+                  onChange={e => setTelegram(e.target.value)}
+                  className="input-field"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Условные поля: только для крипты (не RUB) */}
+            {toCurrency !== "RUB" && (
+              <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                 <div className="space-y-2">
                   <Label htmlFor="walletAddress" className="text-sm font-medium text-[#001D8D]">
                     Адрес кошелька {toCurrency} *
                   </Label>
-                  <Input 
+                  <Input
                     id="walletAddress"
-                    placeholder={`Введите адрес кошелька ${toCurrency}`} 
-                    value={walletAddress} 
-                    onChange={e => setWalletAddress(e.target.value)} 
+                    placeholder={`Введите адрес кошелька ${toCurrency}`}
+                    value={walletAddress}
+                    onChange={e => setWalletAddress(e.target.value)}
                     className="input-field font-mono text-sm"
                     required
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="network" className="text-sm font-medium text-[#001D8D]">
                     Сеть *
@@ -405,7 +408,7 @@ export default function ExchangeStepForm() {
               </Button>
               <Button
                 onClick={handleSubmit}
-                disabled={loading || !fullName || !email || (toCurrency !== "RUB" && (!walletAddress || !network)) || (toCurrency === "RUB" && !bankDetails)}
+                disabled={loading || !fullName || !email || !phone || !telegram || (toCurrency !== "RUB" && (!walletAddress || !network))}
                 className="flex-1 h-12 bg-gradient-to-r from-[#001D8D] to-blue-600 text-white font-semibold hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl"
               >
                 {loading ? (
@@ -458,8 +461,8 @@ export default function ExchangeStepForm() {
                   setToAmount("");
                   setEmail("");
                   setPhone("");
+                  setTelegram("");
                   setWalletAddress("");
-                  setBankDetails("");
                   setNetwork("");
                   setFullName("");
                 }}
