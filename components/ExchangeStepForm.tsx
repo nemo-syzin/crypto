@@ -148,7 +148,11 @@ export default function ExchangeStepForm() {
             </h1>
             {rate && (
               <p className="text-lg text-gray-600 dark:text-gray-400">
-                1 {fromCurrency} = {rate.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 6 })} {toCurrency}
+                {fromCurrency} в {toCurrency}: 1 {fromCurrency === "BTC" ? "Bitcoin" : fromCurrency} конвертируется в{" "}
+                {rate.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
+                {toCurrency === "RUB" ? "₽" : ""} {toCurrency} по состоянию на{" "}
+                {new Date().toLocaleDateString("ru-RU", { day: "numeric", month: "long" })} в{" "}
+                {new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}
               </p>
             )}
           </div>
