@@ -1,17 +1,23 @@
 // lib/supabase/server.ts
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const SUPABASE_SERVICE = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const SUPABASE_ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const SUPABASE_SERVICE = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+const SUPABASE_ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
-// Создаем admin клиент с service role ключом
-export const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE!, {
-  auth: { persistSession: false }
-});
+// Создаем admin клиент с service role ключом только если есть ключи
+export const supabaseAdmin = SUPABASE_URL && SUPABASE_SERVICE
+  ? createClient(SUPABASE_URL, SUPABASE_SERVICE, {
+      auth: { persistSession: false }
+    })
+  : null;
 
 export function getServerSupabaseClient(options?: { useServiceRole?: boolean; timeoutMs?: number }): SupabaseClient {
   const { useServiceRole = false, timeoutMs = 15000 } = options ?? {};
+
+  if (!SUPABASE_URL || !SUPABASE_ANON) {
+    throw new Error('Missing Supabase configuration: NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY');
+  }
 
   // Обёртка fetch с таймаутом — работает и в Edge, и в Node
   const withTimeoutFetch = (ms: number) => {
@@ -32,10 +38,12 @@ export function getServerSupabaseClient(options?: { useServiceRole?: boolean; ti
   };
 
   console.log(`🔧 [Supabase Client] Creating client with timeout: ${timeoutMs}ms, useServiceRole: ${useServiceRole}`);
-  
+
+  const key = useServiceRole && SUPABASE_SERVICE ? SUPABASE_SERVICE : SUPABASE_ANON;
+
   return createClient(
     SUPABASE_URL,
-    useServiceRole && SUPABASE_SERVICE ? SUPABASE_SERVICE : SUPABASE_ANON,
+    key,
     {
       global: { fetch: withTimeoutFetch(timeoutMs) },
       auth: { persistSession: false },
