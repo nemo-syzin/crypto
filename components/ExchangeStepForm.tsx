@@ -138,43 +138,41 @@ export default function ExchangeStepForm() {
 
   return (
     <div className="w-full max-w-4xl mx-auto">
-      {/* === Шаг 1: Калькулятор === */}
+      {/* === Шаг 1: Калькулятор (стиль Coinbase) === */}
       {step === 1 && (
-        <Card className="calculator-container border-none shadow-xl">
-          <CardHeader className="text-center pb-6">
-            <CardTitle className="text-2xl md:text-3xl font-bold text-[#001D8D] mb-4">
-              Калькулятор обмена криптовалют
-            </CardTitle>
-            <p className="text-[#001D8D]/70 text-sm md:text-base">
-              {fromCurrency} в {toCurrency}: 1 {fromCurrency} = {" "}
-              {rate ? rate.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 6 }) : "—"}{" "}
-              {toCurrency}
-            </p>
-          </CardHeader>
+        <div className="w-full">
+          {/* Заголовок */}
+          <div className="text-center mb-8">
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-3">
+              Конвертер и калькулятор криптовалют
+            </h1>
+            {rate && (
+              <p className="text-lg text-gray-600 dark:text-gray-400">
+                1 {fromCurrency} = {rate.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 6 })} {toCurrency}
+              </p>
+            )}
+          </div>
 
-          <CardContent className="space-y-6">
-            {/* Основной контейнер калькулятора */}
-            <div className="space-y-4">
-              {/* Отдаёте */}
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-[#001D8D]/70">Отдаёте</Label>
-                <div className="flex gap-3">
-                  <div className="flex-1">
-                    <Input
-                      type="text"
-                      value={fromAmount}
-                      onChange={(e) => {
-                        setFromAmount(e.target.value);
-                        setActiveInput("give");
-                      }}
-                      className="input-field text-xl font-semibold"
-                      placeholder="0"
-                      disabled={rateLoading}
-                    />
-                  </div>
-                  <div className="w-32">
+          {/* Калькулятор */}
+          <Card className="border-none shadow-lg bg-white dark:bg-gray-900">
+            <CardContent className="p-6 md:p-8 space-y-1">
+              {/* Поле "Отдаёте" */}
+              <div className="relative">
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-full h-[72px] flex items-center px-6 gap-4 shadow-sm hover:shadow-md transition-shadow">
+                  <Input
+                    type="text"
+                    value={fromAmount}
+                    onChange={(e) => {
+                      setFromAmount(e.target.value);
+                      setActiveInput("give");
+                    }}
+                    className="flex-1 bg-transparent border-none text-2xl md:text-3xl font-semibold focus-visible:ring-0 focus-visible:ring-offset-0 p-0 h-auto"
+                    placeholder="0"
+                    disabled={rateLoading}
+                  />
+                  <div className="shrink-0">
                     <Select value={fromCurrency} onValueChange={setFromCurrency} disabled={basesLoading}>
-                      <SelectTrigger className="input-field">
+                      <SelectTrigger className="bg-white dark:bg-gray-700 border-none rounded-full h-12 px-4 min-w-[120px] text-base font-semibold shadow-sm">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -189,38 +187,35 @@ export default function ExchangeStepForm() {
                 </div>
               </div>
 
-              {/* Кнопка swap */}
-              <div className="flex justify-center">
+              {/* Кнопка обмена (по центру) */}
+              <div className="flex justify-center -my-3 relative z-10">
                 <button
                   onClick={swapCurrencies}
                   disabled={rateLoading}
-                  className="swap-button"
+                  className="w-12 h-12 rounded-full bg-white dark:bg-gray-800 border-4 border-gray-50 dark:border-gray-900 shadow-md hover:shadow-lg transition-all hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                   aria-label="Поменять валюты местами"
                 >
-                  <ArrowLeftRight className="w-5 h-5 text-[#001D8D]" />
+                  <ArrowLeftRight className="w-5 h-5 text-gray-700 dark:text-gray-300" />
                 </button>
               </div>
 
-              {/* Получаете */}
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-[#001D8D]/70">Получаете</Label>
-                <div className="flex gap-3">
-                  <div className="flex-1">
-                    <Input
-                      type="text"
-                      value={toAmount}
-                      onChange={(e) => {
-                        setToAmount(e.target.value);
-                        setActiveInput("receive");
-                      }}
-                      className="input-field text-xl font-semibold"
-                      placeholder="0"
-                      disabled={rateLoading}
-                    />
-                  </div>
-                  <div className="w-32">
+              {/* Поле "Получаете" */}
+              <div className="relative">
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-full h-[72px] flex items-center px-6 gap-4 shadow-sm hover:shadow-md transition-shadow">
+                  <Input
+                    type="text"
+                    value={toAmount}
+                    onChange={(e) => {
+                      setToAmount(e.target.value);
+                      setActiveInput("receive");
+                    }}
+                    className="flex-1 bg-transparent border-none text-2xl md:text-3xl font-semibold focus-visible:ring-0 focus-visible:ring-offset-0 p-0 h-auto"
+                    placeholder="0"
+                    disabled={rateLoading}
+                  />
+                  <div className="shrink-0">
                     <Select value={toCurrency} onValueChange={setToCurrency} disabled={quotesLoading}>
-                      <SelectTrigger className="input-field">
+                      <SelectTrigger className="bg-white dark:bg-gray-700 border-none rounded-full h-12 px-4 min-w-[120px] text-base font-semibold shadow-sm">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -234,42 +229,41 @@ export default function ExchangeStepForm() {
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Информация о курсе */}
-            {rate && (
-              <div className="rates-container">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <div className="rate-value">
+              {/* Информация о курсе */}
+              {rate && (
+                <div className="pt-6">
+                  <div className="text-center">
+                    <div className="text-xl font-semibold text-gray-900 dark:text-white">
                       1 {fromCurrency} = {rate.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 6 })} {toCurrency}
                     </div>
-                    <div className="hint-text">Актуальный курс обмена</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                      Актуальный курс обмена
+                    </div>
                   </div>
-                  <Badge variant="outline" className="text-xs">
-                    Обновлено сейчас
-                  </Badge>
                 </div>
-              </div>
-            )}
-
-            {/* Кнопка создания заявки */}
-            <Button
-              onClick={() => setStep(2)}
-              disabled={!rate || rateLoading || !fromAmount || !toAmount}
-              className="w-full h-14 text-lg bg-gradient-to-r from-[#001D8D] to-blue-600 text-white font-semibold hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl"
-            >
-              {rateLoading ? (
-                <>
-                  <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                  Загрузка курса...
-                </>
-              ) : (
-                "Оставить заявку на обмен"
               )}
-            </Button>
-          </CardContent>
-        </Card>
+
+              {/* Кнопка создания заявки */}
+              <div className="pt-6">
+                <Button
+                  onClick={() => setStep(2)}
+                  disabled={!rate || rateLoading || !fromAmount || !toAmount}
+                  className="w-full h-14 text-base font-semibold bg-[#0052FF] hover:bg-[#0045D8] text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200"
+                >
+                  {rateLoading ? (
+                    <>
+                      <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                      Загрузка курса...
+                    </>
+                  ) : (
+                    "Оставить заявку на обмен"
+                  )}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       )}
 
       {/* === Шаг 2: Форма заявки === */}
