@@ -155,77 +155,80 @@ export default function ExchangeStepForm() {
 
           {/* Калькулятор */}
           <Card className="border-none shadow-lg bg-white dark:bg-gray-900">
-            <CardContent className="p-6 md:p-8 space-y-1">
-              {/* Поле "Отдаёте" */}
-              <div className="relative">
-                <div className="bg-gray-50 dark:bg-gray-800 rounded-full h-[72px] flex items-center px-6 gap-4 shadow-sm hover:shadow-md transition-shadow">
-                  <Input
-                    type="text"
-                    value={fromAmount}
-                    onChange={(e) => {
-                      setFromAmount(e.target.value);
-                      setActiveInput("give");
-                    }}
-                    className="flex-1 bg-transparent border-none text-2xl md:text-3xl font-semibold focus-visible:ring-0 focus-visible:ring-offset-0 p-0 h-auto"
-                    placeholder="0"
-                    disabled={rateLoading}
-                  />
-                  <div className="shrink-0">
-                    <Select value={fromCurrency} onValueChange={setFromCurrency} disabled={basesLoading}>
-                      <SelectTrigger className="bg-white dark:bg-gray-700 border-none rounded-full h-12 px-4 min-w-[120px] text-base font-semibold shadow-sm">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {bases.map((currency) => (
-                          <SelectItem key={currency} value={currency}>
-                            {currency}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+            <CardContent className="p-6 md:p-8">
+              {/* Горизонтальная раскладка полей */}
+              <div className="flex flex-col md:flex-row items-center gap-3">
+                {/* Поле "Отдаёте" */}
+                <div className="relative flex-1 w-full">
+                  <div className="bg-gray-50 dark:bg-gray-800 rounded-full h-[72px] flex items-center px-6 gap-4 shadow-sm hover:shadow-md transition-shadow">
+                    <Input
+                      type="text"
+                      value={fromAmount}
+                      onChange={(e) => {
+                        setFromAmount(e.target.value);
+                        setActiveInput("give");
+                      }}
+                      className="flex-1 bg-transparent border-none text-2xl md:text-3xl font-semibold focus-visible:ring-0 focus-visible:ring-offset-0 p-0 h-auto"
+                      placeholder="0"
+                      disabled={rateLoading}
+                    />
+                    <div className="shrink-0">
+                      <Select value={fromCurrency} onValueChange={setFromCurrency} disabled={basesLoading}>
+                        <SelectTrigger className="bg-white dark:bg-gray-700 border-none rounded-full h-12 px-4 min-w-[120px] text-base font-semibold shadow-sm">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {bases.map((currency) => (
+                            <SelectItem key={currency} value={currency}>
+                              {currency}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Кнопка обмена (по центру) */}
-              <div className="flex justify-center -my-3 relative z-10">
-                <button
-                  onClick={swapCurrencies}
-                  disabled={rateLoading}
-                  className="w-12 h-12 rounded-full bg-white dark:bg-gray-800 border-4 border-gray-50 dark:border-gray-900 shadow-md hover:shadow-lg transition-all hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-                  aria-label="Поменять валюты местами"
-                >
-                  <ArrowLeftRight className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-                </button>
-              </div>
-
-              {/* Поле "Получаете" */}
-              <div className="relative">
-                <div className="bg-gray-50 dark:bg-gray-800 rounded-full h-[72px] flex items-center px-6 gap-4 shadow-sm hover:shadow-md transition-shadow">
-                  <Input
-                    type="text"
-                    value={toAmount}
-                    onChange={(e) => {
-                      setToAmount(e.target.value);
-                      setActiveInput("receive");
-                    }}
-                    className="flex-1 bg-transparent border-none text-2xl md:text-3xl font-semibold focus-visible:ring-0 focus-visible:ring-offset-0 p-0 h-auto"
-                    placeholder="0"
+                {/* Кнопка обмена (по центру) */}
+                <div className="flex justify-center shrink-0">
+                  <button
+                    onClick={swapCurrencies}
                     disabled={rateLoading}
-                  />
-                  <div className="shrink-0">
-                    <Select value={toCurrency} onValueChange={setToCurrency} disabled={quotesLoading}>
-                      <SelectTrigger className="bg-white dark:bg-gray-700 border-none rounded-full h-12 px-4 min-w-[120px] text-base font-semibold shadow-sm">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {quotes.map((currency) => (
-                          <SelectItem key={currency} value={currency}>
-                            {currency}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    className="w-12 h-12 rounded-full bg-white dark:bg-gray-800 border-4 border-gray-50 dark:border-gray-900 shadow-md hover:shadow-lg transition-all hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                    aria-label="Поменять валюты местами"
+                  >
+                    <ArrowLeftRight className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                  </button>
+                </div>
+
+                {/* Поле "Получаете" */}
+                <div className="relative flex-1 w-full">
+                  <div className="bg-gray-50 dark:bg-gray-800 rounded-full h-[72px] flex items-center px-6 gap-4 shadow-sm hover:shadow-md transition-shadow">
+                    <Input
+                      type="text"
+                      value={toAmount}
+                      onChange={(e) => {
+                        setToAmount(e.target.value);
+                        setActiveInput("receive");
+                      }}
+                      className="flex-1 bg-transparent border-none text-2xl md:text-3xl font-semibold focus-visible:ring-0 focus-visible:ring-offset-0 p-0 h-auto"
+                      placeholder="0"
+                      disabled={rateLoading}
+                    />
+                    <div className="shrink-0">
+                      <Select value={toCurrency} onValueChange={setToCurrency} disabled={quotesLoading}>
+                        <SelectTrigger className="bg-white dark:bg-gray-700 border-none rounded-full h-12 px-4 min-w-[120px] text-base font-semibold shadow-sm">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {quotes.map((currency) => (
+                            <SelectItem key={currency} value={currency}>
+                              {currency}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 </div>
               </div>
