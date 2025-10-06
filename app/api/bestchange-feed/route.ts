@@ -3,6 +3,20 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { supabase, isSupabaseAvailable } from '@/lib/supabase/client';
 
+// Кэш для XML фида с автоматическим обновлением каждые 5 секунд
+let xmlCache: {
+  xml: string;
+  lastUpdate: Date;
+  isUpdating: boolean;
+} = {
+  xml: '',
+  lastUpdate: new Date(0),
+  isUpdating: false
+};
+
+// Интервал обновления в миллисекундах (5 секунд)
+const UPDATE_INTERVAL = 5000;
+
 // Вспомогательная функция для проверки рабочих часов
 const isWithinWorkingHours = (workingHours: any): boolean => {
   if (!workingHours || typeof workingHours !== 'object') return true;
@@ -254,13 +268,198 @@ const formatNumber = (value: number | null | undefined): string => {
   return num.toString();
 };
 
+// Функция для генерации XML фида
+async function generateXML(): Promise<string> {
+  // Проверяем доступность Supabase
+  if (!isSupabaseAvailable()) {
+    console.error('Supabase не настроен для Exnode фида');
+    return '<?xml version="1.0" encoding="UTF-8"?>\n<error>Supabase не настроен</error>';
+  }
+
+  console.log('🔄 Генерация XML фида...');
+
+  // Получаем все данные из kenig_rates
+  const { data: rates, error } = await supabase
+    .from('kenig_rates')
+    .select(`
+      source,
+      base,
+      quote,
+      sell,
+      buy,
+      min_amount,
+      max_amount,
+      reserve,
+      operational_mode,
+      working_hours,
+      is_active,
+      conditions,
+      exchange_source,
+      updated_at
+    `)
+    .not('base', 'is', null)
+    .not('quote', 'is', null)
+    .order('updated_at', { ascending: false });
+
+  if (error) {
+    console.error('Ошибка при получении курсов для Exnode фида:', error);
+    return '<?xml version="1.0" encoding="UTF-8"?>\n<error>Ошибка базы данных</error>';
+  }
+
+  if (!rates || rates.length === 0) {
+    console.warn('Нет данных в таблице kenig_rates для Exnode фида');
+    return '<?xml version="1.0" encoding="UTF-8"?>\n<rates></rates>';
+  }
+
+  console.log(`📊 Найдено ${rates.length} записей в kenig_rates`);
+
+  // Фильтруем активные направления обмена
+  const activeExchanges = rates.filter(rate => {
+    // 1. Проверяем активность
+    if (rate.is_active === false) {
+      return false;
+    }
+
+    // 2. Проверяем резервы
+    if (!rate.reserve || rate.reserve <= 0) {
+      return false;
+    }
+
+    // 3. Проверяем валидность курсов
+    if (!rate.sell || !rate.buy || rate.sell <= 0 || rate.buy <= 0) {
+      return false;
+    }
+
+    // 4. Проверяем рабочие часы для ручных/полуавтоматических режимов
+    if (rate.operational_mode === 'manual' || rate.operational_mode === 'semi-auto') {
+      if (!isWithinWorkingHours(rate.working_hours)) {
+        return false;
+      }
+    }
+
+    // 5. Проверяем минимальные/максимальные суммы
+    if (rate.min_amount && rate.max_amount && rate.min_amount > rate.max_amount) {
+      return false;
+    }
+
+    return true;
+  });
+
+  console.log(`✅ Отфильтровано ${activeExchanges.length} активных направлений`);
+
+  // Генерируем XML в формате Exnode
+  const timestamp = new Date().toISOString();
+  let xmlOutput = `<?xml version="1.0" encoding="UTF-8"?>\n<!-- Generated: ${timestamp} | Update interval: 5s -->\n<rates>\n`;
+
+  activeExchanges.forEach(rate => {
+    // Получаем коды валют для Exnode
+    const fromCode = getExnodeCurrencyCode(rate.base, '', rate.conditions || '');
+    const toCode = getExnodeCurrencyCode(rate.quote, '', rate.conditions || '');
+
+    xmlOutput += `    <item>\n`;
+    xmlOutput += `        <from>${escapeXml(fromCode)}</from>\n`;
+    xmlOutput += `        <to>${escapeXml(toCode)}</to>\n`;
+
+    // Курс обмена: in - сколько клиент отдает, out - сколько получает
+    // Для направления BASE/QUOTE: клиент отдает 1 BASE, получает rate.sell QUOTE
+    xmlOutput += `        <in>1</in>\n`;
+    xmlOutput += `        <out>${formatNumber(rate.sell)}</out>\n`;
+
+    // Резерв валюты to (которую получает клиент)
+    xmlOutput += `        <amount>${formatNumber(rate.reserve)}</amount>\n`;
+
+    // Минимальная и максимальная суммы в валюте from
+    if (rate.min_amount && rate.min_amount > 0) {
+      xmlOutput += `        <minamount>${formatNumber(rate.min_amount)}</minamount>\n`;
+    }
+    if (rate.max_amount && rate.max_amount > 0) {
+      xmlOutput += `        <maxamount>${formatNumber(rate.max_amount)}</maxamount>\n`;
+    }
+
+    // Параметры (метки)
+    const params = getExnodeParams(rate.operational_mode || '', rate.conditions || '');
+    if (params) {
+      xmlOutput += `        <param>${escapeXml(params)}</param>\n`;
+    }
+
+    // Город для наличных операций
+    const city = getExnodeCity(rate.conditions || '');
+    if (city) {
+      xmlOutput += `        <city>${escapeXml(city)}</city>\n`;
+    }
+
+    xmlOutput += `    </item>\n`;
+  });
+
+  xmlOutput += '</rates>';
+
+  console.log(`📤 Сгенерирован Exnode XML фид с ${activeExchanges.length} направлениями`);
+
+  return xmlOutput;
+}
+
+// Функция для обновления кэша
+async function updateCache() {
+  // Если уже обновляется, пропускаем
+  if (xmlCache.isUpdating) {
+    console.log('⏭️ Пропускаем обновление: предыдущее еще выполняется');
+    return;
+  }
+
+  try {
+    xmlCache.isUpdating = true;
+    const xml = await generateXML();
+
+    // Обновляем кэш только если генерация прошла успешно
+    if (xml && !xml.includes('<error>')) {
+      xmlCache.xml = xml;
+      xmlCache.lastUpdate = new Date();
+      console.log(`✅ Кэш обновлен: ${xmlCache.lastUpdate.toISOString()}`);
+    } else {
+      console.warn('⚠️ Ошибка генерации XML, используем предыдущий кэш');
+    }
+  } catch (error) {
+    console.error('❌ Ошибка при обновлении кэша:', error);
+  } finally {
+    xmlCache.isUpdating = false;
+  }
+}
+
+// Запускаем периодическое обновление кэша
+let updateIntervalId: NodeJS.Timeout | null = null;
+
+// Функция для инициализации автоматического обновления
+function initializeAutoUpdate() {
+  if (updateIntervalId) {
+    return; // Уже запущено
+  }
+
+  console.log('🚀 Запуск автоматического обновления XML фида (каждые 5 секунд)');
+
+  // Первое обновление сразу
+  updateCache();
+
+  // Затем каждые 5 секунд
+  updateIntervalId = setInterval(() => {
+    updateCache();
+  }, UPDATE_INTERVAL);
+}
+
+// Инициализируем при загрузке модуля
+initializeAutoUpdate();
+
 export async function GET() {
   try {
-    // Проверяем доступность Supabase
-    if (!isSupabaseAvailable()) {
-      console.error('Supabase не настроен для Exnode фида');
+    // Если кэш пустой, генерируем XML сразу (первый запрос)
+    if (!xmlCache.xml) {
+      console.log('📭 Кэш пустой, генерируем XML...');
+      await updateCache();
+    }
+
+    // Если кэш все еще пустой после попытки генерации, возвращаем ошибку
+    if (!xmlCache.xml) {
       return new NextResponse(
-        '<?xml version="1.0" encoding="UTF-8"?>\n<error>Supabase не настроен</error>',
+        '<?xml version="1.0" encoding="UTF-8"?>\n<error>Не удалось сгенерировать XML фид</error>',
         {
           status: 503,
           headers: { 'Content-Type': 'application/xml; charset=utf-8' }
@@ -268,148 +467,22 @@ export async function GET() {
       );
     }
 
-    console.log('🔄 Получение данных для Exnode фида...');
+    // Возвращаем закэшированный XML с информацией об обновлении
+    const timeSinceUpdate = Math.floor((Date.now() - xmlCache.lastUpdate.getTime()) / 1000);
 
-    // Получаем все данные из kenig_rates
-    const { data: rates, error } = await supabase
-      .from('kenig_rates')
-      .select(`
-        source,
-        base,
-        quote,
-        sell,
-        buy,
-        min_amount,
-        max_amount,
-        reserve,
-        operational_mode,
-        working_hours,
-        is_active,
-        conditions,
-        exchange_source,
-        updated_at
-      `)
-      .not('base', 'is', null)
-      .not('quote', 'is', null)
-      .order('updated_at', { ascending: false });
-
-    if (error) {
-      console.error('Ошибка при получении курсов для Exnode фида:', error);
-      return new NextResponse(
-        '<?xml version="1.0" encoding="UTF-8"?>\n<error>Ошибка базы данных</error>',
-        {
-          status: 500,
-          headers: { 'Content-Type': 'application/xml; charset=utf-8' }
-        }
-      );
-    }
-
-    if (!rates || rates.length === 0) {
-      console.warn('Нет данных в таблице kenig_rates для Exnode фида');
-      return new NextResponse(
-        '<?xml version="1.0" encoding="UTF-8"?>\n<rates></rates>',
-        {
-          headers: { 'Content-Type': 'application/xml; charset=utf-8' }
-        }
-      );
-    }
-
-    console.log(`📊 Найдено ${rates.length} записей в kenig_rates`);
-
-    // Фильтруем активные направления обмена
-    const activeExchanges = rates.filter(rate => {
-      // 1. Проверяем активность
-      if (rate.is_active === false) {
-        return false;
-      }
-
-      // 2. Проверяем резервы
-      if (!rate.reserve || rate.reserve <= 0) {
-        return false;
-      }
-
-      // 3. Проверяем валидность курсов
-      if (!rate.sell || !rate.buy || rate.sell <= 0 || rate.buy <= 0) {
-        return false;
-      }
-
-      // 4. Проверяем рабочие часы для ручных/полуавтоматических режимов
-      if (rate.operational_mode === 'manual' || rate.operational_mode === 'semi-auto') {
-        if (!isWithinWorkingHours(rate.working_hours)) {
-          return false;
-        }
-      }
-
-      // 5. Проверяем минимальные/максимальные суммы
-      if (rate.min_amount && rate.max_amount && rate.min_amount > rate.max_amount) {
-        return false;
-      }
-
-      return true;
-    });
-
-    console.log(`✅ Отфильтровано ${activeExchanges.length} активных направлений`);
-
-    // Генерируем XML в формате Exnode
-    let xmlOutput = '<?xml version="1.0" encoding="UTF-8"?>\n<rates>\n';
-
-    activeExchanges.forEach(rate => {
-      // Получаем коды валют для Exnode
-      const fromCode = getExnodeCurrencyCode(rate.base, '', rate.conditions || '');
-      const toCode = getExnodeCurrencyCode(rate.quote, '', rate.conditions || '');
-      
-      xmlOutput += `    <item>\n`;
-      xmlOutput += `        <from>${escapeXml(fromCode)}</from>\n`;
-      xmlOutput += `        <to>${escapeXml(toCode)}</to>\n`;
-      
-      // Курс обмена: in - сколько клиент отдает, out - сколько получает
-      // Для направления BASE/QUOTE: клиент отдает 1 BASE, получает rate.sell QUOTE
-      xmlOutput += `        <in>1</in>\n`;
-      xmlOutput += `        <out>${formatNumber(rate.sell)}</out>\n`;
-      
-      // Резерв валюты to (которую получает клиент)
-      xmlOutput += `        <amount>${formatNumber(rate.reserve)}</amount>\n`;
-      
-      // Минимальная и максимальная суммы в валюте from
-      if (rate.min_amount && rate.min_amount > 0) {
-        xmlOutput += `        <minamount>${formatNumber(rate.min_amount)}</minamount>\n`;
-      }
-      if (rate.max_amount && rate.max_amount > 0) {
-        xmlOutput += `        <maxamount>${formatNumber(rate.max_amount)}</maxamount>\n`;
-      }
-      
-      // Параметры (метки)
-      const params = getExnodeParams(rate.operational_mode || '', rate.conditions || '');
-      if (params) {
-        xmlOutput += `        <param>${escapeXml(params)}</param>\n`;
-      }
-      
-      // Город для наличных операций
-      const city = getExnodeCity(rate.conditions || '');
-      if (city) {
-        xmlOutput += `        <city>${escapeXml(city)}</city>\n`;
-      }
-      
-      xmlOutput += `    </item>\n`;
-    });
-
-    xmlOutput += '</rates>';
-
-    console.log(`📤 Сгенерирован Exnode XML фид с ${activeExchanges.length} направлениями`);
-
-    // Возвращаем XML с правильными заголовками
-    return new NextResponse(xmlOutput, {
+    return new NextResponse(xmlCache.xml, {
       headers: {
         'Content-Type': 'application/xml; charset=utf-8',
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'
+        'Cache-Control': 'public, max-age=5, must-revalidate',
+        'Last-Modified': xmlCache.lastUpdate.toUTCString(),
+        'X-Update-Interval': '5',
+        'X-Time-Since-Update': timeSinceUpdate.toString()
       },
     });
 
   } catch (error) {
-    console.error('Ошибка в Exnode фиде:', error);
-    
+    console.error('❌ Ошибка в Exnode фиде:', error);
+
     const errorXml = `<?xml version="1.0" encoding="UTF-8"?>
 <error>
   <message>Внутренняя ошибка сервера</message>
