@@ -1,154 +1,135 @@
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
-import { NextResponse } from "next/server";
-import { getServerSupabaseClient, isServerSupabaseConfigured } from "@/lib/supabase/server";
+import { NextResponse } from 'next/server';
+import { getServerSupabaseClient, isServerSupabaseConfigured } from '@/lib/supabase/server';
 
-// Таймаут (5 секунд)
-const SUPABASE_TIMEOUT = 5000;
-
-// Экранирование XML
-const escapeXml = (text: string | number | null | undefined): string => {
-  if (text === null || text === undefined) return "";
-  return String(text)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;");
+let xmlCache: { xml: string; lastUpdate: Date; isUpdating: boolean } = {
+  xml: '',
+  lastUpdate: new Date(0),
+  isUpdating: false,
 };
 
-// Форматирование чисел
-const formatNumber = (value: number | null | undefined): string => {
-  if (value === null || value === undefined || isNaN(Number(value))) return "0";
-  const num = Number(value);
-  return num.toFixed(8).replace(/\.?0+$/, "");
+const UPDATE_INTERVAL = 5000;
+
+// 🔧 Экранирование XML
+const escapeXml = (text: string | number | null | undefined): string =>
+  text == null
+    ? ''
+    : String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&apos;');
+
+// 🔁 Форматирование чисел
+const formatNumber = (value: number | null | undefined): string =>
+  value == null || isNaN(Number(value)) ? '0' : Number(value).toFixed(8).replace(/\.?0+$/, '');
+
+// 🧩 Получение кодов сетей для крипты
+const getCryptoNetworks = (symbol: string): string[] => {
+  const map: Record<string, string[]> = {
+    USDT: ['USDTTRC', 'USDTBEP20', 'USDTERC'],
+    USDC: ['USDCTRC', 'USDCBEP20', 'USDCERC'],
+    ETH: ['ETH', 'ETHARBTM', 'ETHOPTM'],
+    BTC: ['BTC', 'BTCBEP20'],
+    BNB: ['BNB', 'BNBBEP20'],
+    TRX: ['TRX'],
+    TON: ['USDTTON'],
+    SOL: ['USDTSOL'],
+  };
+  return map[symbol.toUpperCase()] || [symbol.toUpperCase()];
 };
 
-// Определение кодов валют Exnode
-const getCurrencyCode = (currency: string, conditions: string): string => {
-  const cur = currency?.toUpperCase() || "";
-  const cond = (conditions || "").toLowerCase();
+// 🏙️ Город всегда "klng"
+const CITY = 'klng';
 
-  if (cur === "RUB") return "CASHRUB";
+// 💰 Если RUB → наличные
+const normalizeFiat = (symbol: string): string =>
+  symbol.toUpperCase() === 'RUB' ? 'CASHRUB' : symbol.toUpperCase();
 
-  if (cur === "USDT") {
-    if (cond.includes("trc") || cond.includes("tron")) return "USDTTRC";
-    if (cond.includes("bep") || cond.includes("bsc")) return "USDTBEP20";
-    if (cond.includes("erc") || cond.includes("eth")) return "USDTERC";
-    return "USDT"; // базовый
-  }
-
-  if (cur === "USDC") {
-    if (cond.includes("trc") || cond.includes("tron")) return "USDCTRC";
-    if (cond.includes("bep") || cond.includes("bsc")) return "USDCBEP20";
-    if (cond.includes("erc") || cond.includes("eth")) return "USDCERC";
-    return "USDC";
-  }
-
-  if (cur === "ETH") return cond.includes("bep") ? "ETHBEP20" : "ETH";
-  if (cur === "BTC") return cond.includes("bep") ? "BTCBEP20" : "BTC";
-  if (cur === "BNB") return "BNB";
-  if (cur === "SOL") return "SOL";
-  return cur;
-};
-
-// Генерация XML
+// 🚀 Генерация XML-фида
 async function generateXML(): Promise<string> {
-  if (!isServerSupabaseConfigured()) {
-    console.error("❌ Supabase не настроен");
-    return '<?xml version="1.0" encoding="UTF-8"?><error>Supabase not configured</error>';
-  }
-
-  const supabase = getServerSupabaseClient();
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), SUPABASE_TIMEOUT);
-
   try {
-    console.log("🔗 Подключение к Supabase...");
-    const { data, error } = await supabase
-      .from("kenig_rates")
-      .select("*")
-      .eq("is_active", true)
-      .abortSignal(controller.signal);
-
-    clearTimeout(timeout);
-
-    if (error) {
-      console.error("Ошибка Supabase:", error);
-      return `<?xml version="1.0" encoding="UTF-8"?><error>${escapeXml(error.message)}</error>`;
+    if (!isServerSupabaseConfigured()) {
+      return '<?xml version="1.0" encoding="UTF-8"?><error>Supabase не настроен</error>';
     }
 
-    if (!data || data.length === 0) {
-      return '<?xml version="1.0" encoding="UTF-8"?><rates></rates>';
-    }
+    const supabase = getServerSupabaseClient();
+    const { data: rates, error } = await supabase
+      .from('kenig_rates')
+      .select('*')
+      .eq('is_active', true)
+      .order('updated_at', { ascending: false });
 
-    console.log(`✅ Получено ${data.length} строк из kenig_rates`);
-    const timestamp = new Date().toISOString();
+    if (error || !rates) throw error || new Error('Нет данных из Supabase');
 
-    let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<!-- Generated: ${timestamp} -->\n<rates>\n`;
+    let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<!-- Generated: ${new Date().toISOString()} -->\n<rates>\n`;
 
-    for (const r of data) {
-      const base = r.base?.toUpperCase() || "";
-      const quote = r.quote?.toUpperCase() || "";
-      const conditions = r.conditions || "";
-      const city = "klng";
+    for (const rate of rates) {
+      const base = rate.base?.toUpperCase();
+      const quote = rate.quote?.toUpperCase();
+      const sell = Number(rate.sell);
+      const reserve = Number(rate.reserve || 0);
+      const min = Number(rate.min_amount || 0);
+      const max = Number(rate.max_amount || 0);
 
-      // список направлений (включая авто-сети)
-      const networks: string[] = [];
+      if (!base || !quote || !sell || !reserve) continue;
 
-      // если крипта и сеть не указана → добавить все варианты
-      const isCrypto = ["USDT", "USDC", "BTC", "ETH", "BNB", "SOL", "TRX", "TON", "AVAX"].includes(base) || 
-                       ["USDT", "USDC", "BTC", "ETH", "BNB", "SOL", "TRX", "TON", "AVAX"].includes(quote);
+      const bases =
+        base === 'RUB' ? [normalizeFiat(base)] : base.match(/USDT|USDC|ETH|BTC|BNB|TRX|TON|SOL/)
+        ? getCryptoNetworks(base)
+        : [base];
+      const quotes =
+        quote === 'RUB' ? [normalizeFiat(quote)] : quote.match(/USDT|USDC|ETH|BTC|BNB|TRX|TON|SOL/)
+        ? getCryptoNetworks(quote)
+        : [quote];
 
-      if (isCrypto && !conditions) {
-        if (base === "USDT" || quote === "USDT") {
-          networks.push("USDTTRC", "USDTBEP20", "USDTERC");
-        } else if (base === "USDC" || quote === "USDC") {
-          networks.push("USDCTRC", "USDCBEP20", "USDCERC");
-        } else {
-          networks.push(getCurrencyCode(base, conditions));
+      for (const b of bases) {
+        for (const q of quotes) {
+          xml += `  <item>\n`;
+          xml += `    <from>${escapeXml(b)}</from>\n`;
+          xml += `    <to>${escapeXml(q)}</to>\n`;
+          xml += `    <in>1</in>\n`;
+          xml += `    <out>${formatNumber(sell)}</out>\n`;
+          xml += `    <amount>${formatNumber(reserve)}</amount>\n`;
+          if (min > 0) xml += `    <minamount>${formatNumber(min)}</minamount>\n`;
+          if (max > 0) xml += `    <maxamount>${formatNumber(max)}</maxamount>\n`;
+          xml += `    <param>manual</param>\n`;
+          xml += `    <city>${CITY}</city>\n`;
+          xml += `  </item>\n`;
         }
-      } else {
-        networks.push(getCurrencyCode(base, conditions));
-      }
-
-      for (const net of networks) {
-        xml += `  <item>\n`;
-        xml += `    <from>${escapeXml(net === base ? net : getCurrencyCode(base, conditions))}</from>\n`;
-        xml += `    <to>${escapeXml(net === quote ? net : getCurrencyCode(quote, conditions))}</to>\n`;
-        xml += `    <in>1</in>\n`;
-        xml += `    <out>${formatNumber(r.sell)}</out>\n`;
-        xml += `    <amount>${formatNumber(r.reserve)}</amount>\n`;
-        xml += `    <minamount>${formatNumber(r.min_amount)}</minamount>\n`;
-        xml += `    <maxamount>${formatNumber(r.max_amount)}</maxamount>\n`;
-        xml += `    <param>manual</param>\n`;
-        xml += `    <city>${escapeXml(city)}</city>\n`;
-        xml += `  </item>\n`;
       }
     }
 
-    xml += "</rates>";
-    console.log("📦 XML сгенерирован успешно");
+    xml += '</rates>';
     return xml;
-  } catch (err: any) {
-    clearTimeout(timeout);
-    if (err.name === "AbortError") {
-      console.error("⏰ Supabase запрос превысил лимит времени");
-      return '<?xml version="1.0" encoding="UTF-8"?><error>Supabase timeout (AbortError)</error>';
-    }
-    console.error("Ошибка генерации XML:", err);
-    return `<?xml version="1.0" encoding="UTF-8"?><error>${escapeXml(String(err))}</error>`;
+  } catch (e: any) {
+    console.error('❌ Ошибка генерации XML:', e);
+    return `<?xml version="1.0" encoding="UTF-8"?><error>${escapeXml(e.message || e.toString())}</error>`;
   }
 }
 
-// Обработчик Next.js API маршрута
-export async function GET() {
-  const xml = await generateXML();
+// 🕒 Обновление кэша
+async function updateCache() {
+  if (xmlCache.isUpdating) return;
+  xmlCache.isUpdating = true;
+  xmlCache.xml = await generateXML();
+  xmlCache.lastUpdate = new Date();
+  xmlCache.isUpdating = false;
+}
 
-  return new NextResponse(xml, {
+setInterval(updateCache, UPDATE_INTERVAL);
+updateCache();
+
+export async function GET() {
+  if (!xmlCache.xml) await updateCache();
+
+  return new NextResponse(xmlCache.xml, {
     headers: {
-      "Content-Type": "application/xml; charset=utf-8",
-      "Cache-Control": "public, max-age=5, must-revalidate",
+      'Content-Type': 'application/xml; charset=utf-8',
+      'Cache-Control': 'public, max-age=5, must-revalidate',
+      'Last-Modified': xmlCache.lastUpdate.toUTCString(),
     },
   });
 }
