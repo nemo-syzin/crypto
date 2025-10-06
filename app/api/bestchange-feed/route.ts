@@ -293,12 +293,12 @@ async function generateXML(): Promise<string> {
     .from('kenig_rates')
     .select(`
       source,
-      base,
-      quote,
+      from_currency,
+      to_currency,
       sell,
       buy,
-      min_amount,
-      max_amount,
+      minamount,
+      maxamount,
       reserve,
       operational_mode,
       working_hours,
@@ -307,8 +307,9 @@ async function generateXML(): Promise<string> {
       exchange_source,
       updated_at
     `)
-    .not('base', 'is', null)
-    .not('quote', 'is', null)
+    .eq('is_active', true)
+    .not('from_currency', 'is', null)
+    .not('to_currency', 'is', null)
     .order('updated_at', { ascending: false });
 
   if (error) {
@@ -330,33 +331,23 @@ async function generateXML(): Promise<string> {
 
   console.log(`✅ Найдено ${rates.length} записей в kenig_rates`);
 
-  // Фильтруем активные направления обмена
+  // Фильтруем активные направления обмена (already filtered by is_active in query)
   const activeExchanges = rates.filter(rate => {
-    // 1. Проверяем активность
-    if (rate.is_active === false) {
-      return false;
-    }
-
-    // 2. Проверяем резервы
+    // 1. Проверяем резервы
     if (!rate.reserve || rate.reserve <= 0) {
       return false;
     }
 
-    // 3. Проверяем валидность курсов
-    if (!rate.sell || !rate.buy || rate.sell <= 0 || rate.buy <= 0) {
+    // 2. Проверяем валидность курсов
+    if (!rate.sell || rate.sell <= 0) {
       return false;
     }
 
-    // 4. Проверяем рабочие часы для ручных/полуавтоматических режимов
+    // 3. Проверяем рабочие часы для ручных/полуавтоматических режимов
     if (rate.operational_mode === 'manual' || rate.operational_mode === 'semi-auto') {
       if (!isWithinWorkingHours(rate.working_hours)) {
         return false;
       }
-    }
-
-    // 5. Проверяем минимальные/максимальные суммы
-    if (rate.min_amount && rate.max_amount && rate.min_amount > rate.max_amount) {
-      return false;
     }
 
     return true;
@@ -369,42 +360,15 @@ async function generateXML(): Promise<string> {
   let xmlOutput = `<?xml version="1.0" encoding="UTF-8"?>\n<!-- Generated: ${timestamp} | Update interval: 5s -->\n<rates>\n`;
 
   activeExchanges.forEach(rate => {
-    // Получаем коды валют для Exnode
-    const fromCode = getExnodeCurrencyCode(rate.base, '', rate.conditions || '');
-    const toCode = getExnodeCurrencyCode(rate.quote, '', rate.conditions || '');
-
     xmlOutput += `    <item>\n`;
-    xmlOutput += `        <from>${escapeXml(fromCode)}</from>\n`;
-    xmlOutput += `        <to>${escapeXml(toCode)}</to>\n`;
-
-    // Курс обмена: in - сколько клиент отдает, out - сколько получает
-    // Для направления BASE/QUOTE: клиент отдает 1 BASE, получает rate.sell QUOTE
+    xmlOutput += `        <from>${escapeXml(rate.from_currency)}</from>\n`;
+    xmlOutput += `        <to>${escapeXml(rate.to_currency)}</to>\n`;
     xmlOutput += `        <in>1</in>\n`;
     xmlOutput += `        <out>${formatNumber(rate.sell)}</out>\n`;
-
-    // Резерв валюты to (которую получает клиент)
-    xmlOutput += `        <amount>${formatNumber(rate.reserve)}</amount>\n`;
-
-    // Минимальная и максимальная суммы в валюте from
-    if (rate.min_amount && rate.min_amount > 0) {
-      xmlOutput += `        <minamount>${formatNumber(rate.min_amount)}</minamount>\n`;
-    }
-    if (rate.max_amount && rate.max_amount > 0) {
-      xmlOutput += `        <maxamount>${formatNumber(rate.max_amount)}</maxamount>\n`;
-    }
-
-    // Параметры (метки)
-    const params = getExnodeParams(rate.operational_mode || '', rate.conditions || '');
-    if (params) {
-      xmlOutput += `        <param>${escapeXml(params)}</param>\n`;
-    }
-
-    // Город для наличных операций
-    const city = getExnodeCity(rate.conditions || '');
-    if (city) {
-      xmlOutput += `        <city>${escapeXml(city)}</city>\n`;
-    }
-
+    xmlOutput += `        <amount>${formatNumber(rate.reserve || 1000000)}</amount>\n`;
+    xmlOutput += `        <minamount>${formatNumber(rate.minamount || 100)}</minamount>\n`;
+    xmlOutput += `        <maxamount>${formatNumber(rate.maxamount || 1000000)}</maxamount>\n`;
+    xmlOutput += `        <param>manual,veryfying</param>\n`;
     xmlOutput += `    </item>\n`;
   });
 

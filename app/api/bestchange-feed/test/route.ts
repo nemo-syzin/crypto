@@ -34,12 +34,12 @@ export async function GET() {
       .from('kenig_rates')
       .select(`
         source,
-        base,
-        quote,
+        from_currency,
+        to_currency,
         sell,
         buy,
-        min_amount,
-        max_amount,
+        minamount,
+        maxamount,
         reserve,
         operational_mode,
         working_hours,
@@ -48,8 +48,8 @@ export async function GET() {
         exchange_source,
         updated_at
       `)
-      .not('base', 'is', null)
-      .not('quote', 'is', null)
+      .not('from_currency', 'is', null)
+      .not('to_currency', 'is', null)
       .order('updated_at', { ascending: false });
 
     if (error) {
@@ -79,8 +79,7 @@ export async function GET() {
     const activeExchanges = rates.filter(rate => {
       if (rate.is_active === false) return false;
       if (!rate.reserve || rate.reserve <= 0) return false;
-      if (!rate.sell || !rate.buy || rate.sell <= 0 || rate.buy <= 0) return false;
-      if (rate.min_amount && rate.max_amount && rate.min_amount > rate.max_amount) return false;
+      if (!rate.sell || rate.sell <= 0) return false;
       return true;
     });
 
@@ -91,22 +90,23 @@ export async function GET() {
       inactive_records: rates.length - activeExchanges.length,
       sources: [...new Set(rates.map(r => r.source))],
       currencies: {
-        base: [...new Set(rates.map(r => r.base))],
-        quote: [...new Set(rates.map(r => r.quote))]
+        from: [...new Set(rates.map(r => r.from_currency))],
+        to: [...new Set(rates.map(r => r.to_currency))]
       },
       operational_modes: [...new Set(rates.map(r => r.operational_mode))],
       sample_active_exchanges: activeExchanges.slice(0, 5).map(rate => ({
-        pair: `${rate.base}/${rate.quote}`,
+        pair: `${rate.from_currency}/${rate.to_currency}`,
         source: rate.source,
+        from_currency: rate.from_currency,
+        to_currency: rate.to_currency,
         sell: rate.sell,
         buy: rate.buy,
-        min_amount: rate.min_amount,
-        max_amount: rate.max_amount,
+        minamount: rate.minamount,
+        maxamount: rate.maxamount,
         reserve: rate.reserve,
         operational_mode: rate.operational_mode,
         is_active: rate.is_active,
-        conditions: rate.conditions,
-        exchange_source: rate.exchange_source
+        conditions: rate.conditions
       }))
     };
 
