@@ -1,19 +1,13 @@
-// app/api/rates/route.ts
 export const dynamic = 'force-dynamic';
-import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 
-// === Настройки ===
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, { db: { schema: 'public' } });
+import { NextResponse } from 'next/server';
+import { getServerSupabaseClient, isServerSupabaseConfigured } from '@/lib/supabase/server';
 
 let xmlCache: string = '';
 let lastUpdate = 0;
-const UPDATE_INTERVAL = 5000; // 5 секунд
+const UPDATE_INTERVAL = 5000;
 const CITY_CODE = 'klng';
 
-// === Вспомогательные ===
 const escapeXml = (text: any): string =>
   text == null
     ? ''
@@ -30,7 +24,7 @@ const formatNumber = (n: any): string => {
   return v % 1 === 0 ? v.toString() : v.toFixed(8).replace(/\.?0+$/, '');
 };
 
-const cryptoNetworks = {
+const cryptoNetworks: { [key: string]: string[] } = {
   USDT: ['USDTTRC', 'USDTERC', 'USDTBEP20', 'USDTARBTM', 'USDTOPTM', 'USDTSOL', 'USDTAVAXC', 'USDTTON'],
   USDC: ['USDCTRC20', 'USDCERC20', 'USDCBEP20', 'USDCARBTM', 'USDCOPTM', 'USDCSOL', 'USDCPOLYGON'],
   ETH: ['ETH', 'ETHBEP20', 'ETHARBTM', 'ETHOPTM'],
@@ -40,81 +34,87 @@ const cryptoNetworks = {
 };
 
 async function generateXML() {
-  // Получаем все активные записи
-  const { data, error } = await supabase
-    .from('kenig_rates')
-    .select('*')
-    .eq('is_active', true)
-    .order('updated_at', { ascending: false });
-
-  if (error) {
-    console.error('❌ Supabase fetch error:', error);
-    return `<?xml version="1.0" encoding="UTF-8"?><error>${escapeXml(error.message)}</error>`;
+  if (!isServerSupabaseConfigured()) {
+    console.error('❌ Supabase not configured');
+    return `<?xml version="1.0" encoding="UTF-8"?><error>Database not configured</error>`;
   }
 
-  // Разделяем по источнику
-  const kenig = (data || []).filter(r => r.source === 'kenig');
-  const derived = (data || []).filter(r => r.source === 'derived');
+  try {
+    const supabase = getServerSupabaseClient();
 
-  // Собираем в один список, но сначала kenig
-  const allRates = [...kenig, ...derived];
+    const { data, error } = await supabase
+      .from('kenig_rates')
+      .select('*')
+      .eq('is_active', true)
+      .order('updated_at', { ascending: false });
 
-  const items: string[] = [];
-  const seen = new Set<string>();
+    if (error) {
+      console.error('❌ Supabase fetch error:', error);
+      return `<?xml version="1.0" encoding="UTF-8"?><error>${escapeXml(error.message)}</error>`;
+    }
 
-  for (const row of allRates) {
-    const base = (row.base || '').toUpperCase();
-    const quote = (row.quote || '').toUpperCase();
-    const out = Number(row.sell);
-    const reserve = Number(row.reserve);
-    const min = Number(row.min_amount);
-    const max = Number(row.max_amount);
-    if (!base || !quote || !out || out <= 0 || !reserve || reserve <= 0) continue;
+    const kenig = (data || []).filter(r => r.source === 'kenig');
+    const derived = (data || []).filter(r => r.source === 'derived');
+    const allRates = [...kenig, ...derived];
 
-    let fromList: string[] = [base];
-    let toList: string[] = [quote];
+    const items: string[] = [];
+    const seen = new Set<string>();
 
-    // RUB → наличные
-    if (base === 'RUB') fromList = ['CASHRUB'];
-    if (quote === 'RUB') toList = ['CASHRUB'];
+    for (const row of allRates) {
+      const base = (row.base || '').toUpperCase();
+      const quote = (row.quote || '').toUpperCase();
+      const out = Number(row.sell);
+      const reserve = Number(row.reserve);
+      const min = Number(row.min_amount);
+      const max = Number(row.max_amount);
 
-    // крипта → все сети
-    if (cryptoNetworks[base]) fromList = cryptoNetworks[base];
-    if (cryptoNetworks[quote]) toList = cryptoNetworks[quote];
+      if (!base || !quote || !out || out <= 0 || !reserve || reserve <= 0) continue;
 
-    for (const from of fromList) {
-      for (const to of toList) {
-        const key = `${from}_${to}`;
-        // Пропускаем дубликаты (если уже есть kenig)
-        if (seen.has(key) || from === to) continue;
-        seen.add(key);
+      let fromList: string[] = [base];
+      let toList: string[] = [quote];
 
-        items.push(
-          [
-            '  <item>',
-            `    <from>${from}</from>`,
-            `    <to>${to}</to>`,
-            `    <in>1</in>`,
-            `    <out>${formatNumber(out)}</out>`,
-            `    <amount>${formatNumber(reserve)}</amount>`,
-            `    <minamount>${formatNumber(min || 100)}</minamount>`,
-            `    <maxamount>${formatNumber(max || reserve)}</maxamount>`,
-            `    <param>manual</param>`,
-            `    <city>${CITY_CODE}</city>`,
-            '  </item>',
-          ].join('\n'),
-        );
+      if (base === 'RUB') fromList = ['CASHRUB'];
+      if (quote === 'RUB') toList = ['CASHRUB'];
+
+      if (cryptoNetworks[base]) fromList = cryptoNetworks[base];
+      if (cryptoNetworks[quote]) toList = cryptoNetworks[quote];
+
+      for (const from of fromList) {
+        for (const to of toList) {
+          const key = `${from}_${to}`;
+          if (seen.has(key) || from === to) continue;
+          seen.add(key);
+
+          items.push(
+            [
+              '  <item>',
+              `    <from>${from}</from>`,
+              `    <to>${to}</to>`,
+              `    <in>1</in>`,
+              `    <out>${formatNumber(out)}</out>`,
+              `    <amount>${formatNumber(reserve)}</amount>`,
+              `    <minamount>${formatNumber(min || 100)}</minamount>`,
+              `    <maxamount>${formatNumber(max || reserve)}</maxamount>`,
+              `    <param>manual</param>`,
+              `    <city>${CITY_CODE}</city>`,
+              '  </item>',
+            ].join('\n'),
+          );
+        }
       }
     }
-  }
 
-  return [
-    '<?xml version="1.0" encoding="UTF-8"?>',
-    `<!-- Generated: ${new Date().toISOString()} | Source priority: kenig > derived -->`,
-    '<rates>',
-    ...items,
-    '</rates>',
-  ].join('\n');
+    return [
+      '<?xml version="1.0" encoding="UTF-8"?>',
+      `<!-- Generated: ${new Date().toISOString()} -->`,
+      '<rates>',
+      ...items,
+      '</rates>',
+    ].join('\n');
+  } catch (err) {
+    console.error('❌ XML generation failed:', err);
+    return `<?xml version="1.0" encoding="UTF-8"?><error>${escapeXml(String(err))}</error>`;
+  }
 }
 
 async function getXML(): Promise<string> {
@@ -126,7 +126,7 @@ async function getXML(): Promise<string> {
     lastUpdate = now;
     return xmlCache;
   } catch (err) {
-    console.error('XML generation failed:', err);
+    console.error('XML fetch failed:', err);
     return `<?xml version="1.0" encoding="UTF-8"?><error>${escapeXml(String(err))}</error>`;
   }
 }
