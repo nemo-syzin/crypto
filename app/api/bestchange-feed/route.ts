@@ -8,10 +8,12 @@ let xmlCache: {
   xml: string;
   lastUpdate: Date;
   isUpdating: boolean;
+  lastError: Error | null;
 } = {
   xml: '',
   lastUpdate: new Date(0),
-  isUpdating: false
+  isUpdating: false,
+  lastError: null
 };
 
 // Интервал обновления в миллисекундах (5 секунд)
@@ -410,16 +412,26 @@ async function updateCache() {
     xmlCache.isUpdating = true;
     const xml = await generateXML();
 
-    // Обновляем кэш только если генерация прошла успешно
+    // Проверяем результат генерации
     if (xml && !xml.includes('<error>')) {
+      // Успешная генерация
       xmlCache.xml = xml;
       xmlCache.lastUpdate = new Date();
+      xmlCache.lastError = null;
       console.log(`✅ Кэш обновлен: ${xmlCache.lastUpdate.toISOString()}`);
     } else {
-      console.warn('⚠️ Ошибка генерации XML, используем предыдущий кэш');
+      // Ошибка генерации - сохраняем ошибку и очищаем кэш
+      const errorMessage = xml.includes('<error>')
+        ? 'Ошибка генерации XML из базы данных'
+        : 'Получен пустой XML';
+      xmlCache.lastError = new Error(errorMessage);
+      xmlCache.xml = ''; // Очищаем кэш
+      console.error(`❌ ${errorMessage}`);
     }
   } catch (error) {
     console.error('❌ Ошибка при обновлении кэша:', error);
+    xmlCache.lastError = error instanceof Error ? error : new Error(String(error));
+    xmlCache.xml = ''; // Очищаем кэш при ошибке
   } finally {
     xmlCache.isUpdating = false;
   }
@@ -458,13 +470,20 @@ export async function GET() {
 
     // Если кэш все еще пустой после попытки генерации, возвращаем ошибку
     if (!xmlCache.xml) {
-      return new NextResponse(
-        '<?xml version="1.0" encoding="UTF-8"?>\n<error>Не удалось сгенерировать XML фид</error>',
-        {
-          status: 503,
-          headers: { 'Content-Type': 'application/xml; charset=utf-8' }
-        }
-      );
+      const errorMessage = xmlCache.lastError
+        ? xmlCache.lastError.message
+        : 'Не удалось сгенерировать XML фид';
+
+      const errorXml = `<?xml version="1.0" encoding="UTF-8"?>
+<error>
+  <message>${escapeXml(errorMessage)}</message>
+  <timestamp>${new Date().toISOString()}</timestamp>
+</error>`;
+
+      return new NextResponse(errorXml, {
+        status: 503,
+        headers: { 'Content-Type': 'application/xml; charset=utf-8' }
+      });
     }
 
     // Возвращаем закэшированный XML с информацией об обновлении
