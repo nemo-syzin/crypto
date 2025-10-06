@@ -1,86 +1,109 @@
-import os
-import asyncio
-import xml.etree.ElementTree as ET
-from flask import Flask, Response
-from supabase import create_client, Client
-from dotenv import load_dotenv
+export const dynamic = 'force-dynamic';
 
-load_dotenv()
+import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
 
-SUPABASE_URL = "https://jetfadpysjsvtqdgnsjp.supabase.co"
-SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+// ✅ подключение к Supabase (использует переменные окружения Netlify)
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+// 🕒 Кэш (чтобы не дергать БД слишком часто)
+let xmlCache: { xml: string; updated: number } = { xml: '', updated: 0 };
 
-app = Flask(__name__)
-xml_cache = ""  # Храним актуальный XML в памяти
+// интервал обновления (секунды)
+const REFRESH_INTERVAL = 5;
 
+// ⚙️ экранирование XML
+function escapeXml(value: any) {
+  if (value == null) return '';
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
 
-def generate_xml_from_rows(rows):
-    """Формирует XML в формате Exnode из таблицы kenig_rates"""
-    root = ET.Element("rates")
+// ⚙️ форматирование чисел
+function formatNumber(v: number | null | undefined) {
+  if (!v || isNaN(v)) return '0';
+  return Number(v).toFixed(8).replace(/\.?0+$/, '');
+}
 
-    for row in rows:
-        item = ET.SubElement(root, "item")
+// ⚙️ генерация XML из данных
+async function generateXML() {
+  const { data, error } = await supabase
+    .from('kenig_rates')
+    .select(
+      'base, quote, sell, buy, reserve, min_amount, max_amount, operational_mode, conditions, is_active'
+    )
+    .eq('is_active', true);
 
-        ET.SubElement(item, "from").text = str(row["from_currency"])
-        ET.SubElement(item, "to").text = str(row["to_currency"])
-        ET.SubElement(item, "in").text = "1"
-        ET.SubElement(item, "out").text = str(row["sell"])
-        ET.SubElement(item, "amount").text = str(row.get("reserve", 1000000))
-        ET.SubElement(item, "minamount").text = str(row.get("minamount", 100))
-        ET.SubElement(item, "maxamount").text = str(row.get("maxamount", 1000000))
-        ET.SubElement(item, "param").text = "manual,veryfying"
+  if (error) {
+    console.error('Ошибка при получении данных из Supabase:', error);
+    return `<?xml version="1.0" encoding="UTF-8"?><error>${escapeXml(
+      error.message
+    )}</error>`;
+  }
 
-    return ET.tostring(root, encoding="utf-8", xml_declaration=True).decode()
+  if (!data || data.length === 0) {
+    return '<?xml version="1.0" encoding="UTF-8"?><rates></rates>';
+  }
 
+  let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<rates>\n';
 
-def refresh_xml():
-    """Пересоздает XML из Supabase"""
-    global xml_cache
-    print("🔄 Обновляем XML...")
-    response = supabase.table("kenig_rates").select("*").eq("is_active", True).execute()
-    rows = response.data or []
-    xml_cache = generate_xml_from_rows(rows)
-    with open("rates.xml", "w", encoding="utf-8") as f:
-        f.write(xml_cache)
-    print(f"✅ XML обновлён ({len(rows)} записей)")
+  for (const r of data) {
+    // фильтруем валидные
+    if (!r.base || !r.quote || !r.sell || !r.reserve) continue;
 
+    xml += `  <item>\n`;
+    xml += `    <from>${escapeXml(r.base)}</from>\n`;
+    xml += `    <to>${escapeXml(r.quote)}</to>\n`;
+    xml += `    <in>1</in>\n`;
+    xml += `    <out>${formatNumber(r.sell)}</out>\n`;
+    xml += `    <amount>${formatNumber(r.reserve)}</amount>\n`;
 
-@app.route("/rates.xml")
-def get_rates():
-    """HTTP endpoint для получения актуального XML"""
-    return Response(xml_cache, mimetype="application/xml")
+    if (r.min_amount) xml += `    <minamount>${formatNumber(r.min_amount)}</minamount>\n`;
+    if (r.max_amount) xml += `    <maxamount>${formatNumber(r.max_amount)}</maxamount>\n`;
 
+    // добавляем параметр manual если режим не auto
+    if (r.operational_mode && r.operational_mode !== 'auto') {
+      xml += `    <param>manual</param>\n`;
+    }
 
-async def listen_for_changes():
-    """Подписка на изменения таблицы через Supabase Realtime"""
-    from realtime import Client as RealtimeClient
+    // определяем город (по условиям)
+    const conditions = (r.conditions || '').toLowerCase();
+    if (conditions.includes('калининград')) xml += `    <city>klng</city>\n`;
+    else if (conditions.includes('москва')) xml += `    <city>msk</city>\n`;
 
-    REALTIME_URL = SUPABASE_URL.replace("https://", "wss://").replace(".co", ".co/realtime/v1")
-    print(f"📡 Подключаемся к Supabase Realtime: {REALTIME_URL}")
-    realtime = RealtimeClient(REALTIME_URL, params={"apikey": SUPABASE_KEY})
+    xml += `  </item>\n`;
+  }
 
-    async def on_change(payload):
-        print("📥 Изменение в kenig_rates:", payload.event_type)
-        refresh_xml()
+  xml += '</rates>';
+  return xml;
+}
 
-    channel = realtime.channel("realtime:public:kenig_rates")
-    channel.on("postgres_changes", {"event": "*", "schema": "public", "table": "kenig_rates"}, on_change)
-    await channel.subscribe()
+// ⚙️ API-endpoint
+export async function GET() {
+  const now = Date.now();
 
-    await realtime.connect()
-    print("✅ Подписка на изменения установлена")
+  // используем кэш 5 сек
+  if (xmlCache.xml && now - xmlCache.updated < REFRESH_INTERVAL * 1000) {
+    return new NextResponse(xmlCache.xml, {
+      headers: { 'Content-Type': 'application/xml; charset=utf-8' },
+    });
+  }
 
-    while True:
-        await asyncio.sleep(30)
+  // иначе обновляем из Supabase
+  const xml = await generateXML();
+  xmlCache = { xml, updated: now };
 
-
-if __name__ == "__main__":
-    refresh_xml()  # Первичная генерация XML
-
-    import threading
-
-    threading.Thread(target=lambda: app.run(host="0.0.0.0", port=8080)).start()
-
-    asyncio.run(listen_for_changes())
+  return new NextResponse(xml, {
+    headers: {
+      'Content-Type': 'application/xml; charset=utf-8',
+      'Cache-Control': `public, max-age=${REFRESH_INTERVAL}`,
+    },
+  });
+}
