@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/lib/supabase/client';
+import { supabaseBrowser } from '@/lib/supabase/browser';
 
 interface AuthContextType {
   user: User | null;
@@ -38,11 +38,10 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Получаем текущую сессию при загрузке
     const getInitialSession = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
+        const { data: { session }, error } = await supabaseBrowser.auth.getSession();
+
         if (error) {
           console.error('SupabaseAuthProvider: Ошибка получения сессии:', error);
         } else {
@@ -58,36 +57,31 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
 
     getInitialSession();
 
-    // Подписываемся на изменения состояния аутентификации
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    const { data: { subscription } } = supabaseBrowser.auth.onAuthStateChange(
       async (event, session) => {
         console.log('SupabaseAuthProvider: Auth state changed:', event, 'User:', session?.user?.email, 'Session:', session);
-        
+
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
 
-        // Обновляем статус оператора при входе/выходе
         if (session?.user) {
-          // Проверяем, является ли пользователь оператором
-          const { data: operatorData } = await supabase
+          const { data: operatorData } = await supabaseBrowser
             .from('chat_operators')
             .select('*')
             .eq('user_id', session.user.id)
             .single();
 
           if (operatorData) {
-            // Устанавливаем статус "онлайн" для оператора
-            await supabase
+            await supabaseBrowser
               .from('chat_operators')
               .update({ is_online: true, updated_at: new Date().toISOString() })
               .eq('user_id', session.user.id);
           }
         } else {
-          // При выходе устанавливаем статус "оффлайн" для всех операторов этого пользователя
-          const { data: { user: currentUser } } = await supabase.auth.getUser();
+          const { data: { user: currentUser } } = await supabaseBrowser.auth.getUser();
           if (currentUser) {
-            await supabase
+            await supabaseBrowser
               .from('chat_operators')
               .update({ is_online: false })
               .eq('user_id', currentUser.id);
@@ -103,15 +97,14 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
 
   const signOut = async () => {
     try {
-      // Устанавливаем статус "оффлайн" перед выходом
       if (user) {
-        await supabase
+        await supabaseBrowser
           .from('chat_operators')
           .update({ is_online: false })
           .eq('user_id', user.id);
       }
 
-      const { error } = await supabase.auth.signOut();
+      const { error } = await supabaseBrowser.auth.signOut();
       if (error) {
         console.error('Ошибка выхода:', error);
         throw error;
@@ -124,7 +117,7 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
 
   const refreshSession = async () => {
     try {
-      const { data: { session }, error } = await supabase.auth.refreshSession();
+      const { data: { session }, error } = await supabaseBrowser.auth.refreshSession();
       if (error) {
         console.error('Ошибка обновления сессии:', error);
       } else {

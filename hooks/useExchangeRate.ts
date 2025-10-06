@@ -1,6 +1,6 @@
 // hooks/useExchangeRate.ts
 import useSWR from 'swr';
-import { supabase, isSupabaseAvailable } from '@/lib/supabase/client';
+import { supabaseBrowser } from '@/lib/supabase/browser';
 
 // Добавляем логирование для отладки
 const DEBUG = process.env.NODE_ENV === 'development';
@@ -42,15 +42,13 @@ function up(s: string) { return (s || '').toUpperCase(); }
  * Если найдена прямая — берём buy. Если только обратная — берём 1/sell.
  */
 async function queryRate(from: string, to: string, source?: Source): Promise<RateResult | null> {
-  if (!isSupabaseAvailable()) throw new Error('Supabase is not configured');
-
   log(`Querying rate for ${from}/${to}`, { source });
 
   const A = up(from);
   const B = up(to);
 
   // Ищем обе ориентации одной выборкой
-  let query = supabase
+  let query = supabaseBrowser
     .from('kenig_rates')
     .select('source,base,quote,buy,sell,updated_at')
     .or(`and(base.eq.${A},quote.eq.${B}),and(base.eq.${B},quote.eq.${A})`)

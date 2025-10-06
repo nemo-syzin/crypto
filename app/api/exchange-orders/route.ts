@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase/server';
+import { supabaseServer } from '@/lib/supabase/server';
 
 export async function POST(req: Request) {
   try {
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
 
     console.log("📝 [API] Подготовленные данные для БД:", orderData);
 
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await supabaseServer()
       .from('exchange_orders')
       .insert([orderData])
       .select('id')

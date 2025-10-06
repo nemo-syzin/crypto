@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import { NextResponse } from 'next/server';
-import { getServerSupabaseClient, isServerSupabaseConfigured } from '@/lib/supabase/server';
+import { supabaseServer } from '@/lib/supabase/server';
 
 // Тестовый API для проверки данных BestChange фида в JSON формате
 export async function GET() {
@@ -10,24 +10,10 @@ export async function GET() {
     console.log('📊 Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
     console.log('🔑 Supabase Key присутствует:', !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 
-    if (!isServerSupabaseConfigured()) {
-      console.error('❌ Supabase недоступен');
-      return NextResponse.json({
-        error: 'Supabase не настроен',
-        message: 'Проверьте переменные окружения NEXT_PUBLIC_SUPABASE_URL и NEXT_PUBLIC_SUPABASE_ANON_KEY',
-        details: {
-          hasUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
-          hasKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-          url: process.env.NEXT_PUBLIC_SUPABASE_URL
-        }
-      }, { status: 503 });
-    }
-
     console.log('✅ Supabase доступен');
     console.log('🔄 Тестирование данных для BestChange фида...');
 
-    // Получаем серверный клиент Supabase
-    const supabase = getServerSupabaseClient();
+    const supabase = supabaseServer();
 
     // Получаем все данные из kenig_rates
     const { data: rates, error } = await supabase
