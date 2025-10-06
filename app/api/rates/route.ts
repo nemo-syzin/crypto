@@ -40,6 +40,7 @@ const cryptoNetworks = {
 };
 
 async function generateXML() {
+  // Получаем все активные записи
   const { data, error } = await supabase
     .from('kenig_rates')
     .select('*')
@@ -47,14 +48,21 @@ async function generateXML() {
     .order('updated_at', { ascending: false });
 
   if (error) {
-    console.error('Supabase fetch error:', error);
+    console.error('❌ Supabase fetch error:', error);
     return `<?xml version="1.0" encoding="UTF-8"?><error>${escapeXml(error.message)}</error>`;
   }
+
+  // Разделяем по источнику
+  const kenig = (data || []).filter(r => r.source === 'kenig');
+  const derived = (data || []).filter(r => r.source === 'derived');
+
+  // Собираем в один список, но сначала kenig
+  const allRates = [...kenig, ...derived];
 
   const items: string[] = [];
   const seen = new Set<string>();
 
-  for (const row of data || []) {
+  for (const row of allRates) {
     const base = (row.base || '').toUpperCase();
     const quote = (row.quote || '').toUpperCase();
     const out = Number(row.sell);
@@ -77,6 +85,7 @@ async function generateXML() {
     for (const from of fromList) {
       for (const to of toList) {
         const key = `${from}_${to}`;
+        // Пропускаем дубликаты (если уже есть kenig)
         if (seen.has(key) || from === to) continue;
         seen.add(key);
 
@@ -101,7 +110,7 @@ async function generateXML() {
 
   return [
     '<?xml version="1.0" encoding="UTF-8"?>',
-    `<!-- Generated: ${new Date().toISOString()} -->`,
+    `<!-- Generated: ${new Date().toISOString()} | Source priority: kenig > derived -->`,
     '<rates>',
     ...items,
     '</rates>',
@@ -118,7 +127,7 @@ async function getXML(): Promise<string> {
     return xmlCache;
   } catch (err) {
     console.error('XML generation failed:', err);
-    return `<?xml version="1.0"?><error>${escapeXml(String(err))}</error>`;
+    return `<?xml version="1.0" encoding="UTF-8"?><error>${escapeXml(String(err))}</error>`;
   }
 }
 
