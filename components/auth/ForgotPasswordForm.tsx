@@ -9,14 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  Mail, 
-  ArrowLeft, 
-  CheckCircle, 
-  AlertCircle,
-  Loader2,
-  Send
-} from 'lucide-react';
+import { Mail, ArrowLeft, CircleCheck as CheckCircle, CircleAlert as AlertCircle, Loader as Loader2, Send } from 'lucide-react';
 
 export function ForgotPasswordForm() {
   const { toast } = useToast();

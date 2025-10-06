@@ -10,16 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  Lock, 
-  Eye, 
-  EyeOff, 
-  CheckCircle, 
-  AlertCircle,
-  Loader2,
-  Shield,
-  ArrowLeft
-} from 'lucide-react';
+import { Lock, Eye, EyeOff, CircleCheck as CheckCircle, CircleAlert as AlertCircle, Loader as Loader2, Shield, ArrowLeft } from 'lucide-react';
 
 interface PasswordData {
   password: string;

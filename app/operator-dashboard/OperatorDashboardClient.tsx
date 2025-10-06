@@ -10,29 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  MessageCircle, 
-  Users, 
-  Clock, 
-  Send, 
-  User, 
-  Bot,
-  CheckCircle,
-  AlertCircle,
-  Loader2,
-  LogOut,
-  RefreshCw,
-  X,
-  Phone,
-  Mail,
-  Calendar,
-  Activity,
-  Settings,
-  Eye,
-  MessageSquare,
-  UserCheck,
-  Shield
-} from 'lucide-react';
+import { MessageCircle, Users, Clock, Send, User, Bot, CircleCheck as CheckCircle, CircleAlert as AlertCircle, Loader as Loader2, LogOut, RefreshCw, X, Phone, Mail, Calendar, Activity, Settings, Eye, MessageSquare, UserCheck, Shield } from 'lucide-react';
 import type { ChatSession, ChatMessage, ChatOperator } from '@/lib/chat';
 
 interface ExtendedChatSession extends ChatSession {
