@@ -10,6 +10,8 @@ let xmlCache: { xml: string; lastUpdate: Date; isUpdating: boolean } = {
 };
 
 const UPDATE_INTERVAL = 5000;
+const CITY = 'klng'; // фиксированный город для Exnode
+const MANUAL_PARAM = 'manual';
 
 // 🔧 Экранирование XML
 const escapeXml = (text: string | number | null | undefined): string =>
@@ -26,29 +28,42 @@ const escapeXml = (text: string | number | null | undefined): string =>
 const formatNumber = (value: number | null | undefined): string =>
   value == null || isNaN(Number(value)) ? '0' : Number(value).toFixed(8).replace(/\.?0+$/, '');
 
-// 🧩 Получение кодов сетей для крипты
+// 💰 Если RUB — всегда наличные
+const normalizeFiat = (symbol: string): string =>
+  symbol.toUpperCase() === 'RUB' ? 'CASHRUB' : symbol.toUpperCase();
+
+// 🧩 Сети для криптовалют
 const getCryptoNetworks = (symbol: string): string[] => {
   const map: Record<string, string[]> = {
-    USDT: ['USDTTRC', 'USDTBEP20', 'USDTERC'],
-    USDC: ['USDCTRC', 'USDCBEP20', 'USDCERC'],
-    ETH: ['ETH', 'ETHARBTM', 'ETHOPTM'],
-    BTC: ['BTC', 'BTCBEP20'],
-    BNB: ['BNB', 'BNBBEP20'],
+    USDT: [
+      'USDTTRC', 'USDTBEP20', 'USDTERC', 'USDTPOLYGON',
+      'USDTARBTM', 'USDTOPTM', 'USDTAVAXC', 'USDTSOL', 'USDTTON'
+    ],
+    USDC: [
+      'USDCTRC', 'USDCBEP20', 'USDCERC', 'USDCPOLYGON',
+      'USDCARBTM', 'USDCOPTM', 'USDCSOL'
+    ],
+    ETH: ['ETH', 'ETHARBTM', 'ETHOPTM', 'ETHBEP20'],
+    BTC: ['BTC', 'BTCBEP20', 'BTCLN'],
+    BNB: ['BNB', 'BNBBEP20', 'BNBBEP2'],
     TRX: ['TRX'],
-    TON: ['USDTTON'],
-    SOL: ['USDTSOL'],
+    MATIC: ['MATIC', 'USDTPOLYGON', 'USDCPOLYGON'],
+    AVAX: ['AVAXC', 'AVAXBEP20', 'USDTAVAXC'],
+    ARB: ['USDTARBTM', 'USDCARBTM', 'ETHARBTM'],
+    OPT: ['USDTOPTM', 'USDCOPTM', 'ETHOPTM'],
+    SOL: ['SOL', 'USDTSOL', 'USDCSOL'],
+    TON: ['TON', 'USDTTON'],
   };
   return map[symbol.toUpperCase()] || [symbol.toUpperCase()];
 };
 
-// 🏙️ Город всегда "klng"
-const CITY = 'klng';
+// 🧠 Универсальная генерация направлений обмена
+const expandCurrencies = (symbol: string): string[] => {
+  if (symbol.toUpperCase() === 'RUB') return [normalizeFiat(symbol)];
+  return getCryptoNetworks(symbol);
+};
 
-// 💰 Если RUB → наличные
-const normalizeFiat = (symbol: string): string =>
-  symbol.toUpperCase() === 'RUB' ? 'CASHRUB' : symbol.toUpperCase();
-
-// 🚀 Генерация XML-фида
+// 🚀 Основная функция генерации XML
 async function generateXML(): Promise<string> {
   try {
     if (!isServerSupabaseConfigured()) {
@@ -76,26 +91,23 @@ async function generateXML(): Promise<string> {
 
       if (!base || !quote || !sell || !reserve) continue;
 
-      const bases =
-        base === 'RUB' ? [normalizeFiat(base)] : base.match(/USDT|USDC|ETH|BTC|BNB|TRX|TON|SOL/)
-        ? getCryptoNetworks(base)
-        : [base];
-      const quotes =
-        quote === 'RUB' ? [normalizeFiat(quote)] : quote.match(/USDT|USDC|ETH|BTC|BNB|TRX|TON|SOL/)
-        ? getCryptoNetworks(quote)
-        : [quote];
+      const fromList = expandCurrencies(base);
+      const toList = expandCurrencies(quote);
 
-      for (const b of bases) {
-        for (const q of quotes) {
+      for (const fromCode of fromList) {
+        for (const toCode of toList) {
+          // Избегаем дублирования и бессмысленных направлений (одинаковые валюты)
+          if (fromCode === toCode) continue;
+
           xml += `  <item>\n`;
-          xml += `    <from>${escapeXml(b)}</from>\n`;
-          xml += `    <to>${escapeXml(q)}</to>\n`;
+          xml += `    <from>${escapeXml(fromCode)}</from>\n`;
+          xml += `    <to>${escapeXml(toCode)}</to>\n`;
           xml += `    <in>1</in>\n`;
           xml += `    <out>${formatNumber(sell)}</out>\n`;
           xml += `    <amount>${formatNumber(reserve)}</amount>\n`;
           if (min > 0) xml += `    <minamount>${formatNumber(min)}</minamount>\n`;
           if (max > 0) xml += `    <maxamount>${formatNumber(max)}</maxamount>\n`;
-          xml += `    <param>manual</param>\n`;
+          xml += `    <param>${MANUAL_PARAM}</param>\n`;
           xml += `    <city>${CITY}</city>\n`;
           xml += `  </item>\n`;
         }
@@ -110,18 +122,24 @@ async function generateXML(): Promise<string> {
   }
 }
 
-// 🕒 Обновление кэша
+// 🕒 Обновление кэша каждые 5 секунд
 async function updateCache() {
   if (xmlCache.isUpdating) return;
   xmlCache.isUpdating = true;
-  xmlCache.xml = await generateXML();
-  xmlCache.lastUpdate = new Date();
-  xmlCache.isUpdating = false;
+  try {
+    xmlCache.xml = await generateXML();
+    xmlCache.lastUpdate = new Date();
+  } catch (err) {
+    console.error('Ошибка при обновлении XML:', err);
+  } finally {
+    xmlCache.isUpdating = false;
+  }
 }
 
 setInterval(updateCache, UPDATE_INTERVAL);
 updateCache();
 
+// 🧩 HTTP-обработчик
 export async function GET() {
   if (!xmlCache.xml) await updateCache();
 
