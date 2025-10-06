@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import { NextResponse } from 'next/server';
-import { supabase, isSupabaseAvailable } from '@/lib/supabase/client';
+import { getServerSupabaseClient, isServerSupabaseConfigured } from '@/lib/supabase/server';
 
 // Кэш для XML фида с автоматическим обновлением каждые 5 секунд
 let xmlCache: {
@@ -273,12 +273,20 @@ const formatNumber = (value: number | null | undefined): string => {
 // Функция для генерации XML фида
 async function generateXML(): Promise<string> {
   // Проверяем доступность Supabase
-  if (!isSupabaseAvailable()) {
-    console.error('Supabase не настроен для Exnode фида');
+  if (!isServerSupabaseConfigured()) {
+    console.error('❌ Supabase не настроен для Exnode фида');
+    console.error('Проверьте переменные окружения NEXT_PUBLIC_SUPABASE_URL и NEXT_PUBLIC_SUPABASE_ANON_KEY');
     return '<?xml version="1.0" encoding="UTF-8"?>\n<error>Supabase не настроен</error>';
   }
 
   console.log('🔄 Генерация XML фида...');
+  console.log('📊 Подключение к Supabase:', {
+    url: process.env.NEXT_PUBLIC_SUPABASE_URL?.substring(0, 30) + '...',
+    hasKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  });
+
+  // Получаем серверный клиент Supabase
+  const supabase = getServerSupabaseClient();
 
   // Получаем все данные из kenig_rates
   const { data: rates, error } = await supabase
@@ -304,16 +312,23 @@ async function generateXML(): Promise<string> {
     .order('updated_at', { ascending: false });
 
   if (error) {
-    console.error('Ошибка при получении курсов для Exnode фида:', error);
-    return '<?xml version="1.0" encoding="UTF-8"?>\n<error>Ошибка базы данных</error>';
+    console.error('❌ Ошибка при получении курсов для Exnode фида:', error);
+    console.error('Детали ошибки:', {
+      message: error.message,
+      code: error.code,
+      details: error.details,
+      hint: error.hint
+    });
+    return `<?xml version="1.0" encoding="UTF-8">\n<error>Ошибка базы данных: ${escapeXml(error.message)}</error>`;
   }
 
   if (!rates || rates.length === 0) {
-    console.warn('Нет данных в таблице kenig_rates для Exnode фида');
+    console.warn('⚠️ Нет данных в таблице kenig_rates для Exnode фида');
+    console.warn('Проверьте, что таблица kenig_rates существует и содержит данные');
     return '<?xml version="1.0" encoding="UTF-8"?>\n<rates></rates>';
   }
 
-  console.log(`📊 Найдено ${rates.length} записей в kenig_rates`);
+  console.log(`✅ Найдено ${rates.length} записей в kenig_rates`);
 
   // Фильтруем активные направления обмена
   const activeExchanges = rates.filter(rate => {
@@ -474,15 +489,23 @@ export async function GET() {
         ? xmlCache.lastError.message
         : 'Не удалось сгенерировать XML фид';
 
+      console.error('❌ XML фид пустой после попытки генерации');
+      console.error('Последняя ошибка:', xmlCache.lastError);
+      console.error('Время последнего обновления:', xmlCache.lastUpdate);
+
       const errorXml = `<?xml version="1.0" encoding="UTF-8"?>
 <error>
   <message>${escapeXml(errorMessage)}</message>
   <timestamp>${new Date().toISOString()}</timestamp>
+  <help>Проверьте логи сервера для получения детальной информации</help>
 </error>`;
 
       return new NextResponse(errorXml, {
         status: 503,
-        headers: { 'Content-Type': 'application/xml; charset=utf-8' }
+        headers: {
+          'Content-Type': 'application/xml; charset=utf-8',
+          'X-Error-Details': errorMessage
+        }
       });
     }
 

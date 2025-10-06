@@ -1,19 +1,33 @@
 export const dynamic = 'force-dynamic';
 
 import { NextResponse } from 'next/server';
-import { supabase, isSupabaseAvailable } from '@/lib/supabase/client';
+import { getServerSupabaseClient, isServerSupabaseConfigured } from '@/lib/supabase/server';
 
 // Тестовый API для проверки данных BestChange фида в JSON формате
 export async function GET() {
   try {
-    if (!isSupabaseAvailable()) {
-      return NextResponse.json({ 
+    console.log('🔧 Тестовый эндпоинт BestChange фида');
+    console.log('📊 Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
+    console.log('🔑 Supabase Key присутствует:', !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+
+    if (!isServerSupabaseConfigured()) {
+      console.error('❌ Supabase недоступен');
+      return NextResponse.json({
         error: 'Supabase не настроен',
-        message: 'Проверьте переменные окружения NEXT_PUBLIC_SUPABASE_URL и NEXT_PUBLIC_SUPABASE_ANON_KEY'
+        message: 'Проверьте переменные окружения NEXT_PUBLIC_SUPABASE_URL и NEXT_PUBLIC_SUPABASE_ANON_KEY',
+        details: {
+          hasUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+          hasKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+          url: process.env.NEXT_PUBLIC_SUPABASE_URL
+        }
       }, { status: 503 });
     }
 
+    console.log('✅ Supabase доступен');
     console.log('🔄 Тестирование данных для BestChange фида...');
+
+    // Получаем серверный клиент Supabase
+    const supabase = getServerSupabaseClient();
 
     // Получаем все данные из kenig_rates
     const { data: rates, error } = await supabase
@@ -39,19 +53,27 @@ export async function GET() {
       .order('updated_at', { ascending: false });
 
     if (error) {
-      return NextResponse.json({ 
+      console.error('❌ Ошибка запроса к базе данных:', error);
+      return NextResponse.json({
         error: 'Ошибка базы данных',
-        details: error.message 
+        details: error.message,
+        code: error.code,
+        hint: error.hint,
+        help: 'Проверьте, что таблица kenig_rates существует в базе данных'
       }, { status: 500 });
     }
 
     if (!rates || rates.length === 0) {
-      return NextResponse.json({ 
+      console.warn('⚠️ Таблица kenig_rates пуста');
+      return NextResponse.json({
         message: 'Нет данных в таблице kenig_rates',
         total_records: 0,
-        active_records: 0
+        active_records: 0,
+        help: 'Добавьте данные в таблицу kenig_rates через панель администратора или API'
       });
     }
+
+    console.log(`✅ Найдено ${rates.length} записей`);
 
     // Применяем ту же логику фильтрации, что и в основном фиде
     const activeExchanges = rates.filter(rate => {
@@ -87,6 +109,8 @@ export async function GET() {
         exchange_source: rate.exchange_source
       }))
     };
+
+    console.log('✅ Тест завершен успешно');
 
     return NextResponse.json({
       status: 'success',
