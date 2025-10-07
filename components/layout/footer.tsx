@@ -6,7 +6,6 @@ import { Shield, FileText, Lock } from 'lucide-react';
 const footerLinks = [
   { href: "/exchange", label: "Exchange" },
   { href: "/rates", label: "Rates" },
-  { href: "/blog", label: "Blog" },
   { href: "/about", label: "About" },
   { href: "/support", label: "Support" },
 ];

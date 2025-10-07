@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { motion, useAnimation } from 'framer-motion';
-import { useInView } from 'react-intersection-observer';
+import { useState } from 'react';
+import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
 import { RealChat, RealChatButton } from '@/components/ui/real-chat';
 import { 
@@ -22,30 +21,20 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { 
+import {
   MessageCircle,
   Mail,
   Send,
   Clock,
-  Shield,
-  Zap,
   Globe,
   Phone,
-  FileText,
   Users,
   Star,
   CheckCircle,
-  AlertCircle,
-  ExternalLink,
   Headphones,
-  BookOpen,
-  Heart,
   Award,
-  TrendingUp,
-  RefreshCw,
   ArrowRight,
-  HelpCircle,
-  Lightbulb
+  HelpCircle
 } from 'lucide-react';
 
 export function SupportPageClient() {
@@ -59,38 +48,6 @@ export function SupportPageClient() {
     subject: '',
     message: ''
   });
-
-  const controls = useAnimation();
-  const [ref, inView] = useInView({
-    threshold: 0.1,
-    triggerOnce: true,
-  });
-
-  useEffect(() => {
-    if (inView) {
-      controls.start('visible');
-    }
-  }, [controls, inView]);
-
-  const containerVariants = {
-    hidden: {},
-    visible: {
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.5,
-      },
-    },
-  };
 
   // Обновленные методы связи в фирменном стиле
   const contactMethods = [
@@ -173,21 +130,6 @@ export function SupportPageClient() {
       question: "Как быстро обрабатываются транзакции?",
       answer: "Обмены происходят практически мгновенно, но время может зависеть от загруженности сети. Обычно процесс занимает не более 15 минут. Крупные суммы могут требовать дополнительной проверки.",
       category: "Транзакции"
-    }
-  ];
-
-  const guides = [
-    {
-      title: "Как создать и подтвердить аккаунт",
-      description: "Пошаговое руководство по регистрации и верификации",
-      icon: Users,
-      readTime: "5 мин"
-    },
-    {
-      title: "Как повысить лимиты на операции",
-      description: "Инструкция по увеличению лимитов",
-      icon: TrendingUp,
-      readTime: "3 мин"
     }
   ];
 
@@ -482,110 +424,6 @@ export function SupportPageClient() {
                   </form>
                 </CardContent>
               </Card>
-            </motion.div>
-
-            {/* Blog Section */}
-            <motion.div
-              ref={ref}
-              variants={containerVariants}
-              initial="hidden"
-              animate={controls}
-              className="max-w-6xl mx-auto"
-            >
-              <div className="text-center mb-12">
-                <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-4">
-                  Наш Блог
-                </h2>
-                <p className="text-xl text-[#001D8D]/70 max-w-3xl mx-auto">
-                  Следите за последними новостями криптовалютного рынка, обновлениями сервиса и полезными материалами
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {/* Последние новости */}
-                <motion.div
-                  variants={itemVariants}
-                  className="group"
-                >
-                  <Card className="bg-white/95 backdrop-blur-sm shadow-lg border border-[#001D8D]/10 hover:border-[#001D8D]/30 transition-all duration-300 hover:shadow-xl hover:scale-105 transform cursor-pointer">
-                    <CardContent className="p-8 text-center">
-                      <div className="mb-6">
-                        <div className="inline-flex p-4 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 group-hover:from-[#001D8D] group-hover:to-blue-600 transition-all duration-300 shadow-lg">
-                          <BookOpen className="h-8 w-8 text-blue-600 group-hover:text-white transition-colors duration-300" />
-                        </div>
-                      </div>
-                      <h3 className="text-xl font-bold text-[#001D8D] mb-3">Последние новости</h3>
-                      <p className="text-[#001D8D]/70 leading-relaxed mb-4">
-                        Актуальные новости криптовалютного рынка и обновления нашего сервиса
-                      </p>
-                      <Button 
-                        variant="outline" 
-                        className="w-full border-[#001D8D]/20 text-[#001D8D] hover:bg-[#001D8D] hover:text-white transition-all duration-300"
-                        onClick={() => window.location.href = '/blog'}
-                      >
-                        Читать новости
-                        <ArrowRight className="h-4 w-4 ml-2" />
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-
-                {/* Аналитика и обзоры */}
-                <motion.div
-                  variants={itemVariants}
-                  className="group"
-                >
-                  <Card className="bg-white/95 backdrop-blur-sm shadow-lg border border-[#001D8D]/10 hover:border-[#001D8D]/30 transition-all duration-300 hover:shadow-xl hover:scale-105 transform cursor-pointer">
-                    <CardContent className="p-8 text-center">
-                      <div className="mb-6">
-                        <div className="inline-flex p-4 rounded-full bg-gradient-to-br from-green-100 to-green-200 group-hover:from-[#001D8D] group-hover:to-blue-600 transition-all duration-300 shadow-lg">
-                          <TrendingUp className="h-8 w-8 text-green-600 group-hover:text-white transition-colors duration-300" />
-                        </div>
-                      </div>
-                      <h3 className="text-xl font-bold text-[#001D8D] mb-3">Аналитика рынка</h3>
-                      <p className="text-[#001D8D]/70 leading-relaxed mb-4">
-                        Экспертные обзоры и аналитика криптовалютного рынка от наших специалистов
-                      </p>
-                      <Button 
-                        variant="outline" 
-                        className="w-full border-[#001D8D]/20 text-[#001D8D] hover:bg-[#001D8D] hover:text-white transition-all duration-300"
-                        onClick={() => window.location.href = '/blog?category=analytics'}
-                      >
-                        Читать аналитику
-                        <ArrowRight className="h-4 w-4 ml-2" />
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-
-                {/* Обучающие материалы */}
-                <motion.div
-                  variants={itemVariants}
-                  className="group"
-                >
-                  <Card className="bg-white/95 backdrop-blur-sm shadow-lg border border-[#001D8D]/10 hover:border-[#001D8D]/30 transition-all duration-300 hover:shadow-xl hover:scale-105 transform cursor-pointer">
-                    <CardContent className="p-8 text-center">
-                      <div className="mb-6">
-                        <div className="inline-flex p-4 rounded-full bg-gradient-to-br from-purple-100 to-purple-200 group-hover:from-[#001D8D] group-hover:to-blue-600 transition-all duration-300 shadow-lg">
-                          <Lightbulb className="h-8 w-8 text-purple-600 group-hover:text-white transition-colors duration-300" />
-                        </div>
-                      </div>
-                      <h3 className="text-xl font-bold text-[#001D8D] mb-3">Обучающие материалы</h3>
-                      <p className="text-[#001D8D]/70 leading-relaxed mb-4">
-                        Полезные гайды и инструкции по работе с криптовалютами и нашим сервисом
-                      </p>
-                      <Button 
-                        variant="outline" 
-                        className="w-full border-[#001D8D]/20 text-[#001D8D] hover:bg-[#001D8D] hover:text-white transition-all duration-300"
-                        onClick={() => window.location.href = '/blog?category=guides'}
-                      >
-                        Изучать материалы
-                        <ArrowRight className="h-4 w-4 ml-2" />
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              </div>
             </motion.div>
 
 
