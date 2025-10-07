@@ -34,7 +34,8 @@ import {
   Headphones,
   Award,
   ArrowRight,
-  HelpCircle
+  HelpCircle,
+  Lightbulb
 } from 'lucide-react';
 
 export function SupportPageClient() {
