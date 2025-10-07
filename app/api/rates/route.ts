@@ -1,27 +1,24 @@
-// app/api/rates/route.ts
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-// === Конфигурация подключения к БД ===
+// === Настройки ===
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-if (!SUPABASE_URL || !SUPABASE_KEY) {
-  console.error('❌ Missing Supabase credentials');
-}
+const DEBUG_MODE = true; // включить отладочные комментарии
 
 function getSupabaseClient() {
-  return createClient(SUPABASE_URL!, SUPABASE_KEY!, {
-    db: { schema: 'public' },
-  });
+  if (!SUPABASE_URL || !SUPABASE_KEY) {
+    throw new Error('Supabase configuration is missing');
+  }
+  return createClient(SUPABASE_URL, SUPABASE_KEY, { db: { schema: 'public' } });
 }
 
-let xmlCache = '';
+let xmlCache: string = '';
 let lastUpdate = 0;
-const UPDATE_INTERVAL = 5000;
+const UPDATE_INTERVAL = 5000; // 5 секунд
 const CITY_CODE = 'klng';
 
 // === Утилиты ===
@@ -50,7 +47,8 @@ const cryptoNetworks: Record<string, string[]> = {
   SHIB: ['SHIBERC20', 'SHIBBEP20'],
 };
 
-async function generateXML(debug = false) {
+// === Основная логика ===
+async function generateXML() {
   const supabase = getSupabaseClient();
 
   const { data, error } = await supabase
@@ -64,46 +62,37 @@ async function generateXML(debug = false) {
     return `<?xml version="1.0" encoding="UTF-8"?><error>${escapeXml(error.message)}</error>`;
   }
 
-  if (!data?.length) {
-    console.warn('⚠️ No active rates found.');
-    return `<?xml version="1.0" encoding="UTF-8"?><error>No active rates found</error>`;
-  }
-
-  // приоритет kenig → derived
-  const kenig = data.filter(r => r.source === 'kenig');
-  const derived = data.filter(r => r.source === 'derived');
+  const rows = data || [];
+  const kenig = rows.filter(r => r.source === 'kenig');
+  const derived = rows.filter(r => r.source === 'derived');
   const allRates = [...kenig, ...derived];
 
-  // чтобы избежать дублей — храним только 1 вариант каждой пары
-  const seenPairs = new Set<string>();
   const items: string[] = [];
+  const seen = new Set<string>();
+  let debugInfo: string[] = [];
 
   for (const row of allRates) {
     const base = (row.base || '').toUpperCase();
     const quote = (row.quote || '').toUpperCase();
-    const sell = Number(row.sell);
+    const out = Number(row.sell);
     const reserve = Number(row.reserve);
     const min = Number(row.min_amount);
     const max = Number(row.max_amount);
-    if (!base || !quote || !sell || sell <= 0 || !reserve || reserve <= 0) continue;
+    if (!base || !quote || !out || out <= 0 || !reserve || reserve <= 0) continue;
 
-    let fromList = [base];
-    let toList = [quote];
+    let fromList: string[] = [base];
+    let toList: string[] = [quote];
 
-    // RUB → наличные
     if (base === 'RUB') fromList = ['CASHRUB'];
     if (quote === 'RUB') toList = ['CASHRUB'];
-
-    // крипта → сети
     if (cryptoNetworks[base]) fromList = cryptoNetworks[base];
     if (cryptoNetworks[quote]) toList = cryptoNetworks[quote];
 
     for (const from of fromList) {
       for (const to of toList) {
-        if (from === to) continue;
         const key = `${from}_${to}`;
-        if (seenPairs.has(key)) continue;
-        seenPairs.add(key);
+        if (seen.has(key) || from === to) continue;
+        seen.add(key);
 
         items.push(
           [
@@ -111,67 +100,67 @@ async function generateXML(debug = false) {
             `    <from>${from}</from>`,
             `    <to>${to}</to>`,
             `    <in>1</in>`,
-            `    <out>${formatNumber(sell)}</out>`,
+            `    <out>${formatNumber(out)}</out>`,
             `    <amount>${formatNumber(reserve)}</amount>`,
             `    <minamount>${formatNumber(min || 100)}</minamount>`,
             `    <maxamount>${formatNumber(max || reserve)}</maxamount>`,
             `    <param>manual</param>`,
             `    <city>${CITY_CODE}</city>`,
             '  </item>',
-          ].join('\n')
+          ].join('\n'),
         );
+
+        if (base === 'USDT' && quote === 'RUB' && row.source === 'kenig') {
+          debugInfo.push(
+            `USDT/RUB: id=${row.id} sell=${row.sell} buy=${row.buy} updated_at=${row.updated_at} source=${row.source}`,
+          );
+        }
       }
     }
   }
 
-  // для отладки выводим инфо
-  const usdtRub = allRates.find(r => r.base === 'USDT' && r.quote === 'RUB');
-  const host = SUPABASE_URL ? new URL(SUPABASE_URL).host : 'unknown';
-
-  const debugComment = debug
+  const debugHeader = DEBUG_MODE
     ? [
-        `<!-- DEBUG MODE -->`,
-        `<!-- Supabase host: ${host} -->`,
-        usdtRub
-          ? `<!-- USDT/RUB: id=${usdtRub.id} sell=${usdtRub.sell} buy=${usdtRub.buy} updated_at=${usdtRub.updated_at} source=${usdtRub.source} -->`
-          : `<!-- No USDT/RUB found -->`,
+        `<!-- Generated: ${new Date().toISOString()} -->`,
+        '<!-- DEBUG MODE ENABLED -->',
+        `<!-- Supabase host: ${SUPABASE_URL} -->`,
+        `<!-- Rows fetched: ${rows.length} -->`,
+        ...debugInfo.map(s => `<!-- ${s} -->`),
       ].join('\n')
     : '';
 
+  console.log(`🔄 XML generated at ${new Date().toISOString()} | rows=${rows.length}`);
+  if (debugInfo.length) console.log(debugInfo.join('\n'));
+
   return [
     '<?xml version="1.0" encoding="UTF-8"?>',
-    `<!-- Generated: ${new Date().toISOString()} -->`,
-    debugComment,
+    debugHeader,
     '<rates>',
     ...items,
     '</rates>',
   ].join('\n');
 }
 
-// === Кэш и экспорт ===
-async function getXML(debug = false): Promise<string> {
+async function getXML(): Promise<string> {
   const now = Date.now();
-  if (!debug && xmlCache && now - lastUpdate < UPDATE_INTERVAL) return xmlCache;
+  if (xmlCache && now - lastUpdate < UPDATE_INTERVAL) return xmlCache;
 
   try {
-    xmlCache = await generateXML(debug);
+    xmlCache = await generateXML();
     lastUpdate = now;
     return xmlCache;
   } catch (err) {
     console.error('XML generation failed:', err);
-    return `<?xml version="1.0"?><error>${escapeXml(String(err))}</error>`;
+    return `<?xml version="1.0" encoding="UTF-8"?><error>${escapeXml(String(err))}</error>`;
   }
 }
 
-export async function GET(req: Request) {
-  const url = new URL(req.url);
-  const debug = url.searchParams.get('debug') === '1';
-  const xml = await getXML(debug);
-
+export async function GET() {
+  const xml = await getXML();
   return new NextResponse(xml, {
     headers: {
       'Content-Type': 'application/xml; charset=utf-8',
-      'Cache-Control': debug ? 'no-store' : 'public, max-age=5, must-revalidate',
+      'Cache-Control': 'public, max-age=5, must-revalidate',
     },
   });
 }
