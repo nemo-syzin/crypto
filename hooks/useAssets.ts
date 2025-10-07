@@ -1,5 +1,5 @@
 import useSWR from 'swr';
-import { supabaseBrowser } from '@/lib/supabase/browser';
+import { supabase, isSupabaseAvailable } from '@/lib/supabase/client';
 
 const FALLBACK_BASES = [
   'USDT', 'RUB', 'USD', 'BTC', 'ETH', 'SOL', 'XRP', 'LTC', 'TRX', 'BNB'
@@ -22,10 +22,15 @@ const FALLBACK_QUOTES_BY_BASE: Record<string, string[]> = {
  * Fetch all unique base currencies from kenig_rates table
  */
 const fetchBases = async (): Promise<string[]> => {
+  if (!isSupabaseAvailable()) {
+    console.warn('[Assets] ⚠️ Supabase not available, using fallback bases');
+    return Array.from(FALLBACK_BASES);
+  }
+
   try {
     console.log('[Assets] 🔄 Fetching base currencies from kenig_rates table...');
-
-    const { data, error } = await supabaseBrowser
+    
+    const { data, error } = await supabase
       .from('kenig_rates')
       .select('base')
       .not('base', 'is', null)
@@ -54,16 +59,16 @@ const fetchBases = async (): Promise<string[]> => {
  * Fetch all available quote currencies for a specific base currency
  */
 const fetchQuotes = async (base: string): Promise<string[]> => {
-  if (!base) {
+  if (!base || !isSupabaseAvailable()) {
     const fallback = FALLBACK_QUOTES_BY_BASE[base] || FALLBACK_QUOTES_BY_BASE['USDT'] || ['RUB'];
-    console.log('[Assets] ⚠️ No base provided, using fallback quotes for', base, ':', fallback);
+    console.log('[Assets] ⚠️ No base or Supabase unavailable, using fallback quotes for', base, ':', fallback);
     return fallback;
   }
 
   try {
     console.log(`[Assets] 🔄 Fetching quote currencies for base ${base}...`);
-
-    const { data, error } = await supabaseBrowser
+    
+    const { data, error } = await supabase
       .from('kenig_rates')
       .select('quote')
       .eq('base', base.toUpperCase())

@@ -2,14 +2,21 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { supabaseBrowser } from '@/lib/supabase/browser';
+import { supabase } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Mail, ArrowLeft, CircleCheck as CheckCircle, CircleAlert as AlertCircle, Loader as Loader2, Send } from 'lucide-react';
+import { 
+  Mail, 
+  ArrowLeft, 
+  CheckCircle, 
+  AlertCircle,
+  Loader2,
+  Send
+} from 'lucide-react';
 
 export function ForgotPasswordForm() {
   const { toast } = useToast();
@@ -50,7 +57,7 @@ export function ForgotPasswordForm() {
     setError(null);
 
     try {
-      const { error: resetError } = await supabaseBrowser.auth.resetPasswordForEmail(email, {
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/update-password`,
       });
 

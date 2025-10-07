@@ -2,39 +2,10 @@ export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
 import { NextResponse } from 'next/server';
-import { supabaseServer } from '@/lib/supabase/server';
+import { getKenigAndBestchangeUSDT } from '@/lib/supabase/validated-rates';
 
 let cache: { data: any; t: number } | null = null;
-const CACHE_MS = 60_000;
-
-async function getKenigAndBestchangeUSDT() {
-  const supabase = supabaseServer();
-
-  const { data, error } = await supabase
-    .from('kenig_rates')
-    .select('source,sell,buy,updated_at')
-    .in('source', ['kenig', 'bestchange'])
-    .eq('base', 'USDT')
-    .eq('quote', 'RUB')
-    .order('updated_at', { ascending: false });
-
-  if (error) throw error;
-
-  const latest: Record<string, any> = {};
-  for (const row of data ?? []) {
-    if (!latest[row.source]) latest[row.source] = row;
-  }
-
-  const lastUpdated =
-    data && data.length ? new Date(data[0].updated_at ?? Date.now()) : new Date();
-
-  return {
-    kenig: latest['kenig'] ?? null,
-    bestchange: latest['bestchange'] ?? null,
-    isFromDatabase: true,
-    lastUpdated,
-  };
-}
+const CACHE_MS = 60_000; // 60 сек, чтобы не отставать от воркера (который апдейтит раз/мин)
 
 export async function GET() {
   // короткий edge-кэш

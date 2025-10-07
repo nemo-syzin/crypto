@@ -3,14 +3,23 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { supabaseBrowser } from '@/lib/supabase/browser';
+import { supabase } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Lock, Eye, EyeOff, CircleCheck as CheckCircle, CircleAlert as AlertCircle, Loader as Loader2, Shield, ArrowLeft } from 'lucide-react';
+import { 
+  Lock, 
+  Eye, 
+  EyeOff, 
+  CheckCircle, 
+  AlertCircle,
+  Loader2,
+  Shield,
+  ArrowLeft
+} from 'lucide-react';
 
 interface PasswordData {
   password: string;
@@ -40,7 +49,7 @@ export function UpdatePasswordForm() {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const { data: { session }, error } = await supabaseBrowser.auth.getSession();
+        const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
           console.error('Session check error:', error);
@@ -59,7 +68,7 @@ export function UpdatePasswordForm() {
 
           if (type === 'recovery' && accessToken && refreshToken) {
             // Устанавливаем сессию из URL параметров
-            const { error: sessionError } = await supabaseBrowser.auth.setSession({
+            const { error: sessionError } = await supabase.auth.setSession({
               access_token: accessToken,
               refresh_token: refreshToken,
             });
@@ -130,7 +139,7 @@ export function UpdatePasswordForm() {
     setError(null);
 
     try {
-      const { error: updateError } = await supabaseBrowser.auth.updateUser({
+      const { error: updateError } = await supabase.auth.updateUser({
         password: formData.password
       });
 

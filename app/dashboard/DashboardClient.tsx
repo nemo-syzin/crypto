@@ -3,11 +3,25 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/auth/SupabaseAuthProvider';
+import { supabase } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { User, Mail, Calendar, Settings, LogOut, Shield, Activity, CreditCard, Bell, Eye, EyeOff, Loader as Loader2 } from 'lucide-react';
+import { 
+  User, 
+  Mail, 
+  Calendar, 
+  Settings, 
+  LogOut, 
+  Shield, 
+  Activity,
+  CreditCard,
+  Bell,
+  Eye,
+  EyeOff,
+  Loader2
+} from 'lucide-react';
 
 interface UserProfile {
   id: string;

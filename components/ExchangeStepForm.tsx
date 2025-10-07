@@ -5,6 +5,7 @@ import { ArrowLeftRight, Loader as Loader2, CircleCheck as CheckCircle, CircleAl
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -75,8 +76,6 @@ export default function ExchangeStepForm() {
   };
 
   const handleSubmit = async () => {
-    const isCryptoInvolved = fromCurrency !== "RUB" || toCurrency !== "RUB";
-
     console.log('🚀 [Form] Начинаем отправку заявки...');
     console.log('📝 [Form] Данные формы:', {
       fromCurrency,
@@ -88,8 +87,8 @@ export default function ExchangeStepForm() {
       clientEmail: email,
       clientPhone: phone,
       clientTelegram: telegram,
-      clientWalletAddress: isCryptoInvolved ? walletAddress : null,
-      network: isCryptoInvolved ? network : null,
+      clientWalletAddress: toCurrency !== "RUB" ? walletAddress : null,
+      network: toCurrency !== "RUB" ? network : null,
     });
 
     setLoading(true);
@@ -107,8 +106,8 @@ export default function ExchangeStepForm() {
           clientEmail: email,
           clientPhone: phone,
           clientTelegram: telegram,
-          clientWalletAddress: isCryptoInvolved ? walletAddress : null,
-          network: isCryptoInvolved ? network : null,
+          clientWalletAddress: toCurrency !== "RUB" ? walletAddress : null,
+          network: toCurrency !== "RUB" ? network : null,
         }),
       });
 
@@ -347,7 +346,7 @@ export default function ExchangeStepForm() {
 
               <div className="space-y-2">
                 <Label htmlFor="telegram" className="text-sm font-medium text-[#001D8D]">
-                  Telegram *
+                  Ссылка на Telegram *
                 </Label>
                 <Input
                   id="telegram"
@@ -360,22 +359,16 @@ export default function ExchangeStepForm() {
               </div>
             </div>
 
-            {/* Условные поля: только если участвует крипта */}
-            {(fromCurrency !== "RUB" || toCurrency !== "RUB") && (
+            {/* Условные поля: только для крипты (не RUB) */}
+            {toCurrency !== "RUB" && (
               <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                 <div className="space-y-2">
                   <Label htmlFor="walletAddress" className="text-sm font-medium text-[#001D8D]">
-                    Адрес кошелька *
+                    Адрес кошелька {toCurrency} *
                   </Label>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                    {fromCurrency !== "RUB"
-                      ? "Укажите адрес, с которого вы будете отправлять криптовалюту"
-                      : "Укажите адрес, на который вы хотите получить криптовалюту"
-                    }
-                  </p>
                   <Input
                     id="walletAddress"
-                    placeholder="Введите адрес кошелька"
+                    placeholder={`Введите адрес кошелька ${toCurrency}`}
                     value={walletAddress}
                     onChange={e => setWalletAddress(e.target.value)}
                     className="input-field font-mono text-sm"
@@ -415,7 +408,7 @@ export default function ExchangeStepForm() {
               </Button>
               <Button
                 onClick={handleSubmit}
-                disabled={loading || !fullName || !email || !phone || !telegram || ((fromCurrency !== "RUB" || toCurrency !== "RUB") && (!walletAddress || !network))}
+                disabled={loading || !fullName || !email || !phone || !telegram || (toCurrency !== "RUB" && (!walletAddress || !network))}
                 className="flex-1 h-12 bg-gradient-to-r from-[#001D8D] to-blue-600 text-white font-semibold hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl"
               >
                 {loading ? (

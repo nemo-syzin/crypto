@@ -1,31 +1,31 @@
 export const dynamic = 'force-dynamic';
 
 import { NextResponse } from 'next/server';
-import { supabaseServer } from '@/lib/supabase/server';
+import { supabase, isSupabaseAvailable } from '@/lib/supabase/client';
 
 // Тестовый API для проверки данных BestChange фида в JSON формате
 export async function GET() {
   try {
-    console.log('🔧 Тестовый эндпоинт BestChange фида');
-    console.log('📊 Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
-    console.log('🔑 Supabase Key присутствует:', !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+    if (!isSupabaseAvailable()) {
+      return NextResponse.json({ 
+        error: 'Supabase не настроен',
+        message: 'Проверьте переменные окружения NEXT_PUBLIC_SUPABASE_URL и NEXT_PUBLIC_SUPABASE_ANON_KEY'
+      }, { status: 503 });
+    }
 
-    console.log('✅ Supabase доступен');
     console.log('🔄 Тестирование данных для BestChange фида...');
-
-    const supabase = supabaseServer();
 
     // Получаем все данные из kenig_rates
     const { data: rates, error } = await supabase
       .from('kenig_rates')
       .select(`
         source,
-        from_currency,
-        to_currency,
+        base,
+        quote,
         sell,
         buy,
-        minamount,
-        maxamount,
+        min_amount,
+        max_amount,
         reserve,
         operational_mode,
         working_hours,
@@ -34,38 +34,31 @@ export async function GET() {
         exchange_source,
         updated_at
       `)
-      .not('from_currency', 'is', null)
-      .not('to_currency', 'is', null)
+      .not('base', 'is', null)
+      .not('quote', 'is', null)
       .order('updated_at', { ascending: false });
 
     if (error) {
-      console.error('❌ Ошибка запроса к базе данных:', error);
-      return NextResponse.json({
+      return NextResponse.json({ 
         error: 'Ошибка базы данных',
-        details: error.message,
-        code: error.code,
-        hint: error.hint,
-        help: 'Проверьте, что таблица kenig_rates существует в базе данных'
+        details: error.message 
       }, { status: 500 });
     }
 
     if (!rates || rates.length === 0) {
-      console.warn('⚠️ Таблица kenig_rates пуста');
-      return NextResponse.json({
+      return NextResponse.json({ 
         message: 'Нет данных в таблице kenig_rates',
         total_records: 0,
-        active_records: 0,
-        help: 'Добавьте данные в таблицу kenig_rates через панель администратора или API'
+        active_records: 0
       });
     }
-
-    console.log(`✅ Найдено ${rates.length} записей`);
 
     // Применяем ту же логику фильтрации, что и в основном фиде
     const activeExchanges = rates.filter(rate => {
       if (rate.is_active === false) return false;
       if (!rate.reserve || rate.reserve <= 0) return false;
-      if (!rate.sell || rate.sell <= 0) return false;
+      if (!rate.sell || !rate.buy || rate.sell <= 0 || rate.buy <= 0) return false;
+      if (rate.min_amount && rate.max_amount && rate.min_amount > rate.max_amount) return false;
       return true;
     });
 
@@ -76,27 +69,24 @@ export async function GET() {
       inactive_records: rates.length - activeExchanges.length,
       sources: [...new Set(rates.map(r => r.source))],
       currencies: {
-        from: [...new Set(rates.map(r => r.from_currency))],
-        to: [...new Set(rates.map(r => r.to_currency))]
+        base: [...new Set(rates.map(r => r.base))],
+        quote: [...new Set(rates.map(r => r.quote))]
       },
       operational_modes: [...new Set(rates.map(r => r.operational_mode))],
       sample_active_exchanges: activeExchanges.slice(0, 5).map(rate => ({
-        pair: `${rate.from_currency}/${rate.to_currency}`,
+        pair: `${rate.base}/${rate.quote}`,
         source: rate.source,
-        from_currency: rate.from_currency,
-        to_currency: rate.to_currency,
         sell: rate.sell,
         buy: rate.buy,
-        minamount: rate.minamount,
-        maxamount: rate.maxamount,
+        min_amount: rate.min_amount,
+        max_amount: rate.max_amount,
         reserve: rate.reserve,
         operational_mode: rate.operational_mode,
         is_active: rate.is_active,
-        conditions: rate.conditions
+        conditions: rate.conditions,
+        exchange_source: rate.exchange_source
       }))
     };
-
-    console.log('✅ Тест завершен успешно');
 
     return NextResponse.json({
       status: 'success',

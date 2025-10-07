@@ -1,4 +1,4 @@
-import { supabaseBrowser } from '@/lib/supabase/browser';
+import { supabase, isSupabaseAvailable } from '@/lib/supabase/client';
 
 export interface ChatSession {
   id: string;
@@ -40,9 +40,12 @@ export interface ChatOperator {
 export async function createChatSession(
   userName: string,
 ): Promise<{ session: ChatSession | null; error: string | null }> {
+  if (!isSupabaseAvailable()) {
+    return { session: null, error: 'Чат временно недоступен' };
+  }
 
   try {
-    const { data: { user } } = await supabaseBrowser.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
     
     const sessionData = {
       user_id: user?.id || null,
@@ -50,7 +53,7 @@ export async function createChatSession(
       status: 'waiting' as const
     };
 
-    const { data: session, error } = await supabaseBrowser
+    const { data: session, error } = await supabase
       .from('chat_sessions')
       .insert([sessionData])
       .select()
@@ -75,6 +78,9 @@ export async function sendMessage(
   senderType: 'user' | 'operator' | 'system',
   senderId?: string
 ): Promise<{ message: ChatMessage | null; error: string | null }> {
+  if (!isSupabaseAvailable()) {
+    return { message: null, error: 'Чат временно недоступен' };
+  }
 
   try {
     const messageData = {
@@ -85,7 +91,7 @@ export async function sendMessage(
       message_type: 'text' as const
     };
 
-    const { data: newMessage, error } = await supabaseBrowser
+    const { data: newMessage, error } = await supabase
       .from('chat_messages')
       .insert([messageData])
       .select()
@@ -108,9 +114,12 @@ export async function getSessionMessages(sessionId: string): Promise<{
   messages: ChatMessage[];
   error: string | null;
 }> {
+  if (!isSupabaseAvailable()) {
+    return { messages: [], error: 'Чат временно недоступен' };
+  }
 
   try {
-    const { data: messages, error } = await supabaseBrowser
+    const { data: messages, error } = await supabase
       .from('chat_messages')
       .select('*')
       .eq('session_id', sessionId)
@@ -134,7 +143,12 @@ export function subscribeToMessages(
   onMessage: (message: ChatMessage) => void,
   onError?: (error: any) => void
 ) {
-  const subscription = supabaseBrowser
+  if (!isSupabaseAvailable()) {
+    onError?.('Чат временно недоступен');
+    return null;
+  }
+
+  const subscription = supabase
     .channel(`chat-messages-${sessionId}`)
     .on(
       'postgres_changes',
@@ -167,9 +181,12 @@ export async function getAvailableOperators(): Promise<{
   operators: ChatOperator[];
   error: string | null;
 }> {
+  if (!isSupabaseAvailable()) {
+    return { operators: [], error: 'Сервис временно недоступен' };
+  }
 
   try {
-    const { data: operators, error } = await supabaseBrowser
+    const { data: operators, error } = await supabase
       .from('chat_operators')
       .select('*')
       .eq('is_online', true)
@@ -192,9 +209,12 @@ export async function getActiveChatSessions(): Promise<{
   sessions: ChatSession[];
   error: string | null;
 }> {
+  if (!isSupabaseAvailable()) {
+    return { sessions: [], error: 'Сервис временно недоступен' };
+  }
 
   try {
-    const { data: sessions, error } = await supabaseBrowser
+    const { data: sessions, error } = await supabase
       .from('chat_sessions')
       .select('*')
       .in('status', ['waiting', 'active'])
@@ -218,6 +238,9 @@ export async function sendOperatorMessage(
   message: string,
   operatorId: string
 ): Promise<{ message: ChatMessage | null; error: string | null }> {
+  if (!isSupabaseAvailable()) {
+    return { message: null, error: 'Чат временно недоступен' };
+  }
 
   try {
     const messageData = {
@@ -228,7 +251,7 @@ export async function sendOperatorMessage(
       message_type: 'text' as const
     };
 
-    const { data: newMessage, error } = await supabaseBrowser
+    const { data: newMessage, error } = await supabase
       .from('chat_messages')
       .insert([messageData])
       .select()
@@ -251,9 +274,12 @@ export async function assignOperatorToSession(
   sessionId: string,
   operatorId: string
 ): Promise<{ success: boolean; error: string | null }> {
+  if (!isSupabaseAvailable()) {
+    return { success: false, error: 'Сервис временно недоступен' };
+  }
 
   try {
-    const { error } = await supabaseBrowser
+    const { error } = await supabase
       .from('chat_sessions')
       .update({ 
         operator_id: operatorId,
@@ -279,9 +305,12 @@ export async function closeChatSession(sessionId: string): Promise<{
   success: boolean;
   error: string | null;
 }> {
+  if (!isSupabaseAvailable()) {
+    return { success: false, error: 'Сервис временно недоступен' };
+  }
 
   try {
-    const { error } = await supabaseBrowser
+    const { error } = await supabase
       .from('chat_sessions')
       .update({ 
         status: 'closed',
