@@ -12,12 +12,12 @@ export async function POST(req: Request) {
       amount_from: body.amountFrom,
       amount_to: body.amountTo,
       exchange_rate: body.exchangeRate,
+      full_name: body.fullName,
       client_email: body.clientEmail,
-      client_phone: body.clientPhone || null,
+      client_phone: body.clientPhone,
+      client_telegram: body.clientTelegram,
       client_wallet_address: body.clientWalletAddress || null,
-      client_bank_details: body.clientBankDetails || null,
       network: body.network || null,
-      full_name: body.fullName || null,
     };
 
     console.log("📝 [API] Подготовленные данные для БД:", orderData);
