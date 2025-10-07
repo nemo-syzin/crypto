@@ -19,7 +19,6 @@ export const metadata: Metadata = {
     apple: '/favicon.svg',
   },
   manifest: '/site.webmanifest',
-  themeColor: '#011671',
   openGraph: {
     type: 'website',
     locale: 'ru_RU',
@@ -42,6 +41,10 @@ export const metadata: Metadata = {
     description: 'A modern crypto exchange platform specializing in USDT to RUB exchanges with competitive rates.',
     images: ['/логотип.svg'],
   },
+};
+
+export const viewport = {
+  themeColor: '#011671',
 };
 
 export default function RootLayout({

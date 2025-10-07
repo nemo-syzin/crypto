@@ -1,12 +1,19 @@
 // app/api/rates/route.ts
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 // === Настройки ===
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, { db: { schema: 'public' } });
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+function getSupabaseClient() {
+  if (!SUPABASE_URL || !SUPABASE_KEY) {
+    throw new Error('Supabase configuration is missing');
+  }
+  return createClient(SUPABASE_URL, SUPABASE_KEY, { db: { schema: 'public' } });
+}
 
 let xmlCache: string = '';
 let lastUpdate = 0;
@@ -40,6 +47,7 @@ const cryptoNetworks = {
 };
 
 async function generateXML() {
+  const supabase = getSupabaseClient();
   // Получаем все активные записи
   const { data, error } = await supabase
     .from('kenig_rates')
