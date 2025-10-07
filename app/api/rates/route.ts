@@ -143,7 +143,8 @@ async function generateXML() {
 
 async function getXML(): Promise<string> {
   const now = Date.now();
-  if (xmlCache && now - lastUpdate < UPDATE_INTERVAL) return xmlCache;
+  // 🚫 Отключаем кэш полностью (для отладки)
+if (false) return xmlCache;
 
   try {
     xmlCache = await generateXML();
