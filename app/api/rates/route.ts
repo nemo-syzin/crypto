@@ -4,11 +4,13 @@ export const runtime = 'nodejs';
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-// === Настройки ===
+// === Настройки окружения ===
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const DEBUG_MODE = true; // включить отладочные комментарии
+const CITY_CODE = 'klng';
+const DEBUG = true; // включи false на проде
 
+// === Инициализация клиента Supabase ===
 function getSupabaseClient() {
   if (!SUPABASE_URL || !SUPABASE_KEY) {
     throw new Error('Supabase configuration is missing');
@@ -16,12 +18,7 @@ function getSupabaseClient() {
   return createClient(SUPABASE_URL, SUPABASE_KEY, { db: { schema: 'public' } });
 }
 
-let xmlCache: string = '';
-let lastUpdate = 0;
-const UPDATE_INTERVAL = 5000; // 5 секунд
-const CITY_CODE = 'klng';
-
-// === Утилиты ===
+// === Вспомогательные функции ===
 const escapeXml = (text: any): string =>
   text == null
     ? ''
@@ -38,6 +35,7 @@ const formatNumber = (n: any): string => {
   return v % 1 === 0 ? v.toString() : v.toFixed(8).replace(/\.?0+$/, '');
 };
 
+// === Сопоставления сетей криптовалют ===
 const cryptoNetworks: Record<string, string[]> = {
   USDT: ['USDTTRC', 'USDTERC', 'USDTBEP20', 'USDTARBTM', 'USDTOPTM', 'USDTSOL', 'USDTAVAXC', 'USDTTON'],
   USDC: ['USDCTRC20', 'USDCERC20', 'USDCBEP20', 'USDCARBTM', 'USDCOPTM', 'USDCSOL', 'USDCPOLYGON'],
@@ -47,7 +45,7 @@ const cryptoNetworks: Record<string, string[]> = {
   SHIB: ['SHIBERC20', 'SHIBBEP20'],
 };
 
-// === Основная логика ===
+// === Основная функция генерации XML ===
 async function generateXML() {
   const supabase = getSupabaseClient();
 
@@ -62,14 +60,12 @@ async function generateXML() {
     return `<?xml version="1.0" encoding="UTF-8"?><error>${escapeXml(error.message)}</error>`;
   }
 
-  const rows = data || [];
-  const kenig = rows.filter(r => r.source === 'kenig');
-  const derived = rows.filter(r => r.source === 'derived');
+  const kenig = (data || []).filter(r => r.source === 'kenig');
+  const derived = (data || []).filter(r => r.source === 'derived');
   const allRates = [...kenig, ...derived];
 
   const items: string[] = [];
   const seen = new Set<string>();
-  let debugInfo: string[] = [];
 
   for (const row of allRates) {
     const base = (row.base || '').toUpperCase();
@@ -78,13 +74,17 @@ async function generateXML() {
     const reserve = Number(row.reserve);
     const min = Number(row.min_amount);
     const max = Number(row.max_amount);
+
     if (!base || !quote || !out || out <= 0 || !reserve || reserve <= 0) continue;
 
     let fromList: string[] = [base];
     let toList: string[] = [quote];
 
+    // RUB → наличные
     if (base === 'RUB') fromList = ['CASHRUB'];
     if (quote === 'RUB') toList = ['CASHRUB'];
+
+    // сети крипты
     if (cryptoNetworks[base]) fromList = cryptoNetworks[base];
     if (cryptoNetworks[quote]) toList = cryptoNetworks[quote];
 
@@ -109,59 +109,47 @@ async function generateXML() {
             '  </item>',
           ].join('\n'),
         );
-
-        if (base === 'USDT' && quote === 'RUB' && row.source === 'kenig') {
-          debugInfo.push(
-            `USDT/RUB: id=${row.id} sell=${row.sell} buy=${row.buy} updated_at=${row.updated_at} source=${row.source}`,
-          );
-        }
       }
     }
   }
 
-  const debugHeader = DEBUG_MODE
+  const debugInfo = DEBUG
     ? [
-        `<!-- Generated: ${new Date().toISOString()} -->`,
-        '<!-- DEBUG MODE ENABLED -->',
-        `<!-- Supabase host: ${SUPABASE_URL} -->`,
-        `<!-- Rows fetched: ${rows.length} -->`,
-        ...debugInfo.map(s => `<!-- ${s} -->`),
+        `<!--  Generated: ${new Date().toISOString()}  -->`,
+        `<!--  DEBUG MODE ENABLED  -->`,
+        `<!--  Supabase host: ${SUPABASE_URL}  -->`,
+        `<!--  Rows fetched: ${data?.length ?? 0}  -->`,
       ].join('\n')
     : '';
 
-  console.log(`🔄 XML generated at ${new Date().toISOString()} | rows=${rows.length}`);
-  if (debugInfo.length) console.log(debugInfo.join('\n'));
-
   return [
     '<?xml version="1.0" encoding="UTF-8"?>',
-    debugHeader,
+    debugInfo,
     '<rates>',
     ...items,
     '</rates>',
   ].join('\n');
 }
 
-async function getXML(): Promise<string> {
-  const now = Date.now();
-  // 🚫 Отключаем кэш полностью (для отладки)
-if (false) return xmlCache;
-
-  try {
-    xmlCache = await generateXML();
-    lastUpdate = now;
-    return xmlCache;
-  } catch (err) {
-    console.error('XML generation failed:', err);
-    return `<?xml version="1.0" encoding="UTF-8"?><error>${escapeXml(String(err))}</error>`;
-  }
-}
-
+// === Основной API-роут ===
 export async function GET() {
-  const xml = await getXML();
-  return new NextResponse(xml, {
-    headers: {
-      'Content-Type': 'application/xml; charset=utf-8',
-      'Cache-Control': 'public, max-age=5, must-revalidate',
-    },
-  });
+  try {
+    const xml = await generateXML();
+    return new NextResponse(xml, {
+      headers: {
+        'Content-Type': 'application/xml; charset=utf-8',
+        // ❗️запрещаем Netlify и CDN кэшировать ответ
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+      },
+    });
+  } catch (err: any) {
+    console.error('❌ XML generation failed:', err);
+    return new NextResponse(
+      `<?xml version="1.0" encoding="UTF-8"?><error>${escapeXml(String(err))}</error>`,
+      {
+        headers: { 'Content-Type': 'application/xml; charset=utf-8' },
+        status: 500,
+      },
+    );
+  }
 }
