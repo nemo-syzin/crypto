@@ -6,6 +6,7 @@ import { SupabaseAuthProvider } from "@/components/auth/SupabaseAuthProvider";
 import { Toaster } from "@/components/ui/toaster";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
+import { YandexMetrika } from "@/components/analytics/YandexMetrika";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
@@ -60,53 +61,9 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="//res.coinpaper.com" />
         <link rel="dns-prefetch" href="//api.alternative.me" />
         <link rel="dns-prefetch" href="//mc.yandex.ru" />
-
-        {/* Yandex.Metrika counter */}
-        <script
-          type="text/javascript"
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function(m,e,t,r,i,k,a){
-                m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-                m[i].l=1*new Date();
-                for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-                k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-              })(window, document,'script','https://mc.yandex.ru/metrika/tag.js', 'ym');
-
-              ym(104446016, 'init', {
-                ssr:true,
-                webvisor:true,
-                clickmap:true,
-                ecommerce:"dataLayer",
-                accurateTrackBounce:true,
-                trackLinks:true
-              });
-            `,
-          }}
-        />
-        <noscript>
-          <div>
-            <img src="https://mc.yandex.ru/watch/104446016" style={{position:'absolute', left:'-9999px'}} alt="" />
-          </div>
-        </noscript>
-        {/* /Yandex.Metrika counter */}
-
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              '@context': 'https://schema.org',
-              '@type': 'Organization',
-              name: 'KenigSwap',
-              url: siteUrl,
-              logo: `${siteUrl}/логотип.svg`,
-              description: 'A modern crypto exchange platform specializing in USDT to RUB exchanges with competitive rates.',
-              sameAs: [],
-            }),
-          }}
-        />
       </head>
       <body>
+        <YandexMetrika />
         {/* Глобальный фон: анимированный градиент из .app-bg + 2 CSS-блоба */}
         <div id="app-root" className="app-bg min-h-screen relative overflow-hidden">
           {/* Блоб-слой (НЕ перехватывает клики), -z-10 чтобы быть под контентом */}
@@ -129,6 +86,20 @@ export default function RootLayout({
             </ThemeProvider>
           </div>
         </div>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'Organization',
+              name: 'KenigSwap',
+              url: siteUrl,
+              logo: `${siteUrl}/логотип.svg`,
+              description: 'A modern crypto exchange platform specializing in USDT to RUB exchanges with competitive rates.',
+              sameAs: [],
+            }),
+          }}
+        />
       </body>
     </html>
   );
