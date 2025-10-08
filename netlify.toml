@@ -5,3 +5,8 @@
 [build.environment]
   NODE_VERSION = "18"
   NPM_VERSION  = "8"
+
+  [[headers]]
+  for = "/api/rates"
+  [headers.values]
+    Cache-Control = "no-store, no-cache, must-revalidate, proxy-revalidate"
