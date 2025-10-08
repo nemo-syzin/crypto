@@ -4,21 +4,19 @@ export const runtime = 'nodejs';
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-// === Настройки окружения ===
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+// === Настройки ===
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const CITY_CODE = 'klng';
-const DEBUG = true; // включи false на проде
+const DEBUG = true;
 
-// === Инициализация клиента Supabase ===
+// === Инициализация клиента ===
 function getSupabaseClient() {
-  if (!SUPABASE_URL || !SUPABASE_KEY) {
-    throw new Error('Supabase configuration is missing');
-  }
+  if (!SUPABASE_URL || !SUPABASE_KEY) throw new Error('Supabase configuration missing');
   return createClient(SUPABASE_URL, SUPABASE_KEY, { db: { schema: 'public' } });
 }
 
-// === Вспомогательные функции ===
+// === Вспомогательные ===
 const escapeXml = (text: any): string =>
   text == null
     ? ''
@@ -35,7 +33,7 @@ const formatNumber = (n: any): string => {
   return v % 1 === 0 ? v.toString() : v.toFixed(8).replace(/\.?0+$/, '');
 };
 
-// === Сопоставления сетей криптовалют ===
+// === Сети крипты ===
 const cryptoNetworks: Record<string, string[]> = {
   USDT: ['USDTTRC', 'USDTERC', 'USDTBEP20', 'USDTARBTM', 'USDTOPTM', 'USDTSOL', 'USDTAVAXC', 'USDTTON'],
   USDC: ['USDCTRC20', 'USDCERC20', 'USDCBEP20', 'USDCARBTM', 'USDCOPTM', 'USDCSOL', 'USDCPOLYGON'],
@@ -45,13 +43,13 @@ const cryptoNetworks: Record<string, string[]> = {
   SHIB: ['SHIBERC20', 'SHIBBEP20'],
 };
 
-// === Основная функция генерации XML ===
+// === Генерация XML ===
 async function generateXML() {
   const supabase = getSupabaseClient();
 
   const { data, error } = await supabase
     .from('kenig_rates')
-    .select('*')
+    .select('*', { head: false })
     .eq('is_active', true)
     .order('updated_at', { ascending: false });
 
@@ -74,17 +72,13 @@ async function generateXML() {
     const reserve = Number(row.reserve);
     const min = Number(row.min_amount);
     const max = Number(row.max_amount);
-
     if (!base || !quote || !out || out <= 0 || !reserve || reserve <= 0) continue;
 
     let fromList: string[] = [base];
     let toList: string[] = [quote];
 
-    // RUB → наличные
     if (base === 'RUB') fromList = ['CASHRUB'];
     if (quote === 'RUB') toList = ['CASHRUB'];
-
-    // сети крипты
     if (cryptoNetworks[base]) fromList = cryptoNetworks[base];
     if (cryptoNetworks[quote]) toList = cryptoNetworks[quote];
 
@@ -107,49 +101,42 @@ async function generateXML() {
             `    <param>manual</param>`,
             `    <city>${CITY_CODE}</city>`,
             '  </item>',
-          ].join('\n'),
+          ].join('\n')
         );
       }
     }
   }
 
-  const debugInfo = DEBUG
+  const debug = DEBUG
     ? [
-        `<!--  Generated: ${new Date().toISOString()}  -->`,
-        `<!--  DEBUG MODE ENABLED  -->`,
-        `<!--  Supabase host: ${SUPABASE_URL}  -->`,
-        `<!--  Rows fetched: ${data?.length ?? 0}  -->`,
+        `<!--   Generated: ${new Date().toISOString()}   -->`,
+        `<!--   DEBUG MODE ENABLED   -->`,
+        `<!--   Supabase host: ${SUPABASE_URL}   -->`,
+        `<!--   Rows fetched: ${data?.length ?? 0}   -->`,
       ].join('\n')
     : '';
 
-  return [
-    '<?xml version="1.0" encoding="UTF-8"?>',
-    debugInfo,
-    '<rates>',
-    ...items,
-    '</rates>',
-  ].join('\n');
+  return [`<?xml version="1.0" encoding="UTF-8"?>`, debug, '<rates>', ...items, '</rates>'].join('\n');
 }
 
-// === Основной API-роут ===
+// === Обработчик GET ===
 export async function GET() {
   try {
     const xml = await generateXML();
     return new NextResponse(xml, {
       headers: {
         'Content-Type': 'application/xml; charset=utf-8',
-        // ❗️запрещаем Netlify и CDN кэшировать ответ
         'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+        'Netlify-CDN-Cache-Control': 'no-store',
       },
     });
   } catch (err: any) {
     console.error('❌ XML generation failed:', err);
     return new NextResponse(
       `<?xml version="1.0" encoding="UTF-8"?><error>${escapeXml(String(err))}</error>`,
-      {
-        headers: { 'Content-Type': 'application/xml; charset=utf-8' },
-        status: 500,
-      },
+      { status: 500, headers: { 'Content-Type': 'application/xml; charset=utf-8' } }
     );
   }
 }
