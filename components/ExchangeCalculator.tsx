@@ -18,42 +18,28 @@ export default function ExchangeCalculator() {
   const [activeInput, setActiveInput] = useState<"give" | "receive">("give");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Хуки для получения данных
-  const { bases, loading: basesLoading, error: basesError } = useBaseAssets();
-  const { quotes, loading: quotesLoading, error: quotesError } = useQuoteAssets(fromCurrency);
-  const { rate, source, lastUpdated, loading: rateLoading, error: rateError, refetch } = useExchangeRate(fromCurrency, toCurrency);
+  const { bases, loading: basesLoading } = useBaseAssets();
+  const { quotes, loading: quotesLoading } = useQuoteAssets(fromCurrency);
+  const { rate, lastUpdated, loading: rateLoading, error: rateError } = useExchangeRate(fromCurrency, toCurrency);
 
-  // Пересчёт при изменении курса или сумм
   useEffect(() => {
     if (!rate || rate <= 0) {
-      if (activeInput === "give") {
-        setToAmount("");
-      } else {
-        setFromAmount("");
-      }
+      if (activeInput === "give") setToAmount("");
+      else setFromAmount("");
       return;
     }
 
     if (activeInput === "give" && fromAmount) {
-      const numAmount = parseFloat(fromAmount);
-      if (!isNaN(numAmount) && numAmount > 0) {
-        const result = numAmount * rate;
-        setToAmount(result.toFixed(2));
-      } else {
-        setToAmount("");
-      }
+      const num = parseFloat(fromAmount);
+      if (!isNaN(num) && num > 0) setToAmount((num * rate).toFixed(2));
+      else setToAmount("");
     } else if (activeInput === "receive" && toAmount) {
-      const numAmount = parseFloat(toAmount);
-      if (!isNaN(numAmount) && numAmount > 0) {
-        const result = numAmount / rate;
-        setFromAmount(result.toFixed(6));
-      } else {
-        setFromAmount("");
-      }
+      const num = parseFloat(toAmount);
+      if (!isNaN(num) && num > 0) setFromAmount((num / rate).toFixed(6));
+      else setFromAmount("");
     }
   }, [rate, fromAmount, toAmount, activeInput]);
 
-  // Смена направления обмена
   const swapCurrencies = () => {
     setFromCurrency(toCurrency);
     setToCurrency(fromCurrency);
@@ -62,170 +48,129 @@ export default function ExchangeCalculator() {
     setActiveInput(activeInput === "give" ? "receive" : "give");
   };
 
-  // Обработка отправки заявки
   const handleSubmit = async () => {
     if (!fromAmount || !toAmount || !rate) {
       toast({
         title: "Ошибка",
-        description: "Заполните все поля для создания заявки",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const numFromAmount = parseFloat(fromAmount);
-    const numToAmount = parseFloat(toAmount);
-
-    if (isNaN(numFromAmount) || isNaN(numToAmount) || numFromAmount <= 0 || numToAmount <= 0) {
-      toast({
-        title: "Ошибка",
-        description: "Введите корректные суммы для обмена",
+        description: "Введите сумму обмена",
         variant: "destructive",
       });
       return;
     }
 
     setIsSubmitting(true);
-
     try {
-      // Здесь будет API вызов для создания заявки
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Симуляция API вызова
-
+      await new Promise((r) => setTimeout(r, 1000));
       toast({
-        title: "Заявка создана!",
-        description: `Заявка на обмен ${fromAmount} ${fromCurrency} на ${toAmount} ${toCurrency} успешно создана.`,
+        title: "Заявка создана",
+        description: `${fromAmount} ${fromCurrency} → ${toAmount} ${toCurrency}`,
       });
-
-      // Сброс формы после успешной отправки
       setFromAmount("1");
       setToAmount("");
-      setActiveInput("give");
-    } catch (error) {
-      console.error('Ошибка создания заявки:', error);
-      toast({
-        title: "Ошибка",
-        description: "Не удалось создать заявку. Попробуйте позже.",
-        variant: "destructive",
-      });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Обработка ошибок загрузки
-  useEffect(() => {
-    if (basesError) {
-      toast({
-        title: "Ошибка загрузки валют",
-        description: basesError,
-        variant: "destructive",
-      });
-    }
-    if (quotesError) {
-      toast({
-        title: "Ошибка загрузки валют",
-        description: quotesError,
-        variant: "destructive",
-      });
-    }
-    if (rateError) {
-      toast({
-        title: "Ошибка загрузки курса",
-        description: rateError,
-        variant: "destructive",
-      });
-    }
-  }, [basesError, quotesError, rateError, toast]);
-
   return (
-    <div className="w-full flex flex-col items-center py-10 force-light-theme">
+    <div className="w-full flex flex-col items-center py-10 bg-white text-[#001D8D] [color-scheme:light]">
       {/* Заголовок */}
-      <h1 className="text-3xl font-bold text-[#001D8D] text-center mb-2">
+      <h1 className="text-3xl font-bold mb-3 text-center">
         Конвертер и калькулятор криптовалют
       </h1>
 
-      {/* Подзаголовок */}
       <p className="text-center text-[#001D8D]/70 mb-8">
-        {fromCurrency} в {toCurrency}: 1 {fromCurrency} конвертируется в{" "}
-        {rate ? rate.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "—"}{" "}
-        {toCurrency} по состоянию на{" "}
-        {lastUpdated ? lastUpdated.toLocaleString("ru-RU", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—"}
+        {fromCurrency} в {toCurrency}: 1 {fromCurrency} ≈{" "}
+        {rate ? rate.toFixed(2) : "—"} {toCurrency}
+        {lastUpdated && (
+          <>{" "}по состоянию на {lastUpdated.toLocaleString("ru-RU", { hour: "2-digit", minute: "2-digit", day: "numeric", month: "long" })}</>
+        )}
       </p>
 
-      {/* Основной контейнер */}
-      <div className="flex items-center gap-4 w-full max-w-2xl">
-        {/* Отдаёте */}
-        <div className="flex flex-1 border border-[#001D8D]/20 bg-white rounded-full px-6 py-3 items-center h-[60px]">
-          <Input
-            type="text"
-            value={fromAmount}
-            onChange={(e) => {
-              setFromAmount(e.target.value);
-              setActiveInput("give");
-            }}
-            className="flex-1 border-0 shadow-none focus-visible:ring-0 text-2xl font-medium text-[#001D8D] bg-white rounded-full px-6 [color-scheme:light]"
-            placeholder="0"
+      {/* Основной калькулятор */}
+      <div className="w-full max-w-3xl p-6 rounded-2xl bg-white shadow-[0_4px_30px_rgba(0,0,0,0.08)] border border-[#001D8D]/10 transition-all">
+        <div className="flex flex-col md:flex-row items-center gap-4">
+          {/* Отдаёте */}
+          <div className="flex flex-1 border border-[#001D8D]/20 bg-white rounded-full px-5 py-3 items-center h-[60px]">
+            <Input
+              type="text"
+              value={fromAmount}
+              onChange={(e) => {
+                setFromAmount(e.target.value);
+                setActiveInput("give");
+              }}
+              className="flex-1 border-0 shadow-none focus-visible:ring-0 text-2xl font-medium text-[#001D8D] bg-transparent"
+              placeholder="0"
+              disabled={rateLoading}
+            />
+            <Select value={fromCurrency} onValueChange={setFromCurrency} disabled={basesLoading}>
+              <SelectTrigger className="w-[100px] border-0 focus:ring-0 font-medium text-lg text-[#001D8D] bg-transparent">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-white border border-[#001D8D]/10 rounded-xl">
+                {bases.map((currency) => (
+                  <SelectItem
+                    key={currency}
+                    value={currency}
+                    className="text-[#001D8D] hover:bg-[#001D8D]/5"
+                  >
+                    {currency}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Кнопка обмена */}
+          <button
+            onClick={swapCurrencies}
             disabled={rateLoading}
-          />
-          <Select value={fromCurrency} onValueChange={setFromCurrency} disabled={basesLoading}>
-            <SelectTrigger className="w-[100px] border-0 focus:ring-0 font-medium text-lg text-[#001D8D] bg-white [color-scheme:light]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-white [color-scheme:light]">
-              {bases.map((currency) => (
-                <SelectItem key={currency} value={currency} className="bg-white text-[#001D8D] hover:bg-[#001D8D]/5">
-                  {currency}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            className="p-3 rounded-full border border-[#001D8D]/20 bg-white hover:bg-[#001D8D]/10 transition disabled:opacity-50"
+          >
+            <ArrowLeftRight className="w-5 h-5 text-[#001D8D]" />
+          </button>
+
+          {/* Получаете */}
+          <div className="flex flex-1 border border-[#001D8D]/20 bg-white rounded-full px-5 py-3 items-center h-[60px]">
+            <Input
+              type="text"
+              value={toAmount}
+              onChange={(e) => {
+                setToAmount(e.target.value);
+                setActiveInput("receive");
+              }}
+              className="flex-1 border-0 shadow-none focus-visible:ring-0 text-2xl font-medium text-[#001D8D] bg-transparent"
+              placeholder="0"
+              disabled={rateLoading}
+            />
+            <Select value={toCurrency} onValueChange={setToCurrency} disabled={quotesLoading}>
+              <SelectTrigger className="w-[100px] border-0 focus:ring-0 font-medium text-lg text-[#001D8D] bg-transparent">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-white border border-[#001D8D]/10 rounded-xl">
+                {quotes.map((currency) => (
+                  <SelectItem
+                    key={currency}
+                    value={currency}
+                    className="text-[#001D8D] hover:bg-[#001D8D]/5"
+                  >
+                    {currency}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
-        {/* Кнопка swap */}
-        <button
-          onClick={swapCurrencies}
-          disabled={rateLoading}
-          className="p-3 rounded-md border border-[#001D8D]/20 bg-white hover:bg-[#001D8D]/5 transition disabled:opacity-50 [color-scheme:light]"
+        {/* Кнопка */}
+        <Button
+          onClick={handleSubmit}
+          disabled={!rate || isSubmitting || rateLoading}
+          className="mt-6 w-full h-14 text-lg bg-[#0052FF] hover:bg-[#0041cc] font-semibold rounded-full text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <ArrowLeftRight className="w-5 h-5 text-[#001D8D]" />
-        </button>
-
-        {/* Получаете */}
-        <div className="flex flex-1 border border-[#001D8D]/20 bg-white rounded-full px-6 py-3 items-center h-[60px]">
-          <Input
-            type="text"
-            value={toAmount}
-            onChange={(e) => {
-              setToAmount(e.target.value);
-              setActiveInput("receive");
-            }}
-            className="flex-1 border-0 shadow-none focus-visible:ring-0 text-2xl font-medium text-[#001D8D] bg-white rounded-full px-6 [color-scheme:light]"
-            placeholder="0"
-            disabled={rateLoading}
-          />
-          <Select value={toCurrency} onValueChange={setToCurrency} disabled={quotesLoading}>
-            <SelectTrigger className="w-[100px] border-0 focus:ring-0 font-medium text-lg text-[#001D8D] bg-white [color-scheme:light]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-white [color-scheme:light]">
-              {quotes.map((currency) => (
-                <SelectItem key={currency} value={currency} className="bg-white text-[#001D8D] hover:bg-[#001D8D]/5">
-                  {currency}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+          {isSubmitting ? "Создание заявки..." : "Оставить заявку на обмен"}
+        </Button>
       </div>
-
-      {/* Кнопка создания заявки */}
-      <button
-        onClick={handleSubmit}
-        disabled={!rate || isSubmitting || rateLoading}
-        className="mt-8 w-full max-w-2xl h-14 text-lg bg-[#0052FF] hover:bg-[#0041cc] font-semibold rounded-full text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed [color-scheme:light]"
-      >
-        {isSubmitting ? "Создание заявки..." : "Оставить заявку на обмен"}
-      </button>
     </div>
   );
 }
