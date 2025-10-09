@@ -27,7 +27,7 @@ export async function POST(req: Request) {
 
     const { data, error } = await supabaseAdmin
       .from('exchange_orders')
-      .insert([orderData])
+      .insert(orderData as any)
       .select('id')
       .single();
 
