@@ -26,6 +26,8 @@ interface FormData {
   email: string;
   password: string;
   confirmPassword: string;
+  acceptAmlKyc: boolean;
+  acceptTerms: boolean;
 }
 
 export function RegisterForm() {
@@ -41,7 +43,9 @@ export function RegisterForm() {
     fullName: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    acceptAmlKyc: false,
+    acceptTerms: false
   });
 
   const [validationErrors, setValidationErrors] = useState<Partial<FormData>>({});
@@ -79,6 +83,16 @@ export function RegisterForm() {
       errors.confirmPassword = 'Пароли не совпадают';
     }
 
+    // Проверка согласия с политикой AML/KYC
+    if (!formData.acceptAmlKyc) {
+      errors.acceptAmlKyc = 'Необходимо принять политику AML/CTF и KYC';
+    }
+
+    // Проверка согласия с условиями
+    if (!formData.acceptTerms) {
+      errors.acceptTerms = 'Необходимо принять условия пользования';
+    }
+
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -112,6 +126,9 @@ export function RegisterForm() {
         options: {
           data: {
             full_name: formData.fullName,
+            accepted_aml_kyc: formData.acceptAmlKyc,
+            accepted_terms: formData.acceptTerms,
+            accepted_at: new Date().toISOString(),
           }
         }
       });
@@ -310,6 +327,82 @@ export function RegisterForm() {
             </div>
             {validationErrors.confirmPassword && (
               <p className="text-sm text-red-600">{validationErrors.confirmPassword}</p>
+            )}
+          </div>
+
+          {/* Согласие с политикой AML/KYC */}
+          <div className="space-y-2">
+            <div className="flex items-start gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setFormData(prev => ({ ...prev, acceptAmlKyc: !prev.acceptAmlKyc }));
+                  if (validationErrors.acceptAmlKyc) {
+                    setValidationErrors(prev => ({ ...prev, acceptAmlKyc: undefined }));
+                  }
+                }}
+                className={`mt-1 h-5 w-5 rounded border-2 flex items-center justify-center transition-all ${
+                  formData.acceptAmlKyc
+                    ? 'bg-[#001D8D] border-[#001D8D]'
+                    : 'border-[#001D8D]/30 hover:border-[#001D8D]/50'
+                } ${validationErrors.acceptAmlKyc ? 'border-red-300' : ''}`}
+                disabled={loading}
+              >
+                {formData.acceptAmlKyc && (
+                  <CheckCircle className="h-4 w-4 text-white" />
+                )}
+              </button>
+              <label className="text-sm text-[#001D8D]/80 leading-relaxed">
+                Я согласен с{' '}
+                <Link
+                  href="/policy/aml-kyc"
+                  target="_blank"
+                  className="text-[#001D8D] font-semibold hover:underline"
+                >
+                  AML/CTF и KYC Политикой
+                </Link>
+              </label>
+            </div>
+            {validationErrors.acceptAmlKyc && (
+              <p className="text-sm text-red-600 ml-8">{validationErrors.acceptAmlKyc}</p>
+            )}
+          </div>
+
+          {/* Согласие с условиями пользования */}
+          <div className="space-y-2">
+            <div className="flex items-start gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setFormData(prev => ({ ...prev, acceptTerms: !prev.acceptTerms }));
+                  if (validationErrors.acceptTerms) {
+                    setValidationErrors(prev => ({ ...prev, acceptTerms: undefined }));
+                  }
+                }}
+                className={`mt-1 h-5 w-5 rounded border-2 flex items-center justify-center transition-all ${
+                  formData.acceptTerms
+                    ? 'bg-[#001D8D] border-[#001D8D]'
+                    : 'border-[#001D8D]/30 hover:border-[#001D8D]/50'
+                } ${validationErrors.acceptTerms ? 'border-red-300' : ''}`}
+                disabled={loading}
+              >
+                {formData.acceptTerms && (
+                  <CheckCircle className="h-4 w-4 text-white" />
+                )}
+              </button>
+              <label className="text-sm text-[#001D8D]/80 leading-relaxed">
+                Я прочитал и согласен с{' '}
+                <Link
+                  href="/policy/terms"
+                  target="_blank"
+                  className="text-[#001D8D] font-semibold hover:underline"
+                >
+                  условиями пользования
+                </Link>
+              </label>
+            </div>
+            {validationErrors.acceptTerms && (
+              <p className="text-sm text-red-600 ml-8">{validationErrors.acceptTerms}</p>
             )}
           </div>
 

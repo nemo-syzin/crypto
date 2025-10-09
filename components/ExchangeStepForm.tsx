@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { ArrowLeftRight, Loader as Loader2, CircleCheck as CheckCircle, CircleAlert as AlertCircle } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
@@ -29,6 +30,9 @@ export default function ExchangeStepForm() {
   const [walletAddress, setWalletAddress] = useState("");
   const [network, setNetwork] = useState("");
   const [fullName, setFullName] = useState("");
+  const [acceptAmlKyc, setAcceptAmlKyc] = useState(false);
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [consentErrors, setConsentErrors] = useState({ amlKyc: "", terms: "" });
 
   // Хуки для получения данных
   const { bases, loading: basesLoading } = useBaseAssets();
@@ -75,6 +79,26 @@ export default function ExchangeStepForm() {
   };
 
   const handleSubmit = async () => {
+    const errors = { amlKyc: "", terms: "" };
+
+    if (!acceptAmlKyc) {
+      errors.amlKyc = "Необходимо принять политику AML/CTF и KYC";
+    }
+
+    if (!acceptTerms) {
+      errors.terms = "Необходимо принять условия пользования";
+    }
+
+    if (errors.amlKyc || errors.terms) {
+      setConsentErrors(errors);
+      toast({
+        title: "Ошибка",
+        description: "Пожалуйста, примите все необходимые соглашения",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const isCryptoInvolved = fromCurrency !== "RUB" || toCurrency !== "RUB";
 
     console.log('🚀 [Form] Начинаем отправку заявки...');
@@ -109,6 +133,8 @@ export default function ExchangeStepForm() {
           clientTelegram: telegram,
           clientWalletAddress: isCryptoInvolved ? walletAddress : null,
           network: isCryptoInvolved ? network : null,
+          acceptedAmlKyc: acceptAmlKyc,
+          acceptedTerms: acceptTerms,
         }),
       });
 
@@ -405,6 +431,82 @@ export default function ExchangeStepForm() {
               </div>
             )}
 
+            {/* Согласие с политикой AML/KYC */}
+            <div className="space-y-2 pt-4 border-t border-gray-200">
+              <div className="flex items-start gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAcceptAmlKyc(!acceptAmlKyc);
+                    if (consentErrors.amlKyc) {
+                      setConsentErrors(prev => ({ ...prev, amlKyc: "" }));
+                    }
+                  }}
+                  className={`mt-1 h-5 w-5 rounded border-2 flex items-center justify-center transition-all ${
+                    acceptAmlKyc
+                      ? 'bg-[#001D8D] border-[#001D8D]'
+                      : 'border-[#001D8D]/30 hover:border-[#001D8D]/50'
+                  } ${consentErrors.amlKyc ? 'border-red-300' : ''}`}
+                  disabled={loading}
+                >
+                  {acceptAmlKyc && (
+                    <CheckCircle className="h-4 w-4 text-white" />
+                  )}
+                </button>
+                <label className="text-sm text-[#001D8D]/80 leading-relaxed">
+                  Я согласен с{' '}
+                  <Link
+                    href="/policy/aml-kyc"
+                    target="_blank"
+                    className="text-[#001D8D] font-semibold hover:underline"
+                  >
+                    AML/CTF и KYC Политикой
+                  </Link>
+                </label>
+              </div>
+              {consentErrors.amlKyc && (
+                <p className="text-sm text-red-600 ml-8">{consentErrors.amlKyc}</p>
+              )}
+            </div>
+
+            {/* Согласие с условиями пользования */}
+            <div className="space-y-2">
+              <div className="flex items-start gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAcceptTerms(!acceptTerms);
+                    if (consentErrors.terms) {
+                      setConsentErrors(prev => ({ ...prev, terms: "" }));
+                    }
+                  }}
+                  className={`mt-1 h-5 w-5 rounded border-2 flex items-center justify-center transition-all ${
+                    acceptTerms
+                      ? 'bg-[#001D8D] border-[#001D8D]'
+                      : 'border-[#001D8D]/30 hover:border-[#001D8D]/50'
+                  } ${consentErrors.terms ? 'border-red-300' : ''}`}
+                  disabled={loading}
+                >
+                  {acceptTerms && (
+                    <CheckCircle className="h-4 w-4 text-white" />
+                  )}
+                </button>
+                <label className="text-sm text-[#001D8D]/80 leading-relaxed">
+                  Я прочитал и согласен с{' '}
+                  <Link
+                    href="/policy/terms"
+                    target="_blank"
+                    className="text-[#001D8D] font-semibold hover:underline"
+                  >
+                    условиями пользования
+                  </Link>
+                </label>
+              </div>
+              {consentErrors.terms && (
+                <p className="text-sm text-red-600 ml-8">{consentErrors.terms}</p>
+              )}
+            </div>
+
             {/* Кнопки действий */}
             <div className="flex gap-4 pt-6">
               <Button
@@ -416,7 +518,7 @@ export default function ExchangeStepForm() {
               </Button>
               <Button
                 onClick={handleSubmit}
-                disabled={loading || !fullName || !email || !phone || !telegram || ((fromCurrency !== "RUB" || toCurrency !== "RUB") && (!walletAddress || !network))}
+                disabled={loading || !fullName || !email || !phone || !telegram || !acceptAmlKyc || !acceptTerms || ((fromCurrency !== "RUB" || toCurrency !== "RUB") && (!walletAddress || !network))}
                 className="flex-1 h-12 bg-gradient-to-r from-[#001D8D] to-blue-600 text-white font-semibold hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl"
               >
                 {loading ? (
@@ -491,6 +593,9 @@ export default function ExchangeStepForm() {
                   setWalletAddress("");
                   setNetwork("");
                   setFullName("");
+                  setAcceptAmlKyc(false);
+                  setAcceptTerms(false);
+                  setConsentErrors({ amlKyc: "", terms: "" });
                 }}
                 className="w-full h-12 bg-gradient-to-r from-[#001D8D] to-blue-600 text-white font-semibold hover:opacity-90 transition-all duration-300"
               >
