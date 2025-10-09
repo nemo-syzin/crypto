@@ -36,8 +36,12 @@ interface AllRates {
 // ================== HELPERS ==================
 function normalizeDateString(dateString?: string | null): string | null {
   if (!dateString) return null;
-  // Исправляем формат PostgreSQL → ISO 8601
-  return dateString.replace(" ", "T").replace("+00", "Z");
+  let s = dateString.trim().replace(" ", "T");
+  s = s.replace(/\+00$/, "+00:00");
+  if (isNaN(Date.parse(s))) {
+    s = s.replace(/\.\d+/, ""); // убираем микросекунды
+  }
+  return s;
 }
 
 function formatRate(rate: number | null): string {
@@ -98,6 +102,10 @@ export default function RatesComparison() {
       }
 
       const data = await response.json();
+      console.log("💾 /api/rates response:", data);
+      console.log("kenig.updated_at =", data?.kenig?.updated_at);
+      console.log("bestchange.updated_at =", data?.bestchange?.updated_at);
+
       setRates(data);
       setLastUpdated(new Date());
       if (data.error) setError(data.error);
@@ -321,7 +329,7 @@ export default function RatesComparison() {
             </div>
           ) : rates ? (
             <div className="space-y-6">
-              {/* Sell Section */}
+              {/* SELL (USDT → RUB) */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <ArrowRightLeft className="h-4 w-4 text-red-500" />
@@ -350,30 +358,10 @@ export default function RatesComparison() {
                       "sell",
                       bestRates.bestSell?.source === mobileLeader.name
                     )}
-
-                  {exchangeData.length > 1 && (
-                    <details className="mt-3">
-                      <summary className="flex items-center gap-2 cursor-pointer text-sm text-[#001D8D] hover:text-[#001D8D]/80">
-                        <span>Ещё {exchangeData.length - 1}</span>
-                        <ChevronDown className="h-3 w-3" />
-                      </summary>
-                      <div className="mt-3 space-y-3">
-                        {exchangeData
-                          .filter((ex) => ex.name !== mobileLeader.name)
-                          .map((exchange) =>
-                            renderCompactRateCard(
-                              exchange,
-                              "sell",
-                              bestRates.bestSell?.source === exchange.name
-                            )
-                          )}
-                      </div>
-                    </details>
-                  )}
                 </div>
               </div>
 
-              {/* Buy Section */}
+              {/* BUY (USDT ← RUB) */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <ArrowRightLeft className="h-4 w-4 text-blue-500" />
@@ -402,29 +390,10 @@ export default function RatesComparison() {
                       "buy",
                       bestRates.bestBuy?.source === mobileLeader.name
                     )}
-
-                  {exchangeData.length > 1 && (
-                    <details className="mt-3">
-                      <summary className="flex items-center gap-2 cursor-pointer text-sm text-[#001D8D] hover:text-[#001D8D]/80">
-                        <span>Ещё {exchangeData.length - 1}</span>
-                        <ChevronDown className="h-3 w-3" />
-                      </summary>
-                      <div className="mt-3 space-y-3">
-                        {exchangeData
-                          .filter((ex) => ex.name !== mobileLeader.name)
-                          .map((exchange) =>
-                            renderCompactRateCard(
-                              exchange,
-                              "buy",
-                              bestRates.bestBuy?.source === exchange.name
-                            )
-                          )}
-                      </div>
-                    </details>
-                  )}
                 </div>
               </div>
 
+              {/* Summary */}
               {bestRates.bestSell && bestRates.bestBuy && (
                 <div className="mt-6 p-4 bg-blue-50/50 rounded-lg border border-blue-100">
                   <div className="flex items-start gap-3">
