@@ -392,32 +392,6 @@ export default function RatesComparison() {
                     )}
                 </div>
               </div>
-
-              {/* Summary */}
-              {bestRates.bestSell && bestRates.bestBuy && (
-                <div className="mt-6 p-4 bg-blue-50/50 rounded-lg border border-blue-100">
-                  <div className="flex items-start gap-3">
-                    <Info className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                    <div className="text-sm">
-                      <div className="font-semibold text-blue-900 mb-2">
-                        Лучшие предложения:
-                      </div>
-                      <div className="space-y-1 text-blue-800">
-                        <div>
-                          <strong>Продажа USDT:</strong>{" "}
-                          {bestRates.bestSell.source} —{" "}
-                          {formatRate(bestRates.bestSell.rate)}
-                        </div>
-                        <div>
-                          <strong>Покупка USDT:</strong>{" "}
-                          {bestRates.bestBuy.source} —{" "}
-                          {formatRate(bestRates.bestBuy.rate)}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
           ) : (
             <div className="text-center py-8 text-[#001D8D]/70">
