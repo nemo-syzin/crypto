@@ -647,6 +647,32 @@
     background: rgba(107, 114, 128, 0.1);
     border-color: #6b7280;
   }
+
+  /* Force light theme for calculator - override all dark mode attempts */
+  .force-light-theme {
+    color-scheme: light !important;
+    background: white !important;
+  }
+
+  .force-light-theme * {
+    color-scheme: light !important;
+  }
+
+  .force-light-theme input,
+  .force-light-theme button,
+  .force-light-theme select {
+    color-scheme: light !important;
+    background-color: white !important;
+    color: #001D8D !important;
+  }
+
+  .force-light-theme [role="combobox"],
+  .force-light-theme [role="listbox"],
+  .force-light-theme [role="option"] {
+    color-scheme: light !important;
+    background-color: white !important;
+    color: #001D8D !important;
+  }
 }
 
 @layer utilities {

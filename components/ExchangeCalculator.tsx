@@ -138,7 +138,7 @@ export default function ExchangeCalculator() {
   }, [basesError, quotesError, rateError, toast]);
 
   return (
-    <div className="w-full flex flex-col items-center py-10" style={{ colorScheme: 'light' }}>
+    <div className="w-full flex flex-col items-center py-10 force-light-theme">
       {/* Заголовок */}
       <h1 className="text-3xl font-bold text-[#001D8D] text-center mb-2">
         Конвертер и калькулятор криптовалют
@@ -163,18 +163,17 @@ export default function ExchangeCalculator() {
               setFromAmount(e.target.value);
               setActiveInput("give");
             }}
-            className="flex-1 border-0 shadow-none focus-visible:ring-0 text-2xl font-medium text-[#001D8D] bg-white rounded-full px-6"
+            className="flex-1 border-0 shadow-none focus-visible:ring-0 text-2xl font-medium text-[#001D8D] bg-white rounded-full px-6 [color-scheme:light]"
             placeholder="0"
             disabled={rateLoading}
-            style={{ colorScheme: 'light' }}
           />
           <Select value={fromCurrency} onValueChange={setFromCurrency} disabled={basesLoading}>
-            <SelectTrigger className="w-[100px] border-0 focus:ring-0 font-medium text-lg text-[#001D8D] bg-white">
+            <SelectTrigger className="w-[100px] border-0 focus:ring-0 font-medium text-lg text-[#001D8D] bg-white [color-scheme:light]">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="bg-white">
+            <SelectContent className="bg-white [color-scheme:light]">
               {bases.map((currency) => (
-                <SelectItem key={currency} value={currency}>
+                <SelectItem key={currency} value={currency} className="bg-white text-[#001D8D] hover:bg-[#001D8D]/5">
                   {currency}
                 </SelectItem>
               ))}
@@ -186,7 +185,7 @@ export default function ExchangeCalculator() {
         <button
           onClick={swapCurrencies}
           disabled={rateLoading}
-          className="p-3 rounded-md border border-[#001D8D]/20 bg-white hover:bg-[#001D8D]/5 transition disabled:opacity-50"
+          className="p-3 rounded-md border border-[#001D8D]/20 bg-white hover:bg-[#001D8D]/5 transition disabled:opacity-50 [color-scheme:light]"
         >
           <ArrowLeftRight className="w-5 h-5 text-[#001D8D]" />
         </button>
@@ -200,18 +199,17 @@ export default function ExchangeCalculator() {
               setToAmount(e.target.value);
               setActiveInput("receive");
             }}
-            className="flex-1 border-0 shadow-none focus-visible:ring-0 text-2xl font-medium text-[#001D8D] bg-white rounded-full px-6"
+            className="flex-1 border-0 shadow-none focus-visible:ring-0 text-2xl font-medium text-[#001D8D] bg-white rounded-full px-6 [color-scheme:light]"
             placeholder="0"
             disabled={rateLoading}
-            style={{ colorScheme: 'light' }}
           />
           <Select value={toCurrency} onValueChange={setToCurrency} disabled={quotesLoading}>
-            <SelectTrigger className="w-[100px] border-0 focus:ring-0 font-medium text-lg text-[#001D8D] bg-white">
+            <SelectTrigger className="w-[100px] border-0 focus:ring-0 font-medium text-lg text-[#001D8D] bg-white [color-scheme:light]">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="bg-white">
+            <SelectContent className="bg-white [color-scheme:light]">
               {quotes.map((currency) => (
-                <SelectItem key={currency} value={currency}>
+                <SelectItem key={currency} value={currency} className="bg-white text-[#001D8D] hover:bg-[#001D8D]/5">
                   {currency}
                 </SelectItem>
               ))}
@@ -224,7 +222,7 @@ export default function ExchangeCalculator() {
       <button
         onClick={handleSubmit}
         disabled={!rate || isSubmitting || rateLoading}
-        className="mt-8 w-full max-w-2xl h-14 text-lg bg-[#0052FF] hover:bg-[#0041cc] font-semibold rounded-full text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="mt-8 w-full max-w-2xl h-14 text-lg bg-[#0052FF] hover:bg-[#0041cc] font-semibold rounded-full text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed [color-scheme:light]"
       >
         {isSubmitting ? "Создание заявки..." : "Оставить заявку на обмен"}
       </button>
