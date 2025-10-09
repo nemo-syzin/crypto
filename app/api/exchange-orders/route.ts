@@ -18,9 +18,6 @@ export async function POST(req: Request) {
       client_telegram: body.clientTelegram,
       client_wallet_address: body.clientWalletAddress || null,
       network: body.network || null,
-      accepted_aml_kyc: body.acceptedAmlKyc || false,
-      accepted_terms: body.acceptedTerms || false,
-      accepted_at: body.acceptedAmlKyc && body.acceptedTerms ? new Date().toISOString() : null,
     };
 
     console.log("📝 [API] Подготовленные данные для БД:", orderData);
