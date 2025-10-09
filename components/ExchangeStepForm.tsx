@@ -296,31 +296,6 @@ export default function ExchangeStepForm() {
                 <strong className="text-[#001D8D]">1 {fromCurrency} = {rate?.toFixed(4)} {toCurrency}</strong>
               </div>
             </div>
-
-            {/* Контактная информация */}
-            <div className="mt-4 p-4 bg-gray-50 rounded-xl text-sm space-y-2">
-              <p className="text-[#001D8D] font-medium mb-2">Наши контакты для связи:</p>
-              <div className="space-y-1.5 text-gray-700">
-                <div className="flex items-center gap-2">
-                  <span className="text-gray-500">📧</span>
-                  <a href="mailto:support@kenigswap.com" className="hover:text-[#001D8D] transition-colors">
-                    support@kenigswap.com
-                  </a>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-gray-500">💬</span>
-                  <a href="https://t.me/kenigswap_39" target="_blank" rel="noopener noreferrer" className="hover:text-[#001D8D] transition-colors">
-                    @kenigswap_39
-                  </a>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-gray-500">📞</span>
-                  <a href="tel:+79211038275" className="hover:text-[#001D8D] transition-colors">
-                    +7 921 103 8275
-                  </a>
-                </div>
-              </div>
-            </div>
           </CardHeader>
 
           <CardContent className="space-y-6">
@@ -453,6 +428,24 @@ export default function ExchangeStepForm() {
                   "Подтвердить заявку"
                 )}
               </Button>
+            </div>
+
+            {/* Контактная информация */}
+            <div className="mt-6 p-3 bg-gray-50 rounded-lg text-xs">
+              <p className="text-[#001D8D] font-medium mb-1.5 text-center">Наши контакты:</p>
+              <div className="flex flex-wrap justify-center gap-3 text-gray-700">
+                <a href="mailto:support@kenigswap.com" className="hover:text-[#001D8D] transition-colors">
+                  support@kenigswap.com
+                </a>
+                <span className="text-gray-300">|</span>
+                <a href="https://t.me/kenigswap_39" target="_blank" rel="noopener noreferrer" className="hover:text-[#001D8D] transition-colors">
+                  @kenigswap_39
+                </a>
+                <span className="text-gray-300">|</span>
+                <a href="tel:+79211038275" className="hover:text-[#001D8D] transition-colors">
+                  +7 921 103 8275
+                </a>
+              </div>
             </div>
           </CardContent>
         </Card>
