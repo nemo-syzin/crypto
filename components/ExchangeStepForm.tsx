@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowLeftRight, Loader as Loader2, CircleCheck as CheckCircle, CircleAlert as AlertCircle } from "lucide-react";
+import { ArrowLeftRight, Loader as Loader2, Check, CircleAlert as AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -450,7 +450,7 @@ export default function ExchangeStepForm() {
                   disabled={loading}
                 >
                   {acceptAmlKyc && (
-                    <CheckCircle className="h-3 w-3 text-white" />
+                    <Check className="h-3 w-3 text-white stroke-[3]" />
                   )}
                 </button>
                 <label className="text-xs text-[#001D8D]/80 leading-tight">
@@ -485,7 +485,7 @@ export default function ExchangeStepForm() {
                   disabled={loading}
                 >
                   {acceptTerms && (
-                    <CheckCircle className="h-3 w-3 text-white" />
+                    <Check className="h-3 w-3 text-white stroke-[3]" />
                   )}
                 </button>
                 <label className="text-xs text-[#001D8D]/80 leading-tight">

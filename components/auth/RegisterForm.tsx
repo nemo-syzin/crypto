@@ -10,13 +10,13 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  User, 
-  Mail, 
-  Lock, 
-  Eye, 
-  EyeOff, 
-  CheckCircle, 
+import {
+  User,
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  Check,
   AlertCircle,
   Loader2
 } from 'lucide-react';
@@ -349,7 +349,7 @@ export function RegisterForm() {
                 disabled={loading}
               >
                 {formData.acceptAmlKyc && (
-                  <CheckCircle className="h-3 w-3 text-white" />
+                  <Check className="h-3 w-3 text-white stroke-[3]" />
                 )}
               </button>
               <label className="text-xs text-[#001D8D]/80 leading-tight">
@@ -384,7 +384,7 @@ export function RegisterForm() {
                 disabled={loading}
               >
                 {formData.acceptTerms && (
-                  <CheckCircle className="h-3 w-3 text-white" />
+                  <Check className="h-3 w-3 text-white stroke-[3]" />
                 )}
               </button>
               <label className="text-xs text-[#001D8D]/80 leading-tight">
