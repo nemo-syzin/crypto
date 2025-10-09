@@ -218,7 +218,7 @@ export default function ExchangeCalculator() {
         </div>
       </div>
 
-    
+  
       <button
         onClick={handleSubmit}
         disabled={!rate || isSubmitting || rateLoading}
