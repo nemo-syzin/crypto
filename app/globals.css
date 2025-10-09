@@ -12,7 +12,6 @@
 }
 
 :root {
-  color-scheme: light only;
   --background: hsl(0 0% 100%);
   --foreground: rgb(0, 29, 141);
   --card: hsl(0 0% 100%);
@@ -35,42 +34,12 @@
   --radius: 0.5rem;
 }
 
-/* Force light theme and disable dark mode system preferences */
-@media (prefers-color-scheme: dark) {
-  :root {
-    color-scheme: light only;
-    --background: hsl(0 0% 100%);
-    --foreground: rgb(0, 29, 141);
-    --card: hsl(0 0% 100%);
-    --card-foreground: rgb(0, 29, 141);
-    --popover: hsl(0 0% 100%);
-    --popover-foreground: rgb(0, 29, 141);
-    --primary: rgb(0, 29, 141);
-    --primary-foreground: rgb(0, 29, 141);
-    --secondary: rgb(0, 29, 141);
-    --secondary-foreground: rgb(0, 29, 141);
-    --muted: hsl(0 0% 98%);
-    --muted-foreground: rgb(0, 29, 141);
-    --accent: rgb(0, 29, 141);
-    --accent-foreground: rgb(0, 29, 141);
-    --destructive: rgb(0, 29, 141);
-    --destructive-foreground: rgb(0, 29, 141);
-    --border: rgb(0, 29, 141);
-    --input: rgb(0, 29, 141);
-    --ring: rgb(0, 29, 141);
-  }
-}
-
 @layer base {
-  * {
-    font-family: 'Gilroy', sans-serif;
-    color-scheme: light only;
-  }
+  * { font-family: 'Gilroy', sans-serif; }
   /* Прозрачный фон для body и html, чтобы не перекрывать .app-bg */
-  html, body {
-    @apply bg-transparent text-[#001D8D] m-0 p-0;
+  html, body { 
+    @apply bg-transparent text-[#001D8D] m-0 p-0; 
     background: transparent;
-    color-scheme: light only;
   }
 }
 
@@ -646,32 +615,6 @@
     color: #6b7280;
     background: rgba(107, 114, 128, 0.1);
     border-color: #6b7280;
-  }
-
-  /* Force light theme for calculator - override all dark mode attempts */
-  .force-light-theme {
-    color-scheme: light !important;
-    background: white !important;
-  }
-
-  .force-light-theme * {
-    color-scheme: light !important;
-  }
-
-  .force-light-theme input,
-  .force-light-theme button,
-  .force-light-theme select {
-    color-scheme: light !important;
-    background-color: white !important;
-    color: #001D8D !important;
-  }
-
-  .force-light-theme [role="combobox"],
-  .force-light-theme [role="listbox"],
-  .force-light-theme [role="option"] {
-    color-scheme: light !important;
-    background-color: white !important;
-    color: #001D8D !important;
   }
 }
 

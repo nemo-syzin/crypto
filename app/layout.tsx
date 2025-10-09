@@ -46,7 +46,6 @@ export const metadata: Metadata = {
 
 export const viewport = {
   themeColor: '#011671',
-  colorScheme: 'light',
 };
 
 export default function RootLayout({
@@ -55,16 +54,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ru" suppressHydrationWarning className="light" style={{ colorScheme: 'light' }}>
+    <html lang="ru" suppressHydrationWarning>
       <head>
         <link rel="dns-prefetch" href="//assets.revolut.com" />
         <link rel="dns-prefetch" href="//assets.coingecko.com" />
         <link rel="dns-prefetch" href="//res.coinpaper.com" />
         <link rel="dns-prefetch" href="//api.alternative.me" />
         <link rel="dns-prefetch" href="//mc.yandex.ru" />
-        <meta name="color-scheme" content="light" />
       </head>
-      <body className="light" style={{ colorScheme: 'light' }}>
+      <body>
         <YandexMetrika />
         {/* Глобальный фон: анимированный градиент из .app-bg + 2 CSS-блоба */}
         <div id="app-root" className="app-bg min-h-screen relative overflow-hidden">
@@ -78,7 +76,7 @@ export default function RootLayout({
 
           {/* Контент поверх */}
           <div className="relative z-10 min-h-screen flex flex-col">
-            <ThemeProvider forcedTheme="light" disableTransitionOnChange>
+            <ThemeProvider attribute="class" enableSystem disableTransitionOnChange>
               <SupabaseAuthProvider>
                 <Header />
                 <main className="flex-1">{children}</main>
