@@ -431,9 +431,9 @@ export default function ExchangeStepForm() {
               </div>
             )}
 
-            {/* Согласие с политикой AML/KYC */}
-            <div className="space-y-2 pt-4 border-t border-gray-200">
-              <div className="flex items-start gap-3">
+            {/* Согласия */}
+            <div className="space-y-3 p-4 bg-blue-50/50 rounded-lg border border-[#001D8D]/10 mt-4">
+              <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => {
@@ -442,36 +442,33 @@ export default function ExchangeStepForm() {
                       setConsentErrors(prev => ({ ...prev, amlKyc: "" }));
                     }
                   }}
-                  className={`mt-1 h-5 w-5 rounded border-2 flex items-center justify-center transition-all ${
+                  className={`h-4 w-4 rounded border flex items-center justify-center transition-all shrink-0 ${
                     acceptAmlKyc
                       ? 'bg-[#001D8D] border-[#001D8D]'
-                      : 'border-[#001D8D]/30 hover:border-[#001D8D]/50'
+                      : 'border-[#001D8D]/30 hover:border-[#001D8D]/50 bg-white'
                   } ${consentErrors.amlKyc ? 'border-red-300' : ''}`}
                   disabled={loading}
                 >
                   {acceptAmlKyc && (
-                    <CheckCircle className="h-4 w-4 text-white" />
+                    <CheckCircle className="h-3 w-3 text-white" />
                   )}
                 </button>
-                <label className="text-sm text-[#001D8D]/80 leading-relaxed">
+                <label className="text-xs text-[#001D8D]/80 leading-tight">
                   Я согласен с{' '}
                   <Link
                     href="/policy/aml-kyc"
                     target="_blank"
-                    className="text-[#001D8D] font-semibold hover:underline"
+                    className="text-[#001D8D] font-medium hover:underline"
                   >
                     AML/CTF и KYC Политикой
                   </Link>
                 </label>
               </div>
               {consentErrors.amlKyc && (
-                <p className="text-sm text-red-600 ml-8">{consentErrors.amlKyc}</p>
+                <p className="text-xs text-red-600">{consentErrors.amlKyc}</p>
               )}
-            </div>
 
-            {/* Согласие с условиями пользования */}
-            <div className="space-y-2">
-              <div className="flex items-start gap-3">
+              <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => {
@@ -480,30 +477,30 @@ export default function ExchangeStepForm() {
                       setConsentErrors(prev => ({ ...prev, terms: "" }));
                     }
                   }}
-                  className={`mt-1 h-5 w-5 rounded border-2 flex items-center justify-center transition-all ${
+                  className={`h-4 w-4 rounded border flex items-center justify-center transition-all shrink-0 ${
                     acceptTerms
                       ? 'bg-[#001D8D] border-[#001D8D]'
-                      : 'border-[#001D8D]/30 hover:border-[#001D8D]/50'
+                      : 'border-[#001D8D]/30 hover:border-[#001D8D]/50 bg-white'
                   } ${consentErrors.terms ? 'border-red-300' : ''}`}
                   disabled={loading}
                 >
                   {acceptTerms && (
-                    <CheckCircle className="h-4 w-4 text-white" />
+                    <CheckCircle className="h-3 w-3 text-white" />
                   )}
                 </button>
-                <label className="text-sm text-[#001D8D]/80 leading-relaxed">
+                <label className="text-xs text-[#001D8D]/80 leading-tight">
                   Я прочитал и согласен с{' '}
                   <Link
                     href="/policy/terms"
                     target="_blank"
-                    className="text-[#001D8D] font-semibold hover:underline"
+                    className="text-[#001D8D] font-medium hover:underline"
                   >
                     условиями пользования
                   </Link>
                 </label>
               </div>
               {consentErrors.terms && (
-                <p className="text-sm text-red-600 ml-8">{consentErrors.terms}</p>
+                <p className="text-xs text-red-600">{consentErrors.terms}</p>
               )}
             </div>
 
