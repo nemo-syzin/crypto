@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowLeftRight, Loader as Loader2, Check, CircleAlert as AlertCircle } from "lucide-react";
+import { ArrowLeftRight, Loader as Loader2, Check, CircleAlert as AlertCircle, CheckCircle2, Mail, Phone, MessageCircle, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -552,53 +552,100 @@ export default function ExchangeStepForm() {
 
       {/* === Шаг 3: Подтверждение === */}
       {step === 3 && (
-        <Card className="calc-light-forced calculator-container border-none shadow-xl" style={{ colorScheme: 'light', background: '#fff' }}>
-          <CardContent className="p-8 text-center">
-            <div className="flex justify-center mb-6">
-              <div className="p-4 bg-green-100 rounded-full">
-                <CheckCircle className="h-12 w-12 text-green-600" />
+        <Card className="calc-light-forced calculator-container border-none shadow-xl overflow-hidden" style={{ colorScheme: 'light', background: '#fff' }}>
+          {/* Успешный заголовок с градиентом */}
+          <div className="bg-gradient-to-br from-green-500 to-emerald-600 text-white p-6 sm:p-8 text-center">
+            <div className="flex justify-center mb-4">
+              <div className="p-3 bg-white/20 backdrop-blur-sm rounded-full">
+                <CheckCircle2 className="h-10 w-10 sm:h-12 sm:w-12" />
               </div>
             </div>
-            
-            <h2 className="text-2xl md:text-3xl font-bold text-green-700 mb-4">
-              Заявка создана!
+            <h2 className="text-2xl sm:text-3xl font-bold mb-2">
+              Заявка успешно создана!
             </h2>
-            
-            <p className="text-[#001D8D]/70 mb-8 leading-relaxed">
-              Наш менеджер свяжется с вами в течение 15 минут для подтверждения деталей обмена.
-              Проверьте указанный email и телефон.
+            <p className="text-white/90 text-sm sm:text-base max-w-md mx-auto">
+              Мы получили вашу заявку и скоро свяжемся с вами
             </p>
+          </div>
 
-            <div className="space-y-4">
-              <div className="bg-blue-50 p-4 rounded-lg text-sm">
-                <h4 className="font-semibold text-[#001D8D] mb-2">Детали заявки:</h4>
-                <div className="space-y-1 text-[#001D8D]/70">
-                  <div>Обмен: {fromAmount} {fromCurrency} → {toAmount} {toCurrency}</div>
-                  <div>Email: {email}</div>
-                  {phone && <div>Телефон: {phone}</div>}
+          <CardContent className="p-4 sm:p-6 space-y-4">
+            {/* Детали обмена */}
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="h-8 w-8 rounded-lg bg-[#001D8D] flex items-center justify-center">
+                  <ArrowRight className="h-4 w-4 text-white" />
+                </div>
+                <h3 className="font-semibold text-[#001D8D]">Детали обмена</h3>
+              </div>
+              <div className="bg-white/60 backdrop-blur-sm rounded-lg p-3 space-y-2 text-sm">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Отдаёте:</span>
+                  <span className="font-semibold text-[#001D8D]">{fromAmount} {fromCurrency}</span>
+                </div>
+                <div className="h-px bg-gray-200"></div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Получаете:</span>
+                  <span className="font-semibold text-green-600">{toAmount} {toCurrency}</span>
                 </div>
               </div>
-
-              <Button
-                onClick={() => {
-                  setStep(1);
-                  setFromAmount("1");
-                  setToAmount("");
-                  setEmail("");
-                  setPhone("");
-                  setTelegram("");
-                  setWalletAddress("");
-                  setNetwork("");
-                  setFullName("");
-                  setAcceptAmlKyc(false);
-                  setAcceptTerms(false);
-                  setConsentErrors({ amlKyc: "", terms: "" });
-                }}
-                className="w-full h-12 bg-gradient-to-r from-[#001D8D] to-blue-600 text-white font-semibold hover:opacity-90 transition-all duration-300"
-              >
-                Создать новую заявку
-              </Button>
             </div>
+
+            {/* Контактная информация */}
+            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+              <h3 className="font-semibold text-[#001D8D] mb-3 text-sm">Способы связи</h3>
+              <div className="space-y-2.5">
+                <div className="flex items-center gap-3 text-sm">
+                  <div className="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center shrink-0">
+                    <Mail className="h-4 w-4 text-blue-600" />
+                  </div>
+                  <span className="text-gray-700 break-all">{email}</span>
+                </div>
+                {phone && (
+                  <div className="flex items-center gap-3 text-sm">
+                    <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center shrink-0">
+                      <Phone className="h-4 w-4 text-green-600" />
+                    </div>
+                    <span className="text-gray-700">{phone}</span>
+                  </div>
+                )}
+                {telegram && (
+                  <div className="flex items-center gap-3 text-sm">
+                    <div className="h-8 w-8 rounded-lg bg-sky-100 flex items-center justify-center shrink-0">
+                      <MessageCircle className="h-4 w-4 text-sky-600" />
+                    </div>
+                    <span className="text-gray-700">{telegram}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Информация о времени */}
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+              <p className="text-xs sm:text-sm text-amber-900 text-center">
+                <span className="font-semibold">⏱️ Ожидайте связи в течение 15 минут</span>
+              </p>
+            </div>
+
+            {/* Кнопка новой заявки */}
+            <Button
+              onClick={() => {
+                setStep(1);
+                setFromAmount("1");
+                setToAmount("");
+                setEmail("");
+                setPhone("");
+                setTelegram("");
+                setWalletAddress("");
+                setNetwork("");
+                setFullName("");
+                setAcceptAmlKyc(false);
+                setAcceptTerms(false);
+                setConsentErrors({ amlKyc: "", terms: "" });
+              }}
+              className="w-full h-12 bg-gradient-to-r from-[#001D8D] to-blue-600 text-white font-semibold hover:opacity-90 transition-all duration-300 shadow-md hover:shadow-lg"
+            >
+              Создать новую заявку
+            </Button>
           </CardContent>
         </Card>
       )}
