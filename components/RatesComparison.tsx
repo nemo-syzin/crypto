@@ -89,7 +89,7 @@ export default function RatesComparison() {
   const fetchRates = async () => {
     try {
       setError(null);
-      const response = await fetch("/api/rates", {
+      const response = await fetch("/api/rates-comparison", {
         cache: "no-cache",
         headers: {
           "Cache-Control": "no-cache",
@@ -102,7 +102,7 @@ export default function RatesComparison() {
       }
 
       const data = await response.json();
-      console.log("💾 /api/rates response:", data);
+      console.log("💾 /api/rates-comparison response:", data);
       console.log("kenig.updated_at =", data?.kenig?.updated_at);
       console.log("bestchange.updated_at =", data?.bestchange?.updated_at);
 

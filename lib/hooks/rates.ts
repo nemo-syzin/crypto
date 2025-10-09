@@ -58,8 +58,8 @@ export function useAllRates() {
       setError(null);
       
       console.log('🔄 Fetching rates from API...');
-      
-      const response = await fetch('/api/rates', {
+
+      const response = await fetch('/api/rates-comparison', {
         cache: 'no-cache',
         headers: {
           'Cache-Control': 'no-cache',
@@ -237,8 +237,8 @@ export function useKenigRate() {
       setError(null);
       
       console.log('🔄 Fetching Kenig rate from API...');
-      
-      const response = await fetch('/api/rates', {
+
+      const response = await fetch('/api/rates-comparison', {
         cache: 'no-cache',
         headers: {
           'Cache-Control': 'no-cache',
