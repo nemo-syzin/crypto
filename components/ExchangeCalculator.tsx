@@ -138,14 +138,14 @@ export default function ExchangeCalculator() {
   }, [basesError, quotesError, rateError, toast]);
 
   return (
-    <div className="w-full flex flex-col items-center py-10">
+    <div className="w-full flex flex-col items-center py-10" style={{ colorScheme: 'light' }}>
       {/* Заголовок */}
-      <h1 className="text-3xl font-bold text-gray-900 text-center mb-2">
+      <h1 className="text-3xl font-bold text-[#001D8D] text-center mb-2">
         Конвертер и калькулятор криптовалют
       </h1>
 
       {/* Подзаголовок */}
-      <p className="text-center text-gray-600 mb-8">
+      <p className="text-center text-[#001D8D]/70 mb-8">
         {fromCurrency} в {toCurrency}: 1 {fromCurrency} конвертируется в{" "}
         {rate ? rate.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "—"}{" "}
         {toCurrency} по состоянию на{" "}
@@ -155,7 +155,7 @@ export default function ExchangeCalculator() {
       {/* Основной контейнер */}
       <div className="flex items-center gap-4 w-full max-w-2xl">
         {/* Отдаёте */}
-        <div className="flex flex-1 border border-gray-300 rounded-full px-6 py-3 items-center h-[60px]">
+        <div className="flex flex-1 border border-[#001D8D]/20 bg-white rounded-full px-6 py-3 items-center h-[60px]">
           <Input
             type="text"
             value={fromAmount}
@@ -163,15 +163,16 @@ export default function ExchangeCalculator() {
               setFromAmount(e.target.value);
               setActiveInput("give");
             }}
-            className="flex-1 border-0 shadow-none focus-visible:ring-0 text-2xl font-medium bg-transparent rounded-full px-6"
+            className="flex-1 border-0 shadow-none focus-visible:ring-0 text-2xl font-medium text-[#001D8D] bg-white rounded-full px-6"
             placeholder="0"
             disabled={rateLoading}
+            style={{ colorScheme: 'light' }}
           />
           <Select value={fromCurrency} onValueChange={setFromCurrency} disabled={basesLoading}>
-            <SelectTrigger className="w-[100px] border-0 focus:ring-0 font-medium text-lg bg-transparent">
+            <SelectTrigger className="w-[100px] border-0 focus:ring-0 font-medium text-lg text-[#001D8D] bg-white">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white">
               {bases.map((currency) => (
                 <SelectItem key={currency} value={currency}>
                   {currency}
@@ -185,13 +186,13 @@ export default function ExchangeCalculator() {
         <button
           onClick={swapCurrencies}
           disabled={rateLoading}
-          className="p-3 rounded-md border border-gray-300 bg-white hover:bg-gray-50 transition disabled:opacity-50"
+          className="p-3 rounded-md border border-[#001D8D]/20 bg-white hover:bg-[#001D8D]/5 transition disabled:opacity-50"
         >
-          <ArrowLeftRight className="w-5 h-5 text-gray-600" />
+          <ArrowLeftRight className="w-5 h-5 text-[#001D8D]" />
         </button>
 
         {/* Получаете */}
-        <div className="flex flex-1 border border-gray-300 rounded-full px-6 py-3 items-center h-[60px]">
+        <div className="flex flex-1 border border-[#001D8D]/20 bg-white rounded-full px-6 py-3 items-center h-[60px]">
           <Input
             type="text"
             value={toAmount}
@@ -199,15 +200,16 @@ export default function ExchangeCalculator() {
               setToAmount(e.target.value);
               setActiveInput("receive");
             }}
-            className="flex-1 border-0 shadow-none focus-visible:ring-0 text-2xl font-medium bg-transparent rounded-full px-6"
+            className="flex-1 border-0 shadow-none focus-visible:ring-0 text-2xl font-medium text-[#001D8D] bg-white rounded-full px-6"
             placeholder="0"
             disabled={rateLoading}
+            style={{ colorScheme: 'light' }}
           />
           <Select value={toCurrency} onValueChange={setToCurrency} disabled={quotesLoading}>
-            <SelectTrigger className="w-[100px] border-0 focus:ring-0 font-medium text-lg bg-transparent">
+            <SelectTrigger className="w-[100px] border-0 focus:ring-0 font-medium text-lg text-[#001D8D] bg-white">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white">
               {quotes.map((currency) => (
                 <SelectItem key={currency} value={currency}>
                   {currency}
