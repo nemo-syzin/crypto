@@ -138,17 +138,17 @@ export default function ExchangeStepForm() {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
+    <div className="w-full max-w-4xl mx-auto" style={{ colorScheme: 'light' }} data-theme="light">
       {/* === Шаг 1: Калькулятор (стиль Coinbase) === */}
       {step === 1 && (
         <div className="w-full">
           {/* Заголовок */}
           <div className="text-center mb-8">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-3">
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3">
               Конвертер и калькулятор криптовалют
             </h1>
             {rate && (
-              <p className="text-lg text-gray-600 dark:text-gray-400">
+              <p className="text-lg text-gray-600">
                 {fromCurrency} в {toCurrency}: 1 {fromCurrency === "BTC" ? "Bitcoin" : fromCurrency} конвертируется в{" "}
                 {rate.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
                 {toCurrency === "RUB" ? "₽" : ""} {toCurrency} по состоянию на{" "}
@@ -159,13 +159,13 @@ export default function ExchangeStepForm() {
           </div>
 
           {/* Калькулятор */}
-          <Card className="border-none shadow-lg bg-white dark:bg-gray-900">
+          <Card className="calc-light-forced border-none shadow-lg bg-white" style={{ colorScheme: 'light', background: '#fff' }}>
             <CardContent className="p-6 md:p-8">
               {/* Горизонтальная раскладка полей */}
               <div className="flex flex-col md:flex-row items-center gap-3">
                 {/* Поле "Отдаёте" */}
                 <div className="relative flex-1 w-full">
-                  <div className="bg-gray-50 dark:bg-gray-800 rounded-full h-[72px] flex items-center px-6 gap-4 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="bg-gray-50 rounded-full h-[72px] flex items-center px-6 gap-4 shadow-sm hover:shadow-md transition-shadow">
                     <Input
                       type="text"
                       value={fromAmount}
@@ -179,7 +179,7 @@ export default function ExchangeStepForm() {
                     />
                     <div className="shrink-0">
                       <Select value={fromCurrency} onValueChange={setFromCurrency} disabled={basesLoading}>
-                        <SelectTrigger className="bg-white dark:bg-gray-700 border-none rounded-full h-12 px-4 min-w-[120px] text-base font-semibold shadow-sm">
+                        <SelectTrigger className="bg-white border-none rounded-full h-12 px-4 min-w-[120px] text-base font-semibold shadow-sm" style={{ colorScheme: 'light', backgroundColor: '#fff' }}>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -199,16 +199,17 @@ export default function ExchangeStepForm() {
                   <button
                     onClick={swapCurrencies}
                     disabled={rateLoading}
-                    className="w-12 h-12 rounded-full bg-white dark:bg-gray-800 border-4 border-gray-50 dark:border-gray-900 shadow-md hover:shadow-lg transition-all hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                    className="w-12 h-12 rounded-full bg-white border-4 border-gray-50 shadow-md hover:shadow-lg transition-all hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                    style={{ colorScheme: 'light', backgroundColor: '#fff' }}
                     aria-label="Поменять валюты местами"
                   >
-                    <ArrowLeftRight className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                    <ArrowLeftRight className="w-5 h-5 text-gray-700" />
                   </button>
                 </div>
 
                 {/* Поле "Получаете" */}
                 <div className="relative flex-1 w-full">
-                  <div className="bg-gray-50 dark:bg-gray-800 rounded-full h-[72px] flex items-center px-6 gap-4 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="bg-gray-50 rounded-full h-[72px] flex items-center px-6 gap-4 shadow-sm hover:shadow-md transition-shadow">
                     <Input
                       type="text"
                       value={toAmount}
@@ -222,7 +223,7 @@ export default function ExchangeStepForm() {
                     />
                     <div className="shrink-0">
                       <Select value={toCurrency} onValueChange={setToCurrency} disabled={quotesLoading}>
-                        <SelectTrigger className="bg-white dark:bg-gray-700 border-none rounded-full h-12 px-4 min-w-[120px] text-base font-semibold shadow-sm">
+                        <SelectTrigger className="bg-white border-none rounded-full h-12 px-4 min-w-[120px] text-base font-semibold shadow-sm" style={{ colorScheme: 'light', backgroundColor: '#fff' }}>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -242,10 +243,10 @@ export default function ExchangeStepForm() {
               {rate && (
                 <div className="pt-6">
                   <div className="text-center">
-                    <div className="text-xl font-semibold text-gray-900 dark:text-white">
+                    <div className="text-xl font-semibold text-gray-900">
                       1 {fromCurrency} = {rate.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 6 })} {toCurrency}
                     </div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    <div className="text-sm text-gray-500 mt-1">
                       Актуальный курс обмена
                     </div>
                   </div>
@@ -276,7 +277,7 @@ export default function ExchangeStepForm() {
 
       {/* === Шаг 2: Форма заявки === */}
       {step === 2 && (
-        <Card className="calculator-container border-none shadow-xl">
+        <Card className="calc-light-forced calculator-container border-none shadow-xl" style={{ colorScheme: 'light', background: '#fff' }}>
           <CardHeader className="text-center pb-6">
             <CardTitle className="text-xl md:text-2xl font-bold text-[#001D8D] mb-4">
               Данные для обмена
@@ -362,12 +363,12 @@ export default function ExchangeStepForm() {
 
             {/* Условные поля: только если участвует крипта */}
             {(fromCurrency !== "RUB" || toCurrency !== "RUB") && (
-              <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <div className="space-y-4 pt-4 border-t border-gray-200">
                 <div className="space-y-2">
                   <Label htmlFor="walletAddress" className="text-sm font-medium text-[#001D8D]">
                     Адрес кошелька *
                   </Label>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                  <p className="text-xs text-gray-500 mb-2">
                     {fromCurrency !== "RUB"
                       ? "Укажите адрес, с которого вы будете отправлять криптовалюту"
                       : "Укажите адрес, на который вы хотите получить криптовалюту"
@@ -434,7 +435,7 @@ export default function ExchangeStepForm() {
 
       {/* === Шаг 3: Подтверждение === */}
       {step === 3 && (
-        <Card className="calculator-container border-none shadow-xl">
+        <Card className="calc-light-forced calculator-container border-none shadow-xl" style={{ colorScheme: 'light', background: '#fff' }}>
           <CardContent className="p-8 text-center">
             <div className="flex justify-center mb-6">
               <div className="p-4 bg-green-100 rounded-full">

@@ -12,6 +12,7 @@
 }
 
 :root {
+  color-scheme: light !important;
   --background: hsl(0 0% 100%);
   --foreground: rgb(0, 29, 141);
   --card: hsl(0 0% 100%);
@@ -615,6 +616,45 @@
     color: #6b7280;
     background: rgba(107, 114, 128, 0.1);
     border-color: #6b7280;
+  }
+
+  /* Forced light theme for calculator - prevents dark mode inheritance */
+  .calc-light-forced,
+  .calc-light-forced * {
+    color-scheme: light !important;
+  }
+
+  .calc-light-forced {
+    background: white !important;
+    --background: 0 0% 100% !important;
+    --foreground: 224 100% 14% !important;
+    --card: 0 0% 100% !important;
+    --card-foreground: 224 100% 14% !important;
+    --popover: 0 0% 100% !important;
+    --popover-foreground: 224 100% 14% !important;
+    --muted: 0 0% 98% !important;
+    --muted-foreground: 224 100% 14% !important;
+  }
+
+  /* Force light theme on data-theme attribute */
+  [data-theme="light"],
+  [data-theme="light"] * {
+    color-scheme: light !important;
+  }
+
+  /* iOS Safari specific fixes */
+  .calc-light-forced input,
+  .calc-light-forced select,
+  .calc-light-forced button,
+  .calc-light-forced textarea {
+    -webkit-appearance: none !important;
+    -webkit-text-fill-color: #001D8D !important;
+    background-color: white !important;
+  }
+
+  .calc-light-forced input::placeholder {
+    -webkit-text-fill-color: #A0AEC0 !important;
+    opacity: 1 !important;
   }
 }
 
