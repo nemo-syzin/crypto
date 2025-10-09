@@ -308,18 +308,18 @@ export default function ExchangeStepForm() {
             <CardTitle className="text-xl md:text-2xl font-bold text-[#001D8D] mb-4">
               Данные для обмена
             </CardTitle>
-            <div className="bg-blue-50 p-4 rounded-xl text-sm space-y-2">
-              <div className="flex justify-between">
-                <span>Отдаёте:</span>
-                <strong className="text-[#001D8D]">{fromAmount} {fromCurrency}</strong>
+            <div className="bg-blue-50 p-3 sm:p-4 rounded-xl text-xs sm:text-sm space-y-2">
+              <div className="flex justify-between items-center gap-2">
+                <span className="text-gray-700">Отдаёте:</span>
+                <strong className="text-[#001D8D] break-words text-right">{fromAmount} {fromCurrency}</strong>
               </div>
-              <div className="flex justify-between">
-                <span>Получаете:</span>
-                <strong className="text-[#001D8D]">{toAmount} {toCurrency}</strong>
+              <div className="flex justify-between items-center gap-2">
+                <span className="text-gray-700">Получаете:</span>
+                <strong className="text-[#001D8D] break-words text-right">{toAmount} {toCurrency}</strong>
               </div>
-              <div className="flex justify-between">
-                <span>Курс:</span>
-                <strong className="text-[#001D8D]">1 {fromCurrency} = {rate?.toFixed(4)} {toCurrency}</strong>
+              <div className="flex justify-between items-center gap-2">
+                <span className="text-gray-700">Курс:</span>
+                <strong className="text-[#001D8D] break-words text-right text-xs sm:text-sm">1 {fromCurrency} = {rate?.toFixed(4)} {toCurrency}</strong>
               </div>
             </div>
           </CardHeader>
@@ -505,18 +505,18 @@ export default function ExchangeStepForm() {
             </div>
 
             {/* Кнопки действий */}
-            <div className="flex gap-4 pt-6">
+            <div className="flex flex-col sm:flex-row gap-3 pt-6">
               <Button
                 onClick={() => setStep(1)}
                 variant="outline"
-                className="flex-1 h-12 text-[#001D8D] border-[#001D8D]/20 hover:bg-[#001D8D]/5"
+                className="w-full sm:flex-1 h-12 text-[#001D8D] border-[#001D8D]/20 hover:bg-[#001D8D]/5"
               >
                 Назад к калькулятору
               </Button>
               <Button
                 onClick={handleSubmit}
                 disabled={loading || !fullName || !email || !phone || !telegram || !acceptAmlKyc || !acceptTerms || ((fromCurrency !== "RUB" || toCurrency !== "RUB") && (!walletAddress || !network))}
-                className="flex-1 h-12 bg-gradient-to-r from-[#001D8D] to-blue-600 text-white font-semibold hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl"
+                className="w-full sm:flex-1 h-12 bg-gradient-to-r from-[#001D8D] to-blue-600 text-white font-semibold hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl"
               >
                 {loading ? (
                   <>
