@@ -101,11 +101,6 @@ export function SupportPageClient() {
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-[#001D8D]">
                 Мы всегда готовы <span className="bg-gradient-to-r from-[#001D8D] to-blue-600 bg-clip-text text-transparent">помочь</span>
               </h1>
-              <p className="text-xl md:text-2xl text-[#001D8D]/80 max-w-4xl mx-auto leading-relaxed mb-8">
-                Команда KenigSwap стремится обеспечить высокий уровень обслуживания клиентов. 
-                Если у вас возникли вопросы, трудности или требуется помощь, наши специалисты 
-                всегда готовы помочь оперативно и профессионально.
-              </p>
 
               {/* Quick stats */}
               <div className="flex flex-wrap justify-center items-center gap-8 text-sm text-[#001D8D]/70">
@@ -130,6 +125,21 @@ export function SupportPageClient() {
 
             {/* Contact Section */}
             <ContactSection onLiveChatClick={handleLiveChatClick} />
+
+            {/* Description Text */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+              className="text-center max-w-4xl mx-auto"
+            >
+              <p className="text-lg text-[#001D8D]/70 leading-relaxed">
+                Команда KenigSwap стремится обеспечить высокий уровень обслуживания клиентов.
+                Если у вас возникли вопросы, трудности или требуется помощь, наши специалисты
+                всегда готовы помочь оперативно и профессионально.
+              </p>
+            </motion.div>
 
             {/* Enhanced FAQ Section - Объединенные вопросы */}
             <motion.div
