@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
 import { RealChat, RealChatButton } from '@/components/ui/real-chat';
+import { FeedbackSection } from '@/components/feedback/FeedbackSection';
 import { 
   Card, 
   CardContent, 
@@ -21,7 +22,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { MessageCircle, Mail, Send, Clock, Globe, Phone, Users, Star, CircleCheck as CheckCircle, Headphones, Award, ArrowRight, CircleHelp as HelpCircle, Lightbulb, MapPin, ExternalLink } from 'lucide-react';
+import { MessageCircle, Mail, Send, Clock, Globe, Phone, Users, Star, CircleCheck as CheckCircle, Headphones, Award, ArrowRight, CircleHelp as HelpCircle, Lightbulb } from 'lucide-react';
 
 export function SupportPageClient() {
   const { toast } = useToast();
@@ -295,121 +296,7 @@ export function SupportPageClient() {
 
 
             {/* Feedback Section */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              viewport={{ once: true }}
-              className="max-w-5xl mx-auto"
-            >
-              <Card className="bg-white/95 backdrop-blur-sm shadow-2xl border-2 border-[#001D8D]/20 overflow-hidden">
-                <CardHeader className="bg-gradient-to-r from-[#001D8D] to-blue-700 text-white">
-                  <CardTitle className="text-3xl font-bold flex items-center gap-3">
-                    <Star className="h-8 w-8" />
-                    Оставьте отзыв о нашей работе
-                  </CardTitle>
-                  <p className="text-white/90 text-lg">
-                    Ваше мнение очень важно для нас! Поделитесь впечатлениями о работе KenigSwap
-                  </p>
-                </CardHeader>
-                <CardContent className="p-8 md:p-12">
-                  <div className="grid md:grid-cols-2 gap-8">
-                    {/* Telegram Feedback */}
-                    <motion.div
-                      whileHover={{ scale: 1.02 }}
-                      className="relative"
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-2xl blur-xl" />
-                      <Card className="relative border-2 border-[#001D8D]/20 hover:border-[#001D8D]/40 transition-all duration-300 shadow-xl hover:shadow-2xl">
-                        <CardContent className="p-8 text-center">
-                          <div className="bg-gradient-to-br from-[#001D8D] to-blue-600 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                            <Send className="h-10 w-10 text-white" />
-                          </div>
-                          <h3 className="text-2xl font-bold text-[#001D8D] mb-3">
-                            Telegram
-                          </h3>
-                          <p className="text-gray-600 mb-6 leading-relaxed">
-                            Напишите нам напрямую в Telegram. Расскажите о вашем опыте работы с нами, задайте вопросы или оставьте предложения
-                          </p>
-                          <Button
-                            onClick={() => window.open('https://t.me/kenigswap_39', '_blank')}
-                            className="w-full bg-gradient-to-r from-[#001D8D] to-blue-600 text-white py-4 text-lg font-semibold hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl group"
-                          >
-                            <Send className="h-5 w-5 mr-2 group-hover:translate-x-1 transition-transform" />
-                            Написать в Telegram
-                            <ExternalLink className="h-4 w-4 ml-2" />
-                          </Button>
-                          <p className="text-sm text-gray-500 mt-4">
-                            @kenigswap_39
-                          </p>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-
-                    {/* Yandex Maps Review */}
-                    <motion.div
-                      whileHover={{ scale: 1.02 }}
-                      className="relative"
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-br from-red-500/10 to-orange-500/10 rounded-2xl blur-xl" />
-                      <Card className="relative border-2 border-red-500/20 hover:border-red-500/40 transition-all duration-300 shadow-xl hover:shadow-2xl">
-                        <CardContent className="p-8 text-center">
-                          <div className="bg-gradient-to-br from-red-600 to-orange-600 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                            <MapPin className="h-10 w-10 text-white" />
-                          </div>
-                          <h3 className="text-2xl font-bold text-red-600 mb-3">
-                            Яндекс.Карты
-                          </h3>
-                          <p className="text-gray-600 mb-6 leading-relaxed">
-                            Оставьте публичный отзыв на Яндекс.Картах. Ваша оценка поможет другим пользователям сделать правильный выбор
-                          </p>
-                          <Button
-                            onClick={() => window.open('https://yandex.ru/maps/org/kripto_obmennik_kenigswap/152011458491/?ll=20.502591%2C54.709320&z=16', '_blank')}
-                            className="w-full bg-gradient-to-r from-red-600 to-orange-600 text-white py-4 text-lg font-semibold hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl group"
-                          >
-                            <Star className="h-5 w-5 mr-2 group-hover:rotate-12 transition-transform" />
-                            Оставить отзыв
-                            <ExternalLink className="h-4 w-4 ml-2" />
-                          </Button>
-                          <p className="text-sm text-gray-500 mt-4">
-                            Криптообменник KenigSwap
-                          </p>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  </div>
-
-                  {/* Additional Info */}
-                  <div className="mt-12 pt-8 border-t-2 border-gray-200">
-                    <div className="text-center space-y-4">
-                      <div className="flex items-center justify-center gap-2 text-[#001D8D]">
-                        <Lightbulb className="h-5 w-5" />
-                        <h4 className="text-lg font-semibold">Почему это важно?</h4>
-                      </div>
-                      <p className="text-gray-600 max-w-3xl mx-auto leading-relaxed">
-                        Ваши отзывы помогают нам становиться лучше и предоставлять качественный сервис.
-                        Мы ценим каждое мнение и обязательно учтем ваши пожелания в работе.
-                        Спасибо, что выбираете KenigSwap!
-                      </p>
-                      <div className="flex flex-wrap justify-center gap-4 mt-6">
-                        <Badge className="bg-green-100 text-green-700 border-green-300 px-4 py-2">
-                          <CheckCircle className="h-4 w-4 mr-2" />
-                          Быстрая обратная связь
-                        </Badge>
-                        <Badge className="bg-blue-100 text-blue-700 border-blue-300 px-4 py-2">
-                          <Users className="h-4 w-4 mr-2" />
-                          Важно каждое мнение
-                        </Badge>
-                        <Badge className="bg-purple-100 text-purple-700 border-purple-300 px-4 py-2">
-                          <Award className="h-4 w-4 mr-2" />
-                          Улучшаем сервис
-                        </Badge>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
+            <FeedbackSection />
 
 
             {/* Final CTA */}
