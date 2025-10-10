@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowLeftRight, Loader as Loader2, Check, CircleAlert as AlertCircle, CheckCircle2, Mail, Phone, MessageCircle, ArrowRight } from "lucide-react";
+import { ArrowLeftRight, Loader as Loader2, Check, CircleAlert as AlertCircle, CheckCircle2, Mail, Phone, MessageCircle, ArrowRight, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -37,7 +37,7 @@ export default function ExchangeStepForm() {
   // Хуки для получения данных
   const { bases, loading: basesLoading } = useBaseAssets();
   const { quotes, loading: quotesLoading } = useQuoteAssets(fromCurrency);
-  const { rate, loading: rateLoading } = useExchangeRate(fromCurrency, toCurrency);
+  const { rate, loading: rateLoading, error: rateError, refetch: refetchRate, refreshing } = useExchangeRate(fromCurrency, toCurrency);
 
   // Пересчёт при изменении курса или сумм
   useEffect(() => {
@@ -173,14 +173,36 @@ export default function ExchangeStepForm() {
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3">
               Конвертер и калькулятор криптовалют
             </h1>
-            {rate && (
-              <p className="text-lg text-gray-600">
-                {fromCurrency} в {toCurrency}: 1 {fromCurrency === "BTC" ? "Bitcoin" : fromCurrency} конвертируется в{" "}
-                {rate.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
-                {toCurrency === "RUB" ? "₽" : ""} {toCurrency} по состоянию на{" "}
-                {new Date().toLocaleDateString("ru-RU", { day: "numeric", month: "long" })} в{" "}
-                {new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}
-              </p>
+            {rate && !rateError && (
+              <div className="flex items-center justify-center gap-2">
+                <p className="text-lg text-gray-600">
+                  {fromCurrency} в {toCurrency}: 1 {fromCurrency === "BTC" ? "Bitcoin" : fromCurrency} конвертируется в{" "}
+                  {rate.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
+                  {toCurrency === "RUB" ? "₽" : ""} {toCurrency} по состоянию на{" "}
+                  {new Date().toLocaleDateString("ru-RU", { day: "numeric", month: "long" })} в{" "}
+                  {new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}
+                </p>
+                <button
+                  onClick={() => refetchRate()}
+                  disabled={rateLoading || refreshing}
+                  className="p-2 rounded-full hover:bg-gray-100 transition-colors disabled:opacity-50"
+                  title="Обновить курс"
+                >
+                  <RefreshCw className={`w-4 h-4 text-gray-600 ${refreshing ? 'animate-spin' : ''}`} />
+                </button>
+              </div>
+            )}
+            {rateError && (
+              <div className="flex items-center justify-center gap-2 mt-2">
+                <p className="text-red-600 text-sm">{rateError}</p>
+                <button
+                  onClick={() => refetchRate()}
+                  disabled={rateLoading || refreshing}
+                  className="px-3 py-1 bg-red-100 text-red-600 rounded-full text-sm hover:bg-red-200 transition-colors disabled:opacity-50"
+                >
+                  Повторить
+                </button>
+              </div>
             )}
           </div>
 

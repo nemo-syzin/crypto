@@ -148,17 +148,29 @@ export function useExchangeRate(from: string, to: string) {
   };
 
   const { data, error, isLoading, isValidating, mutate } = useSWR(key, fetcher, {
-    refreshInterval: 60_000, // Уменьшаем интервал обновления до 1 минуты
-    dedupingInterval: 30_000, // Уменьшаем дедупликацию до 30 сек
+    refreshInterval: 60_000, // Обновляем курсы каждую минуту
+    dedupingInterval: 30_000, // Дедупликация 30 сек
     revalidateOnFocus: true, // Обновляем при фокусе на окне
     revalidateOnReconnect: true, // Обновляем при восстановлении соединения
-    errorRetryCount: 3, // Количество повторных попыток при ошибке
-    errorRetryInterval: 5000, // Интервал между повторными попытками
+    revalidateIfStale: true, // Обновляем если данные устарели
+    shouldRetryOnError: true, // Повторные попытки при ошибке
+    errorRetryCount: 5, // Увеличиваем количество повторных попыток
+    errorRetryInterval: 3000, // Интервал между попытками 3 сек
+    loadingTimeout: 10000, // Таймаут загрузки 10 сек
+    onLoadingSlow: () => {
+      log(`Slow loading detected for ${from}/${to}`);
+    },
     onSuccess: (data) => {
       log(`SWR success for ${from}/${to}:`, data);
     },
     onError: (error) => {
       log(`SWR error for ${from}/${to}:`, error);
+      console.error(`[useExchangeRate] Error fetching ${from}/${to}:`, error);
+    },
+    onErrorRetry: (error, key, config, revalidate, { retryCount }) => {
+      log(`Retry ${retryCount} for ${from}/${to}`);
+      if (retryCount >= 5) return;
+      setTimeout(() => revalidate({ retryCount }), 3000);
     },
   });
 

@@ -79,14 +79,33 @@ function generateSparklineData(baseRate: number | null): number[] {
 
 // ================== MAIN COMPONENT ==================
 export default function RatesComparison() {
-  const [rates, setRates] = useState<AllRates | null>(null);
+  const [rates, setRates] = useState<AllRates | null>(() => {
+    // Попытка загрузить из localStorage при инициализации
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = localStorage.getItem('kenigswap_rates_cache');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          // Проверяем, не старые ли данные (не более 5 минут)
+          const cacheAge = Date.now() - new Date(parsed.timestamp).getTime();
+          if (cacheAge < 5 * 60 * 1000) {
+            console.log('[RatesComparison] Loaded rates from cache');
+            return parsed.data;
+          }
+        }
+      } catch (err) {
+        console.error('[RatesComparison] Error loading cache:', err);
+      }
+    }
+    return null;
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [countdown, setCountdown] = useState<string>("");
 
-  // --- Fetch rates from API ---
-  const fetchRates = async () => {
+  // --- Fetch rates from API with retry logic ---
+  const fetchRates = async (retryCount = 0) => {
     try {
       setError(null);
       const response = await fetch("/api/rates-comparison", {
@@ -109,12 +128,36 @@ export default function RatesComparison() {
       setRates(data);
       setLastUpdated(new Date());
       if (data.error) setError(data.error);
+
+      // Сохраняем в localStorage для кэширования
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('kenigswap_rates_cache', JSON.stringify({
+            data,
+            timestamp: new Date().toISOString()
+          }));
+        } catch (err) {
+          console.error('[RatesComparison] Error saving cache:', err);
+        }
+      }
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Failed to fetch rates";
-      setError(errorMessage);
+      console.error(`[RatesComparison] Error fetching rates (attempt ${retryCount + 1}):`, err);
+
+      // Повторная попытка загрузки (до 3 раз)
+      if (retryCount < 3) {
+        console.log(`[RatesComparison] Retrying... (${retryCount + 1}/3)`);
+        setTimeout(() => {
+          fetchRates(retryCount + 1);
+        }, 3000 * (retryCount + 1)); // Увеличиваем задержку с каждой попыткой
+      } else {
+        setError(errorMessage);
+      }
     } finally {
-      setLoading(false);
+      if (retryCount === 0) {
+        setLoading(false);
+      }
     }
   };
 
@@ -289,8 +332,18 @@ export default function RatesComparison() {
       {error && !isConfigurationError && (
         <Alert className="bg-red-50 border-red-200">
           <AlertTriangle className="h-4 w-4 text-red-600" />
-          <AlertDescription className="text-red-800">
-            <strong>Ошибка:</strong> {error}
+          <AlertDescription className="text-red-800 flex items-center justify-between">
+            <div>
+              <strong>Ошибка загрузки курсов:</strong> {error}
+            </div>
+            <button
+              onClick={() => fetchRates()}
+              disabled={loading}
+              className="ml-4 px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm hover:bg-red-200 transition-colors disabled:opacity-50 flex items-center gap-1"
+            >
+              <RefreshCw className={`h-3 w-3 ${loading ? 'animate-spin' : ''}`} />
+              Повторить
+            </button>
           </AlertDescription>
         </Alert>
       )}
