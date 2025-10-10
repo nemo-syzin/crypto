@@ -21,22 +21,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import {
-  MessageCircle,
-  Mail,
-  Send,
-  Clock,
-  Globe,
-  Phone,
-  Users,
-  Star,
-  CheckCircle,
-  Headphones,
-  Award,
-  ArrowRight,
-  HelpCircle,
-  Lightbulb
-} from 'lucide-react';
+import { MessageCircle, Mail, Send, Clock, Globe, Phone, Users, Star, CircleCheck as CheckCircle, Headphones, Award, ArrowRight, CircleHelp as HelpCircle, Lightbulb } from 'lucide-react';
 
 export function SupportPageClient() {
   const { toast } = useToast();
