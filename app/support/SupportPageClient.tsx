@@ -165,69 +165,99 @@ export function SupportPageClient() {
               </div>
             </motion.div>
 
-            {/* Contact Methods - Минималистичный стиль */}
+            {/* Contact Methods - Revolut-inspired Minimalist Design */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
               viewport={{ once: true }}
-              className="max-w-6xl mx-auto"
+              className="max-w-4xl mx-auto"
             >
-              <div className="text-center mb-12">
-                <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-4">
+              <div className="text-center mb-16">
+                <h2 className="text-4xl md:text-5xl font-bold text-[#001D8D] mb-3">
                   Связаться с нами
                 </h2>
-                <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                  Выберите удобный способ связи. Мы отвечаем быстро и профессионально
+                <p className="text-lg text-gray-500">
+                  Выберите удобный способ связи
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="space-y-3">
                 {contactMethods.map((method, index) => (
                   <motion.div
                     key={index}
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 10 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
                     viewport={{ once: true }}
-                    className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md hover:border-[#0052FF]/40 hover:translate-y-[-2px] transition-all duration-200"
                   >
-                    {/* Заголовок с иконкой */}
-                    <div className="flex items-center gap-3 mb-3">
-                      <method.icon className="h-5 w-5 text-[#0052FF]" />
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        {method.title}
-                      </h3>
-                    </div>
-
-                    {/* Время ответа */}
-                    <p className="text-sm text-gray-500 mb-4">
-                      {method.responseTime}
-                    </p>
-
-                    {/* Кнопка действия */}
                     {method.type === 'live_chat' ? (
                       <button
                         onClick={handleLiveChatClick}
-                        className="w-full bg-[#0052FF] text-white rounded-full h-10 text-sm font-semibold hover:bg-[#0052FF]/90 transition-colors duration-200"
+                        className="w-full group bg-white border border-gray-200/80 rounded-2xl p-6 hover:border-[#001D8D]/30 hover:shadow-lg transition-all duration-300 text-left"
                       >
-                        {method.action}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-[#001D8D]/5 flex items-center justify-center group-hover:bg-[#001D8D]/10 transition-colors duration-300">
+                              <method.icon className="h-5 w-5 text-[#001D8D]" />
+                            </div>
+                            <div>
+                              <h3 className="text-base font-semibold text-gray-900 mb-0.5">
+                                {method.title}
+                              </h3>
+                              <p className="text-sm text-gray-500">
+                                Обычно отвечаем {method.responseTime}
+                              </p>
+                            </div>
+                          </div>
+                          <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-[#001D8D] group-hover:translate-x-1 transition-all duration-300" />
+                        </div>
                       </button>
                     ) : method.title === 'Электронная почта' ? (
                       <a
                         href="mailto:support@kenigswap.com"
-                        className="block w-full bg-[#0052FF] text-white rounded-full h-10 text-sm font-semibold hover:bg-[#0052FF]/90 transition-colors duration-200 text-center leading-10"
+                        className="block w-full group bg-white border border-gray-200/80 rounded-2xl p-6 hover:border-[#001D8D]/30 hover:shadow-lg transition-all duration-300"
                       >
-                        {method.action}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-[#001D8D]/5 flex items-center justify-center group-hover:bg-[#001D8D]/10 transition-colors duration-300">
+                              <method.icon className="h-5 w-5 text-[#001D8D]" />
+                            </div>
+                            <div>
+                              <h3 className="text-base font-semibold text-gray-900 mb-0.5">
+                                {method.title}
+                              </h3>
+                              <p className="text-sm text-gray-500">
+                                Обычно отвечаем {method.responseTime}
+                              </p>
+                            </div>
+                          </div>
+                          <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-[#001D8D] group-hover:translate-x-1 transition-all duration-300" />
+                        </div>
                       </a>
                     ) : (
                       <a
                         href="https://t.me/kenigswap_39"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="block w-full bg-[#0052FF] text-white rounded-full h-10 text-sm font-semibold hover:bg-[#0052FF]/90 transition-colors duration-200 text-center leading-10"
+                        className="block w-full group bg-white border border-gray-200/80 rounded-2xl p-6 hover:border-[#001D8D]/30 hover:shadow-lg transition-all duration-300"
                       >
-                        {method.action}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-[#001D8D]/5 flex items-center justify-center group-hover:bg-[#001D8D]/10 transition-colors duration-300">
+                              <method.icon className="h-5 w-5 text-[#001D8D]" />
+                            </div>
+                            <div>
+                              <h3 className="text-base font-semibold text-gray-900 mb-0.5">
+                                {method.title}
+                              </h3>
+                              <p className="text-sm text-gray-500">
+                                Обычно отвечаем {method.responseTime}
+                              </p>
+                            </div>
+                          </div>
+                          <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-[#001D8D] group-hover:translate-x-1 transition-all duration-300" />
+                        </div>
                       </a>
                     )}
                   </motion.div>
