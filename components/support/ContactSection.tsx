@@ -40,7 +40,7 @@ export function ContactSection({ onLiveChatClick }: ContactSectionProps) {
   ];
 
   return (
-    <section className="py-16 px-4">
+    <section className="px-4">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <motion.div
@@ -48,9 +48,9 @@ export function ContactSection({ onLiveChatClick }: ContactSectionProps) {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           viewport={{ once: true }}
-          className="text-center mb-12"
+          className="text-center mb-8 space-y-3"
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-3">
+          <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D]">
             Связаться с нами
           </h2>
           <p className="text-gray-600 text-base md:text-lg max-w-2xl mx-auto">
