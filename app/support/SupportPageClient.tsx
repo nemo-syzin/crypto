@@ -193,7 +193,7 @@ export function SupportPageClient() {
               </div>
             </motion.div>
 
-            {/* Contact Methods - В фирменном стиле калькулятора */}
+            {/* Contact Methods - Минималистичный стиль */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -202,19 +202,15 @@ export function SupportPageClient() {
               className="max-w-6xl mx-auto"
             >
               <div className="text-center mb-12">
-                <div className="inline-flex items-center gap-2 bg-[#001D8D]/10 text-[#001D8D] px-6 py-3 rounded-full text-lg mb-8 font-medium">
-                  <MessageCircle className="h-6 w-6" />
-                  Связаться с нами
-                </div>
                 <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-4">
                   Связаться с нами
                 </h2>
-                <p className="text-xl text-[#001D8D]/70 max-w-3xl mx-auto">
+                <p className="text-lg text-gray-600 max-w-2xl mx-auto">
                   Выберите удобный способ связи. Мы отвечаем быстро и профессионально
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {contactMethods.map((method, index) => (
                   <motion.div
                     key={index}
@@ -222,68 +218,46 @@ export function SupportPageClient() {
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
                     viewport={{ once: true }}
-                    className="group"
+                    className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md hover:border-[#0052FF]/40 hover:translate-y-[-2px] transition-all duration-200"
                   >
-                    {/* Карточка в стиле калькулятора */}
-                    <div className="calculator-container h-full group-hover:shadow-xl transition-all duration-300">
-                      {/* Заголовок с иконкой */}
-                      <div className="flex items-start gap-4 mb-6">
-                        <div className="flex-shrink-0 p-3 rounded-lg bg-gradient-to-br from-[#001D8D] to-blue-600 group-hover:scale-110 transition-transform duration-300">
-                          <method.icon className="h-6 w-6 text-white" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h3 className="text-xl font-bold text-[#001D8D] group-hover:text-blue-600 transition-colors">
-                              {method.title}
-                            </h3>
-                            {method.available && (
-                              <div className="flex items-center gap-1">
-                                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                                <span className="text-xs text-green-600 font-medium">Online</span>
-                              </div>
-                            )}
-                          </div>
-                          
-                          {/* Время ответа - крупно */}
-                          <div className="mb-3">
-                            <div className="text-2xl font-bold text-[#001D8D]">
-                              {method.responseTime}
-                            </div>
-                            <div className="text-sm text-[#001D8D]/70">время ответа</div>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {/* Описание */}
-                      <p className="text-[#001D8D]/70 leading-relaxed mb-6 text-sm">
-                        {method.description}
-                      </p>
-                      
-                      {/* Особенности */}
-                      <div className="mb-6">
-                        <div className="text-sm font-medium text-[#001D8D]/70 mb-3">Особенности:</div>
-                        <div className="space-y-2">
-                          {method.features.map((feature, featureIndex) => (
-                            <div key={featureIndex} className="flex items-center gap-2">
-                              <CheckCircle className="h-3 w-3 text-green-600 flex-shrink-0" />
-                              <span className="text-xs text-[#001D8D]/70">{feature}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Кнопка действия */}
-                      <div className="mt-auto">
-                        {method.type === 'live_chat' ? (
-                          <RealChatButton onClick={handleLiveChatClick} />
-                        ) : (
-                          <button className="w-full bg-gradient-to-r from-[#001D8D] to-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2">
-                            {method.action}
-                            <ArrowRight className="h-4 w-4" />
-                          </button>
-                        )}
-                      </div>
+                    {/* Заголовок с иконкой */}
+                    <div className="flex items-center gap-3 mb-3">
+                      <method.icon className="h-5 w-5 text-[#0052FF]" />
+                      <h3 className="text-lg font-semibold text-gray-900">
+                        {method.title}
+                      </h3>
                     </div>
+
+                    {/* Время ответа */}
+                    <p className="text-sm text-gray-500 mb-4">
+                      {method.responseTime}
+                    </p>
+
+                    {/* Кнопка действия */}
+                    {method.type === 'live_chat' ? (
+                      <button
+                        onClick={handleLiveChatClick}
+                        className="w-full bg-[#0052FF] text-white rounded-full h-10 text-sm font-semibold hover:bg-[#0052FF]/90 transition-colors duration-200"
+                      >
+                        {method.action}
+                      </button>
+                    ) : method.title === 'Электронная почта' ? (
+                      <a
+                        href="mailto:support@kenigswap.com"
+                        className="block w-full bg-[#0052FF] text-white rounded-full h-10 text-sm font-semibold hover:bg-[#0052FF]/90 transition-colors duration-200 text-center leading-10"
+                      >
+                        {method.action}
+                      </a>
+                    ) : (
+                      <a
+                        href="https://t.me/KenigSwapSupportBot"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block w-full bg-[#0052FF] text-white rounded-full h-10 text-sm font-semibold hover:bg-[#0052FF]/90 transition-colors duration-200 text-center leading-10"
+                      >
+                        {method.action}
+                      </a>
+                    )}
                   </motion.div>
                 ))}
               </div>
