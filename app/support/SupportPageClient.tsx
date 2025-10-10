@@ -298,62 +298,6 @@ export function SupportPageClient() {
             {/* Feedback Section */}
             <FeedbackSection />
 
-
-            {/* Final CTA */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              viewport={{ once: true }}
-              className="max-w-5xl mx-auto"
-            >
-              <Card className="bg-gradient-to-r from-[#001D8D] to-blue-700 text-white shadow-2xl border-none overflow-hidden">
-                <CardContent className="p-12 text-center relative">
-                  <div className="relative z-10">
-                    <div className="flex justify-center mb-6">
-                      <div className="bg-white/20 p-4 rounded-full">
-                        <Award className="h-12 w-12 text-white" />
-                      </div>
-                    </div>
-                    <h2 className="text-3xl md:text-4xl font-bold mb-6">
-                      Остались вопросы?
-                    </h2>
-                    <p className="text-xl text-white/90 mb-8 max-w-3xl mx-auto">
-                      Наша команда поддержки работает 24/7, чтобы обеспечить вам лучший опыт 
-                      использования KenigSwap. Мы всегда готовы помочь!
-                    </p>
-                    
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                      <Button className="bg-white text-[#001D8D] hover:bg-gray-100 px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2">
-                        <Mail className="h-5 w-5 mr-2" />
-                        Написать письмо
-                      </Button>
-                      <Button className="border-2 border-white/30 text-white hover:bg-white/10 px-8 py-4 text-lg font-semibold transition-all duration-300">
-                        <Phone className="h-5 w-5 mr-2" />
-                        Заказать звонок
-                      </Button>
-                    </div>
-
-                    {/* Support stats */}
-                    <div className="flex flex-wrap justify-center items-center gap-8 mt-12 text-sm text-white/80">
-                      <div className="flex items-center gap-2">
-                        <Lightbulb className="h-4 w-4 text-yellow-400" />
-                        <span>Более 10,000 решенных вопросов</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-green-400" />
-                        <span>Средний ответ: 3 минуты</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Star className="h-4 w-4 text-yellow-400" />
-                        <span>Рейтинг удовлетворенности: 98%</span>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-
           </div>
         </div>
       </section>
