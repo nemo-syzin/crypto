@@ -5,11 +5,12 @@ import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
 import { RealChat, RealChatButton } from '@/components/ui/real-chat';
 import { FeedbackSection } from '@/components/feedback/FeedbackSection';
-import { 
-  Card, 
-  CardContent, 
-  CardHeader, 
-  CardTitle 
+import { ContactSection } from '@/components/support/ContactSection';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -29,38 +30,6 @@ export function SupportPageClient() {
   const [chatOpen, setChatOpen] = useState(false);
   const [chatMinimized, setChatMinimized] = useState(false);
   const [selectedFaq, setSelectedFaq] = useState<string>("item-0");
-
-  // Обновленные методы связи в фирменном стиле
-  const contactMethods = [
-    {
-      icon: MessageCircle,
-      title: "Онлайн-чат",
-      description: "Общайтесь с нашими операторами в реальном времени через встроенный чат-виджет.",
-      action: "Открыть чат",
-      available: true,
-      responseTime: "< 2 минуты",
-      features: ["Мгновенные ответы", "Поддержка 24/7", "История переписки"],
-      type: "live_chat"
-    },
-    {
-      icon: Mail,
-      title: "Электронная почта",
-      description: "Отправьте нам сообщение на support@kenigswap.com и получите подробный ответ в течение 24 часов.",
-      action: "Написать письмо",
-      available: true,
-      responseTime: "< 24 часа",
-      features: ["Подробные ответы", "Прикрепление файлов", "Официальная переписка"]
-    },
-    {
-      icon: Send,
-      title: "Телеграм-бот",
-      description: "Используйте нашего Telegram-бота для оперативной поддержки: @kenigswap_39",
-      action: "Открыть Telegram",
-      available: true,
-      responseTime: "< 10 минут",
-      features: ["Быстрые уведомления", "Статус заявок", "Мобильная поддержка"]
-    }
-  ];
 
   // Функция для открытия кастомного чата
   const handleLiveChatClick = () => {
@@ -165,75 +134,8 @@ export function SupportPageClient() {
               </div>
             </motion.div>
 
-            {/* Contact Methods - Минималистичный стиль */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              viewport={{ once: true }}
-              className="max-w-6xl mx-auto"
-            >
-              <div className="text-center mb-12">
-                <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-4">
-                  Связаться с нами
-                </h2>
-                <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                  Выберите удобный способ связи. Мы отвечаем быстро и профессионально
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {contactMethods.map((method, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                    viewport={{ once: true }}
-                    className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md hover:border-[#0052FF]/40 hover:translate-y-[-2px] transition-all duration-200"
-                  >
-                    {/* Заголовок с иконкой */}
-                    <div className="flex items-center gap-3 mb-3">
-                      <method.icon className="h-5 w-5 text-[#0052FF]" />
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        {method.title}
-                      </h3>
-                    </div>
-
-                    {/* Время ответа */}
-                    <p className="text-sm text-gray-500 mb-4">
-                      {method.responseTime}
-                    </p>
-
-                    {/* Кнопка действия */}
-                    {method.type === 'live_chat' ? (
-                      <button
-                        onClick={handleLiveChatClick}
-                        className="w-full bg-[#0052FF] text-white rounded-full h-10 text-sm font-semibold hover:bg-[#0052FF]/90 transition-colors duration-200"
-                      >
-                        {method.action}
-                      </button>
-                    ) : method.title === 'Электронная почта' ? (
-                      <a
-                        href="mailto:support@kenigswap.com"
-                        className="block w-full bg-[#0052FF] text-white rounded-full h-10 text-sm font-semibold hover:bg-[#0052FF]/90 transition-colors duration-200 text-center leading-10"
-                      >
-                        {method.action}
-                      </a>
-                    ) : (
-                      <a
-                        href="https://t.me/kenigswap_39"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="block w-full bg-[#0052FF] text-white rounded-full h-10 text-sm font-semibold hover:bg-[#0052FF]/90 transition-colors duration-200 text-center leading-10"
-                      >
-                        {method.action}
-                      </a>
-                    )}
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
+            {/* Contact Section */}
+            <ContactSection onLiveChatClick={handleLiveChatClick} />
 
             {/* Enhanced FAQ Section - Объединенные вопросы */}
             <motion.div
