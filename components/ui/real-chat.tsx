@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { useNotification } from '@/hooks/useNotification';
 import { 
   MessageCircle, 
   X, 
@@ -41,6 +42,7 @@ interface RealChatProps {
 
 export function RealChat({ isOpen, onClose, onMinimize, isMinimized }: RealChatProps) {
   const { toast } = useToast();
+  const { notifyError, notifySuccess, notifyInfo } = useNotification();
   const [session, setSession] = useState<ChatSession | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
@@ -84,11 +86,10 @@ export function RealChat({ isOpen, onClose, onMinimize, isMinimized }: RealChatP
   // Начало чата
   const startChat = async () => {
     if (!userInfo.name.trim() || !userInfo.email.trim()) {
-      toast({
-        title: "Заполните данные",
-        description: "Пожалуйста, укажите ваше имя и email",
-        variant: "destructive",
-      });
+      notifyError(
+        "Заполните данные",
+        "Пожалуйста, укажите ваше имя и email"
+      );
       return;
     }
 
@@ -96,11 +97,10 @@ export function RealChat({ isOpen, onClose, onMinimize, isMinimized }: RealChatP
     // Устанавливаем таймаут для подключения
     setConnectionTimeoutId(setTimeout(() => {
       setIsConnecting(false);
-      toast({
-        title: "Ошибка подключения к чату",
-        description: "Время ожидания подключения истекло. Пожалуйста, попробуйте еще раз.",
-        variant: "destructive",
-      });
+      notifyError(
+        "Ошибка подключения к чату",
+        "Время ожидания подключения истекло. Пожалуйста, попробуйте еще раз."
+      );
       handleCloseChat(); // Закрываем чат, чтобы пользователь мог попробовать снова
     }, 15000)); // 15 секунд таймаут
     
@@ -167,11 +167,10 @@ export function RealChat({ isOpen, onClose, onMinimize, isMinimized }: RealChatP
         },
         (error) => {
           console.error('Ошибка подписки на сообщения:', error);
-          toast({
-            title: "Ошибка подключения",
-            description: "Проблема с подключением к чату",
-            variant: "destructive",
-          });
+          notifyError(
+            "Ошибка подключения",
+            "Проблема с подключением к чату"
+          );
         }
       );
 
@@ -189,21 +188,20 @@ export function RealChat({ isOpen, onClose, onMinimize, isMinimized }: RealChatP
       };
       setMessages(prev => [...prev, operatorWelcomeMessage]);
 
-      toast({
-        title: "Чат подключен",
-        description: "Вы подключены к службе поддержки KenigSwap",
-      });
+      notifySuccess(
+        "Чат подключен",
+        "Вы подключены к службе поддержки KenigSwap"
+      );
 
       // Очищаем таймаут, так как подключение успешно
       if (connectionTimeoutId) clearTimeout(connectionTimeoutId);
 
     } catch (error) {
       console.error('Ошибка запуска чата:', error);
-      toast({
-        title: "Ошибка подключения",
-        description: error instanceof Error ? error.message : "Не удалось подключиться к чату",
-        variant: "destructive",
-      });
+      notifyError(
+        "Ошибка подключения",
+        error instanceof Error ? error.message : "Не удалось подключиться к чату"
+      );
     } finally {
       setIsConnecting(false);
       if (connectionTimeoutId) clearTimeout(connectionTimeoutId); // Гарантируем очистку таймаута
@@ -248,11 +246,10 @@ export function RealChat({ isOpen, onClose, onMinimize, isMinimized }: RealChatP
 
     } catch (error) {
       console.error('Ошибка отправки сообщения:', error);
-      toast({
-        title: "Ошибка отправки",
-        description: "Не удалось отправить сообщение",
-        variant: "destructive",
-      });
+      notifyError(
+        "Ошибка отправки",
+        "Не удалось отправить сообщение"
+      );
     }
   };
 
