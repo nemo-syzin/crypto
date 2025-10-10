@@ -59,7 +59,7 @@ export function ContactSection({ onLiveChatClick }: ContactSectionProps) {
         </motion.div>
 
         {/* Contact Cards */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
+        <div className="grid md:grid-cols-3 gap-6">
           {contactOptions.map((option, index) => (
             <motion.div
               key={option.id}
@@ -123,13 +123,13 @@ export function ContactSection({ onLiveChatClick }: ContactSectionProps) {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
           viewport={{ once: true }}
-          className="mt-12 bg-gradient-to-br from-white/80 to-[#f8faff]/50 backdrop-blur-sm rounded-3xl p-8 md:p-10 border border-[#001D8D]/10 shadow-sm"
+          className="mt-8 bg-gradient-to-br from-white/80 to-[#f8faff]/50 backdrop-blur-sm rounded-3xl p-8 md:p-10 border border-[#001D8D]/10 shadow-sm"
         >
-          <div className="text-center max-w-3xl mx-auto">
+          <div className="text-center">
             <h3 className="text-2xl md:text-3xl font-bold text-[#001D8D] mb-4">
               Готовы помочь 24/7
             </h3>
-            <p className="text-base md:text-lg text-[#001D8D]/70 leading-relaxed">
+            <p className="text-base md:text-lg text-[#001D8D]/70 leading-relaxed max-w-3xl mx-auto">
               Команда KenigSwap стремится обеспечить высокий уровень обслуживания клиентов.
               Если у вас возникли вопросы, трудности или требуется помощь, наши специалисты
               всегда готовы помочь оперативно и профессионально.
