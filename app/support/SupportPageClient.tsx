@@ -309,7 +309,6 @@ export function SupportPageClient() {
             >
               <Card className="bg-gradient-to-r from-[#001D8D] to-blue-700 text-white shadow-2xl border-none overflow-hidden">
                 <CardContent className="p-12 text-center relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 opacity-50" />
                   <div className="relative z-10">
                     <div className="flex justify-center mb-6">
                       <div className="bg-white/20 p-4 rounded-full">
