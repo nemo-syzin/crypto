@@ -74,7 +74,7 @@ export function SupportPageClient() {
     {
       icon: Send,
       title: "Телеграм-бот",
-      description: "Используйте нашего Telegram-бота для оперативной поддержки: @KenigSwapSupportBot",
+      description: "Используйте нашего Telegram-бота для оперативной поддержки: @kenigswap_39",
       action: "Открыть Telegram",
       available: true,
       responseTime: "< 10 минут",
@@ -250,7 +250,7 @@ export function SupportPageClient() {
                       </a>
                     ) : (
                       <a
-                        href="https://t.me/KenigSwapSupportBot"
+                        href="https://t.me/kenigswap_39"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="block w-full bg-[#0052FF] text-white rounded-full h-10 text-sm font-semibold hover:bg-[#0052FF]/90 transition-colors duration-200 text-center leading-10"
