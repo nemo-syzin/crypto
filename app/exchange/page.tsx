@@ -2,18 +2,19 @@
 import { useState, useEffect } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
 } from "@/components/ui/card";
 import { CircleCheck as CheckCircle, ChartBar as BarChart3, Shield, Award, Zap, TrendingUp } from 'lucide-react';
 import { ManifestoStrip } from '@/components/ui/manifesto-strip';
 import ExchangeStepForm from '@/components/ExchangeStepForm';
 import RatesComparison from '@/components/RatesComparison';
 import Image from 'next/image';
+import Link from 'next/link';
 
 export default function ExchangePage() {
   const controls = useAnimation();
@@ -331,13 +332,18 @@ export default function ExchangePage() {
                   Получите конкурентные курсы и полную безопасность ваших средств.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <button className="bg-white text-[#001D8D] hover:bg-gray-100 px-8 py-4 rounded-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
+                  <button
+                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                    className="bg-white text-[#001D8D] hover:bg-gray-100 px-8 py-4 rounded-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 cursor-pointer"
+                  >
                     <TrendingUp className="h-5 w-5" />
                     Начать обмен сейчас
                   </button>
-                  <button className="border-2 border-white/30 text-white hover:bg-white/10 px-8 py-4 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2">
-                    Узнать больше о сервисе
-                  </button>
+                  <Link href="/about">
+                    <button className="border-2 border-white/30 text-white hover:bg-white/10 px-8 py-4 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer">
+                      Узнать больше о сервисе
+                    </button>
+                  </Link>
                 </div>
               </div>
             </motion.div>
