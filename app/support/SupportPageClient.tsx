@@ -98,12 +98,6 @@ export function SupportPageClient() {
               transition={{ duration: 0.5 }}
               className="text-center mb-16"
             >
-              <div className="flex justify-center mb-6">
-                <Badge className="bg-[#001D8D]/10 text-[#001D8D] border-[#001D8D]/20 px-6 py-2 text-lg">
-                  <Headphones className="h-5 w-5 mr-2" />
-                  Служба поддержки
-                </Badge>
-              </div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-[#001D8D]">
                 Мы всегда готовы <span className="bg-gradient-to-r from-[#001D8D] to-blue-600 bg-clip-text text-transparent">помочь</span>
               </h1>
