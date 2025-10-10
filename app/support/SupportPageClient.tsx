@@ -106,21 +106,6 @@ export function SupportPageClient() {
             {/* Contact Section */}
             <ContactSection onLiveChatClick={handleLiveChatClick} />
 
-            {/* Description Text */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              viewport={{ once: true }}
-              className="text-center max-w-4xl mx-auto"
-            >
-              <p className="text-lg text-[#001D8D]/70 leading-relaxed">
-                Команда KenigSwap стремится обеспечить высокий уровень обслуживания клиентов.
-                Если у вас возникли вопросы, трудности или требуется помощь, наши специалисты
-                всегда готовы помочь оперативно и профессионально.
-              </p>
-            </motion.div>
-
             {/* Enhanced FAQ Section - Объединенные вопросы */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}

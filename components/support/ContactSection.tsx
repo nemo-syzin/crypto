@@ -117,17 +117,24 @@ export function ContactSection({ onLiveChatClick }: ContactSectionProps) {
           ))}
         </div>
 
-        {/* Footer Text */}
+        {/* Enhanced Footer Section */}
         <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
           viewport={{ once: true }}
-          className="text-center"
+          className="mt-12 bg-gradient-to-br from-white/80 to-[#f8faff]/50 backdrop-blur-sm rounded-3xl p-8 md:p-10 border border-[#001D8D]/10 shadow-sm"
         >
-          <p className="text-sm text-gray-500">
-            Наша команда готова помочь вам 24/7
-          </p>
+          <div className="text-center max-w-3xl mx-auto">
+            <h3 className="text-2xl md:text-3xl font-bold text-[#001D8D] mb-4">
+              Готовы помочь 24/7
+            </h3>
+            <p className="text-base md:text-lg text-[#001D8D]/70 leading-relaxed">
+              Команда KenigSwap стремится обеспечить высокий уровень обслуживания клиентов.
+              Если у вас возникли вопросы, трудности или требуется помощь, наши специалисты
+              всегда готовы помочь оперативно и профессионально.
+            </p>
+          </div>
         </motion.div>
       </div>
     </section>
