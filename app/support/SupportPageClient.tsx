@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
+import { useNotification } from '@/hooks/useNotification';
 import { RealChat, RealChatButton } from '@/components/ui/real-chat';
 import { 
   Card, 
@@ -25,9 +26,11 @@ import { MessageCircle, Mail, Send, Clock, Globe, Phone, Users, Star, CircleChec
 
 export function SupportPageClient() {
   const { toast } = useToast();
+  const { notifySuccess, notifyError, notifyInfo } = useNotification();
   const [chatOpen, setChatOpen] = useState(false);
   const [chatMinimized, setChatMinimized] = useState(false);
   const [selectedFaq, setSelectedFaq] = useState<string>("item-0");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [contactForm, setContactForm] = useState({
     name: '',
     email: '',
@@ -119,13 +122,61 @@ export function SupportPageClient() {
     }
   ];
 
-  const handleContactSubmit = (e: React.FormEvent) => {
+  const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Сообщение отправлено",
-      description: "Мы свяжемся с вами в ближайшее время",
-    });
-    setContactForm({ name: '', email: '', subject: '', message: '' });
+
+    // Валидация
+    if (!contactForm.name || !contactForm.email || !contactForm.subject || !contactForm.message) {
+      notifyError(
+        'Заполните все поля',
+        'Пожалуйста, укажите все необходимые данные'
+      );
+      return;
+    }
+
+    setIsSubmitting(true);
+    notifyInfo('Отправка сообщения...', 'Пожалуйста, подождите');
+
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/send-telegram-message`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({
+            name: contactForm.name,
+            email: contactForm.email,
+            subject: contactForm.subject,
+            message: contactForm.message,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Не удалось отправить сообщение');
+      }
+
+      notifySuccess(
+        'Сообщение отправлено!',
+        'Мы свяжемся с вами в ближайшее время через Telegram @kenigswap_39'
+      );
+
+      // Очищаем форму
+      setContactForm({ name: '', email: '', subject: '', message: '' });
+    } catch (error) {
+      console.error('Ошибка отправки:', error);
+      notifyError(
+        'Ошибка отправки',
+        error instanceof Error ? error.message : 'Попробуйте еще раз или свяжитесь с нами напрямую в Telegram @kenigswap_39'
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -374,13 +425,17 @@ export function SupportPageClient() {
                       />
                     </div>
 
-                    <Button 
+                    <Button
                       type="submit"
-                      className="w-full bg-gradient-to-r from-[#001D8D] to-blue-600 text-white py-3 text-lg font-semibold hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl"
+                      disabled={isSubmitting}
+                      className="w-full bg-gradient-to-r from-[#001D8D] to-blue-600 text-white py-3 text-lg font-semibold hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <Send className="h-5 w-5 mr-2" />
-                      Отправить сообщение
+                      {isSubmitting ? 'Отправка...' : 'Отправить сообщение'}
                     </Button>
+                    <p className="text-sm text-gray-600 text-center mt-3">
+                      Ваше сообщение будет отправлено в наш Telegram <a href="https://t.me/kenigswap_39" target="_blank" rel="noopener noreferrer" className="text-[#001D8D] hover:underline font-semibold">@kenigswap_39</a>
+                    </p>
                   </form>
                 </CardContent>
               </Card>
