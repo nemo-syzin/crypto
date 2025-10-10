@@ -87,18 +87,18 @@ export function SupportPageClient() {
   return (
     <div className="min-h-screen bg-transparent">
       {/* Main content section */}
-      <section className="relative py-20 bg-transparent overflow-hidden">
+      <section className="relative py-16 bg-transparent overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
-          <div className="space-y-24">
-            
+          <div className="space-y-16">
+
             {/* Hero Section */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="text-center mb-16"
+              className="text-center"
             >
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-[#001D8D]">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-[#001D8D] leading-tight tracking-tight">
                 Мы всегда готовы <span className="bg-gradient-to-r from-[#001D8D] to-blue-600 bg-clip-text text-transparent">помочь</span>
               </h1>
             </motion.div>
