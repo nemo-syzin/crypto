@@ -96,7 +96,7 @@ export function SupportPageClient() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="text-center"
+              className="text-center pt-16"
             >
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-[#001D8D] leading-tight tracking-tight">
                 Мы всегда готовы <span className="bg-gradient-to-r from-[#001D8D] to-blue-600 bg-clip-text text-transparent">помочь</span>
