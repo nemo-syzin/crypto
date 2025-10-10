@@ -101,26 +101,6 @@ export function SupportPageClient() {
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-[#001D8D]">
                 Мы всегда готовы <span className="bg-gradient-to-r from-[#001D8D] to-blue-600 bg-clip-text text-transparent">помочь</span>
               </h1>
-
-              {/* Quick stats */}
-              <div className="flex flex-wrap justify-center items-center gap-8 text-sm text-[#001D8D]/70">
-                <div className="flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-green-600" />
-                  <span>Ответ в течение 5 минут</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Users className="h-5 w-5 text-blue-600" />
-                  <span>Поддержка 24/7</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Star className="h-5 w-5 text-yellow-600" />
-                  <span>Рейтинг 4.9/5</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Globe className="h-5 w-5 text-purple-600" />
-                  <span>Многоязычная поддержка</span>
-                </div>
-              </div>
             </motion.div>
 
             {/* Contact Section */}
