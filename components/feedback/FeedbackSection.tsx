@@ -11,8 +11,6 @@ export function FeedbackSection() {
       title: 'Telegram',
       description: 'Напишите нам о вашем опыте использования сервиса',
       buttonText: 'Написать в Telegram',
-      buttonColor: 'bg-[#3B6DFF] hover:bg-[#2659FF]',
-      iconBg: 'from-[#3B6DFF]/20 to-[#2659FF]/10',
       link: 'https://t.me/kenigswap_39',
       handle: '@kenigswap_39',
     },
@@ -22,8 +20,6 @@ export function FeedbackSection() {
       title: 'Яндекс.Карты',
       description: 'Оставьте публичный отзыв в нашем профиле',
       buttonText: 'Оставить отзыв',
-      buttonColor: 'bg-[#FF7043] hover:bg-[#FF5722]',
-      iconBg: 'from-[#FF7043]/20 to-[#FF5722]/10',
       link: 'https://yandex.ru/maps/org/kripto_obmennik_kenigswap/152011458491/?ll=20.502591%2C54.709320&z=16',
       handle: 'Яндекс.Карты',
     },
@@ -60,7 +56,7 @@ export function FeedbackSection() {
               className="group relative bg-gradient-to-br from-white to-[#f8faff] rounded-3xl p-8 hover:shadow-xl transition-all duration-300 border border-gray-100"
             >
               {/* Icon */}
-              <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br ${option.iconBg} mb-6`}>
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-[#001D8D]/10 to-[#0033CC]/5 mb-6">
                 <option.icon className="w-8 h-8 text-[#001D8D]" strokeWidth={2} />
               </div>
 
@@ -80,7 +76,7 @@ export function FeedbackSection() {
               {/* Button */}
               <button
                 onClick={() => window.open(option.link, '_blank')}
-                className={`w-full ${option.buttonColor} text-white font-semibold py-3 px-6 rounded-full transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2`}
+                className="w-full bg-[#001D8D] hover:bg-[#0033CC] text-white font-semibold py-3 px-6 rounded-full transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2"
               >
                 {option.buttonText}
                 <svg
