@@ -107,7 +107,13 @@ export default function RatesComparison() {
   // --- Fetch rates from API with retry logic ---
   const fetchRates = async (retryCount = 0) => {
     try {
+      if (retryCount === 0) {
+        setLoading(true);
+      }
       setError(null);
+
+      console.log(`[RatesComparison] Fetching rates (attempt ${retryCount + 1})...`);
+
       const response = await fetch("/api/rates-comparison", {
         cache: "no-cache",
         headers: {
@@ -145,12 +151,12 @@ export default function RatesComparison() {
         err instanceof Error ? err.message : "Failed to fetch rates";
       console.error(`[RatesComparison] Error fetching rates (attempt ${retryCount + 1}):`, err);
 
-      // Повторная попытка загрузки (до 3 раз)
-      if (retryCount < 3) {
-        console.log(`[RatesComparison] Retrying... (${retryCount + 1}/3)`);
+      // Повторная попытка загрузки (до 2 раз)
+      if (retryCount < 2) {
+        console.log(`[RatesComparison] Retrying... (${retryCount + 1}/2)`);
         setTimeout(() => {
           fetchRates(retryCount + 1);
-        }, 3000 * (retryCount + 1)); // Увеличиваем задержку с каждой попыткой
+        }, 2000 * (retryCount + 1)); // Увеличиваем задержку с каждой попыткой
       } else {
         setError(errorMessage);
       }
