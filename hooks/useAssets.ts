@@ -1,6 +1,8 @@
+// hooks/useAssets.ts
 import useSWR from 'swr';
 import { supabase, isSupabaseAvailable } from '@/lib/supabase/client';
 
+// 🔹 Валюты по умолчанию — если Supabase временно недоступен
 const FALLBACK_BASES = [
   'USDT', 'RUB', 'USD', 'BTC', 'ETH', 'SOL', 'XRP', 'LTC', 'TRX', 'BNB'
 ] as const;
@@ -18,104 +20,115 @@ const FALLBACK_QUOTES_BY_BASE: Record<string, string[]> = {
   BNB:  ['USDT', 'RUB'],
 };
 
+// ============================================================
+//  Вспомогательные функции
+// ============================================================
+
 /**
- * Fetch all unique base currencies from kenig_rates table
+ * Получение всех доступных базовых валют из Supabase.
  */
 const fetchBases = async (): Promise<string[]> => {
   if (!isSupabaseAvailable()) {
-    console.warn('[Assets] ⚠️ Supabase not available, using fallback bases');
+    console.warn('[useAssets] ⚠️ Supabase недоступен, возвращаю FALLBACK_BASES');
     return Array.from(FALLBACK_BASES);
   }
 
   try {
-    console.log('[Assets] 🔄 Fetching base currencies from kenig_rates table...');
-    
     const { data, error } = await supabase
       .from('kenig_rates')
       .select('base')
       .not('base', 'is', null)
-      .limit(1000); // Уменьшаем лимит для быстрой загрузки
+      .limit(1000);
 
-    if (error) {
-      console.warn('[Assets] ⚠️ Error fetching base currencies:', error);
-      throw error;
-    }
-    
-    if (data && data.length > 0) {
-      const bases = [...new Set(data.map(r => r.base.toUpperCase()))].sort();
-      console.log('[Assets] ✅ bases length:', bases.length, 'records:', bases);
-      return bases.length > 0 ? bases : Array.from(FALLBACK_BASES);
-    }
-    
-    console.log('[Assets] ⚠️ No base currencies found, using fallback');
-    return Array.from(FALLBACK_BASES);
-  } catch (error) {
-    console.error('[Assets] ❌ Error in fetchBases:', error);
+    if (error) throw error;
+    if (!data?.length) return Array.from(FALLBACK_BASES);
+
+    const bases = [...new Set(data.map(r => r.base.toUpperCase()))].sort();
+    console.log('[useAssets] ✅ Базовые валюты:', bases);
+    return bases.length ? bases : Array.from(FALLBACK_BASES);
+  } catch (err) {
+    console.error('[useAssets] ❌ Ошибка в fetchBases:', err);
     return Array.from(FALLBACK_BASES);
   }
 };
 
 /**
- * Fetch all available quote currencies for a specific base currency
+ * Получение всех валют, доступных для обмена с выбранной базовой (base).
+ * Теперь учитывает как прямые (base → quote), так и обратные (quote → base) пары.
  */
 const fetchQuotes = async (base: string): Promise<string[]> => {
   if (!base || !isSupabaseAvailable()) {
-    const fallback = FALLBACK_QUOTES_BY_BASE[base] || FALLBACK_QUOTES_BY_BASE['USDT'] || ['RUB'];
-    console.log('[Assets] ⚠️ No base or Supabase unavailable, using fallback quotes for', base, ':', fallback);
+    const fallback = FALLBACK_QUOTES_BY_BASE[base] || ['RUB', 'USDT'];
+    console.warn(`[useAssets] ⚠️ Supabase недоступен, fallback quotes для ${base}:`, fallback);
     return fallback;
   }
 
   try {
-    console.log(`[Assets] 🔄 Fetching quote currencies for base ${base}...`);
-    
-    const { data, error } = await supabase
+    // --- Прямые пары base → quote
+    const { data: direct, error: err1 } = await supabase
       .from('kenig_rates')
       .select('quote')
       .eq('base', base.toUpperCase())
-      .not('quote', 'is', null)
-      .limit(1000); // Уменьшаем лимит для быстрой загрузки
+      .not('quote', 'is', null);
 
-    if (error) {
-      console.warn(`[Assets] ⚠️ Error fetching quote currencies for ${base}:`, error);
-      throw error;
+    if (err1) console.warn(`[useAssets] ⚠️ Ошибка при загрузке прямых пар для ${base}:`, err1);
+
+    // --- Обратные пары quote → base
+    const { data: inverse, error: err2 } = await supabase
+      .from('kenig_rates')
+      .select('base')
+      .eq('quote', base.toUpperCase())
+      .not('base', 'is', null);
+
+    if (err2) console.warn(`[useAssets] ⚠️ Ошибка при загрузке обратных пар для ${base}:`, err2);
+
+    const directQuotes = (direct || []).map(r => r.quote.toUpperCase());
+    const inverseQuotes = (inverse || []).map(r => r.base.toUpperCase());
+
+    // --- Объединяем обе выборки
+    const quotes = Array.from(new Set([...directQuotes, ...inverseQuotes])).sort();
+
+    if (quotes.length > 0) {
+      console.log(`[useAssets] ✅ Найдены валюты для ${base}:`, quotes);
+      return quotes;
     }
-    
-    if (data && data.length > 0) {
-      const quotes = [...new Set(data.map(r => r.quote.toUpperCase()))].sort();
-      console.log(`[Assets] ✅ quotes length for ${base}:`, quotes.length, 'records:', quotes);
-      return quotes.length > 0 ? quotes : (FALLBACK_QUOTES_BY_BASE[base] || ['RUB']);
-    }
-    
-    const fallback = FALLBACK_QUOTES_BY_BASE[base] || ['RUB'];
-    console.log(`[Assets] ⚠️ No quotes found for ${base}, using fallback:`, fallback);
+
+    const fallback = FALLBACK_QUOTES_BY_BASE[base] || ['USDT', 'RUB'];
+    console.warn(`[useAssets] ⚠️ Нет валют для ${base}, fallback:`, fallback);
     return fallback;
-  } catch (error) {
-    const fallback = FALLBACK_QUOTES_BY_BASE[base] || ['RUB'];
-    console.error(`[Assets] ❌ Error in fetchQuotes for ${base}:`, error);
+  } catch (err) {
+    console.error(`[useAssets] ❌ Ошибка в fetchQuotes(${base}):`, err);
+    const fallback = FALLBACK_QUOTES_BY_BASE[base] || ['USDT', 'RUB'];
     return fallback;
   }
 };
 
-// Export hooks for base and quote assets
+// ============================================================
+//  Основные хуки
+// ============================================================
+
+/**
+ * Хук для базовых валют (левая часть калькулятора)
+ */
 export const useBaseAssets = () => {
   const { data, error, isLoading } = useSWR('bases', fetchBases, {
-    refreshInterval: 5 * 60 * 1000, // Уменьшаем до 5 минут
+    refreshInterval: 5 * 60 * 1000, // каждые 5 мин
     revalidateOnFocus: false,
-    revalidateOnReconnect: true, // Включаем обновление при восстановлении соединения
-    dedupingInterval: 30000, // Уменьшаем дедупликацию
-    fallbackData: Array.from(FALLBACK_BASES), // Always provide fallback
-    onError: (error) => {
-      console.error('[Assets] Base assets error:', error);
-    },
+    revalidateOnReconnect: true,
+    dedupingInterval: 30000,
+    fallbackData: Array.from(FALLBACK_BASES),
   });
 
   return {
     bases: data || Array.from(FALLBACK_BASES),
     loading: isLoading,
-    error: error?.message ?? null
+    error: error?.message ?? null,
   };
 };
 
+/**
+ * Хук для валют, доступных для выбранной base (правая часть калькулятора)
+ */
 export const useQuoteAssets = (base: string) => {
   const { data, error, isLoading } = useSWR(
     base ? `quotes-${base}` : null,
@@ -125,30 +138,29 @@ export const useQuoteAssets = (base: string) => {
       revalidateOnFocus: false,
       revalidateOnReconnect: true,
       dedupingInterval: 30000,
-      fallbackData: FALLBACK_QUOTES_BY_BASE[base] || ['RUB'],
-      onError: (error) => {
-        console.error(`[Assets] Quote assets error for ${base}:`, error);
-      },
+      fallbackData: FALLBACK_QUOTES_BY_BASE[base] || ['USDT', 'RUB'],
     }
   );
 
-  const quotes = data || (FALLBACK_QUOTES_BY_BASE[base] || ['RUB']);
+  const quotes = data || (FALLBACK_QUOTES_BY_BASE[base] || ['USDT', 'RUB']);
   console.log(`[useQuoteAssets] base=${base}, quotes=`, quotes);
 
   return {
     quotes,
     loading: isLoading,
-    error: error?.message ?? null
+    error: error?.message ?? null,
   };
 };
 
-// Keep the original useAssets for backward compatibility
+/**
+ * Старый совместимый хук (для обратной совместимости)
+ */
 export function useAssets() {
   const { bases, loading: basesLoading, error: basesError } = useBaseAssets();
-  
+
   return {
     assets: bases,
     loading: basesLoading,
-    error: basesError
+    error: basesError,
   };
 }
