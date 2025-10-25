@@ -23,6 +23,25 @@ export default function ExchangeCalculator() {
   const { quotes, loading: quotesLoading, error: quotesError } = useQuoteAssets(fromCurrency);
   const { rate, source, lastUpdated, loading: rateLoading, error: rateError, refetch } = useExchangeRate(fromCurrency, toCurrency);
 
+  // Логирование для отладки
+  useEffect(() => {
+    console.log('[ExchangeCalculator] State:', {
+      fromCurrency,
+      toCurrency,
+      quotes,
+      quotesLoading,
+      quotesError
+    });
+  }, [fromCurrency, toCurrency, quotes, quotesLoading, quotesError]);
+
+  // Проверка, что toCurrency доступна в quotes
+  useEffect(() => {
+    if (!quotesLoading && quotes.length > 0 && !quotes.includes(toCurrency)) {
+      console.log(`[ExchangeCalculator] toCurrency ${toCurrency} not available in quotes, setting to first available:`, quotes[0]);
+      setToCurrency(quotes[0]);
+    }
+  }, [quotes, toCurrency, quotesLoading]);
+
   // Пересчёт при изменении курса или сумм
   useEffect(() => {
     if (!rate || rate <= 0) {
@@ -208,11 +227,17 @@ export default function ExchangeCalculator() {
               <SelectValue placeholder={toCurrency} />
             </SelectTrigger>
             <SelectContent>
-              {quotes.map((currency) => (
-                <SelectItem key={currency} value={currency}>
-                  {currency}
-                </SelectItem>
-              ))}
+              {quotes.length > 0 ? (
+                quotes.map((currency) => (
+                  <SelectItem key={currency} value={currency}>
+                    {currency}
+                  </SelectItem>
+                ))
+              ) : (
+                <div className="px-4 py-2 text-sm text-gray-500">
+                  Нет доступных валют
+                </div>
+              )}
             </SelectContent>
           </Select>
         </div>

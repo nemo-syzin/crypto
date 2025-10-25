@@ -118,22 +118,25 @@ export const useBaseAssets = () => {
 
 export const useQuoteAssets = (base: string) => {
   const { data, error, isLoading } = useSWR(
-    base ? `quotes-${base}` : null, 
+    base ? `quotes-${base}` : null,
     () => fetchQuotes(base),
     {
-      refreshInterval: 5 * 60 * 1000, // Уменьшаем до 5 минут
+      refreshInterval: 5 * 60 * 1000,
       revalidateOnFocus: false,
-      revalidateOnReconnect: true, // Включаем обновление при восстановлении соединения
-      dedupingInterval: 30000, // Уменьшаем дедупликацию
-      fallbackData: FALLBACK_QUOTES_BY_BASE[base] || ['RUB'], // Always provide fallback
+      revalidateOnReconnect: true,
+      dedupingInterval: 30000,
+      fallbackData: FALLBACK_QUOTES_BY_BASE[base] || ['RUB'],
       onError: (error) => {
         console.error(`[Assets] Quote assets error for ${base}:`, error);
       },
     }
   );
 
+  const quotes = data || (FALLBACK_QUOTES_BY_BASE[base] || ['RUB']);
+  console.log(`[useQuoteAssets] base=${base}, quotes=`, quotes);
+
   return {
-    quotes: data || (FALLBACK_QUOTES_BY_BASE[base] || ['RUB']),
+    quotes,
     loading: isLoading,
     error: error?.message ?? null
   };
