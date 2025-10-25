@@ -169,7 +169,7 @@ export default function ExchangeCalculator() {
           />
           <Select value={fromCurrency} onValueChange={setFromCurrency} disabled={basesLoading}>
             <SelectTrigger className="w-[100px] border-0 focus:ring-0 font-medium text-lg bg-transparent">
-              <SelectValue />
+              <SelectValue placeholder={fromCurrency} />
             </SelectTrigger>
             <SelectContent>
               {bases.map((currency) => (
@@ -205,7 +205,7 @@ export default function ExchangeCalculator() {
           />
           <Select value={toCurrency} onValueChange={setToCurrency} disabled={quotesLoading}>
             <SelectTrigger className="w-[100px] border-0 focus:ring-0 font-medium text-lg bg-transparent">
-              <SelectValue />
+              <SelectValue placeholder={toCurrency} />
             </SelectTrigger>
             <SelectContent>
               {quotes.map((currency) => (
