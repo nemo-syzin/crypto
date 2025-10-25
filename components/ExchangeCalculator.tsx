@@ -1,9 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowLeftRight } from "lucide-react";
+import { ArrowLeftRight, RotateCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useExchangeRate } from "@/hooks/useExchangeRate";
@@ -11,6 +17,7 @@ import { useBaseAssets, useQuoteAssets } from "@/hooks/useAssets";
 
 export default function ExchangeCalculator() {
   const { toast } = useToast();
+
   const [fromAmount, setFromAmount] = useState("1");
   const [toAmount, setToAmount] = useState("");
   const [fromCurrency, setFromCurrency] = useState("USDT");
@@ -18,57 +25,52 @@ export default function ExchangeCalculator() {
   const [activeInput, setActiveInput] = useState<"give" | "receive">("give");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Хуки для получения данных
+  // Получаем валюты и курсы
   const { bases, loading: basesLoading, error: basesError } = useBaseAssets();
-  const { quotes, loading: quotesLoading, error: quotesError } = useQuoteAssets(fromCurrency);
-  const { rate, source, lastUpdated, loading: rateLoading, error: rateError, refetch } = useExchangeRate(fromCurrency, toCurrency);
+  const { quotes, loading: quotesLoading, error: quotesError } =
+    useQuoteAssets(fromCurrency);
+  const {
+    rate,
+    lastUpdated,
+    loading: rateLoading,
+    error: rateError,
+    refetch,
+  } = useExchangeRate(fromCurrency, toCurrency);
 
-  // Логирование для отладки
+  // Логирование
   useEffect(() => {
-    console.log('[ExchangeCalculator] State:', {
+    console.log("[ExchangeCalculator] state:", {
       fromCurrency,
       toCurrency,
       quotes,
-      quotesLoading,
-      quotesError
     });
-  }, [fromCurrency, toCurrency, quotes, quotesLoading, quotesError]);
+  }, [fromCurrency, toCurrency, quotes]);
 
-  // Проверка, что toCurrency доступна в quotes
+  // Если выбранная валюта недоступна в quotes — заменить на первую
   useEffect(() => {
     if (!quotesLoading && quotes.length > 0 && !quotes.includes(toCurrency)) {
-      console.log(`[ExchangeCalculator] toCurrency ${toCurrency} not available in quotes, setting to first available:`, quotes[0]);
+      console.log(
+        `[ExchangeCalculator] toCurrency ${toCurrency} не доступна, ставим:`,
+        quotes[0]
+      );
       setToCurrency(quotes[0]);
     }
   }, [quotes, toCurrency, quotesLoading]);
 
-  // Пересчёт при изменении курса или сумм
+  // Пересчёт при изменении суммы/курса
   useEffect(() => {
     if (!rate || rate <= 0) {
-      if (activeInput === "give") {
-        setToAmount("");
-      } else {
-        setFromAmount("");
-      }
+      if (activeInput === "give") setToAmount("");
+      else setFromAmount("");
       return;
     }
 
     if (activeInput === "give" && fromAmount) {
-      const numAmount = parseFloat(fromAmount);
-      if (!isNaN(numAmount) && numAmount > 0) {
-        const result = numAmount * rate;
-        setToAmount(result.toFixed(2));
-      } else {
-        setToAmount("");
-      }
+      const num = parseFloat(fromAmount);
+      if (!isNaN(num) && num > 0) setToAmount((num * rate).toFixed(2));
     } else if (activeInput === "receive" && toAmount) {
-      const numAmount = parseFloat(toAmount);
-      if (!isNaN(numAmount) && numAmount > 0) {
-        const result = numAmount / rate;
-        setFromAmount(result.toFixed(6));
-      } else {
-        setFromAmount("");
-      }
+      const num = parseFloat(toAmount);
+      if (!isNaN(num) && num > 0) setFromAmount((num / rate).toFixed(6));
     }
   }, [rate, fromAmount, toAmount, activeInput]);
 
@@ -81,49 +83,32 @@ export default function ExchangeCalculator() {
     setActiveInput(activeInput === "give" ? "receive" : "give");
   };
 
-  // Обработка отправки заявки
+  // Создание заявки
   const handleSubmit = async () => {
     if (!fromAmount || !toAmount || !rate) {
       toast({
         title: "Ошибка",
-        description: "Заполните все поля для создания заявки",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const numFromAmount = parseFloat(fromAmount);
-    const numToAmount = parseFloat(toAmount);
-
-    if (isNaN(numFromAmount) || isNaN(numToAmount) || numFromAmount <= 0 || numToAmount <= 0) {
-      toast({
-        title: "Ошибка",
-        description: "Введите корректные суммы для обмена",
+        description: "Заполните все поля перед отправкой заявки",
         variant: "destructive",
       });
       return;
     }
 
     setIsSubmitting(true);
-
     try {
-      // Здесь будет API вызов для создания заявки
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Симуляция API вызова
-
+      await new Promise((res) => setTimeout(res, 1000)); // симуляция API
       toast({
         title: "Заявка создана!",
-        description: `Заявка на обмен ${fromAmount} ${fromCurrency} на ${toAmount} ${toCurrency} успешно создана.`,
+        description: `${fromAmount} ${fromCurrency} → ${toAmount} ${toCurrency}`,
       });
-
-      // Сброс формы после успешной отправки
       setFromAmount("1");
       setToAmount("");
       setActiveInput("give");
-    } catch (error) {
-      console.error('Ошибка создания заявки:', error);
+    } catch (err) {
+      console.error(err);
       toast({
         title: "Ошибка",
-        description: "Не удалось создать заявку. Попробуйте позже.",
+        description: "Не удалось создать заявку. Повторите попытку.",
         variant: "destructive",
       });
     } finally {
@@ -131,30 +116,31 @@ export default function ExchangeCalculator() {
     }
   };
 
-  // Обработка ошибок загрузки
+  // Ошибки загрузки
   useEffect(() => {
-    if (basesError) {
+    const err = basesError || quotesError || rateError;
+    if (err)
       toast({
-        title: "Ошибка загрузки валют",
-        description: basesError,
+        title: "Ошибка загрузки данных",
+        description: err,
         variant: "destructive",
       });
-    }
-    if (quotesError) {
-      toast({
-        title: "Ошибка загрузки валют",
-        description: quotesError,
-        variant: "destructive",
-      });
-    }
-    if (rateError) {
-      toast({
-        title: "Ошибка загрузки курса",
-        description: rateError,
-        variant: "destructive",
-      });
-    }
-  }, [basesError, quotesError, rateError, toast]);
+  }, [basesError, quotesError, rateError]);
+
+  // Формат отображения курса
+  const displayRate = (() => {
+    if (!rate || rate <= 0) return "—";
+
+    // если пользователь выбрал RUB → USDT/USD, то показываем обратный курс
+    const inverted =
+      fromCurrency === "RUB" && ["USDT", "USD"].includes(toCurrency);
+    const value = inverted ? 1 / rate : rate;
+
+    return value.toLocaleString("ru-RU", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 4,
+    });
+  })();
 
   return (
     <div className="w-full flex flex-col items-center py-10">
@@ -163,18 +149,31 @@ export default function ExchangeCalculator() {
         Конвертер и калькулятор криптовалют
       </h1>
 
-      {/* Подзаголовок */}
-      <p className="text-center text-gray-600 mb-8">
-        {fromCurrency} в {toCurrency}: 1 {fromCurrency} конвертируется в{" "}
-        {rate ? rate.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "—"}{" "}
-        {toCurrency} по состоянию на{" "}
-        {lastUpdated ? lastUpdated.toLocaleString("ru-RU", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—"}
-      </p>
+      {/* Подзаголовок с курсом */}
+      <div className="text-center text-gray-600 mb-8">
+        <div className="text-lg font-medium text-gray-800">
+          1 {fromCurrency} ={" "}
+          <span className="text-blue-700 font-semibold">{displayRate}</span>{" "}
+          {toCurrency}
+        </div>
+        <div className="text-sm text-gray-500 mt-1 flex justify-center items-center gap-1">
+          <RotateCw
+            className="w-4 h-4 text-gray-400 cursor-pointer"
+            onClick={() => refetch()}
+          />
+          {lastUpdated
+            ? `Обновлено ${lastUpdated.toLocaleString("ru-RU", {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}`
+            : "Обновляется..."}
+        </div>
+      </div>
 
-      {/* Основной контейнер */}
+      {/* Основной блок */}
       <div className="flex items-center gap-4 w-full max-w-2xl">
         {/* Отдаёте */}
-        <div className="flex flex-1 border border-gray-300 rounded-full px-6 py-3 items-center h-[60px]">
+        <div className="flex flex-1 border border-gray-300 rounded-full px-6 py-3 items-center h-[60px] bg-white">
           <Input
             type="text"
             value={fromAmount}
@@ -182,35 +181,39 @@ export default function ExchangeCalculator() {
               setFromAmount(e.target.value);
               setActiveInput("give");
             }}
-            className="flex-1 border-0 shadow-none focus-visible:ring-0 text-2xl font-medium bg-transparent rounded-full px-6"
+            className="flex-1 border-0 shadow-none focus-visible:ring-0 text-2xl font-medium bg-transparent"
             placeholder="0"
             disabled={rateLoading}
           />
-          <Select value={fromCurrency} onValueChange={setFromCurrency} disabled={basesLoading}>
-            <SelectTrigger className="w-[100px] border-0 focus:ring-0 font-medium text-lg bg-transparent">
+          <Select
+            value={fromCurrency}
+            onValueChange={setFromCurrency}
+            disabled={basesLoading}
+          >
+            <SelectTrigger className="w-[100px] border-0 focus:ring-0 text-lg bg-transparent">
               <SelectValue placeholder={fromCurrency} />
             </SelectTrigger>
             <SelectContent>
-              {bases.map((currency) => (
-                <SelectItem key={currency} value={currency}>
-                  {currency}
+              {bases.map((cur) => (
+                <SelectItem key={cur} value={cur}>
+                  {cur}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
 
-        {/* Кнопка swap */}
+        {/* swap */}
         <button
           onClick={swapCurrencies}
+          className="p-3 rounded-md border border-gray-300 bg-white hover:bg-gray-50 transition"
           disabled={rateLoading}
-          className="p-3 rounded-md border border-gray-300 bg-white hover:bg-gray-50 transition disabled:opacity-50"
         >
           <ArrowLeftRight className="w-5 h-5 text-gray-600" />
         </button>
 
         {/* Получаете */}
-        <div className="flex flex-1 border border-gray-300 rounded-full px-6 py-3 items-center h-[60px]">
+        <div className="flex flex-1 border border-gray-300 rounded-full px-6 py-3 items-center h-[60px] bg-white">
           <Input
             type="text"
             value={toAmount}
@@ -218,19 +221,23 @@ export default function ExchangeCalculator() {
               setToAmount(e.target.value);
               setActiveInput("receive");
             }}
-            className="flex-1 border-0 shadow-none focus-visible:ring-0 text-2xl font-medium bg-transparent rounded-full px-6"
+            className="flex-1 border-0 shadow-none focus-visible:ring-0 text-2xl font-medium bg-transparent"
             placeholder="0"
             disabled={rateLoading}
           />
-          <Select value={toCurrency} onValueChange={setToCurrency} disabled={quotesLoading}>
-            <SelectTrigger className="w-[100px] border-0 focus:ring-0 font-medium text-lg bg-transparent">
+          <Select
+            value={toCurrency}
+            onValueChange={setToCurrency}
+            disabled={quotesLoading}
+          >
+            <SelectTrigger className="w-[100px] border-0 focus:ring-0 text-lg bg-transparent">
               <SelectValue placeholder={toCurrency} />
             </SelectTrigger>
             <SelectContent>
               {quotes.length > 0 ? (
-                quotes.map((currency) => (
-                  <SelectItem key={currency} value={currency}>
-                    {currency}
+                quotes.map((cur) => (
+                  <SelectItem key={cur} value={cur}>
+                    {cur}
                   </SelectItem>
                 ))
               ) : (
@@ -243,11 +250,11 @@ export default function ExchangeCalculator() {
         </div>
       </div>
 
-  
+      {/* Кнопка */}
       <button
         onClick={handleSubmit}
         disabled={!rate || isSubmitting || rateLoading}
-        className="mt-8 w-full max-w-2xl h-14 text-lg bg-[#0052FF] hover:bg-[#0041cc] font-semibold rounded-full text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="mt-8 w-full max-w-2xl h-14 text-lg bg-[#0052FF] hover:bg-[#0041cc] font-semibold rounded-full text-white transition-colors disabled:opacity-50"
       >
         {isSubmitting ? "Создание заявки..." : "Оставить заявку на обмен"}
       </button>
