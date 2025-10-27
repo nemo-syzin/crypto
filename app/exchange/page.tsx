@@ -12,7 +12,6 @@ import {
 import { CircleCheck as CheckCircle, ChartBar as BarChart3, Shield, Award, Zap, TrendingUp } from 'lucide-react';
 import { ManifestoStrip } from '@/components/ui/manifesto-strip';
 import ExchangeStepForm from '@/components/ExchangeStepForm';
-import RatesComparison from '@/components/RatesComparison';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -133,14 +132,15 @@ export default function ExchangePage() {
               </motion.div>
 
               {/* Rates Comparison - Full Width */}
-              <motion.div
+              {/* Временно скрыто */}
+              {/* <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
                 className="w-full"
               >
                 <RatesComparison />
-              </motion.div>
+              </motion.div> */}
             </div>
 
             {/* Компактное видео с обрезкой сверху */}
