@@ -237,36 +237,26 @@ export function useTopCoins(currency: string = 'usd', limit: number = 20, page: 
         const data = await fetchTopCoins(currency, limit, page);
         setCoins(data);
         setLastUpdated(new Date());
-        setRetryCount(0); // Сбрасываем счетчик повторных попыток при успехе
+        setRetryCount(0);
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
         console.error(`❌ Error fetching top coins: ${errorMessage}`);
         setError(errorMessage);
-        
-        // Автоматически повторяем запрос при ошибке, но не более 3 раз
-        if (retryCount < 3) {
-          const retryDelay = Math.pow(2, retryCount) * 1000; // Экспоненциальная задержка
-          console.log(`⏱️ Retrying in ${retryDelay/1000}s (attempt ${retryCount + 1}/3)...`);
-          
-          setTimeout(() => {
-            setRetryCount(prev => prev + 1);
-            fetchData();
-          }, retryDelay);
-        }
+        // Удалены автоматические retry для быстрой загрузки
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-    
+
     // Set up auto-refresh every 5 minutes
     const refreshInterval = setInterval(fetchData, 5 * 60 * 1000);
-    
+
     return () => {
       clearInterval(refreshInterval);
     };
-  }, [currency, limit, page, retryCount]);
+  }, [currency, limit, page]);
 
   // Function to manually refresh data
   const refetch = async () => {
@@ -304,33 +294,23 @@ export function useCoinDetails(coinId: string) {
     const fetchData = async () => {
       try {
         setLoading(true);
-        setError(null);        
+        setError(null);
         console.log(`🔄 Fetching coin details for ${coinId}...`);
         const data = await fetchCoinDetails(coinId);
         setCoinDetails(data);
-        setRetryCount(0); // Сбрасываем счетчик повторных попыток при успехе
+        setRetryCount(0);
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
         console.error(`❌ Error fetching coin details: ${errorMessage}`);
         setError(errorMessage);
-        
-        // Автоматически повторяем запрос при ошибке, но не более 3 раз
-        if (retryCount < 3) {
-          const retryDelay = Math.pow(2, retryCount) * 1000; // Экспоненциальная задержка
-          console.log(`⏱️ Retrying in ${retryDelay/1000}s (attempt ${retryCount + 1}/3)...`);
-          
-          setTimeout(() => {
-            setRetryCount(prev => prev + 1);
-            fetchData();
-          }, retryDelay);
-        }
+        // Удалены автоматические retry для быстрой загрузки
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [coinId, retryCount]);
+  }, [coinId]);
 
   return { coinDetails, loading, error };
 }
@@ -352,41 +332,31 @@ export function useCoinMarketChart(coinId: string, currency: string = 'usd', day
     const fetchData = async () => {
       try {
         setLoading(true);
-        setError(null);        
+        setError(null);
         console.log(`🔄 Fetching market chart for ${coinId} (${currency}, ${days} days)...`);
         const data = await fetchCoinMarketChart(coinId, currency, days);
         setChartData(data);
         setLastUpdated(new Date());
-        setRetryCount(0); // Сбрасываем счетчик повторных попыток при успехе
+        setRetryCount(0);
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
         console.error(`❌ Error fetching market chart: ${errorMessage}`);
         setError(errorMessage);
-        
-        // Автоматически повторяем запрос при ошибке, но не более 3 раз
-        if (retryCount < 3) {
-          const retryDelay = Math.pow(2, retryCount) * 1000; // Экспоненциальная задержка
-          console.log(`⏱️ Retrying in ${retryDelay/1000}s (attempt ${retryCount + 1}/3)...`);
-          
-          setTimeout(() => {
-            setRetryCount(prev => prev + 1);
-            fetchData();
-          }, retryDelay);
-        }
+        // Удалены автоматические retry для быстрой загрузки
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-    
+
     // Set up auto-refresh every 15 minutes for chart data
     const refreshInterval = setInterval(fetchData, 15 * 60 * 1000);
-    
+
     return () => {
       clearInterval(refreshInterval);
     };
-  }, [coinId, currency, days, retryCount]);
+  }, [coinId, currency, days]);
 
   // Function to manually refresh data
   const refetch = async () => {
@@ -420,41 +390,31 @@ export function useGlobalData() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        setError(null);        
+        setError(null);
         console.log(`🔄 Fetching global market data...`);
         const data = await fetchGlobalData();
         setGlobalData(data);
         setLastUpdated(new Date());
-        setRetryCount(0); // Сбрасываем счетчик повторных попыток при успехе
+        setRetryCount(0);
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
         console.error(`❌ Error fetching global data: ${errorMessage}`);
         setError(errorMessage);
-        
-        // Автоматически повторяем запрос при ошибке, но не более 3 раз
-        if (retryCount < 3) {
-          const retryDelay = Math.pow(2, retryCount) * 1000; // Экспоненциальная задержка
-          console.log(`⏱️ Retrying in ${retryDelay/1000}s (attempt ${retryCount + 1}/3)...`);
-          
-          setTimeout(() => {
-            setRetryCount(prev => prev + 1);
-            fetchData();
-          }, retryDelay);
-        }
+        // Удалены автоматические retry для быстрой загрузки
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-    
+
     // Set up auto-refresh every 5 minutes
     const refreshInterval = setInterval(fetchData, 5 * 60 * 1000);
-    
+
     return () => {
       clearInterval(refreshInterval);
     };
-  }, [retryCount]);
+  }, []);
 
   // Function to manually refresh data
   const refetch = async () => {
@@ -488,41 +448,31 @@ export function useTrendingCoins() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        setError(null);        
+        setError(null);
         console.log(`🔄 Fetching trending coins...`);
         const data = await fetchTrendingCoins();
         setTrendingCoins(data);
         setLastUpdated(new Date());
-        setRetryCount(0); // Сбрасываем счетчик повторных попыток при успехе
+        setRetryCount(0);
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
         console.error(`❌ Error fetching trending coins: ${errorMessage}`);
         setError(errorMessage);
-        
-        // Автоматически повторяем запрос при ошибке, но не более 3 раз
-        if (retryCount < 3) {
-          const retryDelay = Math.pow(2, retryCount) * 1000; // Экспоненциальная задержка
-          console.log(`⏱️ Retrying in ${retryDelay/1000}s (attempt ${retryCount + 1}/3)...`);
-          
-          setTimeout(() => {
-            setRetryCount(prev => prev + 1);
-            fetchData();
-          }, retryDelay);
-        }
+        // Удалены автоматические retry для быстрой загрузки
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-    
+
     // Set up auto-refresh every 10 minutes
     const refreshInterval = setInterval(fetchData, 10 * 60 * 1000);
-    
+
     return () => {
       clearInterval(refreshInterval);
     };
-  }, [retryCount]);
+  }, []);
 
   // Function to manually refresh data
   const refetch = async () => {
