@@ -645,7 +645,6 @@
   /* iOS Safari specific fixes */
   .calc-light-forced input,
   .calc-light-forced select,
-  .calc-light-forced button,
   .calc-light-forced textarea {
     -webkit-appearance: none !important;
     -webkit-text-fill-color: #001D8D !important;
@@ -655,6 +654,23 @@
   .calc-light-forced input::placeholder {
     -webkit-text-fill-color: #A0AEC0 !important;
     opacity: 1 !important;
+  }
+
+  /* Исключение для кнопки отправки заявки - сохраняем цветной фон */
+  .calc-light-forced .exchange-submit-button {
+    -webkit-text-fill-color: white !important;
+    color: white !important;
+    -webkit-appearance: none !important;
+  }
+
+  /* Переопределяем фон для кнопок с классом exchange-submit-button */
+  .calc-light-forced button.exchange-submit-button {
+    background-color: initial !important;
+  }
+
+  .calc-light-forced .exchange-submit-button:disabled {
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
   }
 }
 

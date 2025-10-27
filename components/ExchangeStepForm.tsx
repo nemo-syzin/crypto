@@ -306,7 +306,7 @@ export default function ExchangeStepForm() {
                 <Button
                   onClick={() => setStep(2)}
                   disabled={!rate || rateLoading || !fromAmount || !toAmount}
-                  className="w-full h-14 text-base font-semibold !bg-[#001D8D] hover:!bg-[#001D8D]/90 !text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200"
+                  className="exchange-submit-button w-full h-14 text-base font-semibold !bg-[#001D8D] hover:!bg-[#001D8D]/90 !text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200"
                 >
                   {rateLoading ? (
                     <>
@@ -538,7 +538,7 @@ export default function ExchangeStepForm() {
               <Button
                 onClick={handleSubmit}
                 disabled={loading || !fullName || !email || !phone || !telegram || !acceptAmlKyc || !acceptTerms || ((fromCurrency !== "RUB" || toCurrency !== "RUB") && (!walletAddress || !network))}
-                className="w-full sm:flex-1 h-12 bg-gradient-to-r from-[#001D8D] to-blue-600 text-white font-semibold hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl"
+                className="exchange-submit-button w-full sm:flex-1 h-12 bg-gradient-to-r from-[#001D8D] to-blue-600 text-white font-semibold hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl"
               >
                 {loading ? (
                   <>
@@ -650,7 +650,7 @@ export default function ExchangeStepForm() {
                   setAcceptTerms(false);
                   setConsentErrors({ amlKyc: "", terms: "" });
                 }}
-                className="w-full h-12 bg-[#0052FF] hover:bg-[#0045D8] text-white font-semibold rounded-full transition-colors duration-200"
+                className="exchange-submit-button w-full h-12 bg-[#0052FF] hover:bg-[#0045D8] text-white font-semibold rounded-full transition-colors duration-200"
               >
                 Создать новую заявку
               </Button>
