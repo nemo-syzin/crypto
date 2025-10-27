@@ -2,15 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { ArrowLeftRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useExchangeRate } from "@/hooks/useExchangeRate";
 import { useBaseAssets, useQuoteAssets } from "@/hooks/useAssets";
@@ -24,43 +17,32 @@ export default function ExchangeCalculator() {
   const [activeInput, setActiveInput] = useState<"give" | "receive">("give");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Получаем валюты и курс
+  // Получаем данные
   const { bases, loading: basesLoading, error: basesError } = useBaseAssets();
-  const {
-    quotes,
-    loading: quotesLoading,
-    error: quotesError,
-  } = useQuoteAssets(fromCurrency);
-  const {
-    rate,
-    source,
-    lastUpdated,
-    loading: rateLoading,
-    error: rateError,
-    refetch,
-  } = useExchangeRate(fromCurrency, toCurrency);
+  const { quotes, loading: quotesLoading, error: quotesError } = useQuoteAssets(fromCurrency);
+  const { rate, lastUpdated, loading: rateLoading, error: rateError } = useExchangeRate(fromCurrency, toCurrency);
 
-  // Проверка корректности выбранной валюты
+  // Обновление валют при смене fromCurrency
   useEffect(() => {
     if (!quotesLoading && quotes.length > 0 && !quotes.includes(toCurrency)) {
       setToCurrency(quotes[0]);
     }
   }, [quotes, toCurrency, quotesLoading]);
 
-  // Пересчёт при изменении курса или значений
+  // Пересчёт суммы
   useEffect(() => {
     if (!rate || rate <= 0) return;
 
     if (activeInput === "give" && fromAmount) {
-      const numAmount = parseFloat(fromAmount);
-      if (!isNaN(numAmount)) setToAmount((numAmount * rate).toFixed(2));
+      const num = parseFloat(fromAmount);
+      if (!isNaN(num)) setToAmount((num * rate).toFixed(2));
     } else if (activeInput === "receive" && toAmount) {
-      const numAmount = parseFloat(toAmount);
-      if (!isNaN(numAmount)) setFromAmount((numAmount / rate).toFixed(6));
+      const num = parseFloat(toAmount);
+      if (!isNaN(num)) setFromAmount((num / rate).toFixed(6));
     }
   }, [rate, fromAmount, toAmount, activeInput]);
 
-  // Обработка обмена местами
+  // Смена направления
   const swapCurrencies = () => {
     setFromCurrency(toCurrency);
     setToCurrency(fromCurrency);
@@ -69,38 +51,7 @@ export default function ExchangeCalculator() {
     setActiveInput(activeInput === "give" ? "receive" : "give");
   };
 
-  // Обработка создания заявки
-  const handleSubmit = async () => {
-    if (!fromAmount || !toAmount || !rate) {
-      toast({
-        title: "Ошибка",
-        description: "Заполните все поля для создания заявки",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsSubmitting(true);
-    await new Promise((r) => setTimeout(r, 1000));
-    toast({
-      title: "Заявка создана!",
-      description: `Вы обмениваете ${fromAmount} ${fromCurrency} на ${toAmount} ${toCurrency}.`,
-    });
-    setIsSubmitting(false);
-  };
-
-  // Обработка ошибок
-  useEffect(() => {
-    if (basesError || quotesError || rateError) {
-      toast({
-        title: "Ошибка загрузки данных",
-        description: basesError || quotesError || rateError,
-        variant: "destructive",
-      });
-    }
-  }, [basesError, quotesError, rateError]);
-
-  // --- 🔥 Новый блок форматированного отображения курса ---
+  // Отображение курса (новый формат)
   const renderFormattedRate = () => {
     if (!rate || rate <= 0) return "—";
 
@@ -108,16 +59,16 @@ export default function ExchangeCalculator() {
     let displayQuote = toCurrency;
     let displayRate = rate;
 
-    // Если участвует RUB — всегда показываем курс в сторону RUB
-    if (fromCurrency === "RUB" && toCurrency !== "RUB") {
-      displayBase = toCurrency;
-      displayQuote = fromCurrency;
-      displayRate = 1 / rate;
+    // ✅ если участвует RUB — показываем курс “1 [другая] = X RUB”
+    if (fromCurrency === "RUB" || toCurrency === "RUB") {
+      displayBase = fromCurrency === "RUB" ? toCurrency : fromCurrency;
+      displayQuote = "RUB";
+      displayRate = fromCurrency === "RUB" ? 1 / rate : rate;
     }
 
     const formattedRate = displayRate.toLocaleString("ru-RU", {
       minimumFractionDigits: 2,
-      maximumFractionDigits: 6,
+      maximumFractionDigits: 2,
     });
 
     return (
@@ -140,14 +91,42 @@ export default function ExchangeCalculator() {
     );
   };
 
+  // Отправка заявки
+  const handleSubmit = async () => {
+    if (!fromAmount || !toAmount || !rate) {
+      toast({
+        title: "Ошибка",
+        description: "Заполните все поля для создания заявки",
+        variant: "destructive",
+      });
+      return;
+    }
+    setIsSubmitting(true);
+
+    try {
+      await new Promise((res) => setTimeout(res, 800));
+      toast({
+        title: "Заявка создана!",
+        description: `Обмен ${fromAmount} ${fromCurrency} → ${toAmount} ${toCurrency} успешно создан.`,
+      });
+    } catch {
+      toast({
+        title: "Ошибка",
+        description: "Не удалось создать заявку, попробуйте позже.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="w-full flex flex-col items-center py-10">
       <h1 className="text-3xl font-bold text-gray-900 text-center mb-2">
         Конвертер и калькулятор криптовалют
       </h1>
 
-      {/* Подзаголовок */}
-      <p className="text-center text-gray-600 mb-8 text-lg">{renderFormattedRate()}</p>
+      <p className="text-center text-gray-600 mb-8">{renderFormattedRate()}</p>
 
       {/* Основной блок */}
       <div className="flex items-center gap-4 w-full max-w-2xl">
@@ -161,12 +140,10 @@ export default function ExchangeCalculator() {
               setActiveInput("give");
             }}
             className="flex-1 border-0 shadow-none focus-visible:ring-0 text-2xl font-medium bg-transparent rounded-full px-6"
+            placeholder="0"
+            disabled={rateLoading}
           />
-          <Select
-            value={fromCurrency}
-            onValueChange={setFromCurrency}
-            disabled={basesLoading}
-          >
+          <Select value={fromCurrency} onValueChange={setFromCurrency} disabled={basesLoading}>
             <SelectTrigger className="w-[100px] border-0 focus:ring-0 font-medium text-lg bg-transparent">
               <SelectValue placeholder={fromCurrency} />
             </SelectTrigger>
@@ -180,7 +157,7 @@ export default function ExchangeCalculator() {
           </Select>
         </div>
 
-        {/* Кнопка swap */}
+        {/* Swap */}
         <button
           onClick={swapCurrencies}
           disabled={rateLoading}
@@ -199,12 +176,10 @@ export default function ExchangeCalculator() {
               setActiveInput("receive");
             }}
             className="flex-1 border-0 shadow-none focus-visible:ring-0 text-2xl font-medium bg-transparent rounded-full px-6"
+            placeholder="0"
+            disabled={rateLoading}
           />
-          <Select
-            value={toCurrency}
-            onValueChange={setToCurrency}
-            disabled={quotesLoading}
-          >
+          <Select value={toCurrency} onValueChange={setToCurrency} disabled={quotesLoading}>
             <SelectTrigger className="w-[100px] border-0 focus:ring-0 font-medium text-lg bg-transparent">
               <SelectValue placeholder={toCurrency} />
             </SelectTrigger>
@@ -216,9 +191,7 @@ export default function ExchangeCalculator() {
                   </SelectItem>
                 ))
               ) : (
-                <div className="px-4 py-2 text-sm text-gray-500">
-                  Нет доступных валют
-                </div>
+                <div className="px-4 py-2 text-sm text-gray-500">Нет доступных валют</div>
               )}
             </SelectContent>
           </Select>
