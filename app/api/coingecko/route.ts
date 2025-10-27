@@ -105,15 +105,15 @@ function getFallbackData(endpoint: string): any {
 }
 
 // Enhanced retry function with better error handling and connection management
-async function fetchWithRetry(url: string, headers: HeadersInit, maxRetries: number = 2): Promise<Response> {
+async function fetchWithRetry(url: string, headers: HeadersInit, maxRetries: number = 5): Promise<Response> {
   let lastError: Error;
-
+  
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       console.log(`🔄 Attempt ${attempt}/${maxRetries} - Fetching: ${url}`);
-
+      
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3000); // Reduced timeout to 3 seconds for faster failure
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // Increased timeout to 10 seconds
       
       const response = await fetch(url, {
         headers: {
@@ -147,8 +147,10 @@ async function fetchWithRetry(url: string, headers: HeadersInit, maxRetries: num
         break;
       }
       
-      // Minimal delay for quick retry
-      const delay = 500; // Fixed 500ms delay for fast retry
+      // Progressive backoff with jitter for network errors
+      const baseDelay = Math.pow(2, attempt - 1) * 1000; // Reduced base delay
+      const jitter = Math.random() * 1000;
+      const delay = baseDelay + jitter;
       
       console.log(`⏳ Network error detected, waiting ${Math.round(delay)}ms before retry...`);
       await new Promise(resolve => setTimeout(resolve, delay));

@@ -38,36 +38,24 @@ export function SupabaseAuthProvider({ children }: SupabaseAuthProviderProps) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Получаем текущую сессию при загрузке с timeout для быстрой загрузки страницы
+    // Получаем текущую сессию при загрузке
     const getInitialSession = async () => {
       try {
-        // Создаем promise с timeout 2 секунды
-        const sessionPromise = supabase.auth.getSession();
-        const timeoutPromise = new Promise<{ data: { session: null }, error: Error }>((_, reject) =>
-          setTimeout(() => reject(new Error('Session fetch timeout')), 2000)
-        );
-
-        const { data: { session }, error } = await Promise.race([sessionPromise, timeoutPromise]);
-
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
         if (error) {
-          console.warn('SupabaseAuthProvider: Ошибка получения сессии (не критично):', error);
+          console.error('SupabaseAuthProvider: Ошибка получения сессии:', error);
         } else {
           setSession(session);
           setUser(session?.user ?? null);
         }
       } catch (error) {
-        console.warn('SupabaseAuthProvider: Timeout получения сессии (не критично), продолжаем без авторизации:', error);
-        // Не блокируем загрузку страницы - продолжаем без сессии
+        console.error('Ошибка при получении начальной сессии:', error);
       } finally {
-        // КРИТИЧНО: всегда устанавливаем loading=false даже при ошибке
         setLoading(false);
       }
     };
 
-    // Немедленно устанавливаем loading=false для быстрого рендеринга
-    setLoading(false);
-
-    // Загружаем сессию асинхронно в фоне
     getInitialSession();
 
     // Подписываемся на изменения состояния аутентификации

@@ -16,8 +16,8 @@ interface FearGreedResponse {
 async function getFearGreedIndex(): Promise<FearGreedData> {
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3000); // Reduced to 3 seconds for faster failure
-
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+    
     const response = await fetch('https://api.alternative.me/fng/?limit=1', {
       signal: controller.signal,
     });
