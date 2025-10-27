@@ -306,7 +306,7 @@ export default function ExchangeStepForm() {
                 <Button
                   onClick={() => setStep(2)}
                   disabled={!rate || rateLoading || !fromAmount || !toAmount}
-                  className="w-full h-14 text-base font-semibold !bg-[#001D8D] hover:!bg-[#001D8D]/90 !text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200"
+                  className="w-full h-14 text-base font-semibold !bg-[#001D8D] hover:!bg-[#001D8D]/90 !text-white rounded-full shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300"
                 >
                   {rateLoading ? (
                     <>
