@@ -17,22 +17,19 @@ export default function ExchangeCalculator() {
   const [activeInput, setActiveInput] = useState<"give" | "receive">("give");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Получаем данные
-  const { bases, loading: basesLoading, error: basesError } = useBaseAssets();
-  const { quotes, loading: quotesLoading, error: quotesError } = useQuoteAssets(fromCurrency);
+  const { bases, loading: basesLoading } = useBaseAssets();
+  const { quotes, loading: quotesLoading } = useQuoteAssets(fromCurrency);
   const { rate, lastUpdated, loading: rateLoading, error: rateError } = useExchangeRate(fromCurrency, toCurrency);
 
-  // Обновление валют при смене fromCurrency
   useEffect(() => {
     if (!quotesLoading && quotes.length > 0 && !quotes.includes(toCurrency)) {
       setToCurrency(quotes[0]);
     }
   }, [quotes, toCurrency, quotesLoading]);
 
-  // Пересчёт суммы
+  // Пересчёт сумм
   useEffect(() => {
     if (!rate || rate <= 0) return;
-
     if (activeInput === "give" && fromAmount) {
       const num = parseFloat(fromAmount);
       if (!isNaN(num)) setToAmount((num * rate).toFixed(2));
@@ -42,7 +39,6 @@ export default function ExchangeCalculator() {
     }
   }, [rate, fromAmount, toAmount, activeInput]);
 
-  // Смена направления
   const swapCurrencies = () => {
     setFromCurrency(toCurrency);
     setToCurrency(fromCurrency);
@@ -51,7 +47,7 @@ export default function ExchangeCalculator() {
     setActiveInput(activeInput === "give" ? "receive" : "give");
   };
 
-  // Отображение курса (новый формат)
+  // ✅ Отображение курса в человекочитаемом формате
   const renderFormattedRate = () => {
     if (!rate || rate <= 0) return "—";
 
@@ -59,21 +55,22 @@ export default function ExchangeCalculator() {
     let displayQuote = toCurrency;
     let displayRate = rate;
 
-    // ✅ если участвует RUB — показываем курс “1 [другая] = X RUB”
-    if (fromCurrency === "RUB" || toCurrency === "RUB") {
-      displayBase = fromCurrency === "RUB" ? toCurrency : fromCurrency;
+    // Если курс RUB→USDT — переворачиваем отображение для понятности
+    if (fromCurrency === "RUB" && toCurrency === "USDT") {
+      displayBase = "USDT";
       displayQuote = "RUB";
-      displayRate = fromCurrency === "RUB" ? 1 / rate : rate;
+      displayRate = 1 / rate;
     }
 
+    // Формат числа в зависимости от величины
     const formattedRate = displayRate.toLocaleString("ru-RU", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
+      minimumFractionDigits: displayRate < 10 ? 4 : 2,
+      maximumFractionDigits: displayRate < 10 ? 6 : 2,
     });
 
     return (
       <>
-        {displayBase} в {displayQuote}: 1 {displayBase} = {formattedRate} {displayQuote}
+        1 {displayBase} = {formattedRate} {displayQuote}
         <br />
         <span className="text-sm text-gray-500">
           по состоянию на{" "}
@@ -91,7 +88,6 @@ export default function ExchangeCalculator() {
     );
   };
 
-  // Отправка заявки
   const handleSubmit = async () => {
     if (!fromAmount || !toAmount || !rate) {
       toast({
@@ -101,8 +97,8 @@ export default function ExchangeCalculator() {
       });
       return;
     }
-    setIsSubmitting(true);
 
+    setIsSubmitting(true);
     try {
       await new Promise((res) => setTimeout(res, 800));
       toast({
@@ -128,7 +124,6 @@ export default function ExchangeCalculator() {
 
       <p className="text-center text-gray-600 mb-8">{renderFormattedRate()}</p>
 
-      {/* Основной блок */}
       <div className="flex items-center gap-4 w-full max-w-2xl">
         {/* Отдаёте */}
         <div className="flex flex-1 border border-gray-300 rounded-full px-6 py-3 items-center h-[60px]">
