@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { ArrowLeftRight } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useExchangeRate } from "@/hooks/useExchangeRate";
 import { useBaseAssets, useQuoteAssets } from "@/hooks/useAssets";
@@ -23,72 +24,52 @@ export default function ExchangeCalculator() {
   const [activeInput, setActiveInput] = useState<"give" | "receive">("give");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // --- Загрузка доступных валют ---
+  // Получаем валюты и курс
   const { bases, loading: basesLoading, error: basesError } = useBaseAssets();
-  const { quotes, loading: quotesLoading, error: quotesError } =
-    useQuoteAssets(fromCurrency);
-
-  // --- Получение курса ---
+  const {
+    quotes,
+    loading: quotesLoading,
+    error: quotesError,
+  } = useQuoteAssets(fromCurrency);
   const {
     rate,
     source,
     lastUpdated,
     loading: rateLoading,
     error: rateError,
+    refetch,
   } = useExchangeRate(fromCurrency, toCurrency);
 
-  // --- Если выбранная правая валюта отсутствует ---
+  // Проверка корректности выбранной валюты
   useEffect(() => {
     if (!quotesLoading && quotes.length > 0 && !quotes.includes(toCurrency)) {
       setToCurrency(quotes[0]);
     }
   }, [quotes, toCurrency, quotesLoading]);
 
-  // --- Корректный пересчёт ---
+  // Пересчёт при изменении курса или значений
   useEffect(() => {
-    if (!rate || rate <= 0) {
-      setToAmount("");
-      return;
-    }
+    if (!rate || rate <= 0) return;
 
-    if (activeInput === "give") {
-      const num = parseFloat(fromAmount);
-      if (!isNaN(num)) {
-        const result = num * rate;
-        setToAmount(result.toFixed(2));
-      }
-    } else if (activeInput === "receive") {
-      const num = parseFloat(toAmount);
-      if (!isNaN(num)) {
-        const result = num / rate;
-        setFromAmount(result.toFixed(6));
-      }
+    if (activeInput === "give" && fromAmount) {
+      const numAmount = parseFloat(fromAmount);
+      if (!isNaN(numAmount)) setToAmount((numAmount * rate).toFixed(2));
+    } else if (activeInput === "receive" && toAmount) {
+      const numAmount = parseFloat(toAmount);
+      if (!isNaN(numAmount)) setFromAmount((numAmount / rate).toFixed(6));
     }
   }, [rate, fromAmount, toAmount, activeInput]);
 
-  // --- Кнопка "поменять валюты местами" ---
+  // Обработка обмена местами
   const swapCurrencies = () => {
     setFromCurrency(toCurrency);
     setToCurrency(fromCurrency);
     setFromAmount(toAmount);
     setToAmount(fromAmount);
+    setActiveInput(activeInput === "give" ? "receive" : "give");
   };
 
-  // --- Корректное отображение курса ---
-  const displayedRate = useMemo(() => {
-    if (!rate || rate <= 0) return "—";
-    // если конвертация в RUB — показываем напрямую, иначе переворачиваем
-    const value =
-      fromCurrency === "RUB" || fromCurrency === "USD"
-        ? 1 / rate
-        : rate;
-    return value.toLocaleString("ru-RU", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 6,
-    });
-  }, [rate, fromCurrency]);
-
-  // --- Отправка заявки ---
+  // Обработка создания заявки
   const handleSubmit = async () => {
     if (!fromAmount || !toAmount || !rate) {
       toast({
@@ -101,19 +82,14 @@ export default function ExchangeCalculator() {
 
     setIsSubmitting(true);
     await new Promise((r) => setTimeout(r, 1000));
-
     toast({
       title: "Заявка создана!",
-      description: `Обмен ${fromAmount} ${fromCurrency} → ${toAmount} ${toCurrency} успешно создан.`,
+      description: `Вы обмениваете ${fromAmount} ${fromCurrency} на ${toAmount} ${toCurrency}.`,
     });
-
-    setFromAmount("1");
-    setToAmount("");
-    setActiveInput("give");
     setIsSubmitting(false);
   };
 
-  // --- Обработка ошибок ---
+  // Обработка ошибок
   useEffect(() => {
     if (basesError || quotesError || rateError) {
       toast({
@@ -122,17 +98,31 @@ export default function ExchangeCalculator() {
         variant: "destructive",
       });
     }
-  }, [basesError, quotesError, rateError, toast]);
+  }, [basesError, quotesError, rateError]);
 
-  return (
-    <div className="w-full flex flex-col items-center py-10">
-      <h1 className="text-3xl font-bold text-gray-900 text-center mb-3">
-        Конвертер и калькулятор криптовалют
-      </h1>
+  // --- 🔥 Новый блок форматированного отображения курса ---
+  const renderFormattedRate = () => {
+    if (!rate || rate <= 0) return "—";
 
-      {/* Подзаголовок с курсом */}
-      <p className="text-center text-gray-600 mb-8 text-lg">
-        1 {fromCurrency} = {displayedRate} {toCurrency}
+    let displayBase = fromCurrency;
+    let displayQuote = toCurrency;
+    let displayRate = rate;
+
+    // Если участвует RUB — всегда показываем курс в сторону RUB
+    if (fromCurrency === "RUB" && toCurrency !== "RUB") {
+      displayBase = toCurrency;
+      displayQuote = fromCurrency;
+      displayRate = 1 / rate;
+    }
+
+    const formattedRate = displayRate.toLocaleString("ru-RU", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 6,
+    });
+
+    return (
+      <>
+        {displayBase} в {displayQuote}: 1 {displayBase} = {formattedRate} {displayQuote}
         <br />
         <span className="text-sm text-gray-500">
           по состоянию на{" "}
@@ -146,12 +136,23 @@ export default function ExchangeCalculator() {
               })
             : "—"}
         </span>
-      </p>
+      </>
+    );
+  };
 
-      {/* Основная форма */}
+  return (
+    <div className="w-full flex flex-col items-center py-10">
+      <h1 className="text-3xl font-bold text-gray-900 text-center mb-2">
+        Конвертер и калькулятор криптовалют
+      </h1>
+
+      {/* Подзаголовок */}
+      <p className="text-center text-gray-600 mb-8 text-lg">{renderFormattedRate()}</p>
+
+      {/* Основной блок */}
       <div className="flex items-center gap-4 w-full max-w-2xl">
         {/* Отдаёте */}
-        <div className="flex flex-1 border border-gray-300 rounded-full px-6 py-3 items-center h-[60px] bg-white">
+        <div className="flex flex-1 border border-gray-300 rounded-full px-6 py-3 items-center h-[60px]">
           <Input
             type="text"
             value={fromAmount}
@@ -160,7 +161,6 @@ export default function ExchangeCalculator() {
               setActiveInput("give");
             }}
             className="flex-1 border-0 shadow-none focus-visible:ring-0 text-2xl font-medium bg-transparent rounded-full px-6"
-            placeholder="0"
           />
           <Select
             value={fromCurrency}
@@ -180,7 +180,7 @@ export default function ExchangeCalculator() {
           </Select>
         </div>
 
-        {/* Кнопка смены */}
+        {/* Кнопка swap */}
         <button
           onClick={swapCurrencies}
           disabled={rateLoading}
@@ -190,7 +190,7 @@ export default function ExchangeCalculator() {
         </button>
 
         {/* Получаете */}
-        <div className="flex flex-1 border border-gray-300 rounded-full px-6 py-3 items-center h-[60px] bg-white">
+        <div className="flex flex-1 border border-gray-300 rounded-full px-6 py-3 items-center h-[60px]">
           <Input
             type="text"
             value={toAmount}
@@ -199,7 +199,6 @@ export default function ExchangeCalculator() {
               setActiveInput("receive");
             }}
             className="flex-1 border-0 shadow-none focus-visible:ring-0 text-2xl font-medium bg-transparent rounded-full px-6"
-            placeholder="0"
           />
           <Select
             value={toCurrency}
