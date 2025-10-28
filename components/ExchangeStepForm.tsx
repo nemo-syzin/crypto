@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowLeftRight, Loader as Loader2, Check, CircleAlert as AlertCircle, CheckCircle2, Mail, Phone, MessageCircle, ArrowRight, RefreshCw } from "lucide-react";
+import { ArrowLeftRight, Loader as Loader2, Check, CircleAlert as AlertCircle, CircleCheck as CheckCircle2, Mail, Phone, MessageCircle, ArrowRight, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
