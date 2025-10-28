@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowLeftRight, Loader as Loader2, Check, CircleAlert as AlertCircle, CircleCheck as CheckCircle2, Mail, Phone, MessageCircle, ArrowRight, RefreshCw, TrendingUp, Shield, Zap, Star, Award } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { ArrowLeftRight, Loader as Loader2, Check, CircleAlert as AlertCircle, CircleCheck as CheckCircle2, Mail, Phone, MessageCircle, ArrowRight, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -170,35 +169,28 @@ export default function ExchangeStepForm() {
       {step === 1 && (
         <div className="w-full">
           {/* Заголовок */}
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-8"
-          >
-            <h1 className="text-4xl md:text-5xl font-bold text-[#001D8D] mb-3">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3">
               Конвертер и калькулятор криптовалют
             </h1>
             {rate && !rateError && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3 }}
-                className="flex items-center justify-center gap-2 flex-wrap"
-              >
-                <p className="text-base md:text-lg text-[#001D8D]/70">
-                  <span className="font-semibold text-[#001D8D]">{fromCurrency}</span> в <span className="font-semibold text-[#001D8D]">{toCurrency}</span>: 1 {fromCurrency} = {rate.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
-                  {toCurrency === "RUB" ? "₽" : ""} {toCurrency}
+              <div className="flex items-center justify-center gap-2">
+                <p className="text-lg text-gray-600">
+                  {fromCurrency} в {toCurrency}: 1 {fromCurrency === "BTC" ? "Bitcoin" : fromCurrency} конвертируется в{" "}
+                  {rate.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
+                  {toCurrency === "RUB" ? "₽" : ""} {toCurrency} по состоянию на{" "}
+                  {new Date().toLocaleDateString("ru-RU", { day: "numeric", month: "long" })} в{" "}
+                  {new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}
                 </p>
                 <button
                   onClick={() => refetchRate()}
                   disabled={rateLoading || refreshing}
-                  className="p-2 rounded-full hover:bg-[#001D8D]/10 transition-all disabled:opacity-50 group"
+                  className="p-2 rounded-full hover:bg-gray-100 transition-colors disabled:opacity-50"
                   title="Обновить курс"
                 >
-                  <RefreshCw className={`w-4 h-4 text-[#001D8D] group-hover:text-[#001D8D] ${refreshing ? 'animate-spin' : ''}`} />
+                  <RefreshCw className={`w-4 h-4 text-gray-600 ${refreshing ? 'animate-spin' : ''}`} />
                 </button>
-              </motion.div>
+              </div>
             )}
             {rateError && (
               <div className="flex items-center justify-center gap-2 mt-2">
@@ -212,77 +204,16 @@ export default function ExchangeStepForm() {
                 </button>
               </div>
             )}
-          </motion.div>
+          </div>
 
           {/* Калькулятор */}
-          <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="relative"
-          >
-            {/* Decorative Background Elements */}
-            <div className="absolute -top-4 -left-4 w-24 h-24 bg-gradient-to-br from-[#001D8D]/10 to-blue-500/10 rounded-full blur-2xl"></div>
-            <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-[#001D8D]/10 rounded-full blur-2xl"></div>
-
-            <Card className="calc-light-forced border-2 border-[#001D8D]/10 shadow-2xl bg-white/95 backdrop-blur-sm relative overflow-hidden" style={{ colorScheme: 'light', background: 'rgba(255, 255, 255, 0.95)' }}>
-              {/* Gradient Accent Bar */}
-              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#001D8D] via-blue-500 to-[#001D8D]"></div>
-
-              <CardContent className="p-6 md:p-10">
-              {/* Trust Badges */}
-              <div className="flex flex-wrap items-center justify-center gap-3 mb-6">
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  className="flex items-center gap-2 bg-gradient-to-r from-[#001D8D]/5 to-blue-50 px-4 py-2 rounded-full border border-[#001D8D]/10"
-                >
-                  <Shield className="w-4 h-4 text-[#001D8D]" />
-                  <span className="text-xs font-semibold text-[#001D8D]">Защищенный обмен</span>
-                </motion.div>
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  className="flex items-center gap-2 bg-gradient-to-r from-green-50 to-emerald-50 px-4 py-2 rounded-full border border-green-200/50"
-                >
-                  <Award className="w-4 h-4 text-green-600" />
-                  <span className="text-xs font-semibold text-green-700">Лучший курс</span>
-                </motion.div>
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  className="flex items-center gap-2 bg-gradient-to-r from-orange-50 to-amber-50 px-4 py-2 rounded-full border border-orange-200/50"
-                >
-                  <Zap className="w-4 h-4 text-orange-600" />
-                  <span className="text-xs font-semibold text-orange-700">За 15 минут</span>
-                </motion.div>
-              </div>
-
-              {/* Preset Amount Buttons */}
-              <div className="flex items-center gap-2 mb-4 overflow-x-auto pb-2">
-                <span className="text-sm text-[#001D8D]/60 font-medium whitespace-nowrap">Быстрый выбор:</span>
-                {['100', '500', '1000', '5000', '10000'].map((amount) => (
-                  <motion.button
-                    key={amount}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => {
-                      setFromAmount(amount);
-                      setActiveInput('give');
-                    }}
-                    className="px-3 py-1.5 bg-white border border-[#001D8D]/20 rounded-full text-sm font-medium text-[#001D8D] hover:bg-[#001D8D]/5 hover:border-[#001D8D]/40 transition-all whitespace-nowrap"
-                  >
-                    {amount}
-                  </motion.button>
-                ))}
-              </div>
-
+          <Card className="calc-light-forced border-none shadow-lg bg-white" style={{ colorScheme: 'light', background: '#fff' }}>
+            <CardContent className="p-6 md:p-8">
               {/* Горизонтальная раскладка полей */}
-              <div className="flex flex-col md:flex-row items-center gap-4">
+              <div className="flex flex-col md:flex-row items-center gap-3">
                 {/* Поле "Отдаёте" */}
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  className="relative flex-1 w-full group"
-                >
-                  <label className="absolute -top-2 left-6 px-2 bg-white text-xs font-semibold text-[#001D8D]/70 z-10">Отдаёте</label>
-                  <div className="bg-gradient-to-br from-white to-blue-50/30 rounded-2xl h-[80px] flex items-center px-6 gap-4 shadow-lg hover:shadow-xl transition-all border-2 border-[#001D8D]/20 group-hover:border-[#001D8D]/40">
+                <div className="relative flex-1 w-full">
+                  <div className="bg-white rounded-full h-[72px] flex items-center px-6 gap-4 shadow-sm hover:shadow-md transition-shadow border border-gray-100">
                     <Input
                       type="text"
                       value={fromAmount}
@@ -290,13 +221,13 @@ export default function ExchangeStepForm() {
                         setFromAmount(e.target.value);
                         setActiveInput("give");
                       }}
-                      className="flex-1 bg-transparent border-none text-2xl md:text-4xl font-bold focus-visible:ring-0 focus-visible:ring-offset-0 p-0 h-auto text-[#001D8D] placeholder:text-[#001D8D]/30"
-                      placeholder="0.00"
+                      className="flex-1 bg-transparent border-none text-2xl md:text-3xl font-semibold focus-visible:ring-0 focus-visible:ring-offset-0 p-0 h-auto"
+                      placeholder="0"
                       disabled={rateLoading}
                     />
                     <div className="shrink-0">
                       <Select value={fromCurrency} onValueChange={setFromCurrency} disabled={basesLoading}>
-                        <SelectTrigger className="bg-white border border-[#001D8D]/20 rounded-xl h-14 px-4 min-w-[120px] text-lg font-bold shadow-md hover:shadow-lg hover:border-[#001D8D]/40 transition-all" style={{ colorScheme: 'light', backgroundColor: '#fff' }}>
+                        <SelectTrigger className="bg-white border-none rounded-full h-12 px-4 min-w-[120px] text-base font-semibold shadow-sm" style={{ colorScheme: 'light', backgroundColor: '#fff' }}>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -309,31 +240,24 @@ export default function ExchangeStepForm() {
                       </Select>
                     </div>
                   </div>
-                </motion.div>
+                </div>
 
                 {/* Кнопка обмена (по центру) */}
-                <div className="flex justify-center shrink-0 md:my-0 my-2">
-                  <motion.button
+                <div className="flex justify-center shrink-0">
+                  <button
                     onClick={swapCurrencies}
                     disabled={rateLoading}
-                    whileHover={{ scale: 1.1, rotate: 180 }}
-                    whileTap={{ scale: 0.9 }}
-                    transition={{ type: "spring", stiffness: 300 }}
-                    className="w-16 h-16 rounded-full bg-gradient-to-br from-[#001D8D] to-blue-600 shadow-xl hover:shadow-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center group relative overflow-hidden"
+                    className="w-12 h-12 rounded-full bg-white border-4 border-gray-50 shadow-md hover:shadow-lg transition-all hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                    style={{ colorScheme: 'light', backgroundColor: '#fff' }}
                     aria-label="Поменять валюты местами"
                   >
-                    <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    <ArrowLeftRight className="w-6 h-6 text-white relative z-10" />
-                  </motion.button>
+                    <ArrowLeftRight className="w-5 h-5 text-gray-700" />
+                  </button>
                 </div>
 
                 {/* Поле "Получаете" */}
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  className="relative flex-1 w-full group"
-                >
-                  <label className="absolute -top-2 left-6 px-2 bg-white text-xs font-semibold text-[#001D8D]/70 z-10">Получаете</label>
-                  <div className="bg-gradient-to-br from-blue-50/50 to-white rounded-2xl h-[80px] flex items-center px-6 gap-4 shadow-lg hover:shadow-xl transition-all border-2 border-blue-500/30 group-hover:border-blue-500/50">
+                <div className="relative flex-1 w-full">
+                  <div className="bg-white rounded-full h-[72px] flex items-center px-6 gap-4 shadow-sm hover:shadow-md transition-shadow border border-gray-100">
                     <Input
                       type="text"
                       value={toAmount}
@@ -341,13 +265,13 @@ export default function ExchangeStepForm() {
                         setToAmount(e.target.value);
                         setActiveInput("receive");
                       }}
-                      className="flex-1 bg-transparent border-none text-2xl md:text-4xl font-bold focus-visible:ring-0 focus-visible:ring-offset-0 p-0 h-auto text-blue-600 placeholder:text-blue-600/30"
-                      placeholder="0.00"
+                      className="flex-1 bg-transparent border-none text-2xl md:text-3xl font-semibold focus-visible:ring-0 focus-visible:ring-offset-0 p-0 h-auto"
+                      placeholder="0"
                       disabled={rateLoading}
                     />
                     <div className="shrink-0">
                       <Select value={toCurrency} onValueChange={setToCurrency} disabled={quotesLoading}>
-                        <SelectTrigger className="bg-white border border-blue-500/30 rounded-xl h-14 px-4 min-w-[120px] text-lg font-bold shadow-md hover:shadow-lg hover:border-blue-500/50 transition-all" style={{ colorScheme: 'light', backgroundColor: '#fff' }}>
+                        <SelectTrigger className="bg-white border-none rounded-full h-12 px-4 min-w-[120px] text-base font-semibold shadow-sm" style={{ colorScheme: 'light', backgroundColor: '#fff' }}>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -360,82 +284,43 @@ export default function ExchangeStepForm() {
                       </Select>
                     </div>
                   </div>
-                </motion.div>
+                </div>
               </div>
 
-              {/* Enhanced Rate Display */}
+              {/* Информация о курсе */}
               {rate && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 }}
-                  className="mt-6 p-6 bg-gradient-to-br from-[#001D8D]/5 via-blue-50/50 to-[#001D8D]/5 rounded-2xl border border-[#001D8D]/10"
-                >
-                  <div className="flex items-center justify-between flex-wrap gap-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-[#001D8D] flex items-center justify-center shadow-lg">
-                        <TrendingUp className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <div className="text-sm text-[#001D8D]/60 font-medium">Текущий курс</div>
-                        <div className="text-2xl font-bold text-[#001D8D]">
-                          1 {fromCurrency} = {rate.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 6 })} {toCurrency}
-                        </div>
-                      </div>
+                <div className="pt-6">
+                  <div className="text-center">
+                    <div className="text-xl font-semibold text-gray-900">
+                      1 {fromCurrency} = {rate.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 6 })} {toCurrency}
                     </div>
-                    <div className="flex flex-col items-end">
-                      <div className="flex items-center gap-2 bg-green-100 px-3 py-1.5 rounded-full">
-                        <Star className="w-4 h-4 text-green-600 fill-green-600" />
-                        <span className="text-sm font-bold text-green-700">Выгодный курс</span>
-                      </div>
-                      <span className="text-xs text-[#001D8D]/50 mt-1">Обновлено только что</span>
+                    <div className="text-sm text-gray-500 mt-1">
+                      Актуальный курс обмена
                     </div>
                   </div>
-                </motion.div>
+                </div>
               )}
 
               {/* Кнопка создания заявки */}
-              <motion.div
-                className="pt-8"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
+              <div className="pt-6">
                 <Button
                   onClick={() => setStep(2)}
                   disabled={!rate || rateLoading || !fromAmount || !toAmount}
-                  className="exchange-submit-button relative w-full px-8 py-6 text-xl font-bold !bg-gradient-to-r from-[#001D8D] via-blue-600 to-[#001D8D] hover:!opacity-90 !text-white shadow-2xl hover:shadow-[0_20px_50px_rgba(0,29,141,0.4)] transition-all duration-300 rounded-2xl overflow-hidden group"
-                  style={{ background: 'linear-gradient(90deg, #001D8D 0%, #2563eb 50%, #001D8D 100%)', color: 'white', WebkitTextFillColor: 'white' }}
+                  className="exchange-submit-button w-full px-8 py-4 text-lg font-semibold !bg-[#001D8D] hover:!bg-[#001D8D]/90 !text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300"
+                  style={{ background: '#001D8D', color: 'white', WebkitTextFillColor: 'white' }}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-                  <span className="relative z-10 flex items-center justify-center gap-3">
-                    {rateLoading ? (
-                      <>
-                        <Loader2 className="h-6 w-6 animate-spin" />
-                        Загрузка курса...
-                      </>
-                    ) : (
-                      <>
-                        Оставить заявку на обмен
-                        <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
-                      </>
-                    )}
-                  </span>
+                  {rateLoading ? (
+                    <>
+                      <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                      Загрузка курса...
+                    </>
+                  ) : (
+                    "Оставить заявку на обмен"
+                  )}
                 </Button>
-              </motion.div>
-
-              {/* Additional Info */}
-              <div className="mt-6 text-center space-y-2">
-                <p className="text-sm text-[#001D8D]/60">
-                  <Shield className="w-4 h-4 inline mr-1" />
-                  Все транзакции защищены 256-битным шифрованием
-                </p>
-                <p className="text-xs text-[#001D8D]/40">
-                  Среднее время обработки: 10-15 минут
-                </p>
               </div>
             </CardContent>
           </Card>
-        </motion.div>
         </div>
       )}
 
