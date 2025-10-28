@@ -645,11 +645,17 @@
   /* iOS Safari specific fixes */
   .calc-light-forced input,
   .calc-light-forced select,
-  .calc-light-forced button,
+  .calc-light-forced button:not(.exchange-submit-button),
   .calc-light-forced textarea {
     -webkit-appearance: none !important;
     -webkit-text-fill-color: #001D8D !important;
     background-color: white !important;
+  }
+
+  /* Exchange submit button styling override */
+  .calc-light-forced .exchange-submit-button {
+    -webkit-text-fill-color: white !important;
+    background-color: #001D8D !important;
   }
 
   .calc-light-forced input::placeholder {

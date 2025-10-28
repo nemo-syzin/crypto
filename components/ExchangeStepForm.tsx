@@ -306,7 +306,8 @@ export default function ExchangeStepForm() {
                 <Button
                   onClick={() => setStep(2)}
                   disabled={!rate || rateLoading || !fromAmount || !toAmount}
-                  className="w-full px-8 py-4 text-lg font-semibold bg-[#001D8D] hover:bg-[#001D8D]/90 text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300"
+                  className="exchange-submit-button w-full px-8 py-4 text-lg font-semibold !bg-[#001D8D] hover:!bg-[#001D8D]/90 !text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300"
+                  style={{ background: '#001D8D', color: 'white', WebkitTextFillColor: 'white' }}
                 >
                   {rateLoading ? (
                     <>
