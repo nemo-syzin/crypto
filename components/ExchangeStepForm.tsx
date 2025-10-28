@@ -213,7 +213,7 @@ export default function ExchangeStepForm() {
               <div className="flex flex-col md:flex-row items-center gap-3">
                 {/* Поле "Отдаёте" */}
                 <div className="relative flex-1 w-full">
-                  <div className="bg-gray-50 rounded-full h-[72px] flex items-center px-6 gap-4 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="bg-white rounded-full h-[72px] flex items-center px-6 gap-4 shadow-sm hover:shadow-md transition-shadow border border-gray-100">
                     <Input
                       type="text"
                       value={fromAmount}
@@ -257,7 +257,7 @@ export default function ExchangeStepForm() {
 
                 {/* Поле "Получаете" */}
                 <div className="relative flex-1 w-full">
-                  <div className="bg-gray-50 rounded-full h-[72px] flex items-center px-6 gap-4 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="bg-white rounded-full h-[72px] flex items-center px-6 gap-4 shadow-sm hover:shadow-md transition-shadow border border-gray-100">
                     <Input
                       type="text"
                       value={toAmount}
