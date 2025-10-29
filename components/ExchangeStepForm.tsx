@@ -166,34 +166,29 @@ export default function ExchangeStepForm() {
 
   return (
     <div className="w-full max-w-4xl mx-auto" style={{ colorScheme: 'light' }} data-theme="light">
-      {/* === Шаг 1: Калькулятор (премиум стиль) === */}
+      {/* === Шаг 1: Калькулятор (стиль Coinbase) === */}
       {step === 1 && (
         <div className="w-full">
           {/* Заголовок */}
-          <div className="text-center mb-10">
-            <h1 className="text-4xl md:text-5xl font-bold text-[#001D8D] mb-4 tracking-tight">
-              Мгновенный обмен криптовалют
+          <div className="text-center mb-8">
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3">
+              Конвертер и калькулятор криптовалют
             </h1>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-6">
-              Без скрытых комиссий. По актуальным курсам. С моментальной обработкой заявок.
-            </p>
             {rate && !rateError && (
               <div className="flex items-center justify-center gap-2">
-                <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-full">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  <p className="text-sm text-gray-600">
-                    {getReadableRate(fromCurrency, toCurrency, rate).description} • обновлено {" "}
-                    {new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}
-                  </p>
-                  <button
-                    onClick={() => refetchRate()}
-                    disabled={rateLoading || refreshing}
-                    className="p-1 rounded-full hover:bg-gray-200 transition-colors disabled:opacity-50"
-                    title="Обновить курс"
-                  >
-                    <RefreshCw className={`w-3.5 h-3.5 text-gray-600 ${refreshing ? 'animate-spin' : ''}`} />
-                  </button>
-                </div>
+                <p className="text-lg text-gray-600">
+                  {getReadableRate(fromCurrency, toCurrency, rate).description} по состоянию на{" "}
+                  {new Date().toLocaleDateString("ru-RU", { day: "numeric", month: "long" })} в{" "}
+                  {new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}
+                </p>
+                <button
+                  onClick={() => refetchRate()}
+                  disabled={rateLoading || refreshing}
+                  className="p-2 rounded-full hover:bg-gray-100 transition-colors disabled:opacity-50"
+                  title="Обновить курс"
+                >
+                  <RefreshCw className={`w-4 h-4 text-gray-600 ${refreshing ? 'animate-spin' : ''}`} />
+                </button>
               </div>
             )}
             {rateError && (
@@ -211,14 +206,13 @@ export default function ExchangeStepForm() {
           </div>
 
           {/* Калькулятор */}
-          <Card className="calc-light-forced border border-gray-100 shadow-2xl bg-white/80 backdrop-blur-xl" style={{ colorScheme: 'light', background: 'rgba(255,255,255,0.8)' }}>
-            <CardContent className="p-8 md:p-12">
+          <Card className="calc-light-forced border-none shadow-lg bg-white" style={{ colorScheme: 'light', background: '#fff' }}>
+            <CardContent className="p-6 md:p-8">
               {/* Горизонтальная раскладка полей */}
-              <div className="flex flex-col md:flex-row items-center gap-4">
+              <div className="flex flex-col md:flex-row items-center gap-3">
                 {/* Поле "Отдаёте" */}
                 <div className="relative flex-1 w-full">
-                  <Label className="text-xs font-medium text-gray-500 mb-2 block">Отдаёте</Label>
-                  <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl h-[80px] flex items-center px-6 gap-4 shadow-md hover:shadow-lg transition-all border border-gray-200 hover:border-[#001D8D]/30">
+                  <div className="bg-white rounded-full h-[72px] flex items-center px-6 gap-4 shadow-sm hover:shadow-md transition-shadow border border-gray-100">
                     <Input
                       type="text"
                       value={fromAmount}
@@ -226,13 +220,13 @@ export default function ExchangeStepForm() {
                         setFromAmount(e.target.value);
                         setActiveInput("give");
                       }}
-                      className="flex-1 bg-transparent border-none text-3xl md:text-4xl font-bold focus-visible:ring-0 focus-visible:ring-offset-0 p-0 h-auto text-[#001D8D]"
+                      className="flex-1 bg-transparent border-none text-2xl md:text-3xl font-semibold focus-visible:ring-0 focus-visible:ring-offset-0 p-0 h-auto"
                       placeholder="0"
                       disabled={rateLoading}
                     />
                     <div className="shrink-0">
                       <Select value={fromCurrency} onValueChange={setFromCurrency} disabled={basesLoading}>
-                        <SelectTrigger className="bg-white border border-gray-200 rounded-xl h-12 px-4 min-w-[130px] text-base font-bold shadow-sm hover:shadow-md transition-all" style={{ colorScheme: 'light', backgroundColor: '#fff' }}>
+                        <SelectTrigger className="bg-white border-none rounded-full h-12 px-4 min-w-[120px] text-base font-semibold shadow-sm" style={{ colorScheme: 'light', backgroundColor: '#fff' }}>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -248,21 +242,21 @@ export default function ExchangeStepForm() {
                 </div>
 
                 {/* Кнопка обмена (по центру) */}
-                <div className="flex justify-center shrink-0 md:mt-6">
+                <div className="flex justify-center shrink-0">
                   <button
                     onClick={swapCurrencies}
                     disabled={rateLoading}
-                    className="w-14 h-14 rounded-full bg-gradient-to-br from-[#001D8D] to-[#0052FF] shadow-lg hover:shadow-xl transition-all hover:scale-110 hover:rotate-180 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                    className="w-12 h-12 rounded-full bg-white border-4 border-gray-50 shadow-md hover:shadow-lg transition-all hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                    style={{ colorScheme: 'light', backgroundColor: '#fff' }}
                     aria-label="Поменять валюты местами"
                   >
-                    <ArrowLeftRight className="w-6 h-6 text-white" />
+                    <ArrowLeftRight className="w-5 h-5 text-gray-700" />
                   </button>
                 </div>
 
                 {/* Поле "Получаете" */}
                 <div className="relative flex-1 w-full">
-                  <Label className="text-xs font-medium text-gray-500 mb-2 block">Получаете</Label>
-                  <div className="bg-gradient-to-br from-[#F6F9FF] to-white rounded-2xl h-[80px] flex items-center px-6 gap-4 shadow-md hover:shadow-lg transition-all border border-[#001D8D]/20 hover:border-[#001D8D]/40">
+                  <div className="bg-white rounded-full h-[72px] flex items-center px-6 gap-4 shadow-sm hover:shadow-md transition-shadow border border-gray-100">
                     <Input
                       type="text"
                       value={toAmount}
@@ -270,13 +264,13 @@ export default function ExchangeStepForm() {
                         setToAmount(e.target.value);
                         setActiveInput("receive");
                       }}
-                      className="flex-1 bg-transparent border-none text-3xl md:text-4xl font-bold focus-visible:ring-0 focus-visible:ring-offset-0 p-0 h-auto text-[#0052FF]"
+                      className="flex-1 bg-transparent border-none text-2xl md:text-3xl font-semibold focus-visible:ring-0 focus-visible:ring-offset-0 p-0 h-auto"
                       placeholder="0"
                       disabled={rateLoading}
                     />
                     <div className="shrink-0">
                       <Select value={toCurrency} onValueChange={setToCurrency} disabled={quotesLoading}>
-                        <SelectTrigger className="bg-white border border-gray-200 rounded-xl h-12 px-4 min-w-[130px] text-base font-bold shadow-sm hover:shadow-md transition-all" style={{ colorScheme: 'light', backgroundColor: '#fff' }}>
+                        <SelectTrigger className="bg-white border-none rounded-full h-12 px-4 min-w-[120px] text-base font-semibold shadow-sm" style={{ colorScheme: 'light', backgroundColor: '#fff' }}>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -294,27 +288,25 @@ export default function ExchangeStepForm() {
 
               {/* Информация о курсе */}
               {rate && (
-                <div className="mt-8 pt-6 border-t border-gray-100">
+                <div className="pt-6">
                   <div className="text-center">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#F6F9FF] to-[#E8F0FF] rounded-full">
-                      <div className="text-xl font-bold text-[#001D8D]">
-                        {getReadableRate(fromCurrency, toCurrency, rate).description}
-                      </div>
+                    <div className="text-xl font-semibold text-gray-900">
+                      {getReadableRate(fromCurrency, toCurrency, rate).description}
                     </div>
-                    <div className="text-xs text-gray-500 mt-2">
-                      Актуальный курс обмена • без скрытых комиссий
+                    <div className="text-sm text-gray-500 mt-1">
+                      Актуальный курс обмена
                     </div>
                   </div>
                 </div>
               )}
 
               {/* Кнопка создания заявки */}
-              <div className="mt-8">
+              <div className="pt-6">
                 <Button
                   onClick={() => setStep(2)}
                   disabled={!rate || rateLoading || !fromAmount || !toAmount}
-                  className="exchange-submit-button w-full px-8 py-6 text-lg font-bold !bg-gradient-to-r !from-[#001D8D] !to-[#0052FF] hover:!from-[#0020B3] hover:!to-[#0066FF] !text-white shadow-xl hover:shadow-2xl hover:scale-[1.02] active:scale-95 transition-all duration-300 rounded-2xl"
-                  style={{ background: 'linear-gradient(to right, #001D8D, #0052FF)', color: 'white', WebkitTextFillColor: 'white' }}
+                  className="exchange-submit-button w-full px-8 py-4 text-lg font-semibold !bg-[#001D8D] hover:!bg-[#001D8D]/90 !text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300"
+                  style={{ background: '#001D8D', color: 'white', WebkitTextFillColor: 'white' }}
                 >
                   {rateLoading ? (
                     <>
