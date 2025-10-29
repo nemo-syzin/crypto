@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useExchangeRate } from "@/hooks/useExchangeRate";
 import { useBaseAssets, useQuoteAssets } from "@/hooks/useAssets";
+import { getReadableRate } from "@/lib/currency-utils";
 
 export default function ExchangeStepForm() {
   const { toast } = useToast();
@@ -176,9 +177,7 @@ export default function ExchangeStepForm() {
             {rate && !rateError && (
               <div className="flex items-center justify-center gap-2">
                 <p className="text-lg text-gray-600">
-                  {fromCurrency} в {toCurrency}: 1 {fromCurrency === "BTC" ? "Bitcoin" : fromCurrency} конвертируется в{" "}
-                  {rate.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
-                  {toCurrency === "RUB" ? "₽" : ""} {toCurrency} по состоянию на{" "}
+                  {getReadableRate(fromCurrency, toCurrency, rate).description} по состоянию на{" "}
                   {new Date().toLocaleDateString("ru-RU", { day: "numeric", month: "long" })} в{" "}
                   {new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}
                 </p>
@@ -292,7 +291,7 @@ export default function ExchangeStepForm() {
                 <div className="pt-6">
                   <div className="text-center">
                     <div className="text-xl font-semibold text-gray-900">
-                      1 {fromCurrency} = {rate.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 6 })} {toCurrency}
+                      {getReadableRate(fromCurrency, toCurrency, rate).description}
                     </div>
                     <div className="text-sm text-gray-500 mt-1">
                       Актуальный курс обмена
@@ -342,7 +341,7 @@ export default function ExchangeStepForm() {
               </div>
               <div className="flex justify-between items-center gap-2">
                 <span className="text-gray-700">Курс:</span>
-                <strong className="text-[#001D8D] break-words text-right text-xs sm:text-sm">1 {fromCurrency} = {rate?.toFixed(4)} {toCurrency}</strong>
+                <strong className="text-[#001D8D] break-words text-right text-xs sm:text-sm">{rate ? getReadableRate(fromCurrency, toCurrency, rate).description : '—'}</strong>
               </div>
             </div>
           </CardHeader>
