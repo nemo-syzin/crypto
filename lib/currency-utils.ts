@@ -29,6 +29,10 @@ export function getReadableRate(
     baseSymbol = toUpper;
     quoteSymbol = fromUpper;
     displayRate = 1 / rate;
+  } else if (!fromIsFiat && toIsFiat) {
+    baseSymbol = fromUpper;
+    quoteSymbol = toUpper;
+    displayRate = rate;
   }
 
   let formattedRate: string;
