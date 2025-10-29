@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeftRight, RefreshCw, TrendingUp, Shield, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useExchangeRate } from "@/hooks/useExchangeRate";
+import { useBaseAssets, useQuoteAssets } from "@/hooks/useAssets";
 
 interface ConversionRate {
   rate: number;
@@ -26,14 +28,19 @@ const currencies: Currency[] = [
 ];
 
 export default function ProfessionalConverter() {
-  const [fromCurrency, setFromCurrency] = useState<Currency>(currencies[0]);
-  const [toCurrency, setToCurrency] = useState<Currency>(currencies[3]);
+  const [fromCurrencyCode, setFromCurrencyCode] = useState<string>("USDT");
+  const [toCurrencyCode, setToCurrencyCode] = useState<string>("RUB");
   const [fromAmount, setFromAmount] = useState<string>("100");
-  const [toAmount, setToAmount] = useState<string>("8065.00");
-  const [rate, setRate] = useState<ConversionRate>({ rate: 80.65, lastUpdated: new Date() });
+  const [toAmount, setToAmount] = useState<string>("");
   const [isSwapping, setIsSwapping] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const [isDark, setIsDark] = useState(false);
+
+  const { bases, loading: basesLoading } = useBaseAssets();
+  const { quotes, loading: quotesLoading } = useQuoteAssets(fromCurrencyCode);
+  const { rate, lastUpdated, loading: rateLoading, refetch } = useExchangeRate(fromCurrencyCode, toCurrencyCode);
+
+  const fromCurrency = currencies.find(c => c.code === fromCurrencyCode) || currencies[0];
+  const toCurrency = currencies.find(c => c.code === toCurrencyCode) || currencies[3];
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -53,13 +60,23 @@ export default function ProfessionalConverter() {
     }
   }, []);
 
+  useEffect(() => {
+    if (rate && rate > 0 && fromAmount) {
+      const numAmount = parseFloat(fromAmount.replace(/,/g, ""));
+      if (!isNaN(numAmount)) {
+        const result = (numAmount * rate).toFixed(2);
+        setToAmount(result);
+      }
+    }
+  }, [rate, fromAmount]);
+
   const handleSwap = () => {
     setIsSwapping(true);
     setTimeout(() => {
-      const tempCurrency = fromCurrency;
+      const tempCode = fromCurrencyCode;
       const tempAmount = fromAmount;
-      setFromCurrency(toCurrency);
-      setToCurrency(tempCurrency);
+      setFromCurrencyCode(toCurrencyCode);
+      setToCurrencyCode(tempCode);
       setFromAmount(toAmount);
       setToAmount(tempAmount);
       setIsSwapping(false);
@@ -67,27 +84,12 @@ export default function ProfessionalConverter() {
   };
 
   const handleRefresh = () => {
-    setIsRefreshing(true);
-    setTimeout(() => {
-      const newRate = rate.rate + (Math.random() - 0.5) * 0.5;
-      setRate({ rate: parseFloat(newRate.toFixed(2)), lastUpdated: new Date() });
-      calculateConversion(fromAmount, newRate);
-      setIsRefreshing(false);
-    }, 500);
-  };
-
-  const calculateConversion = (amount: string, currentRate: number = rate.rate) => {
-    const numAmount = parseFloat(amount.replace(/,/g, ""));
-    if (!isNaN(numAmount)) {
-      const result = (numAmount * currentRate).toFixed(2);
-      setToAmount(result);
-    }
+    refetch();
   };
 
   const handleAmountChange = (value: string) => {
     const sanitized = value.replace(/[^\d.,]/g, "");
     setFromAmount(sanitized);
-    calculateConversion(sanitized);
   };
 
   const formatNumber = (num: string) => {
@@ -182,17 +184,18 @@ export default function ProfessionalConverter() {
                 />
                 <select
                   value={fromCurrency.code}
-                  onChange={(e) => {
-                    const selected = currencies.find((c) => c.code === e.target.value);
-                    if (selected) setFromCurrency(selected);
-                  }}
-                  className="text-xl font-semibold text-[#0C1E5B] dark:text-white bg-[#F3F6FF] dark:bg-[#1E293B] hover:bg-[#EAF1FF] dark:hover:bg-[#2D3B50] rounded-2xl px-6 py-4 border-2 border-transparent focus:border-[#2563EB] focus:outline-none transition-all cursor-pointer"
+                  onChange={(e) => setFromCurrencyCode(e.target.value)}
+                  disabled={basesLoading}
+                  className="text-xl font-semibold text-[#0C1E5B] dark:text-white bg-[#F3F6FF] dark:bg-[#1E293B] hover:bg-[#EAF1FF] dark:hover:bg-[#2D3B50] rounded-2xl px-6 py-4 border-2 border-transparent focus:border-[#2563EB] focus:outline-none transition-all cursor-pointer disabled:opacity-50"
                 >
-                  {currencies.map((currency) => (
-                    <option key={currency.code} value={currency.code}>
-                      {currency.symbol} {currency.code}
-                    </option>
-                  ))}
+                  {bases.map((code) => {
+                    const curr = currencies.find(c => c.code === code);
+                    return (
+                      <option key={code} value={code}>
+                        {curr?.symbol || ''} {code}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
             </motion.div>
@@ -227,17 +230,18 @@ export default function ProfessionalConverter() {
                 </div>
                 <select
                   value={toCurrency.code}
-                  onChange={(e) => {
-                    const selected = currencies.find((c) => c.code === e.target.value);
-                    if (selected) setToCurrency(selected);
-                  }}
-                  className="text-xl font-semibold text-[#0C1E5B] dark:text-white bg-[#F3F6FF] dark:bg-[#1E293B] hover:bg-[#EAF1FF] dark:hover:bg-[#2D3B50] rounded-2xl px-6 py-4 border-2 border-transparent focus:border-[#2563EB] focus:outline-none transition-all cursor-pointer"
+                  onChange={(e) => setToCurrencyCode(e.target.value)}
+                  disabled={quotesLoading}
+                  className="text-xl font-semibold text-[#0C1E5B] dark:text-white bg-[#F3F6FF] dark:bg-[#1E293B] hover:bg-[#EAF1FF] dark:hover:bg-[#2D3B50] rounded-2xl px-6 py-4 border-2 border-transparent focus:border-[#2563EB] focus:outline-none transition-all cursor-pointer disabled:opacity-50"
                 >
-                  {currencies.map((currency) => (
-                    <option key={currency.code} value={currency.code}>
-                      {currency.symbol} {currency.code}
-                    </option>
-                  ))}
+                  {quotes.map((code) => {
+                    const curr = currencies.find(c => c.code === code);
+                    return (
+                      <option key={code} value={code}>
+                        {curr?.symbol || ''} {code}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
             </motion.div>
@@ -252,19 +256,20 @@ export default function ProfessionalConverter() {
               <div className="flex items-center gap-2 text-sm text-[#0A0F1C]/60 dark:text-white/60">
                 <TrendingUp className="w-4 h-4" />
                 <span>
-                  1 {fromCurrency.code} = {rate.rate.toFixed(2)} {toCurrency.code}
-                  <span className="ml-2 text-xs">— Актуальный курс обмена</span>
+                  1 {fromCurrency.code} = {rate ? rate.toFixed(2) : '—'} {toCurrency.code}
+                  <span className="ml-2 text-xs">— {rateLoading ? 'Загрузка...' : 'Актуальный курс обмена'}</span>
                 </span>
               </div>
               <motion.button
                 whileHover={{ rotate: 180, scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                animate={{ rotate: isRefreshing ? 360 : 0 }}
+                animate={{ rotate: rateLoading ? 360 : 0 }}
                 transition={{ duration: 0.5 }}
                 onClick={handleRefresh}
-                className="p-2 hover:bg-[#F3F6FF] dark:hover:bg-[#1E293B] rounded-full transition-colors"
+                disabled={rateLoading}
+                className="p-2 hover:bg-[#F3F6FF] dark:hover:bg-[#1E293B] rounded-full transition-colors disabled:opacity-50"
               >
-                <RefreshCw className="w-5 h-5 text-[#2563EB]" />
+                <RefreshCw className={`w-5 h-5 text-[#2563EB] ${rateLoading ? 'animate-spin' : ''}`} />
               </motion.button>
             </motion.div>
           </div>

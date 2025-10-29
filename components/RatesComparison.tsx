@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import useSWR from "swr";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -79,100 +80,29 @@ function generateSparklineData(baseRate: number | null): number[] {
 
 // ================== MAIN COMPONENT ==================
 export default function RatesComparison() {
-  const [rates, setRates] = useState<AllRates | null>(() => {
-    // Попытка загрузить из localStorage при инициализации
-    if (typeof window !== 'undefined') {
-      try {
-        const cached = localStorage.getItem('kenigswap_rates_cache');
-        if (cached) {
-          const parsed = JSON.parse(cached);
-          // Проверяем, не старые ли данные (не более 5 минут)
-          const cacheAge = Date.now() - new Date(parsed.timestamp).getTime();
-          if (cacheAge < 5 * 60 * 1000) {
-            console.log('[RatesComparison] Loaded rates from cache');
-            return parsed.data;
-          }
-        }
-      } catch (err) {
-        console.error('[RatesComparison] Error loading cache:', err);
-      }
-    }
-    return null;
-  });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [countdown, setCountdown] = useState<string>("");
 
-  // --- Fetch rates from API with retry logic ---
-  const fetchRates = async (retryCount = 0) => {
-    try {
-      if (retryCount === 0) {
-        setLoading(true);
-      }
-      setError(null);
-
-      console.log(`[RatesComparison] Fetching rates (attempt ${retryCount + 1})...`);
-
-      const response = await fetch("/api/rates-comparison", {
-        cache: "no-cache",
-        headers: {
-          "Cache-Control": "no-cache",
-          Pragma: "no-cache",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log("💾 /api/rates-comparison response:", data);
-      console.log("kenig.updated_at =", data?.kenig?.updated_at);
-      console.log("bestchange.updated_at =", data?.bestchange?.updated_at);
-
-      setRates(data);
-      setLastUpdated(new Date());
-      if (data.error) setError(data.error);
-
-      // Сохраняем в localStorage для кэширования
-      if (typeof window !== 'undefined') {
-        try {
-          localStorage.setItem('kenigswap_rates_cache', JSON.stringify({
-            data,
-            timestamp: new Date().toISOString()
-          }));
-        } catch (err) {
-          console.error('[RatesComparison] Error saving cache:', err);
-        }
-      }
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to fetch rates";
-      console.error(`[RatesComparison] Error fetching rates (attempt ${retryCount + 1}):`, err);
-
-      // Повторная попытка загрузки (до 2 раз)
-      if (retryCount < 2) {
-        console.log(`[RatesComparison] Retrying... (${retryCount + 1}/2)`);
-        setTimeout(() => {
-          fetchRates(retryCount + 1);
-        }, 2000 * (retryCount + 1)); // Увеличиваем задержку с каждой попыткой
-      } else {
-        setError(errorMessage);
-      }
-    } finally {
-      if (retryCount === 0) {
-        setLoading(false);
-      }
+  const { data: rates, error, isLoading, mutate } = useSWR<AllRates>(
+    "/api/rates-comparison",
+    {
+      refreshInterval: 30000,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: true,
+      dedupingInterval: 2000,
+      keepPreviousData: true,
+      onSuccess: (data) => {
+        console.log("💾 /api/rates-comparison response:", data);
+        console.log("kenig.updated_at =", data?.kenig?.updated_at);
+        console.log("bestchange.updated_at =", data?.bestchange?.updated_at);
+      },
+      onError: (err) => {
+        console.error('[RatesComparison] Error fetching rates:', err);
+      },
     }
-  };
+  );
 
-  // --- Initial load and periodic refresh ---
-  useEffect(() => {
-    fetchRates();
-    const interval = setInterval(fetchRates, 60000);
-    return () => clearInterval(interval);
-  }, []);
+  const loading = isLoading && !rates;
+  const lastUpdated = rates ? new Date() : null;
 
   // --- Countdown timer ---
   useEffect(() => {
@@ -237,11 +167,12 @@ export default function RatesComparison() {
     return { bestSell, bestBuy };
   }, [exchangeData]);
 
+  const errorMessage = error?.message || rates?.error || null;
   const isConfigurationError =
-    error &&
-    (error.includes("not configured") ||
-      error.includes("Invalid API key") ||
-      error.includes("environment variables"));
+    errorMessage &&
+    (errorMessage.includes("not configured") ||
+      errorMessage.includes("Invalid API key") ||
+      errorMessage.includes("environment variables"));
 
   const mobileLeader = useMemo(() => {
     return (
@@ -330,20 +261,20 @@ export default function RatesComparison() {
         <Alert className="bg-orange-50 border-orange-200">
           <Settings className="h-4 w-4 text-orange-600" />
           <AlertDescription className="text-orange-800">
-            <strong>Требуется настройка:</strong> {error}
+            <strong>Требуется настройка:</strong> {errorMessage}
           </AlertDescription>
         </Alert>
       )}
 
-      {error && !isConfigurationError && (
+      {errorMessage && !isConfigurationError && (
         <Alert className="bg-red-50 border-red-200">
           <AlertTriangle className="h-4 w-4 text-red-600" />
           <AlertDescription className="text-red-800 flex items-center justify-between">
             <div>
-              <strong>Ошибка загрузки курсов:</strong> {error}
+              <strong>Ошибка загрузки курсов:</strong> {errorMessage}
             </div>
             <button
-              onClick={() => fetchRates()}
+              onClick={() => mutate()}
               disabled={loading}
               className="ml-4 px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm hover:bg-red-200 transition-colors disabled:opacity-50 flex items-center gap-1"
             >
@@ -364,7 +295,7 @@ export default function RatesComparison() {
             <div className="flex items-center gap-2">
               <div className="countdown-timer text-xs">{countdown}</div>
               <button
-                onClick={fetchRates}
+                onClick={() => mutate()}
                 disabled={loading}
                 className="w-7 h-7 flex items-center justify-center rounded-full bg-[#001D8D]/10 hover:bg-[#001D8D]/20 transition-colors"
               >

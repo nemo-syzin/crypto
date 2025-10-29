@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SupabaseAuthProvider } from "@/components/auth/SupabaseAuthProvider";
 import { NotificationProvider } from "@/hooks/useNotification";
+import { SWRProvider } from "@/components/providers/SWRProvider";
 import { Toaster } from "@/components/ui/toaster";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
@@ -78,16 +79,18 @@ export default function RootLayout({
 
           {/* Контент поверх */}
           <div className="relative z-10 min-h-screen flex flex-col">
-            <ThemeProvider attribute="class" enableSystem disableTransitionOnChange>
-              <SupabaseAuthProvider>
-                <NotificationProvider>
-                  <Header />
-                  <main className="flex-1">{children}</main>
-                  <Footer />
-                  <Toaster />
-                </NotificationProvider>
-              </SupabaseAuthProvider>
-            </ThemeProvider>
+            <SWRProvider>
+              <ThemeProvider attribute="class" enableSystem disableTransitionOnChange>
+                <SupabaseAuthProvider>
+                  <NotificationProvider>
+                    <Header />
+                    <main className="flex-1">{children}</main>
+                    <Footer />
+                    <Toaster />
+                  </NotificationProvider>
+                </SupabaseAuthProvider>
+              </ThemeProvider>
+            </SWRProvider>
           </div>
         </div>
         <script

@@ -112,11 +112,12 @@ const fetchQuotes = async (base: string): Promise<string[]> => {
  */
 export const useBaseAssets = () => {
   const { data, error, isLoading } = useSWR('bases', fetchBases, {
-    refreshInterval: 5 * 60 * 1000, // каждые 5 мин
+    refreshInterval: 2 * 60 * 1000,
     revalidateOnFocus: false,
     revalidateOnReconnect: true,
-    dedupingInterval: 30000,
+    dedupingInterval: 2000,
     fallbackData: Array.from(FALLBACK_BASES),
+    keepPreviousData: true,
   });
 
   return {
@@ -134,11 +135,12 @@ export const useQuoteAssets = (base: string) => {
     base ? `quotes-${base}` : null,
     () => fetchQuotes(base),
     {
-      refreshInterval: 5 * 60 * 1000,
+      refreshInterval: 2 * 60 * 1000,
       revalidateOnFocus: false,
       revalidateOnReconnect: true,
-      dedupingInterval: 30000,
+      dedupingInterval: 2000,
       fallbackData: FALLBACK_QUOTES_BY_BASE[base] || ['USDT', 'RUB'],
+      keepPreviousData: true,
     }
   );
 

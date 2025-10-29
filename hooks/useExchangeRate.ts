@@ -37,39 +37,69 @@ const PRIORITY: Source[] = ['kenig', 'bestchange', 'energo', 'derived'];
 function up(s: string) { return (s || '').toUpperCase(); }
 
 /**
- * Возвращает курс для пары (from -> to) из одного источника.
- * Ищет ОДНОЙ выборкой обе ориентации: (base=FROM,quote=TO) и (base=TO,quote=FROM).
- * Если найдена прямая — берём buy. Если только обратная — берём 1/sell.
+ * Получение курса с учётом приоритета источников - ОПТИМИЗИРОВАННАЯ ВЕРСИЯ.
+ * Делает ОДИН запрос вместо множественных последовательных запросов.
  */
-async function queryRate(from: string, to: string, source?: Source): Promise<RateResult | null> {
+async function resolveRate(from: string, to: string): Promise<RateResult> {
   if (!isSupabaseAvailable()) throw new Error('Supabase is not configured');
 
-  log(`Querying rate for ${from}/${to}`, { source });
+  log(`Resolving rate for ${from}/${to}`);
 
   const A = up(from);
   const B = up(to);
 
-  // Ищем обе ориентации одной выборкой
-  let query = supabase
+  // Делаем ОДИН запрос, получаем все подходящие записи
+  const { data, error } = await supabase
     .from('kenig_rates')
     .select('source,base,quote,buy,sell,updated_at')
     .or(`and(base.eq.${A},quote.eq.${B}),and(base.eq.${B},quote.eq.${A})`)
-    .order('updated_at', { ascending: false });
-
-  if (source) query = query.eq('source', source);
-
-  const { data, error } = await query as unknown as { data: RateRow[] | null; error: any };
+    .order('updated_at', { ascending: false }) as unknown as { data: RateRow[] | null; error: any };
 
   if (error) {
     log('Supabase error:', error);
-    return null;
+    throw new Error(`Database error: ${error.message}`);
   }
-  if (!data || data.length === 0) return null;
 
-  // Пробуем прямую запись (FROM/TO) — берём BUY
+  if (!data || data.length === 0) {
+    log(`No data found for ${from}/${to}`);
+    throw new Error(`Курс для пары ${from}/${to} не найден`);
+  }
+
+  log(`Found ${data.length} records for ${from}/${to}`, { sources: [...new Set(data.map(r => r.source))] });
+
+  // Обрабатываем результаты с учетом приоритета источников
+  for (const src of PRIORITY) {
+    // Пробуем прямую запись (FROM/TO) — берём BUY
+    const direct = data.find(r => r.source === src && r.base === A && r.quote === B && r.buy && Number(r.buy) > 0);
+    if (direct) {
+      log(`Found direct rate from ${src}:`, { rate: direct.buy });
+      return {
+        rate: Number(direct.buy),
+        source: direct.source,
+        direction: 'direct',
+        updated_at: direct.updated_at,
+        pair: `${A}/${B}`,
+      };
+    }
+
+    // Пробуем обратную запись (TO/FROM) — берём 1/SELL
+    const inverse = data.find(r => r.source === src && r.base === B && r.quote === A && r.sell && Number(r.sell) > 0);
+    if (inverse) {
+      log(`Found inverse rate from ${src}:`, { rate: 1 / Number(inverse.sell) });
+      return {
+        rate: 1 / Number(inverse.sell),
+        source: inverse.source,
+        direction: 'inverse',
+        updated_at: inverse.updated_at,
+        pair: `${A}/${B}`,
+      };
+    }
+  }
+
+  // Если не нашли в приоритетных источниках, берем первую подходящую запись
   const direct = data.find(r => r.base === A && r.quote === B && r.buy && Number(r.buy) > 0);
   if (direct) {
-    log(`Found direct rate for ${A}/${B}:`, { rate: direct.buy, source: direct.source });
+    log(`Found direct rate from fallback source:`, { source: direct.source, rate: direct.buy });
     return {
       rate: Number(direct.buy),
       source: direct.source,
@@ -79,10 +109,9 @@ async function queryRate(from: string, to: string, source?: Source): Promise<Rat
     };
   }
 
-  // Пробуем обратную запись (TO/FROM) — берём 1/SELL
   const inverse = data.find(r => r.base === B && r.quote === A && r.sell && Number(r.sell) > 0);
   if (inverse) {
-    log(`Found inverse rate for ${A}/${B}:`, { rate: 1 / Number(inverse.sell), source: inverse.source });
+    log(`Found inverse rate from fallback source:`, { source: inverse.source, rate: 1 / Number(inverse.sell) });
     return {
       rate: 1 / Number(inverse.sell),
       source: inverse.source,
@@ -92,31 +121,7 @@ async function queryRate(from: string, to: string, source?: Source): Promise<Rat
     };
   }
 
-  return null;
-}
-
-/**
- * Получение курса с учётом приоритета источников.
- */
-async function resolveRate(from: string, to: string): Promise<RateResult> {
-  // 1) сначала пробуем по приоритетным источникам
-  for (const src of PRIORITY) {
-    log(`Trying source: ${src} for ${from}/${to}`);
-    const hit = await queryRate(from, to, src);
-    if (hit) {
-      log(`Success with source: ${src}`, hit);
-      return hit;
-    }
-  }
-  // 2) если ничего не нашли — пробуем без фильтра по source (любой источник)
-  log(`Trying any source for ${from}/${to}`);
-  const any = await queryRate(from, to);
-  if (any) {
-    log(`Success with any source`, any);
-    return any;
-  }
-
-  log(`No rate found for ${from}/${to}`);
+  log(`No valid rate found for ${from}/${to}`);
   throw new Error(`Курс для пары ${from}/${to} не найден`);
 }
 
@@ -148,29 +153,22 @@ export function useExchangeRate(from: string, to: string) {
   };
 
   const { data, error, isLoading, isValidating, mutate } = useSWR(key, fetcher, {
-    refreshInterval: 60_000, // Обновляем курсы каждую минуту
-    dedupingInterval: 30_000, // Дедупликация 30 сек
-    revalidateOnFocus: true, // Обновляем при фокусе на окне
-    revalidateOnReconnect: true, // Обновляем при восстановлении соединения
-    revalidateIfStale: true, // Обновляем если данные устарели
-    shouldRetryOnError: true, // Повторные попытки при ошибке
-    errorRetryCount: 5, // Увеличиваем количество повторных попыток
-    errorRetryInterval: 3000, // Интервал между попытками 3 сек
-    loadingTimeout: 10000, // Таймаут загрузки 10 сек
-    onLoadingSlow: () => {
-      log(`Slow loading detected for ${from}/${to}`);
-    },
+    refreshInterval: 30_000,
+    dedupingInterval: 2_000,
+    revalidateOnFocus: false,
+    revalidateOnReconnect: true,
+    revalidateIfStale: true,
+    shouldRetryOnError: true,
+    errorRetryCount: 3,
+    errorRetryInterval: 1000,
+    loadingTimeout: 5000,
+    keepPreviousData: true,
+    fallbackData: undefined,
     onSuccess: (data) => {
       log(`SWR success for ${from}/${to}:`, data);
     },
     onError: (error) => {
       log(`SWR error for ${from}/${to}:`, error);
-      console.error(`[useExchangeRate] Error fetching ${from}/${to}:`, error);
-    },
-    onErrorRetry: (error, key, config, revalidate, { retryCount }) => {
-      log(`Retry ${retryCount} for ${from}/${to}`);
-      if (retryCount >= 5) return;
-      setTimeout(() => revalidate({ retryCount }), 3000);
     },
   });
 

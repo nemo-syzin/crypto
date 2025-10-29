@@ -1,10 +1,27 @@
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
+export const revalidate = 30;
 
 import { NextResponse } from 'next/server';
 import { getKenigAndBestchangeUSDT } from '@/lib/supabase/validated-rates';
 
+let cachedData: any = null;
+let cacheTimestamp = 0;
+const CACHE_DURATION = 10000;
+
 export async function GET() {
+  const now = Date.now();
+
+  if (cachedData && (now - cacheTimestamp) < CACHE_DURATION) {
+    console.log('✅ [API] Returning cached rates comparison data');
+    return NextResponse.json(cachedData, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=10, stale-while-revalidate=20',
+        'CDN-Cache-Control': 'public, s-maxage=10',
+        'Vercel-CDN-Cache-Control': 'public, s-maxage=10',
+      }
+    });
+  }
   try {
     console.log('🔄 [API] Fetching rates comparison data...');
 
@@ -55,10 +72,14 @@ export async function GET() {
 
     console.log('✅ [API] Successfully returning rates comparison data');
 
+    cachedData = response;
+    cacheTimestamp = now;
+
     return NextResponse.json(response, {
       headers: {
-        'Cache-Control': 'no-store, no-cache, must-revalidate',
-        'Pragma': 'no-cache'
+        'Cache-Control': 'public, s-maxage=10, stale-while-revalidate=20',
+        'CDN-Cache-Control': 'public, s-maxage=10',
+        'Vercel-CDN-Cache-Control': 'public, s-maxage=10',
       }
     });
 
@@ -77,8 +98,7 @@ export async function GET() {
     }, {
       status: 200,
       headers: {
-        'Cache-Control': 'no-store, no-cache, must-revalidate',
-        'Pragma': 'no-cache'
+        'Cache-Control': 'no-store, must-revalidate',
       }
     });
   }
