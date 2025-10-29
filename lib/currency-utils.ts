@@ -25,30 +25,33 @@ export function getReadableRate(
   let quoteSymbol = toUpper;
   let displayRate = rate;
 
-  if (fromIsFiat && !toIsFiat) {
-    baseSymbol = toUpper;
-    quoteSymbol = fromUpper;
-    displayRate = 1 / rate;
-  } else if (!fromIsFiat && toIsFiat) {
+  if (toUpper === "RUB" && !fromIsFiat) {
     baseSymbol = fromUpper;
     quoteSymbol = toUpper;
     displayRate = rate;
-  }
-
-  let formattedRate: string;
-
-  if (!fromIsFiat && !toIsFiat) {
-    if (displayRate < 1) {
-      formattedRate = displayRate.toFixed(8).replace(/\.?0+$/, '');
-    } else {
-      formattedRate = displayRate.toFixed(6).replace(/\.?0+$/, '');
-    }
+  } else if (fromUpper === "RUB" && !toIsFiat) {
+    baseSymbol = toUpper;
+    quoteSymbol = fromUpper;
+    displayRate = 1 / rate;
   } else {
-    formattedRate = displayRate.toLocaleString('ru-RU', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
+    if (fromIsFiat && !toIsFiat) {
+      baseSymbol = toUpper;
+      quoteSymbol = fromUpper;
+      displayRate = 1 / rate;
+    } else {
+      baseSymbol = fromUpper;
+      quoteSymbol = toUpper;
+      displayRate = rate;
+    }
   }
+
+  const formattedRate =
+    displayRate < 1
+      ? displayRate.toFixed(6).replace(/\.?0+$/, "")
+      : displayRate.toLocaleString("ru-RU", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
 
   const description = `1 ${baseSymbol} = ${formattedRate} ${quoteSymbol}`;
 
