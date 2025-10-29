@@ -1,15 +1,3 @@
-export const isFiat = (symbol: string): boolean => {
-  return ["RUB", "USD", "EUR"].includes(symbol.toUpperCase());
-};
-
-export interface ReadableRateResult {
-  baseSymbol: string;
-  quoteSymbol: string;
-  displayRate: number;
-  formattedRate: string;
-  description: string;
-}
-
 export function getReadableRate(
   from: string,
   to: string,
@@ -25,6 +13,9 @@ export function getReadableRate(
   let quoteSymbol = toUpper;
   let displayRate = rate;
 
+  // 💡 НОВАЯ ЛОГИКА:
+  // Для направлений с рублём — всегда показываем курс в привычной форме:
+  // если кто-то покупает/продаёт RUB, показываем "1 USDT = 82.84 RUB"
   if (toUpper === "RUB" && !fromIsFiat) {
     baseSymbol = fromUpper;
     quoteSymbol = toUpper;
@@ -34,6 +25,7 @@ export function getReadableRate(
     quoteSymbol = fromUpper;
     displayRate = 1 / rate;
   } else {
+    // стандартное поведение для остальных валют
     if (fromIsFiat && !toIsFiat) {
       baseSymbol = toUpper;
       quoteSymbol = fromUpper;
