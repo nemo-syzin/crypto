@@ -6,6 +6,7 @@ import { ArrowLeftRight, RefreshCw, TrendingUp, Shield, Zap } from "lucide-react
 import { Button } from "@/components/ui/button";
 import { useExchangeRate } from "@/hooks/useExchangeRate";
 import { useBaseAssets, useQuoteAssets } from "@/hooks/useAssets";
+import { getReadableRate } from "@/lib/currency-utils";
 
 interface ConversionRate {
   rate: number;
@@ -256,7 +257,7 @@ export default function ProfessionalConverter() {
               <div className="flex items-center gap-2 text-sm text-[#0A0F1C]/60 dark:text-white/60">
                 <TrendingUp className="w-4 h-4" />
                 <span>
-                  1 {fromCurrency.code} = {rate ? rate.toFixed(2) : '—'} {toCurrency.code}
+                  {rate && rate > 0 ? getReadableRate(fromCurrency.code, toCurrency.code, rate).description : '—'}
                   <span className="ml-2 text-xs">— {rateLoading ? 'Загрузка...' : 'Актуальный курс обмена'}</span>
                 </span>
               </div>

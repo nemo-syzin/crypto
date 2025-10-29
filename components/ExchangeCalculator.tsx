@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { useExchangeRate } from "@/hooks/useExchangeRate";
 import { useBaseAssets, useQuoteAssets } from "@/hooks/useAssets";
+import { getReadableRate } from "@/lib/currency-utils";
 
 export default function ExchangeCalculator() {
   const { toast } = useToast();
@@ -51,29 +52,15 @@ export default function ExchangeCalculator() {
     setActiveInput(activeInput === "give" ? "receive" : "give");
   };
 
-  // Отображение курса (новый формат)
+  // Отображение курса в читабельном формате
   const renderFormattedRate = () => {
     if (!rate || rate <= 0) return "—";
 
-    let displayBase = fromCurrency;
-    let displayQuote = toCurrency;
-    let displayRate = rate;
-
-    // ✅ если участвует RUB — показываем курс “1 [другая] = X RUB”
-    if (fromCurrency === "RUB" || toCurrency === "RUB") {
-      displayBase = fromCurrency === "RUB" ? toCurrency : fromCurrency;
-      displayQuote = "RUB";
-      displayRate = fromCurrency === "RUB" ? 1 / rate : rate;
-    }
-
-    const formattedRate = displayRate.toLocaleString("ru-RU", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
+    const readableRate = getReadableRate(fromCurrency, toCurrency, rate);
 
     return (
       <>
-        {displayBase} в {displayQuote}: 1 {displayBase} = {formattedRate} {displayQuote}
+        {readableRate.description}
         <br />
         <span className="text-sm text-gray-500">
           по состоянию на{" "}
