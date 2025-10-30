@@ -1,7 +1,7 @@
 "use client";
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Banknote, FileText, Send, Wallet, Shield, Clock, CheckCircle, Globe, ArrowRight } from 'lucide-react';
+import { Banknote, FileText, Send, Wallet, Shield, Clock, CheckCircle, Globe, ArrowRight, ChevronDown } from 'lucide-react';
 
 const services = [
   {
@@ -95,6 +95,12 @@ const regions = [
 ];
 
 const ServicesSection = () => {
+  const [expandedRegion, setExpandedRegion] = useState<number | null>(null);
+
+  const toggleRegion = (index: number) => {
+    setExpandedRegion(expandedRegion === index ? null : index);
+  };
+
   return (
     <div className="relative overflow-hidden py-16 text-[#001D8D]">
       <div className="relative z-10 max-w-6xl mx-auto px-6">
@@ -247,14 +253,37 @@ const ServicesSection = () => {
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
               viewport={{ once: true }}
-              className="p-6 rounded-2xl bg-white/90 backdrop-blur-sm border border-[#001D8D]/10 hover:shadow-lg transition-all duration-300"
+              className="rounded-2xl bg-white/90 backdrop-blur-sm border border-[#001D8D]/10 hover:shadow-lg transition-all duration-300 overflow-hidden"
             >
-              <h3 className="text-2xl font-bold mb-4 text-[#001D8D]">
-                {region.name}
-              </h3>
-              <p className="text-[#001D8D]/70 leading-relaxed">
-                {region.countries}
-              </p>
+              <button
+                onClick={() => toggleRegion(index)}
+                className="w-full p-6 flex items-center justify-between text-left hover:bg-[#001D8D]/5 transition-colors duration-200"
+              >
+                <h3 className="text-2xl font-bold text-[#001D8D]">
+                  {region.name}
+                </h3>
+                <motion.div
+                  animate={{ rotate: expandedRegion === index ? 180 : 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <ChevronDown className="h-6 w-6 text-[#001D8D]" />
+                </motion.div>
+              </button>
+              <motion.div
+                initial={false}
+                animate={{
+                  height: expandedRegion === index ? "auto" : 0,
+                  opacity: expandedRegion === index ? 1 : 0
+                }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="overflow-hidden"
+              >
+                <div className="px-6 pb-6">
+                  <p className="text-[#001D8D]/70 leading-relaxed">
+                    {region.countries}
+                  </p>
+                </div>
+              </motion.div>
             </motion.div>
           ))}
         </div>
