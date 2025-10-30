@@ -206,7 +206,7 @@ const ServicesSection = () => {
           </h2>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-24">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-24">
           {benefits.map((benefit, index) => (
             <motion.div
               key={index}
@@ -214,17 +214,12 @@ const ServicesSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
               viewport={{ once: true }}
-              className="p-6 rounded-2xl bg-white/90 backdrop-blur-sm border border-[#001D8D]/10 text-center hover:shadow-lg transition-all duration-300"
+              className="p-4 rounded-xl bg-white/70 backdrop-blur-sm border border-[#001D8D]/10 text-center hover:bg-white/90 transition-all duration-300"
             >
-              <div className="flex justify-center mb-4">
-                <div className="flex items-center justify-center h-16 w-16 bg-[#001D8D]/10 rounded-full">
-                  <benefit.icon className="h-8 w-8 text-[#001D8D]" />
-                </div>
-              </div>
-              <h3 className="text-xl font-bold mb-2 text-[#001D8D]">
+              <h3 className="text-lg font-bold mb-1 text-[#001D8D]">
                 {benefit.title}
               </h3>
-              <p className="text-[#001D8D]/70 leading-relaxed">
+              <p className="text-sm text-[#001D8D]/70 leading-snug">
                 {benefit.description}
               </p>
             </motion.div>
