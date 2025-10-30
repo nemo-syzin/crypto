@@ -212,7 +212,7 @@ const ServicesSection = () => {
           </h2>
         </motion.div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-24">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-24">
           {benefits.map((benefit, index) => (
             <motion.div
               key={index}
@@ -220,14 +220,16 @@ const ServicesSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
               viewport={{ once: true }}
-              className="p-4 rounded-xl bg-white/70 backdrop-blur-sm border border-[#001D8D]/10 text-center hover:bg-white/90 transition-all duration-300"
+              className="relative group p-8 rounded-3xl bg-gradient-to-br from-white/40 to-white/10 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,29,141,0.05)] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:shadow-[0_8px_40px_rgba(0,29,141,0.12)] hover:-translate-y-2 hover:bg-gradient-to-br hover:from-white/60 hover:to-white/20"
             >
-              <h3 className="text-lg font-bold mb-1 text-[#001D8D]">
-                {benefit.title}
-              </h3>
-              <p className="text-sm text-[#001D8D]/70 leading-snug">
-                {benefit.description}
-              </p>
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-700 bg-[radial-gradient(circle_at_center,rgba(0,29,141,0.08)_0%,transparent_70%)] rounded-3xl"></div>
+
+              <div className="relative z-10">
+                <h3 className="text-xl font-semibold text-[#001D8D] mb-2">{benefit.title}</h3>
+                <p className="text-[#001D8D]/70 leading-relaxed text-sm">
+                  {benefit.description}
+                </p>
+              </div>
             </motion.div>
           ))}
         </div>
