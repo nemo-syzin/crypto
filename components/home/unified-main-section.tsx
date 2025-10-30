@@ -6,7 +6,8 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowRight, Wallet, ChartBar as BarChart, Shield, Clock, DollarSign, Zap, CircleCheck as CheckCircle, Building2, Globe, TrendingUp } from 'lucide-react';
+import { ArrowRight, Wallet, ChartBar as BarChart, Shield, Clock, DollarSign, Zap, CircleCheck as CheckCircle, Building2, Globe, TrendingUp, Banknote, FileText, Send } from 'lucide-react';
+import ServicesSection from '@/components/home/services-section';
 
 // Dynamic import for Marquee to prevent SSR issues
 const Marquee = dynamic(() => import('react-fast-marquee'), {
@@ -261,8 +262,8 @@ const UnifiedMainSection = () => {
                   key={index}
                   initial={{ opacity: 0, y: 15 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ 
-                    duration: 0.4, 
+                  transition={{
+                    duration: 0.4,
                     delay: index * 0.05,
                     ease: "easeOut"
                   }}
@@ -282,6 +283,16 @@ const UnifiedMainSection = () => {
               ))}
             </div>
           </div>
+
+          {/* 1.5. Services Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
+            viewport={{ once: true }}
+          >
+            <ServicesSection />
+          </motion.div>
 
           {/* 2. Deal Process Section - Без плашки */}
           <div className="max-w-5xl mx-auto">

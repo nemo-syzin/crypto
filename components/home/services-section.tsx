@@ -96,8 +96,7 @@ const regions = [
 
 const ServicesSection = () => {
   return (
-    <section className="relative overflow-hidden py-24 bg-transparent text-[#001D8D]">
-
+    <div className="relative overflow-hidden py-16 text-[#001D8D]">
       <div className="relative z-10 max-w-6xl mx-auto px-6">
         {/* Hero Introduction */}
         <motion.div
@@ -124,7 +123,7 @@ const ServicesSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
               viewport={{ once: true }}
-              className="relative group p-8 rounded-3xl bg-white/90 backdrop-blur-xl border border-[#001D8D]/10 hover:border-[#001D8D]/30 transition-all duration-500 hover:shadow-xl hover:-translate-y-2"
+              className="relative group p-8 rounded-3xl bg-white/90 backdrop-blur-xl border border-[#001D8D]/10 hover:border-[#001D8D]/30 hover:shadow-xl hover:-translate-y-2 transition-all duration-500"
             >
               <div className="flex items-center gap-4 mb-4">
                 <div className="w-14 h-14 rounded-2xl bg-[#001D8D] flex items-center justify-center shadow-lg">
@@ -153,7 +152,7 @@ const ServicesSection = () => {
           viewport={{ once: true }}
           className="text-center mb-24"
         >
-          <button className="px-8 py-4 bg-[#001D8D] hover:bg-[#001D8D]/90 text-white text-lg font-semibold rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-105">
+          <button className="px-8 py-4 bg-[#001D8D] hover:bg-[#001D8D]/90 text-white text-lg font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
             Получить консультацию
           </button>
         </motion.div>
@@ -281,7 +280,7 @@ const ServicesSection = () => {
           ))}
         </div>
       </div>
-    </section>
+    </div>
   );
 };
 
