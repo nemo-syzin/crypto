@@ -260,24 +260,22 @@ const UnifiedMainSection = () => {
               {features.map((feature, index) => (
                 <motion.div
                   key={index}
-                  initial={{ opacity: 0, y: 15 }}
+                  initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  transition={{
-                    duration: 0.4,
-                    delay: index * 0.05,
-                    ease: "easeOut"
-                  }}
-                  viewport={{ once: true, amount: 0.2 }}
-                  className="calculator-container group hover:shadow-xl transition-all duration-300"
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                  className="relative group p-8 rounded-3xl bg-gradient-to-br from-white/40 to-white/10 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,29,141,0.05)] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:shadow-[0_8px_40px_rgba(0,29,141,0.12)] hover:-translate-y-2 hover:bg-gradient-to-br hover:from-white/60 hover:to-white/20"
                 >
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-700 bg-[radial-gradient(circle_at_center,rgba(0,29,141,0.08)_0%,transparent_70%)] rounded-3xl"></div>
+
                   <div className="relative z-10">
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="flex items-center justify-center h-10 w-10 bg-[#001D8D]/10 p-2 rounded-lg">
+                      <div className="flex items-center justify-center h-10 w-10 bg-[#001D8D]/10 p-2 rounded-xl group-hover:bg-[#001D8D]/20 transition-colors duration-300">
                         <feature.iconComponent className="h-5 w-5 text-[#001D8D]" />
                       </div>
-                      <h3 className="text-xl md:text-2xl font-bold text-[#001D8D]">{feature.title}</h3>
+                      <h3 className="text-xl font-semibold text-[#001D8D]">{feature.title}</h3>
                     </div>
-                    <p className="text-[#001D8D]/70 leading-relaxed">{feature.description}</p>
+                    <p className="text-[#001D8D]/70 leading-relaxed text-sm">{feature.description}</p>
                   </div>
                 </motion.div>
               ))}
@@ -305,7 +303,7 @@ const UnifiedMainSection = () => {
               </p>
             </div>
 
-            <div className="calculator-container mb-16">
+            <div className="relative p-8 rounded-3xl bg-gradient-to-br from-white/40 to-white/10 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,29,141,0.05)] mb-16">
               <Tabs defaultValue="office" onValueChange={setActiveTab} className="w-full">
                 <TabsList className="grid w-full grid-cols-2 mb-8 bg-white/90 backdrop-blur-sm border border-[#001D8D]/10">
                   <TabsTrigger value="office" className="text-[#001D8D]">
@@ -329,12 +327,9 @@ const UnifiedMainSection = () => {
                       <motion.div
                         key={index}
                         variants={stepVariants}
-                        className="glass-tile p-6 hover:shadow-lg transition-all duration-300 group"
-                        whileHover={{ 
-                          scale: 1.02,
-                          boxShadow: "0 20px 40px rgba(0, 29, 141, 0.15)"
-                        }}
+                        className="relative group p-6 rounded-3xl bg-gradient-to-br from-white/40 to-white/10 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,29,141,0.05)] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:shadow-[0_8px_40px_rgba(0,29,141,0.12)] hover:-translate-y-2"
                       >
+                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-700 bg-[radial-gradient(circle_at_center,rgba(0,29,141,0.08)_0%,transparent_70%)] rounded-3xl"></div>
                         <div className="flex items-start gap-4">
                           {/* Номер в стиле манифеста с анимацией */}
                           <motion.div 
@@ -373,12 +368,9 @@ const UnifiedMainSection = () => {
                       <motion.div
                         key={index}
                         variants={stepVariants}
-                        className="glass-tile p-6 hover:shadow-lg transition-all duration-300 group"
-                        whileHover={{ 
-                          scale: 1.02,
-                          boxShadow: "0 20px 40px rgba(0, 29, 141, 0.15)"
-                        }}
+                        className="relative group p-6 rounded-3xl bg-gradient-to-br from-white/40 to-white/10 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,29,141,0.05)] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:shadow-[0_8px_40px_rgba(0,29,141,0.12)] hover:-translate-y-2"
                       >
+                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-700 bg-[radial-gradient(circle_at_center,rgba(0,29,141,0.08)_0%,transparent_70%)] rounded-3xl"></div>
                         <div className="flex items-start gap-4">
                           {/* Номер в стиле манифеста с анимацией */}
                           <motion.div 
@@ -504,8 +496,11 @@ const UnifiedMainSection = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
                 viewport={{ once: true }}
-                className="calculator-container"
+                className="relative group p-8 rounded-3xl bg-gradient-to-br from-white/40 to-white/10 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,29,141,0.05)] transition-all duration-500"
               >
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-700 bg-[radial-gradient(circle_at_center,rgba(0,29,141,0.08)_0%,transparent_70%)] rounded-3xl"></div>
+
+                <div className="relative z-10">
                 <h2 className="text-3xl md:text-4xl font-bold mb-6 text-[#001D8D]">
                   Готовы начать <span className="text-[#001D8D]">обмен?</span>
                 </h2>
@@ -544,15 +539,19 @@ const UnifiedMainSection = () => {
                     </div>
                   </div>
                 </div>
+                </div>
               </motion.div>
-              
+
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
                 viewport={{ once: true }}
-                className="calculator-container"
+                className="relative group p-8 rounded-3xl bg-gradient-to-br from-white/40 to-white/10 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,29,141,0.05)] transition-all duration-500"
               >
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-700 bg-[radial-gradient(circle_at_center,rgba(0,29,141,0.08)_0%,transparent_70%)] rounded-3xl"></div>
+
+                <div className="relative z-10">
                 <h3 className="text-2xl font-bold mb-6 text-center text-[#001D8D]">
                   Начните сегодня
                 </h3>
@@ -579,6 +578,7 @@ const UnifiedMainSection = () => {
                 
                 <div className="mt-8 text-center text-sm text-[#001D8D]/60">
                   Уже есть аккаунт? <Link href="/login" className="text-[#001D8D] hover:underline">Войти</Link>
+                </div>
                 </div>
               </motion.div>
             </div>
