@@ -199,17 +199,14 @@ const ServicesSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className="text-center mb-8"
+          className="text-center mb-12"
         >
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#001D8D]">
-            Надёжные переводы: <br className="hidden sm:block" /> ваше финансовое спокойствие в любой точке мира
+          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-[#001D8D]">
+            Надежные переводы: ваше финансовое спокойствие в любой точке мира
           </h2>
-          <p className="text-[#1A1A1A]/70 max-w-2xl mx-auto leading-relaxed">
-            Мы обеспечиваем защиту, прозрачность и скорость международных переводов — с гарантией надёжности KenigSwap.
-          </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-24">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-24">
           {benefits.map((benefit, index) => (
             <motion.div
               key={index}
@@ -217,12 +214,17 @@ const ServicesSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
               viewport={{ once: true }}
-              className="group bg-gray-50 hover:bg-white rounded-2xl border border-gray-100 p-8 text-left shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
+              className="p-6 rounded-2xl bg-white/90 backdrop-blur-sm border border-[#001D8D]/10 text-center hover:shadow-lg transition-all duration-300"
             >
-              <h4 className="font-semibold text-lg text-[#001D8D] mb-2 group-hover:text-blue-700 transition-colors duration-300">
+              <div className="flex justify-center mb-4">
+                <div className="flex items-center justify-center h-16 w-16 bg-[#001D8D]/10 rounded-full">
+                  <benefit.icon className="h-8 w-8 text-[#001D8D]" />
+                </div>
+              </div>
+              <h3 className="text-xl font-bold mb-2 text-[#001D8D]">
                 {benefit.title}
-              </h4>
-              <p className="text-[#1A1A1A]/70 text-sm leading-relaxed">
+              </h3>
+              <p className="text-[#001D8D]/70 leading-relaxed">
                 {benefit.description}
               </p>
             </motion.div>
