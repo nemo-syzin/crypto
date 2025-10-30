@@ -96,13 +96,7 @@ const regions = [
 
 const ServicesSection = () => {
   return (
-    <section className="relative overflow-hidden py-24 bg-[#001D8D] text-white">
-      {/* Background visualization */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-24 -left-24 w-[600px] h-[600px] bg-[#4F8BFF]/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-32 right-0 w-[700px] h-[700px] bg-[#00D4FF]/20 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#0052FF]/10 rounded-full blur-3xl"></div>
-      </div>
+    <section className="relative overflow-hidden py-24 bg-transparent text-[#001D8D]">
 
       <div className="relative z-10 max-w-6xl mx-auto px-6">
         {/* Hero Introduction */}
@@ -113,10 +107,10 @@ const ServicesSection = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">
-            Финансовые решения <span className="text-[#4F8BFF]">KenigSwap</span>
+          <h2 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight text-[#001D8D]">
+            Финансовые решения <span className="text-[#001D8D]">KenigSwap</span>
           </h2>
-          <p className="text-gray-200 text-lg max-w-2xl mx-auto">
+          <p className="text-[#001D8D]/70 text-lg max-w-2xl mx-auto">
             Международные переводы, оплата инвойсов, доступ к глобальным платёжным системам — всё в одном окне
           </p>
         </motion.div>
@@ -130,20 +124,20 @@ const ServicesSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
               viewport={{ once: true }}
-              className="relative group p-8 rounded-3xl bg-white/10 backdrop-blur-xl border border-white/10 hover:border-[#4F8BFF]/40 transition-all duration-500 hover:shadow-[0_0_30px_rgba(79,139,255,0.3)] hover:-translate-y-2"
+              className="relative group p-8 rounded-3xl bg-white/90 backdrop-blur-xl border border-[#001D8D]/10 hover:border-[#001D8D]/30 transition-all duration-500 hover:shadow-xl hover:-translate-y-2"
             >
               <div className="flex items-center gap-4 mb-4">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#4F8BFF] to-[#0052FF] flex items-center justify-center shadow-lg shadow-blue-900/30">
+                <div className="w-14 h-14 rounded-2xl bg-[#001D8D] flex items-center justify-center shadow-lg">
                   <service.icon className="h-7 w-7 text-white" />
                 </div>
-                <h3 className="text-2xl font-semibold">{service.title}</h3>
+                <h3 className="text-2xl font-semibold text-[#001D8D]">{service.title}</h3>
               </div>
 
-              <p className="text-gray-200/90 leading-relaxed mb-6">{service.description}</p>
+              <p className="text-[#001D8D]/70 leading-relaxed mb-6">{service.description}</p>
 
-              <div className="flex items-center justify-between text-gray-300">
+              <div className="flex items-center justify-between text-[#001D8D]/70">
                 <span className="font-medium">{service.minAmount}</span>
-                <button className="text-[#4F8BFF] font-medium hover:text-white transition flex items-center gap-2 group-hover:gap-3 transition-all">
+                <button className="text-[#001D8D] font-medium hover:text-[#001D8D]/70 transition flex items-center gap-2 group-hover:gap-3 transition-all">
                   Подробнее <ArrowRight className="h-4 w-4" />
                 </button>
               </div>
@@ -159,7 +153,7 @@ const ServicesSection = () => {
           viewport={{ once: true }}
           className="text-center mb-24"
         >
-          <button className="px-8 py-4 bg-gradient-to-r from-[#4F8BFF] to-[#0052FF] text-white text-lg font-semibold rounded-full shadow-lg hover:shadow-blue-500/30 transition-all hover:scale-105">
+          <button className="px-8 py-4 bg-[#001D8D] hover:bg-[#001D8D]/90 text-white text-lg font-semibold rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-105">
             Получить консультацию
           </button>
         </motion.div>
@@ -172,7 +166,7 @@ const ServicesSection = () => {
           viewport={{ once: true }}
           className="text-center mb-12"
         >
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-[#001D8D]">
             Надежная и быстрая схема работы
           </h2>
         </motion.div>
@@ -185,15 +179,15 @@ const ServicesSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.15 }}
               viewport={{ once: true }}
-              className="p-6 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all duration-300"
+              className="p-6 rounded-2xl bg-white/90 backdrop-blur-sm border border-[#001D8D]/10 hover:shadow-lg transition-all duration-300"
             >
-              <div className="text-5xl font-bold text-[#4F8BFF] mb-4 font-mono">
+              <div className="text-5xl font-bold text-[#001D8D] mb-4 font-mono">
                 {step.number}
               </div>
-              <h3 className="text-xl font-bold mb-3">
+              <h3 className="text-xl font-bold mb-3 text-[#001D8D]">
                 {step.title}
               </h3>
-              <p className="text-gray-200/80 leading-relaxed">
+              <p className="text-[#001D8D]/70 leading-relaxed">
                 {step.description}
               </p>
             </motion.div>
@@ -208,7 +202,7 @@ const ServicesSection = () => {
           viewport={{ once: true }}
           className="text-center mb-12"
         >
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-[#001D8D]">
             Надежные переводы: ваше финансовое спокойствие в любой точке мира
           </h2>
         </motion.div>
@@ -221,17 +215,17 @@ const ServicesSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
               viewport={{ once: true }}
-              className="p-6 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 text-center hover:bg-white/10 transition-all duration-300"
+              className="p-6 rounded-2xl bg-white/90 backdrop-blur-sm border border-[#001D8D]/10 text-center hover:shadow-lg transition-all duration-300"
             >
               <div className="flex justify-center mb-4">
-                <div className="flex items-center justify-center h-16 w-16 bg-gradient-to-br from-[#4F8BFF]/20 to-[#0052FF]/20 rounded-full">
-                  <benefit.icon className="h-8 w-8 text-[#4F8BFF]" />
+                <div className="flex items-center justify-center h-16 w-16 bg-[#001D8D]/10 rounded-full">
+                  <benefit.icon className="h-8 w-8 text-[#001D8D]" />
                 </div>
               </div>
-              <h3 className="text-xl font-bold mb-2">
+              <h3 className="text-xl font-bold mb-2 text-[#001D8D]">
                 {benefit.title}
               </h3>
-              <p className="text-gray-200/80 leading-relaxed">
+              <p className="text-[#001D8D]/70 leading-relaxed">
                 {benefit.description}
               </p>
             </motion.div>
@@ -244,12 +238,12 @@ const ServicesSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className="text-center mb-16 p-8 rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10"
+          className="text-center mb-16 p-8 rounded-3xl bg-white/90 backdrop-blur-sm border border-[#001D8D]/10"
         >
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#001D8D]">
             Получите валюту в любой точке мира
           </h2>
-          <p className="text-xl text-gray-200/90 leading-relaxed">
+          <p className="text-xl text-[#001D8D]/70 leading-relaxed">
             Выдаем наличные в 100 городах мира в течение 2 часов либо в заранее согласованное время. От $5000 до $1 млн
           </p>
         </motion.div>
@@ -262,7 +256,7 @@ const ServicesSection = () => {
           viewport={{ once: true }}
           className="text-center mb-12"
         >
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-[#001D8D]">
             География работ
           </h2>
         </motion.div>
@@ -275,12 +269,12 @@ const ServicesSection = () => {
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
               viewport={{ once: true }}
-              className="p-6 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all duration-300"
+              className="p-6 rounded-2xl bg-white/90 backdrop-blur-sm border border-[#001D8D]/10 hover:shadow-lg transition-all duration-300"
             >
-              <h3 className="text-2xl font-bold mb-4">
+              <h3 className="text-2xl font-bold mb-4 text-[#001D8D]">
                 {region.name}
               </h3>
-              <p className="text-gray-200/80 leading-relaxed">
+              <p className="text-[#001D8D]/70 leading-relaxed">
                 {region.countries}
               </p>
             </motion.div>
