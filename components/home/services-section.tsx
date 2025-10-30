@@ -226,22 +226,6 @@ const ServicesSection = () => {
           ))}
         </div>
 
-        {/* Cash Transfer CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-          className="text-center mb-16 p-8 rounded-3xl bg-white/90 backdrop-blur-sm border border-[#001D8D]/10"
-        >
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#001D8D]">
-            Получите валюту в любой точке мира
-          </h2>
-          <p className="text-xl text-[#001D8D]/70 leading-relaxed">
-            Выдаем наличные в 100 городах мира в течение 2 часов либо в заранее согласованное время. От $5000 до $1 млн
-          </p>
-        </motion.div>
-
         {/* Geography Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
