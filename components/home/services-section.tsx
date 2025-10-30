@@ -116,28 +116,26 @@ const ServicesSection = () => {
             </p>
           </motion.div>
 
-          {/* Services Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Services List */}
+          <div className="max-w-4xl mx-auto space-y-8">
             {services.map((service, index) => (
               <motion.div
                 key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                className="calculator-container group hover:shadow-2xl transition-all duration-300"
+                className="flex items-start gap-6 pb-8 border-b border-[#001D8D]/10 last:border-b-0 group"
               >
-                <div className="relative z-10">
-                  <div className="flex items-start gap-4 mb-4">
-                    <div className="flex items-center justify-center h-14 w-14 bg-[#001D8D]/10 rounded-xl flex-shrink-0 group-hover:bg-[#001D8D]/20 transition-colors duration-300">
-                      <service.icon className="h-7 w-7 text-[#001D8D]" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-2xl font-bold text-[#001D8D] mb-2">{service.title}</h3>
-                      <span className="inline-block px-3 py-1 bg-[#001D8D]/10 text-[#001D8D] rounded-full text-sm font-semibold">
-                        {service.minAmount}
-                      </span>
-                    </div>
+                <div className="flex items-center justify-center h-12 w-12 bg-[#001D8D]/5 rounded-lg flex-shrink-0 group-hover:bg-[#001D8D]/10 transition-colors duration-300">
+                  <service.icon className="h-6 w-6 text-[#001D8D]" />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-baseline justify-between gap-4 mb-2 flex-wrap">
+                    <h3 className="text-xl md:text-2xl font-bold text-[#001D8D]">{service.title}</h3>
+                    <span className="text-sm font-semibold text-[#001D8D]/60 whitespace-nowrap">
+                      {service.minAmount}
+                    </span>
                   </div>
                   <p className="text-[#001D8D]/70 leading-relaxed">{service.description}</p>
                 </div>
