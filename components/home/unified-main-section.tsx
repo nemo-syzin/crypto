@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowRight, Wallet, ChartBar as BarChart, Shield, Clock, DollarSign, Zap, CircleCheck as CheckCircle, Building2, Globe, TrendingUp, Banknote, FileText, Send } from 'lucide-react';
 import ServicesSection from '@/components/home/services-section';
+import GeoSection from '@/components/home/GeoSection';
 
 // Dynamic import for Marquee to prevent SSR issues
 const Marquee = dynamic(() => import('react-fast-marquee'), {
@@ -291,6 +292,9 @@ const UnifiedMainSection = () => {
           >
             <ServicesSection />
           </motion.div>
+
+          {/* 1.6. Geography Section */}
+          <GeoSection />
 
           {/* 2. Deal Process Section - Без плашки */}
           <div className="max-w-5xl mx-auto">
