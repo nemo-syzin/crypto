@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowRight, Wallet, ChartBar as BarChart, Shield, Clock, DollarSign, Zap, CircleCheck as CheckCircle, Building2, Globe, TrendingUp, Banknote, FileText, Send } from 'lucide-react';
 import ServicesSection from '@/components/home/services-section';
+import WhyChooseKenigSwapTimeline from '@/components/home/WhyChooseKenigSwapTimeline';
 
 // Dynamic import for Marquee to prevent SSR issues
 const Marquee = dynamic(() => import('react-fast-marquee'), {
@@ -17,22 +18,18 @@ const Marquee = dynamic(() => import('react-fast-marquee'), {
 // Данные для секций
 const features = [
   {
-    iconComponent: DollarSign,
     title: "Выгодный курс",
     description: "Получите лучший курс обмена USDT на рубли на рынке, обновляемый в реальном времени для максимальной выгоды.",
   },
   {
-    iconComponent: Shield,
     title: "Полная безопасность",
     description: "Сквозное шифрование и защищенная обработка платежей гарантируют безопасность ваших транзакций и личных данных.",
   },
   {
-    iconComponent: Zap,
     title: "Быстрые транзакции",
     description: "Совершайте обмены быстро благодаря нашей оптимизированной системе - большинство транзакций завершается менее чем за 15 минут.",
   },
   {
-    iconComponent: CheckCircle,
     title: "Простая верификация",
     description: "Наш оптимизированный процесс KYC позволяет быстро пройти верификацию и начать торговлю с минимальными усилиями.",
   }
@@ -244,43 +241,8 @@ const UnifiedMainSection = () => {
       <div className="container mx-auto px-4 relative z-10">
         <div className="space-y-24">
           
-          {/* 1. Features Section - Без плашки */}
-          <div>
-            <div className="text-center max-w-3xl mx-auto mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-6 text-[#001D8D]">
-                Почему выбирают <span className="text-[#001D8D]">Kenigswap</span>
-              </h2>
-              <p className="text-[#001D8D]/80 leading-relaxed">
-                Мы предоставляем безопасную, быструю и удобную платформу для всех ваших потребностей в обмене криптовалюты.
-                Наш фокус на конвертации USDT в рубли гарантирует вам лучший сервис.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-24">
-              {features.map((feature, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                  className="relative group p-8 rounded-3xl bg-gradient-to-br from-white/40 to-white/10 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,29,141,0.05)] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:shadow-[0_8px_40px_rgba(0,29,141,0.12)] hover:-translate-y-2 hover:bg-gradient-to-br hover:from-white/60 hover:to-white/20"
-                >
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-700 bg-[radial-gradient(circle_at_center,rgba(0,29,141,0.08)_0%,transparent_70%)] rounded-3xl"></div>
-
-                  <div className="relative z-10">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="flex items-center justify-center h-10 w-10 bg-[#001D8D]/10 p-2 rounded-xl group-hover:bg-[#001D8D]/20 transition-colors duration-300">
-                        <feature.iconComponent className="h-5 w-5 text-[#001D8D]" />
-                      </div>
-                      <h3 className="text-xl font-semibold text-[#001D8D]">{feature.title}</h3>
-                    </div>
-                    <p className="text-[#001D8D]/70 leading-relaxed text-sm">{feature.description}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
+          {/* 1. Features Section - Timeline Style */}
+          <WhyChooseKenigSwapTimeline items={features} />
 
           {/* 1.5. Services Section */}
           <motion.div
