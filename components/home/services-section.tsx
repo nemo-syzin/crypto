@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Banknote, FileText, Send, Wallet, Shield, Clock, CheckCircle, Globe, ArrowRight, ChevronDown } from 'lucide-react';
-import WorldMap from './WorldMap';
 
 const services = [
   {
@@ -244,16 +243,6 @@ const ServicesSection = () => {
           <h2 className="text-3xl md:text-4xl font-bold mb-6 text-[#001D8D]">
             География работ
           </h2>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-          className="mb-8"
-        >
-          <WorldMap highlightedRegion={expandedRegion} />
         </motion.div>
 
         <div className="grid grid-cols-1 gap-6">
