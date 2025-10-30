@@ -96,7 +96,7 @@ const regions = [
 
 const ServicesSection = () => {
   return (
-    <section className="relative overflow-hidden py-24 bg-gradient-to-br from-[#001D8D] via-[#0028C8] to-[#001D8D] text-white">
+    <section className="relative overflow-hidden py-24 bg-[#001D8D] text-white">
       {/* Background visualization */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-24 -left-24 w-[600px] h-[600px] bg-[#4F8BFF]/20 rounded-full blur-3xl animate-pulse"></div>
