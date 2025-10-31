@@ -32,10 +32,10 @@ export default function KenigTimelineLeft({
           </motion.h2>
         )}
 
-        <div className="relative">
+        <div className="relative pl-12 md:pl-16">
           <div
             aria-hidden
-            className="pointer-events-none absolute left-0 md:left-8 top-0 bottom-0 w-[2px]"
+            className="pointer-events-none absolute left-4 md:left-6 top-0 bottom-0 w-[2px]"
             style={{
               background: "linear-gradient(180deg, rgba(0, 29, 141, 0.3), #001D8D, #00AEEF, rgba(0, 174, 239, 0.3))",
             }}
@@ -52,7 +52,7 @@ export default function KenigTimelineLeft({
             />
           </div>
 
-          <ul role="list" className="relative space-y-12 md:space-y-16 pl-8 md:pl-24">
+          <ul role="list" className="relative space-y-12 md:space-y-16">
             {events.map((event, index) => (
               <TimelineItem key={index} event={event} index={index} />
             ))}
@@ -82,7 +82,7 @@ function TimelineItem({ event, index }: { event: TimelineEvent; index: number })
   const inView = useInView(ref, { margin: "-15% 0px -15% 0px", once: false });
 
   return (
-    <li ref={ref} className="relative">
+    <li ref={ref} className="relative pl-8 md:pl-12">
       <motion.div
         initial={{ scale: 0, opacity: 0 }}
         animate={inView ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
@@ -92,7 +92,7 @@ function TimelineItem({ event, index }: { event: TimelineEvent; index: number })
           damping: 20,
           delay: index * 0.1,
         }}
-        className="absolute -left-8 md:-left-24 top-2 h-5 w-5 md:h-6 md:w-6 rounded-full bg-gradient-to-br from-[#001D8D] to-[#00AEEF] animate-pulse"
+        className="absolute -left-8 md:-left-10 top-2 h-5 w-5 md:h-6 md:w-6 rounded-full bg-gradient-to-br from-[#001D8D] to-[#00AEEF]"
         style={{
           boxShadow: inView
             ? "0 0 15px rgba(0, 29, 141, 0.6), 0 0 30px rgba(0, 174, 239, 0.4)"
