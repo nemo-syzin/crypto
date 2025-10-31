@@ -7,12 +7,11 @@ type Item = { title: string; description: string };
 
 export default function WhyChooseKenigSwapTimeline({ items }: { items: Item[] }) {
   return (
-    <section className="py-24 bg-transparent relative overflow-hidden">
-      {/* Animated Curved SVG Path - Full viewport width, starts and ends at screen edge */}
-      <div className="absolute left-0 top-0 w-screen h-full pointer-events-none" style={{ marginLeft: 'calc(-50vw + 50%)' }}>
+    <section className="py-24 bg-transparent relative overflow-visible">
+      {/* Animated Curved SVG Path - Full viewport width, extends from left to right edge */}
+      <div className="absolute inset-0 w-full h-full overflow-visible">
         <svg
-          className="absolute left-0 top-0 h-full w-full"
-          style={{ minHeight: '100%' }}
+          className="absolute top-0 h-full w-[140vw] -left-[20vw] md:w-[120vw] md:-left-[8vw] lg:w-[110vw] lg:-left-[5vw]"
           preserveAspectRatio="none"
           viewBox="0 0 100 100"
         >
