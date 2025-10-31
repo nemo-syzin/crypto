@@ -7,45 +7,43 @@ type Item = { title: string; description: string };
 
 export default function WhyChooseKenigSwapTimeline({ items }: { items: Item[] }) {
   return (
-    <section className="py-24 bg-transparent relative overflow-visible">
-      {/* Animated Curved SVG Path - Full width, extends beyond container */}
-      <svg
-        className="absolute left-0 top-0 h-full pointer-events-none"
-        style={{
-          minHeight: '100%',
-          width: '100vw',
-          transform: 'translateX(-50vw) translateX(50%)'
-        }}
-        preserveAspectRatio="none"
-        viewBox="0 0 100 100"
-      >
-        <defs>
-          <linearGradient id="curveGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#001D8D" stopOpacity="0" />
-            <stop offset="10%" stopColor="#001D8D" stopOpacity="0.7" />
-            <stop offset="50%" stopColor="#4DA3FF" stopOpacity="0.9" />
-            <stop offset="90%" stopColor="#001D8D" stopOpacity="0.7" />
-            <stop offset="100%" stopColor="#001D8D" stopOpacity="0" />
-          </linearGradient>
-          <filter id="glow">
-            <feGaussianBlur stdDeviation="1" result="coloredBlur"/>
-            <feMerge>
-              <feMergeNode in="coloredBlur"/>
-              <feMergeNode in="SourceGraphic"/>
-            </feMerge>
-          </filter>
-        </defs>
-        <motion.path
-          d="M -5,0 Q 15,25 10,50 Q 5,75 -5,100"
-          stroke="url(#curveGradient)"
-          strokeWidth="0.3"
-          fill="none"
-          filter="url(#glow)"
-          initial={{ pathLength: 0, opacity: 0 }}
-          animate={{ pathLength: 1, opacity: 1 }}
-          transition={{ duration: 1.5, ease: "easeInOut" }}
-        />
-      </svg>
+    <section className="py-24 bg-transparent relative overflow-hidden">
+      {/* Animated Curved SVG Path - Full viewport width, starts and ends at screen edge */}
+      <div className="absolute left-0 top-0 w-screen h-full pointer-events-none" style={{ marginLeft: 'calc(-50vw + 50%)' }}>
+        <svg
+          className="absolute left-0 top-0 h-full w-full"
+          style={{ minHeight: '100%' }}
+          preserveAspectRatio="none"
+          viewBox="0 0 100 100"
+        >
+          <defs>
+            <linearGradient id="curveGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#001D8D" stopOpacity="0" />
+              <stop offset="8%" stopColor="#001D8D" stopOpacity="0.7" />
+              <stop offset="50%" stopColor="#4DA3FF" stopOpacity="0.9" />
+              <stop offset="92%" stopColor="#001D8D" stopOpacity="0.7" />
+              <stop offset="100%" stopColor="#001D8D" stopOpacity="0" />
+            </linearGradient>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="1" result="coloredBlur"/>
+              <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+          <motion.path
+            d="M 0,-2 Q 20,25 12,50 Q 4,75 0,102"
+            stroke="url(#curveGradient)"
+            strokeWidth="0.3"
+            fill="none"
+            filter="url(#glow)"
+            initial={{ pathLength: 0, opacity: 0 }}
+            animate={{ pathLength: 1, opacity: 1 }}
+            transition={{ duration: 1.5, ease: "easeInOut" }}
+          />
+        </svg>
+      </div>
 
       <div className="max-w-6xl mx-auto px-6 relative">
         <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-16 text-center">
