@@ -257,10 +257,10 @@ const UnifiedMainSection = () => {
           {/* 2. Deal Process Section - Без плашки */}
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-center text-[#001D8D] mb-6">
+              <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-4">
                 Как проходит обмен
               </h2>
-              <p className="text-[#001D8D]/70 max-w-3xl mx-auto leading-relaxed">
+              <p className="text-base md:text-lg text-[#001D8D]/70 max-w-3xl mx-auto leading-relaxed">
                 Выберите удобный способ обмена и следуйте простым шагам для безопасной и быстрой транзакции
               </p>
             </div>
@@ -305,11 +305,11 @@ const UnifiedMainSection = () => {
                           </motion.div>
                           <div className="flex-1">
                             <div className="flex justify-between items-start">
-                              <h3 className="text-xl font-bold text-[#001D8D] mb-2 group-hover:text-blue-600 transition-colors duration-300">
+                              <h3 className="text-lg md:text-xl font-bold text-[#001D8D] mb-2 group-hover:text-blue-600 transition-colors duration-300">
                                 {step.title}
                               </h3>
                             </div>
-                            <p className="text-[#001D8D]/70 leading-relaxed">
+                            <p className="text-sm md:text-base text-[#001D8D]/70 leading-relaxed">
                               {step.description}
                             </p>
                           </div>
@@ -346,11 +346,11 @@ const UnifiedMainSection = () => {
                           </motion.div>
                           <div className="flex-1">
                             <div className="flex justify-between items-start">
-                              <h3 className="text-xl font-bold text-[#001D8D] mb-2 group-hover:text-blue-600 transition-colors duration-300">
+                              <h3 className="text-lg md:text-xl font-bold text-[#001D8D] mb-2 group-hover:text-blue-600 transition-colors duration-300">
                                 {step.title}
                               </h3>
                             </div>
-                            <p className="text-[#001D8D]/70 leading-relaxed">
+                            <p className="text-sm md:text-base text-[#001D8D]/70 leading-relaxed">
                               {step.description}
                             </p>
                           </div>
@@ -372,10 +372,10 @@ const UnifiedMainSection = () => {
               viewport={{ once: true }}
               className="text-center mb-12"
             >
-              <h2 className="text-3xl md:text-4xl font-bold mb-6 text-[#001D8D]">
+              <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-4">
                 Наши партнёры
               </h2>
-              <p className="text-[#001D8D]/70 max-w-2xl mx-auto">
+              <p className="text-base md:text-lg text-[#001D8D]/70 max-w-2xl mx-auto leading-relaxed">
                 Мы сотрудничаем с ведущими криптовалютными биржами и платформами для обеспечения 
                 безопасных и эффективных обменов
               </p>
@@ -463,10 +463,10 @@ const UnifiedMainSection = () => {
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-700 bg-[radial-gradient(circle_at_center,rgba(0,29,141,0.08)_0%,transparent_70%)] rounded-3xl"></div>
 
                 <div className="relative z-10">
-                <h2 className="text-3xl md:text-4xl font-bold mb-6 text-[#001D8D]">
-                  Готовы начать <span className="text-[#001D8D]">обмен?</span>
+                <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-4">
+                  Готовы начать обмен?
                 </h2>
-                <p className="text-[#001D8D]/70 mb-8 leading-relaxed">
+                <p className="text-base md:text-lg text-[#001D8D]/70 mb-8 leading-relaxed">
                   Создайте аккаунт уже сегодня и получите самый быстрый и безопасный способ конвертации USDT в рубли.
                 </p>
                 
@@ -476,8 +476,8 @@ const UnifiedMainSection = () => {
                       <Wallet className="h-5 w-5 text-[#001D8D]" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-[#001D8D]">Быстрая настройка</h4>
-                      <p className="text-sm text-[#001D8D]/70">Начните работу за считанные минуты с нашим упрощенным процессом регистрации</p>
+                      <h4 className="text-base font-semibold text-[#001D8D] mb-1">Быстрая настройка</h4>
+                      <p className="text-sm md:text-base text-[#001D8D]/70 leading-relaxed">Начните работу за считанные минуты с нашим упрощенным процессом регистрации</p>
                     </div>
                   </div>
                   
@@ -486,8 +486,8 @@ const UnifiedMainSection = () => {
                       <TrendingUp className="h-5 w-5 text-[#001D8D]" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-[#001D8D]">Лучшие курсы</h4>
-                      <p className="text-sm text-[#001D8D]/70">Всегда получайте самые конкурентоспособные курсы обмена USDT на рубли</p>
+                      <h4 className="text-base font-semibold text-[#001D8D] mb-1">Лучшие курсы</h4>
+                      <p className="text-sm md:text-base text-[#001D8D]/70 leading-relaxed">Всегда получайте самые конкурентоспособные курсы обмена USDT на рубли</p>
                     </div>
                   </div>
                   
@@ -496,8 +496,8 @@ const UnifiedMainSection = () => {
                       <Shield className="h-5 w-5 text-[#001D8D]" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-[#001D8D]">100% безопасность</h4>
-                      <p className="text-sm text-[#001D8D]/70">Ведущие в отрасли меры безопасности для защиты ваших активов</p>
+                      <h4 className="text-base font-semibold text-[#001D8D] mb-1">100% безопасность</h4>
+                      <p className="text-sm md:text-base text-[#001D8D]/70 leading-relaxed">Ведущие в отрасли меры безопасности для защиты ваших активов</p>
                     </div>
                   </div>
                 </div>
@@ -514,10 +514,10 @@ const UnifiedMainSection = () => {
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-700 bg-[radial-gradient(circle_at_center,rgba(0,29,141,0.08)_0%,transparent_70%)] rounded-3xl"></div>
 
                 <div className="relative z-10">
-                <h3 className="text-2xl font-bold mb-6 text-center text-[#001D8D]">
+                <h3 className="text-2xl md:text-3xl font-bold text-[#001D8D] mb-4 text-center">
                   Начните сегодня
                 </h3>
-                <p className="text-[#001D8D]/70 mb-8 text-center leading-relaxed">
+                <p className="text-base md:text-lg text-[#001D8D]/70 mb-8 text-center leading-relaxed">
                   Зарегистрируйтесь всего за несколько минут и начните обменивать криптовалюту по лучшим курсам.
                 </p>
                 

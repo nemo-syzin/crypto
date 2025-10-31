@@ -112,10 +112,10 @@ const ServicesSection = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight text-[#001D8D]">
+          <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-4">
             Финансовые решения <span className="text-[#001D8D]">KenigSwap</span>
           </h2>
-          <p className="text-[#001D8D]/70 text-lg max-w-2xl mx-auto">
+          <p className="text-base md:text-lg text-[#001D8D]/70 max-w-2xl mx-auto leading-relaxed">
             Международные переводы, оплата инвойсов, доступ к глобальным платёжным системам — всё в одном окне
           </p>
         </motion.div>
@@ -140,10 +140,10 @@ const ServicesSection = () => {
 
                   {/* Content */}
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-[#001D8D] mb-2 group-hover:translate-x-1 transition-all duration-300">
+                    <h3 className="text-base md:text-lg font-semibold text-[#001D8D] mb-2 group-hover:translate-x-1 transition-all duration-300">
                       {service.title}
                     </h3>
-                    <p className="text-sm text-[#001D8D]/70 leading-relaxed mb-4">
+                    <p className="text-sm md:text-base text-[#001D8D]/70 leading-relaxed mb-4">
                       {service.description}
                     </p>
 
@@ -182,7 +182,7 @@ const ServicesSection = () => {
           viewport={{ once: true }}
           className="text-center mb-12"
         >
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-[#001D8D]">
+          <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-4">
             Надежная и быстрая схема работы
           </h2>
         </motion.div>
@@ -200,10 +200,10 @@ const ServicesSection = () => {
               <div className="text-5xl font-bold text-[#001D8D] mb-4 font-mono">
                 {step.number}
               </div>
-              <h3 className="text-xl font-bold mb-3 text-[#001D8D]">
+              <h3 className="text-lg md:text-xl font-bold text-[#001D8D] mb-2">
                 {step.title}
               </h3>
-              <p className="text-[#001D8D]/70 leading-relaxed">
+              <p className="text-sm md:text-base text-[#001D8D]/70 leading-relaxed">
                 {step.description}
               </p>
             </motion.div>
@@ -218,7 +218,7 @@ const ServicesSection = () => {
           viewport={{ once: true }}
           className="text-center mb-12"
         >
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-[#001D8D]">
+          <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-4">
             Надежные переводы: ваше финансовое спокойствие в любой точке мира
           </h2>
         </motion.div>
@@ -236,8 +236,8 @@ const ServicesSection = () => {
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-700 bg-[radial-gradient(circle_at_center,rgba(0,29,141,0.08)_0%,transparent_70%)] rounded-3xl"></div>
 
               <div className="relative z-10">
-                <h3 className="text-xl font-semibold text-[#001D8D] mb-2">{benefit.title}</h3>
-                <p className="text-[#001D8D]/70 leading-relaxed text-sm">
+                <h3 className="text-base md:text-lg font-semibold text-[#001D8D] mb-2">{benefit.title}</h3>
+                <p className="text-sm md:text-base text-[#001D8D]/70 leading-relaxed">
                   {benefit.description}
                 </p>
               </div>
@@ -253,7 +253,7 @@ const ServicesSection = () => {
           viewport={{ once: true }}
           className="text-center mb-12"
         >
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-[#001D8D]">
+          <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-4">
             География работ
           </h2>
         </motion.div>
@@ -272,7 +272,7 @@ const ServicesSection = () => {
                 onClick={() => toggleRegion(index)}
                 className="w-full p-6 flex items-center justify-between text-left hover:bg-[#001D8D]/5 transition-colors duration-200"
               >
-                <h3 className="text-2xl font-bold text-[#001D8D]">
+                <h3 className="text-xl md:text-2xl font-bold text-[#001D8D]">
                   {region.name}
                 </h3>
                 <motion.div
@@ -292,7 +292,7 @@ const ServicesSection = () => {
                 className="overflow-hidden"
               >
                 <div className="px-6 pb-6">
-                  <p className="text-[#001D8D]/70 leading-relaxed">
+                  <p className="text-sm md:text-base text-[#001D8D]/70 leading-relaxed">
                     {region.countries}
                   </p>
                 </div>

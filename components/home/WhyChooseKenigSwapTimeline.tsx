@@ -9,7 +9,7 @@ export default function WhyChooseKenigSwapTimeline({ items }: { items: Item[] })
   return (
     <section className="py-24 bg-transparent relative">
       <div className="max-w-5xl mx-auto px-6 relative">
-        <h2 className="text-center text-4xl font-bold text-[#001D8D] mb-16">
+        <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-12 text-center">
           Почему выбирают <span className="text-[#4F7FFF]">KenigSwap</span>
         </h2>
 
@@ -38,10 +38,10 @@ export default function WhyChooseKenigSwapTimeline({ items }: { items: Item[] })
 
                   {/* Content */}
                   <div className="flex-1 text-center md:text-left transition-all duration-500 group-hover:translate-x-1 mt-4 md:mt-0">
-                    <h3 className="text-xl font-semibold text-[#001D8D] mb-1">
+                    <h3 className="text-lg md:text-xl font-semibold text-[#001D8D] mb-2">
                       {feature.title}
                     </h3>
-                    <p className="text-[#001D8D]/70 leading-relaxed">
+                    <p className="text-sm md:text-base text-[#001D8D]/70 leading-relaxed">
                       {feature.description}
                     </p>
                   </div>
