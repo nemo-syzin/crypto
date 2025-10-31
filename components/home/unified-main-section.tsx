@@ -97,7 +97,7 @@ const partners = [
     link: null
   },
   {
-    name: "USDC",
+    name: "USDC", 
     logo: "https://res.coinpaper.com/coinpaper/usd_coin_usdc_logo_33584e28ac.svg",
     link: null
   },
@@ -140,40 +140,6 @@ const partners = [
     name: "Exnode",
     logo: "https://exnode.ru/exnode-logo.png",
     link: "https://exnode.ru/"
-  }
-];
-
-const roadmapMilestones = [
-  {
-    year: "2025",
-    goal: "Операционный запуск и первые клиенты",
-    description: "Начать предоставление индивидуальных решений автоматизации для масштабирующихся бизнесов на рынке США с созданием основной инфраструктуры доставки.",
-    completed: true
-  },
-  {
-    year: "2026",
-    goal: "Расширение рынка и стратегические партнерства",
-    description: "Расширение на рынки Канады и Великобритании в первой половине года. Формирование партнерства с Bitrix24 во второй половине для предложения более глубоко интегрированной автоматизации CRM."
-  },
-  {
-    year: "2027",
-    goal: "Выход на рынок ЕС и масштабирование услуг",
-    description: "Начало выхода на рынки стран ЕС, локализация услуг и подготовка внутренних систем к масштабированию."
-  },
-  {
-    year: "2028",
-    goal: "Рост команды и входящая воронка",
-    description: "Стабилизация присутствия во всех регионах, рост команды по доставке и создание предсказуемой системы генерации входящих лидов."
-  },
-  {
-    year: "2029",
-    goal: "Запуск собственного продукта CRM",
-    description: "Запуск нашей собственной проприетарной CRM для конкуренции с крупными платформами вроде HubSpot и Bitrix24 — глубоко интегрированной с автоматизацией с самого начала."
-  },
-  {
-    year: "2030+",
-    goal: "Стать признанным лидером в автоматизации",
-    description: "Создание узнаваемого бренда, основанного на нашем уникальном подходе без ограничений в автоматизации и бизнес-системах на основе ИИ."
   }
 ];
 
@@ -483,91 +449,6 @@ const UnifiedMainSection = () => {
               </div>
             </motion.div>
           </div>
-
-          {/* 3.5. Development Roadmap */}
-          <section className="py-20 px-4 sm:px-6 lg:px-8 mobile-scroll-stable">
-            <div className="max-w-6xl mx-auto">
-              <div className="text-center mb-16">
-                <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-4">
-                  Дорожная карта <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">развития</span>
-                </h2>
-                <p className="text-lg text-[#001D8D]/70">
-                  Куда мы движемся: лучшие системы веб-сайтов и более быстрая доставка
-                </p>
-              </div>
-
-              <div className="relative">
-                <div className="absolute left-8 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 via-blue-500 to-cyan-500"></div>
-
-                <div className="space-y-12">
-                  {roadmapMilestones.map((milestone, index) => {
-                    const { ref, inView } = useInView({
-                      threshold: 0.3,
-                      triggerOnce: true,
-                    });
-
-                    return (
-                      <div
-                        key={index}
-                        ref={ref}
-                        className={`flex items-start gap-8 transition-all duration-700 ease-out ${
-                          inView
-                            ? 'opacity-100 translate-x-0'
-                            : 'opacity-0 translate-x-8'
-                        }`}
-                        style={{
-                          transitionDelay: `${index * 200}ms`
-                        }}
-                      >
-                        <div className="relative flex-shrink-0">
-                          <div className="w-16 h-16 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center shadow-lg z-10 relative">
-                            <span className="text-white font-bold text-sm">{milestone.year}</span>
-                          </div>
-                          <div
-                            className="absolute inset-0 w-16 h-16 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full animate-ping opacity-20"
-                            style={{ animationDelay: `${index * 500}ms` }}
-                          ></div>
-                        </div>
-
-                        <div className="flex-1 pt-2">
-                          <h3 className="text-xl font-semibold text-[#001D8D] mb-2 flex items-center gap-2">
-                            {milestone.goal}
-                            {milestone.completed && (
-                              <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-medium">
-                                Завершено
-                              </span>
-                            )}
-                          </h3>
-                          <p className="text-[#001D8D]/70 leading-relaxed">
-                            {milestone.description}
-                          </p>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div className="mt-14 text-center">
-                <Link
-                  href="/support"
-                  className="group inline-flex items-center justify-center gap-2
-                             w-full sm:w-auto rounded-full px-6 py-3 font-semibold text-white
-                             bg-gradient-to-r from-purple-600 to-blue-600
-                             shadow-lg hover:shadow-xl hover:brightness-105 active:scale-95
-                             transition-all focus:outline-none focus:ring-2 focus:ring-purple-600/40"
-                  aria-label="Забронировать звонок с KenigSwap"
-                >
-                  Связаться с нами
-                  <ArrowRight className="w-5 h-5 transition-transform duration-200 group-hover:translate-x-1 group-active:translate-x-1" />
-                </Link>
-
-                <p className="mt-2 text-sm text-[#001D8D]/70">
-                  Расскажите о своих приоритетах — мы наметим этапы развития.
-                </p>
-              </div>
-            </div>
-          </section>
 
           {/* 4. CTA Section - Calculator Style */}
           <div className="max-w-5xl mx-auto">
