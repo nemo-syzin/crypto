@@ -169,7 +169,7 @@ const ServicesSection = () => {
           viewport={{ once: true }}
           className="text-center mb-24"
         >
-          <button className="px-8 py-4 bg-[#001D8D] hover:bg-[#001D8D]/90 text-white text-lg font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+          <button className="px-6 py-3 bg-transparent border-2 border-[#001D8D] text-[#001D8D] text-base font-semibold rounded-full transition-all duration-300 hover:bg-[#001D8D]/5 hover:shadow-[0_0_20px_rgba(0,29,141,0.3)]">
             Получить консультацию
           </button>
         </motion.div>
