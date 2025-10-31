@@ -7,48 +7,52 @@ type Item = { title: string; description: string };
 
 export default function WhyChooseKenigSwapTimeline({ items }: { items: Item[] }) {
   return (
-    <section className="py-24 bg-transparent relative overflow-hidden">
+    <section className="py-24 bg-transparent relative overflow-visible">
+      {/* Animated Curved SVG Path - Full width, extends beyond container */}
+      <svg
+        className="absolute left-0 top-0 h-full pointer-events-none"
+        style={{
+          minHeight: '100%',
+          width: '100vw',
+          transform: 'translateX(-50vw) translateX(50%)'
+        }}
+        preserveAspectRatio="none"
+        viewBox="0 0 100 100"
+      >
+        <defs>
+          <linearGradient id="curveGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#001D8D" stopOpacity="0" />
+            <stop offset="10%" stopColor="#001D8D" stopOpacity="0.7" />
+            <stop offset="50%" stopColor="#4DA3FF" stopOpacity="0.9" />
+            <stop offset="90%" stopColor="#001D8D" stopOpacity="0.7" />
+            <stop offset="100%" stopColor="#001D8D" stopOpacity="0" />
+          </linearGradient>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="1" result="coloredBlur"/>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
+        <motion.path
+          d="M -5,0 Q 15,25 10,50 Q 5,75 -5,100"
+          stroke="url(#curveGradient)"
+          strokeWidth="0.3"
+          fill="none"
+          filter="url(#glow)"
+          initial={{ pathLength: 0, opacity: 0 }}
+          animate={{ pathLength: 1, opacity: 1 }}
+          transition={{ duration: 1.5, ease: "easeInOut" }}
+        />
+      </svg>
+
       <div className="max-w-6xl mx-auto px-6 relative">
         <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-16 text-center">
           Почему выбирают <span className="text-[#4F7FFF]">KenigSwap</span>
         </h2>
 
         <div className="relative">
-          {/* Animated Curved SVG Path */}
-          <svg
-            className="absolute left-0 top-0 h-full w-full pointer-events-none"
-            style={{ minHeight: '100%' }}
-            preserveAspectRatio="none"
-            viewBox="0 0 100 100"
-          >
-            <defs>
-              <linearGradient id="curveGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="#001D8D" stopOpacity="0" />
-                <stop offset="10%" stopColor="#001D8D" stopOpacity="0.7" />
-                <stop offset="50%" stopColor="#4DA3FF" stopOpacity="0.9" />
-                <stop offset="90%" stopColor="#001D8D" stopOpacity="0.7" />
-                <stop offset="100%" stopColor="#001D8D" stopOpacity="0" />
-              </linearGradient>
-              <filter id="glow">
-                <feGaussianBlur stdDeviation="1" result="coloredBlur"/>
-                <feMerge>
-                  <feMergeNode in="coloredBlur"/>
-                  <feMergeNode in="SourceGraphic"/>
-                </feMerge>
-              </filter>
-            </defs>
-            <motion.path
-              d="M -5,0 Q 15,25 10,50 Q 5,75 -5,100"
-              stroke="url(#curveGradient)"
-              strokeWidth="0.3"
-              fill="none"
-              filter="url(#glow)"
-              initial={{ pathLength: 0, opacity: 0 }}
-              animate={{ pathLength: 1, opacity: 1 }}
-              transition={{ duration: 1.5, ease: "easeInOut" }}
-            />
-          </svg>
-
           {/* Features List */}
           <div className="relative space-y-16 md:space-y-20 pl-12 md:pl-24">
             {items.map((feature, index) => {
