@@ -102,7 +102,7 @@ const ServicesSection = () => {
   };
 
   return (
-    <div className="relative overflow-hidden py-16 text-[#001D8D]">
+    <div className="relative overflow-hidden py-16 text-[#001D8D] bg-transparent">
       <div className="relative z-10 max-w-6xl mx-auto px-6">
         {/* Hero Introduction */}
         <motion.div
@@ -120,34 +120,45 @@ const ServicesSection = () => {
           </p>
         </motion.div>
 
-        {/* Services Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-16">
-          {services.map((service, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              viewport={{ once: true }}
-              className="relative group p-8 rounded-3xl bg-white/90 backdrop-blur-xl border border-[#001D8D]/10 hover:border-[#001D8D]/30 hover:shadow-xl hover:-translate-y-2 transition-all duration-500"
-            >
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-14 h-14 rounded-2xl bg-[#001D8D] flex items-center justify-center shadow-lg">
-                  <service.icon className="h-7 w-7 text-white" />
+        {/* Services List - Minimalist Catalog */}
+        <div className="max-w-4xl mx-auto mb-16">
+          <div className="flex flex-col space-y-8">
+            {services.map((service, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                viewport={{ once: true }}
+                className="group pb-8 border-b border-[#001D8D]/10 last:border-b-0"
+              >
+                <div className="flex flex-col sm:flex-row sm:items-start gap-4 sm:gap-6">
+                  {/* Icon */}
+                  <div className="flex-shrink-0">
+                    <service.icon className="w-6 h-6 text-[#001D8D]/70 group-hover:text-[#001D8D] transition-colors duration-300" strokeWidth={1.5} />
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-[#001D8D] mb-2 group-hover:translate-x-1 transition-all duration-300">
+                      {service.title}
+                    </h3>
+                    <p className="text-sm text-[#001D8D]/70 leading-relaxed mb-4">
+                      {service.description}
+                    </p>
+
+                    {/* Footer with min amount and details link */}
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-[#001D8D]/60">{service.minAmount}</span>
+                      <button className="text-[#001D8D]/60 hover:text-[#001D8D] transition-colors duration-300 flex items-center gap-1">
+                        Подробнее <ArrowRight className="w-3 h-3" />
+                      </button>
+                    </div>
+                  </div>
                 </div>
-                <h3 className="text-2xl font-semibold text-[#001D8D]">{service.title}</h3>
-              </div>
-
-              <p className="text-[#001D8D]/70 leading-relaxed mb-6">{service.description}</p>
-
-              <div className="flex items-center justify-between text-[#001D8D]/70">
-                <span className="font-medium">{service.minAmount}</span>
-                <button className="text-[#001D8D] font-medium hover:text-[#001D8D]/70 transition flex items-center gap-2 group-hover:gap-3 transition-all">
-                  Подробнее <ArrowRight className="h-4 w-4" />
-                </button>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            ))}
+          </div>
         </div>
 
         {/* CTA Button */}
