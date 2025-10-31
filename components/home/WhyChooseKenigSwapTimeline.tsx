@@ -7,41 +7,113 @@ type Item = { title: string; description: string };
 
 export default function WhyChooseKenigSwapTimeline({ items }: { items: Item[] }) {
   return (
-    <section className="py-24 bg-transparent relative">
-      <div className="max-w-5xl mx-auto px-6 relative">
-        <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-12 text-center">
+    <section className="py-24 bg-transparent relative overflow-hidden">
+      <div className="max-w-6xl mx-auto px-6 relative">
+        <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-16 text-center">
           Почему выбирают <span className="text-[#4F7FFF]">KenigSwap</span>
         </h2>
 
-        <div className="relative flex flex-col items-start md:pl-20">
-          {/* Animated Vertical Line - centered on mobile, left on desktop */}
-          <div className="absolute left-1/2 -translate-x-1/2 md:left-10 md:translate-x-0 top-0 bottom-0 w-[2px] bg-gradient-to-b from-[#001D8D]/70 via-[#4F7FFF]/60 to-[#7FC3FF]/70 shadow-[0_0_20px_rgba(0,29,141,0.25)] animate-gradient-flow"></div>
+        <div className="relative">
+          {/* Animated Curved SVG Path */}
+          <svg
+            className="absolute left-0 top-0 h-full w-full pointer-events-none"
+            style={{ minHeight: '100%' }}
+            preserveAspectRatio="none"
+            viewBox="0 0 100 100"
+          >
+            <defs>
+              <linearGradient id="curveGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="#001D8D" stopOpacity="0" />
+                <stop offset="10%" stopColor="#001D8D" stopOpacity="0.7" />
+                <stop offset="50%" stopColor="#4DA3FF" stopOpacity="0.9" />
+                <stop offset="90%" stopColor="#001D8D" stopOpacity="0.7" />
+                <stop offset="100%" stopColor="#001D8D" stopOpacity="0" />
+              </linearGradient>
+              <filter id="glow">
+                <feGaussianBlur stdDeviation="1" result="coloredBlur"/>
+                <feMerge>
+                  <feMergeNode in="coloredBlur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            </defs>
+            <motion.path
+              d="M -5,0 Q 15,25 10,50 Q 5,75 -5,100"
+              stroke="url(#curveGradient)"
+              strokeWidth="0.3"
+              fill="none"
+              filter="url(#glow)"
+              initial={{ pathLength: 0, opacity: 0 }}
+              animate={{ pathLength: 1, opacity: 1 }}
+              transition={{ duration: 1.5, ease: "easeInOut" }}
+            />
+          </svg>
 
-          <div className="space-y-16 md:space-y-24 w-full">
+          {/* Features List */}
+          <div className="relative space-y-16 md:space-y-20 pl-12 md:pl-24">
             {items.map((feature, index) => {
-              const { ref, inView } = useInView({ threshold: 0.2, triggerOnce: true });
+              const { ref, inView } = useInView({ threshold: 0.3, triggerOnce: true });
+              const yPosition = (index / (items.length - 1)) * 100;
+
               return (
                 <motion.div
                   key={index}
                   ref={ref}
-                  initial={{ opacity: 0, x: 30 }}
+                  initial={{ opacity: 0, x: 40 }}
                   animate={inView ? { opacity: 1, x: 0 } : {}}
-                  transition={{ duration: 0.6, delay: index * 0.15 }}
-                  className="relative flex flex-col md:flex-row md:items-start gap-6 md:gap-8 group"
+                  transition={{ duration: 0.7, delay: index * 0.1, ease: "easeOut" }}
+                  className="relative group"
+                  style={{ minHeight: '120px' }}
                 >
-                  {/* Glass Dot */}
-                  <div className="relative flex-shrink-0 mx-auto md:mx-0">
-                    <div className="w-10 h-10 rounded-full backdrop-blur-sm bg-white/40 border border-[#4F7FFF]/20 shadow-[0_0_15px_rgba(79,127,255,0.2)] group-hover:shadow-[0_0_25px_rgba(79,127,255,0.4)] transition-all duration-500 flex items-center justify-center">
-                      <div className="w-4 h-4 bg-gradient-to-r from-[#4F7FFF] to-[#7FC3FF] rounded-full blur-[1px] animate-pulse"></div>
+                  {/* Glowing Dot positioned on the curve */}
+                  <motion.div
+                    className="absolute -left-12 md:-left-24 top-0"
+                    style={{
+                      left: 'calc(0.5rem)',
+                      transform: 'translateX(-50%)'
+                    }}
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={inView ? { scale: 1, opacity: 1 } : {}}
+                    transition={{ duration: 0.5, delay: index * 0.1 + 0.3 }}
+                  >
+                    <div className="relative">
+                      <motion.div
+                        className="w-12 h-12 rounded-full backdrop-blur-sm bg-white/50 border border-[#4DA3FF]/30 flex items-center justify-center"
+                        animate={inView ? {
+                          boxShadow: [
+                            "0 0 15px rgba(77, 163, 255, 0.3)",
+                            "0 0 25px rgba(77, 163, 255, 0.6)",
+                            "0 0 15px rgba(77, 163, 255, 0.3)"
+                          ]
+                        } : {}}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut"
+                        }}
+                      >
+                        <motion.div
+                          className="w-5 h-5 rounded-full bg-gradient-to-br from-[#001D8D] to-[#4DA3FF]"
+                          animate={inView ? {
+                            scale: [1, 1.2, 1],
+                            opacity: [1, 0.8, 1]
+                          } : {}}
+                          transition={{
+                            duration: 2,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                          }}
+                        />
+                      </motion.div>
                     </div>
-                  </div>
+                  </motion.div>
 
                   {/* Content */}
-                  <div className="flex-1 text-center md:text-left transition-all duration-500 group-hover:translate-x-1 mt-4 md:mt-0">
-                    <h3 className="text-lg md:text-xl font-semibold text-[#001D8D] mb-2">
+                  <div className="flex-1 transition-all duration-300 group-hover:translate-x-2">
+                    <h3 className="text-lg md:text-xl font-semibold text-[#001D8D] mb-3">
                       {feature.title}
                     </h3>
-                    <p className="text-sm md:text-base text-[#001D8D]/70 leading-relaxed">
+                    <p className="text-sm md:text-base text-[#001D8D]/70 leading-relaxed max-w-2xl">
                       {feature.description}
                     </p>
                   </div>
