@@ -52,10 +52,33 @@ export default function WhyChooseKenigSwapTimeline({ items }: { items: Item[] })
 
         <div className="relative">
           {/* Features List */}
-          <div className="relative space-y-16 md:space-y-20 pl-12 md:pl-24">
+          <div className="relative space-y-16 md:space-y-20 pl-16 md:pl-32">
             {items.map((feature, index) => {
               const { ref, inView } = useInView({ threshold: 0.3, triggerOnce: true });
-              const yPosition = (index / (items.length - 1)) * 100;
+
+              // Calculate position along the curve based on item index
+              const progress = index / Math.max(items.length - 1, 1);
+
+              // Quadratic bezier curve calculation: Q 20,25 12,50 Q 4,75 0,102
+              // Split into two curves
+              let xPos, yPos;
+              if (progress <= 0.5) {
+                // First curve: from (0,-2) to (12,50) with control point (20,25)
+                const t = progress * 2;
+                const x0 = 0, y0 = -2;
+                const cx = 20, cy = 25;
+                const x1 = 12, y1 = 50;
+                xPos = (1 - t) * (1 - t) * x0 + 2 * (1 - t) * t * cx + t * t * x1;
+                yPos = (1 - t) * (1 - t) * y0 + 2 * (1 - t) * t * cy + t * t * y1;
+              } else {
+                // Second curve: from (12,50) to (0,102) with control point (4,75)
+                const t = (progress - 0.5) * 2;
+                const x0 = 12, y0 = 50;
+                const cx = 4, cy = 75;
+                const x1 = 0, y1 = 102;
+                xPos = (1 - t) * (1 - t) * x0 + 2 * (1 - t) * t * cx + t * t * x1;
+                yPos = (1 - t) * (1 - t) * y0 + 2 * (1 - t) * t * cy + t * t * y1;
+              }
 
               return (
                 <motion.div
@@ -67,41 +90,72 @@ export default function WhyChooseKenigSwapTimeline({ items }: { items: Item[] })
                   className="relative group"
                   style={{ minHeight: '120px' }}
                 >
-                  {/* Glowing Dot positioned on the curve */}
+                  {/* Glowing Sphere positioned on the curve */}
                   <motion.div
-                    className="absolute -left-12 md:-left-24 top-0"
+                    className="absolute top-0"
                     style={{
-                      left: 'calc(0.5rem)',
-                      transform: 'translateX(-50%)'
+                      left: `calc(-50vw + 50% + ${xPos}vw)`,
+                      top: `${yPos}%`,
+                      transform: 'translate(-50%, -50%)'
                     }}
                     initial={{ scale: 0, opacity: 0 }}
                     animate={inView ? { scale: 1, opacity: 1 } : {}}
                     transition={{ duration: 0.5, delay: index * 0.1 + 0.3 }}
                   >
                     <div className="relative">
+                      {/* Outer glow ring */}
                       <motion.div
-                        className="w-12 h-12 rounded-full backdrop-blur-sm bg-white/50 border border-[#4DA3FF]/30 flex items-center justify-center"
+                        className="absolute inset-0 rounded-full"
+                        style={{
+                          width: '48px',
+                          height: '48px',
+                          background: 'radial-gradient(circle, rgba(77, 163, 255, 0.4) 0%, rgba(77, 163, 255, 0) 70%)',
+                        }}
+                        animate={inView ? {
+                          scale: [1, 1.3, 1],
+                          opacity: [0.6, 0.3, 0.6]
+                        } : {}}
+                        transition={{
+                          duration: 2.5,
+                          repeat: Infinity,
+                          ease: "easeInOut"
+                        }}
+                      />
+
+                      {/* Main sphere */}
+                      <motion.div
+                        className="relative w-12 h-12 rounded-full flex items-center justify-center"
+                        style={{
+                          background: 'radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.5) 40%, rgba(77, 163, 255, 0.3))',
+                          backdropFilter: 'blur(8px)',
+                          border: '1px solid rgba(77, 163, 255, 0.3)',
+                          boxShadow: '0 0 20px rgba(77, 163, 255, 0.5), inset 0 -8px 16px rgba(0, 29, 141, 0.2)'
+                        }}
                         animate={inView ? {
                           boxShadow: [
-                            "0 0 15px rgba(77, 163, 255, 0.3)",
-                            "0 0 25px rgba(77, 163, 255, 0.6)",
-                            "0 0 15px rgba(77, 163, 255, 0.3)"
+                            "0 0 20px rgba(77, 163, 255, 0.5), inset 0 -8px 16px rgba(0, 29, 141, 0.2)",
+                            "0 0 35px rgba(77, 163, 255, 0.8), inset 0 -8px 16px rgba(0, 29, 141, 0.3)",
+                            "0 0 20px rgba(77, 163, 255, 0.5), inset 0 -8px 16px rgba(0, 29, 141, 0.2)"
                           ]
                         } : {}}
                         transition={{
-                          duration: 2,
+                          duration: 2.5,
                           repeat: Infinity,
                           ease: "easeInOut"
                         }}
                       >
+                        {/* Inner core */}
                         <motion.div
-                          className="w-5 h-5 rounded-full bg-gradient-to-br from-[#001D8D] to-[#4DA3FF]"
+                          className="w-5 h-5 rounded-full"
+                          style={{
+                            background: 'radial-gradient(circle at 35% 35%, #4DA3FF, #001D8D)',
+                          }}
                           animate={inView ? {
-                            scale: [1, 1.2, 1],
-                            opacity: [1, 0.8, 1]
+                            scale: [1, 1.15, 1],
+                            opacity: [1, 0.85, 1]
                           } : {}}
                           transition={{
-                            duration: 2,
+                            duration: 2.5,
                             repeat: Infinity,
                             ease: "easeInOut"
                           }}
