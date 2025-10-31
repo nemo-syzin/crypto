@@ -169,8 +169,9 @@ const ServicesSection = () => {
           viewport={{ once: true }}
           className="text-center mb-24"
         >
-          <button className="px-8 py-4 bg-[#001D8D] hover:bg-[#001D8D]/90 text-white text-lg font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+          <button className="text-[#001D8D] hover:text-[#001D8D]/70 text-sm font-medium inline-flex items-center gap-2 transition-all duration-300 hover:gap-3 border-b border-[#001D8D]/20 hover:border-[#001D8D]/40 pb-1">
             Получить консультацию
+            <ArrowRight className="w-4 h-4" />
           </button>
         </motion.div>
 
