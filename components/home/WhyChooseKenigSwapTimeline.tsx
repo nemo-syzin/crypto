@@ -51,50 +51,25 @@ export default function WhyChooseKenigSwapTimeline({ items }: { items: Item[] })
 
         <div className="relative">
           {/* Features List */}
-          <div className="relative space-y-16 md:space-y-20 pl-16 md:pl-32">
+          <div className="relative space-y-8 md:space-y-12">
             {items.map((feature, index) => {
               const { ref, inView } = useInView({ threshold: 0.3, triggerOnce: true });
-
-              // Calculate position along the curve based on item index
-              const progress = index / Math.max(items.length - 1, 1);
-
-              // Quadratic bezier curve calculation: Q 20,25 12,50 Q 4,75 0,102
-              // Split into two curves
-              let xPos, yPos;
-              if (progress <= 0.5) {
-                // First curve: from (0,-2) to (12,50) with control point (20,25)
-                const t = progress * 2;
-                const x0 = 0, y0 = -2;
-                const cx = 20, cy = 25;
-                const x1 = 12, y1 = 50;
-                xPos = (1 - t) * (1 - t) * x0 + 2 * (1 - t) * t * cx + t * t * x1;
-                yPos = (1 - t) * (1 - t) * y0 + 2 * (1 - t) * t * cy + t * t * y1;
-              } else {
-                // Second curve: from (12,50) to (0,102) with control point (4,75)
-                const t = (progress - 0.5) * 2;
-                const x0 = 12, y0 = 50;
-                const cx = 4, cy = 75;
-                const x1 = 0, y1 = 102;
-                xPos = (1 - t) * (1 - t) * x0 + 2 * (1 - t) * t * cx + t * t * x1;
-                yPos = (1 - t) * (1 - t) * y0 + 2 * (1 - t) * t * cy + t * t * y1;
-              }
 
               return (
                 <motion.div
                   key={index}
                   ref={ref}
-                  initial={{ opacity: 0, x: 40 }}
-                  animate={inView ? { opacity: 1, x: 0 } : {}}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={inView ? { opacity: 1, y: 0 } : {}}
                   transition={{ duration: 0.7, delay: index * 0.1, ease: "easeOut" }}
                   className="relative group"
-                  style={{ minHeight: '120px' }}
                 >
                   {/* Content */}
-                  <div className="flex-1 transition-all duration-300 group-hover:translate-x-2">
-                    <h3 className="text-lg md:text-xl font-semibold text-[#001D8D] mb-3">
+                  <div className="flex-1 transition-all duration-300">
+                    <h3 className="text-xl md:text-2xl font-bold text-[#001D8D] mb-3">
                       {feature.title}
                     </h3>
-                    <p className="text-sm md:text-base text-[#001D8D]/70 leading-relaxed max-w-2xl">
+                    <p className="text-base md:text-lg text-[#001D8D]/70 leading-relaxed max-w-4xl">
                       {feature.description}
                     </p>
                   </div>
