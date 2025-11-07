@@ -166,29 +166,27 @@ const UnifiedMainSection = () => {
     },
   };
 
-  // Варианты анимации для шагов с более выраженным эффектом
+  // Варианты анимации для шагов - оптимизированные для плавности
   const stepsContainerVariants = {
     hidden: {},
     visible: {
       transition: {
-        staggerChildren: 0.15, // Увеличенная задержка между шагами
+        staggerChildren: 0.05, // Минимальная задержка для плавности
       },
     },
   };
 
   const stepVariants = {
-    hidden: { 
-      opacity: 0, 
-      y: 30,
-      scale: 0.95
+    hidden: {
+      opacity: 0,
+      y: 15
     },
     visible: {
       opacity: 1,
       y: 0,
-      scale: 1,
       transition: {
-        duration: 0.6,
-        ease: "easeOut"
+        duration: 0.3,
+        ease: [0.25, 0.1, 0.25, 1]
       },
     },
   };
@@ -289,23 +287,23 @@ const UnifiedMainSection = () => {
                       <motion.div
                         key={index}
                         variants={stepVariants}
-                        className="relative group p-6 rounded-3xl bg-gradient-to-br from-white/40 to-white/10 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,29,141,0.05)] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:shadow-[0_8px_40px_rgba(0,29,141,0.12)] hover:-translate-y-2"
+                        className="relative group p-6 rounded-3xl bg-gradient-to-br from-white/40 to-white/10 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,29,141,0.05)] transition-all duration-300 ease-out hover:shadow-[0_8px_40px_rgba(0,29,141,0.12)] hover:-translate-y-2"
                       >
-                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-700 bg-[radial-gradient(circle_at_center,rgba(0,29,141,0.08)_0%,transparent_70%)] rounded-3xl"></div>
+                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(circle_at_center,rgba(0,29,141,0.08)_0%,transparent_70%)] rounded-3xl"></div>
                         <div className="flex items-start gap-4">
                           {/* Номер в стиле манифеста с анимацией */}
-                          <motion.div 
+                          <motion.div
                             className="flex-shrink-0"
-                            whileHover={{ scale: 1.1 }}
-                            transition={{ duration: 0.2 }}
+                            whileHover={{ scale: 1.05 }}
+                            transition={{ duration: 0.15 }}
                           >
-                            <div className="manifesto-number text-3xl font-bold text-[#001D8D] tracking-wider group-hover:text-blue-600 transition-colors duration-300">
+                            <div className="manifesto-number text-3xl font-bold text-[#001D8D] tracking-wider group-hover:text-blue-600 transition-colors duration-200">
                               {formatStepNumber(index)}
                             </div>
                           </motion.div>
                           <div className="flex-1">
                             <div className="flex justify-between items-start">
-                              <h3 className="text-lg md:text-xl font-bold text-[#001D8D] mb-2 group-hover:text-blue-600 transition-colors duration-300">
+                              <h3 className="text-lg md:text-xl font-bold text-[#001D8D] mb-2 group-hover:text-blue-600 transition-colors duration-200">
                                 {step.title}
                               </h3>
                             </div>
@@ -330,23 +328,23 @@ const UnifiedMainSection = () => {
                       <motion.div
                         key={index}
                         variants={stepVariants}
-                        className="relative group p-6 rounded-3xl bg-gradient-to-br from-white/40 to-white/10 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,29,141,0.05)] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:shadow-[0_8px_40px_rgba(0,29,141,0.12)] hover:-translate-y-2"
+                        className="relative group p-6 rounded-3xl bg-gradient-to-br from-white/40 to-white/10 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,29,141,0.05)] transition-all duration-300 ease-out hover:shadow-[0_8px_40px_rgba(0,29,141,0.12)] hover:-translate-y-2"
                       >
-                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-700 bg-[radial-gradient(circle_at_center,rgba(0,29,141,0.08)_0%,transparent_70%)] rounded-3xl"></div>
+                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(circle_at_center,rgba(0,29,141,0.08)_0%,transparent_70%)] rounded-3xl"></div>
                         <div className="flex items-start gap-4">
                           {/* Номер в стиле манифеста с анимацией */}
-                          <motion.div 
+                          <motion.div
                             className="flex-shrink-0"
-                            whileHover={{ scale: 1.1 }}
-                            transition={{ duration: 0.2 }}
+                            whileHover={{ scale: 1.05 }}
+                            transition={{ duration: 0.15 }}
                           >
-                            <div className="manifesto-number text-3xl font-bold text-[#001D8D] tracking-wider group-hover:text-blue-600 transition-colors duration-300">
+                            <div className="manifesto-number text-3xl font-bold text-[#001D8D] tracking-wider group-hover:text-blue-600 transition-colors duration-200">
                               {formatStepNumber(index)}
                             </div>
                           </motion.div>
                           <div className="flex-1">
                             <div className="flex justify-between items-start">
-                              <h3 className="text-lg md:text-xl font-bold text-[#001D8D] mb-2 group-hover:text-blue-600 transition-colors duration-300">
+                              <h3 className="text-lg md:text-xl font-bold text-[#001D8D] mb-2 group-hover:text-blue-600 transition-colors duration-200">
                                 {step.title}
                               </h3>
                             </div>
