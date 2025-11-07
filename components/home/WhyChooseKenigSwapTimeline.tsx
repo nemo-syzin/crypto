@@ -46,7 +46,7 @@ export default function WhyChooseKenigSwapTimeline({ items }: { items: Item[] })
 
       <div className="max-w-6xl mx-auto px-6 relative">
         <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-16 text-center">
-          Почему выбирают <span className="text-[#4F7FFF]">KenigSwap</span>
+          Почему выбирают <span className="text-[#001D8D]">KenigSwap</span>
         </h2>
 
         <div className="relative">
