@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Banknote, FileText, Send, Wallet, Shield, Clock, CheckCircle, Globe, ArrowRight, ChevronDown } from 'lucide-react';
+import ServiceContactModal from './ServiceContactModal';
 
 const services = [
   {
@@ -96,9 +97,18 @@ const regions = [
 
 const ServicesSection = () => {
   const [expandedRegion, setExpandedRegion] = useState<number | null>(null);
+  const [selectedService, setSelectedService] = useState<string | null>(null);
 
   const toggleRegion = (index: number) => {
     setExpandedRegion(expandedRegion === index ? null : index);
+  };
+
+  const openContactModal = (serviceTitle: string) => {
+    setSelectedService(serviceTitle);
+  };
+
+  const closeContactModal = () => {
+    setSelectedService(null);
   };
 
   return (
@@ -150,7 +160,10 @@ const ServicesSection = () => {
                     {/* Footer with min amount and details link */}
                     <div className="flex justify-between items-center text-sm">
                       <span className="text-[#001D8D]/60">{service.minAmount}</span>
-                      <button className="text-[#001D8D]/60 hover:text-[#001D8D] transition-colors duration-300 flex items-center gap-1">
+                      <button
+                        onClick={() => openContactModal(service.title)}
+                        className="text-[#001D8D]/60 hover:text-[#001D8D] transition-colors duration-300 flex items-center gap-1"
+                      >
                         Подробнее <ArrowRight className="w-3 h-3" />
                       </button>
                     </div>
@@ -301,6 +314,13 @@ const ServicesSection = () => {
           ))}
         </div>
       </div>
+
+      {/* Contact Modal */}
+      <ServiceContactModal
+        isOpen={selectedService !== null}
+        onClose={closeContactModal}
+        serviceTitle={selectedService || ''}
+      />
     </div>
   );
 };
