@@ -116,10 +116,10 @@ const ServicesSection = () => {
       <div className="relative z-10 max-w-6xl mx-auto px-6">
         {/* Hero Introduction */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={false}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.4, ease: 'easeOut' }}
           className="text-center mb-16"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-4">
@@ -136,16 +136,11 @@ const ServicesSection = () => {
             {services.map((service, index) => (
               <motion.div
                 key={index}
-                initial={{ opacity: 0, y: 10 }}
+                initial={false}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{
-                  duration: 0.3,
-                  delay: index * 0.08,
-                  ease: [0.25, 0.1, 0.25, 1]
-                }}
-                viewport={{ once: true, margin: "-30px" }}
-                className="group pb-8 border-b border-[#001D8D]/10 last:border-b-0 will-change-transform"
-                style={{ transform: 'translateZ(0)' }}
+                viewport={{ once: true, amount: 0.25 }}
+                transition={{ duration: 0.28, ease: 'easeOut', delay: index * 0.06 }}
+                className="group pb-8 border-b border-[#001D8D]/10 last:border-b-0 transition-colors duration-300"
               >
                 <div className="flex flex-col sm:flex-row sm:items-start gap-4 sm:gap-6">
                   {/* Icon */}
@@ -181,10 +176,10 @@ const ServicesSection = () => {
 
         {/* CTA Button */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={false}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.4, ease: 'easeOut' }}
           className="text-center mb-24"
         >
           <button
@@ -197,10 +192,10 @@ const ServicesSection = () => {
 
         {/* Workflow Section */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={false}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.4, ease: 'easeOut' }}
           className="text-center mb-12"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-4">
@@ -212,16 +207,12 @@ const ServicesSection = () => {
           {workflowSteps.map((step, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, y: 15 }}
+              initial={false}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{
-                duration: 0.4,
-                delay: index * 0.1,
-                ease: [0.25, 0.1, 0.25, 1]
-              }}
-              viewport={{ once: true, margin: "-50px" }}
-              className="p-6 rounded-2xl bg-white/90 backdrop-blur-sm border border-[#001D8D]/10 hover:shadow-lg transition-all duration-300 will-change-transform"
-              style={{ transform: 'translateZ(0)' }}
+              viewport={{ once: true, amount: 0.25 }}
+              transition={{ duration: 0.35, ease: 'easeOut', delay: index * 0.08 }}
+              className="p-6 rounded-2xl bg-white/80 md:backdrop-blur-sm border border-[#001D8D]/10 hover:shadow-lg transition-[box-shadow,background-color] duration-300"
+              style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
             >
               <div className="text-5xl font-bold text-[#001D8D] mb-4 font-mono">
                 {step.number}
@@ -238,10 +229,10 @@ const ServicesSection = () => {
 
         {/* Benefits Section */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={false}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.4, ease: 'easeOut' }}
           className="text-center mb-12"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-4">
@@ -253,16 +244,13 @@ const ServicesSection = () => {
           {benefits.map((benefit, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, y: 15 }}
+              initial={false}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{
-                duration: 0.4,
-                delay: index * 0.08,
-                ease: [0.25, 0.1, 0.25, 1]
-              }}
-              viewport={{ once: true, margin: "-50px" }}
-              className="relative group p-8 rounded-3xl bg-gradient-to-br from-white/40 to-white/10 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,29,141,0.05)] transition-all duration-300 ease-out hover:shadow-[0_8px_40px_rgba(0,29,141,0.12)] hover:-translate-y-2 hover:bg-gradient-to-br hover:from-white/60 hover:to-white/20 will-change-transform"
-              style={{ transform: 'translateZ(0)' }}
+              viewport={{ once: true, amount: 0.25 }}
+              transition={{ duration: 0.35, ease: 'easeOut', delay: index * 0.08 }}
+              whileHover={{ y: -6 }}
+              className="relative group p-8 rounded-3xl bg-gradient-to-br from-white/50 to-white/10 md:backdrop-blur-lg shadow-[0_4px_24px_rgba(0,29,141,0.06)] transition-[box-shadow,background-color] duration-300 ease-out hover:shadow-[0_10px_42px_rgba(0,29,141,0.14)]"
+              style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
             >
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-700 bg-[radial-gradient(circle_at_center,rgba(0,29,141,0.08)_0%,transparent_70%)] rounded-3xl"></div>
 
@@ -278,10 +266,10 @@ const ServicesSection = () => {
 
         {/* Geography Section */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={false}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.4, ease: 'easeOut' }}
           className="text-center mb-12"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-4">
@@ -293,16 +281,12 @@ const ServicesSection = () => {
           {regions.map((region, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, y: 10 }}
+              initial={false}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{
-                duration: 0.3,
-                delay: index * 0.06,
-                ease: [0.25, 0.1, 0.25, 1]
-              }}
-              viewport={{ once: true, margin: "-30px" }}
-              className="rounded-2xl bg-white/90 backdrop-blur-sm border border-[#001D8D]/10 hover:shadow-lg transition-all duration-300 overflow-hidden will-change-transform"
-              style={{ transform: 'translateZ(0)' }}
+              viewport={{ once: true, amount: 0.25 }}
+              transition={{ duration: 0.3, ease: 'easeOut', delay: index * 0.06 }}
+              className="rounded-2xl bg-white/80 md:backdrop-blur-sm border border-[#001D8D]/10 hover:shadow-lg transition-[box-shadow,background-color] duration-300 overflow-hidden"
+              style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
             >
               <button
                 onClick={() => toggleRegion(index)}

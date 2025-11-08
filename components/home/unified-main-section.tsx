@@ -244,10 +244,10 @@ const UnifiedMainSection = () => {
 
           {/* 1.5. Services Section */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={false}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-            viewport={{ once: true }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
           >
             <ServicesSection />
           </motion.div>
@@ -364,10 +364,10 @@ const UnifiedMainSection = () => {
           {/* 3. Partners Section - ✅ ТОЛЬКО ДВЕ СТРОКИ БЕЗ ПРОПУСКОВ */}
           <div>
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={false}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              viewport={{ once: true }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.4, ease: 'easeOut' }}
               className="text-center mb-12"
             >
               <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-4">
@@ -425,10 +425,10 @@ const UnifiedMainSection = () => {
 
             {/* Trust indicators */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={false}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              viewport={{ once: true }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.4, ease: 'easeOut', delay: 0.2 }}
               className="text-center"
             >
               <div className="flex flex-wrap justify-center items-center gap-8 text-sm text-[#001D8D]/60">
@@ -452,11 +452,13 @@ const UnifiedMainSection = () => {
           <div className="max-w-5xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
+                initial={false}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                viewport={{ once: true }}
-                className="relative group p-8 rounded-3xl bg-gradient-to-br from-white/40 to-white/10 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,29,141,0.05)] transition-all duration-500"
+                viewport={{ once: true, amount: 0.25 }}
+                transition={{ duration: 0.4, ease: 'easeOut' }}
+                whileHover={{ y: -4 }}
+                className="relative group p-8 rounded-3xl bg-gradient-to-br from-white/50 to-white/10 md:backdrop-blur-lg shadow-[0_4px_24px_rgba(0,29,141,0.06)] transition-[box-shadow,background-color] duration-300"
+                style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
               >
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-700 bg-[radial-gradient(circle_at_center,rgba(0,29,141,0.08)_0%,transparent_70%)] rounded-3xl"></div>
 
