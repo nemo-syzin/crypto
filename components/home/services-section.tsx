@@ -211,13 +211,13 @@ const ServicesSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.25 }}
               transition={{ duration: 0.35, ease: 'easeOut', delay: index * 0.08 }}
-              className="p-6 rounded-2xl bg-white/80 md:backdrop-blur-sm border border-[#001D8D]/10 hover:shadow-lg transition-[box-shadow,background-color] duration-300"
+              className="group p-6 rounded-2xl bg-white/80 md:backdrop-blur-sm border border-[#001D8D]/10 hover:shadow-lg transition-[box-shadow,background-color] duration-300"
               style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
             >
-              <div className="text-5xl font-bold text-[#001D8D] mb-4 font-mono">
+              <div className="text-5xl font-bold text-[#001D8D] mb-4 font-mono group-hover:text-blue-600 transition-colors duration-200">
                 {step.number}
               </div>
-              <h3 className="text-lg md:text-xl font-bold text-[#001D8D] mb-2">
+              <h3 className="text-lg md:text-xl font-bold text-[#001D8D] mb-2 group-hover:text-blue-600 transition-colors duration-200">
                 {step.title}
               </h3>
               <p className="text-sm md:text-base text-[#001D8D]/70 leading-relaxed">
