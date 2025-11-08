@@ -311,10 +311,17 @@ const ServicesSection = () => {
                 transition={{ duration: 0.3, ease: "easeInOut" }}
                 className="overflow-hidden"
               >
-                <div className="px-6 pb-6">
+                <div className="px-6 pb-6 space-y-4">
                   <p className="text-sm md:text-base text-[#001D8D]/70 leading-relaxed">
                     {region.countries}
                   </p>
+                  <button
+                    onClick={() => openContactModal(region.name)}
+                    className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#001D8D] text-white rounded-lg hover:bg-[#001D8D]/90 transition-colors duration-200 text-sm font-medium"
+                  >
+                    Получить консультацию
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
                 </div>
               </motion.div>
             </motion.div>
