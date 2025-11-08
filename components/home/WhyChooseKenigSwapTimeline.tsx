@@ -73,7 +73,7 @@ export default function WhyChooseKenigSwapTimeline({ items }: { items: Item[] })
                     <h3 className="text-lg md:text-xl font-semibold text-[#001D8D] mb-3 group-hover:text-blue-600 transition-colors duration-200">
                       {feature.title}
                     </h3>
-                    <p className="text-sm md:text-base text-[#001D8D]/70 leading-relaxed max-w-2xl font-['Courier_New',monospace]">
+                    <p className="text-sm md:text-base text-[#001D8D]/70 leading-relaxed max-w-2xl">
                       {feature.description}
                     </p>
                   </div>
