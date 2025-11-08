@@ -145,12 +145,12 @@ const ServicesSection = () => {
                 <div className="flex flex-col sm:flex-row sm:items-start gap-4 sm:gap-6">
                   {/* Icon */}
                   <div className="flex-shrink-0">
-                    <service.icon className="w-6 h-6 text-[#001D8D]/70 group-hover:text-[#001D8D] transition-colors duration-300" strokeWidth={1.5} />
+                    <service.icon className="w-6 h-6 text-[#001D8D]/70 group-hover:text-blue-600 transition-colors duration-300" strokeWidth={1.5} />
                   </div>
 
                   {/* Content */}
                   <div className="flex-1">
-                    <h3 className="text-base md:text-lg font-semibold text-[#001D8D] mb-2 group-hover:translate-x-1 transition-all duration-300">
+                    <h3 className="text-base md:text-lg font-semibold text-[#001D8D] mb-2 group-hover:translate-x-1 group-hover:text-blue-600 transition-all duration-300">
                       {service.title}
                     </h3>
                     <p className="text-sm md:text-base text-[#001D8D]/70 leading-relaxed mb-4">
