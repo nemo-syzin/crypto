@@ -317,10 +317,10 @@ const ServicesSection = () => {
                   </p>
                   <button
                     onClick={() => openContactModal(region.name)}
-                    className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#001D8D] text-white rounded-lg hover:bg-[#001D8D]/90 transition-colors duration-200 text-sm font-medium"
+                    className="inline-flex items-center gap-1.5 text-[#001D8D] hover:gap-2.5 transition-all duration-200 text-sm font-medium group"
                   >
                     Получить консультацию
-                    <ArrowRight className="h-4 w-4" />
+                    <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
                   </button>
                 </div>
               </motion.div>
