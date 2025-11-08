@@ -63,7 +63,7 @@ const TrustSection = () => {
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-700 bg-[radial-gradient(circle_at_center,rgba(0,29,141,0.08)_0%,transparent_70%)] rounded-3xl"></div>
 
                 <div className="relative z-10">
-                  <h3 className="text-xl font-semibold text-[#001D8D] mb-2">{card.title}</h3>
+                  <h3 className="text-xl font-semibold text-[#001D8D] mb-2 group-hover:text-blue-600 transition-colors duration-200">{card.title}</h3>
                   <p className="text-[#001D8D]/70 leading-relaxed text-sm">
                     {card.description}
                   </p>

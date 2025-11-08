@@ -255,7 +255,7 @@ const ServicesSection = () => {
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-700 bg-[radial-gradient(circle_at_center,rgba(0,29,141,0.08)_0%,transparent_70%)] rounded-3xl"></div>
 
               <div className="relative z-10">
-                <h3 className="text-base md:text-lg font-semibold text-[#001D8D] mb-2">{benefit.title}</h3>
+                <h3 className="text-base md:text-lg font-semibold text-[#001D8D] mb-2 group-hover:text-blue-600 transition-colors duration-200">{benefit.title}</h3>
                 <p className="text-sm md:text-base text-[#001D8D]/70 leading-relaxed">
                   {benefit.description}
                 </p>

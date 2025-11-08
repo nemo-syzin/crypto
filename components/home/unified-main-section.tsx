@@ -463,40 +463,40 @@ const UnifiedMainSection = () => {
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-700 bg-[radial-gradient(circle_at_center,rgba(0,29,141,0.08)_0%,transparent_70%)] rounded-3xl"></div>
 
                 <div className="relative z-10">
-                <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-4">
+                <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-4 group-hover:text-blue-600 transition-colors duration-200">
                   Готовы начать обмен?
                 </h2>
                 <p className="text-base md:text-lg text-[#001D8D]/70 mb-8 leading-relaxed">
                   Создайте аккаунт уже сегодня и получите самый быстрый и безопасный способ конвертации USDT в рубли.
                 </p>
-                
+
                 <div className="space-y-4">
                   <div className="flex items-start gap-3">
                     <div className="mt-1 bg-[#001D8D]/5 p-2 rounded-full">
-                      <Wallet className="h-5 w-5 text-[#001D8D]" />
+                      <Wallet className="h-5 w-5 text-[#001D8D] group-hover:text-blue-600 transition-colors duration-200" />
                     </div>
                     <div>
-                      <h4 className="text-base font-semibold text-[#001D8D] mb-1">Быстрая настройка</h4>
+                      <h4 className="text-base font-semibold text-[#001D8D] mb-1 group-hover:text-blue-600 transition-colors duration-200">Быстрая настройка</h4>
                       <p className="text-sm md:text-base text-[#001D8D]/70 leading-relaxed">Начните работу за считанные минуты с нашим упрощенным процессом регистрации</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-start gap-3">
                     <div className="mt-1 bg-[#001D8D]/5 p-2 rounded-full">
-                      <TrendingUp className="h-5 w-5 text-[#001D8D]" />
+                      <TrendingUp className="h-5 w-5 text-[#001D8D] group-hover:text-blue-600 transition-colors duration-200" />
                     </div>
                     <div>
-                      <h4 className="text-base font-semibold text-[#001D8D] mb-1">Лучшие курсы</h4>
+                      <h4 className="text-base font-semibold text-[#001D8D] mb-1 group-hover:text-blue-600 transition-colors duration-200">Лучшие курсы</h4>
                       <p className="text-sm md:text-base text-[#001D8D]/70 leading-relaxed">Всегда получайте самые конкурентоспособные курсы обмена USDT на рубли</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-start gap-3">
                     <div className="mt-1 bg-[#001D8D]/5 p-2 rounded-full">
-                      <Shield className="h-5 w-5 text-[#001D8D]" />
+                      <Shield className="h-5 w-5 text-[#001D8D] group-hover:text-blue-600 transition-colors duration-200" />
                     </div>
                     <div>
-                      <h4 className="text-base font-semibold text-[#001D8D] mb-1">100% безопасность</h4>
+                      <h4 className="text-base font-semibold text-[#001D8D] mb-1 group-hover:text-blue-600 transition-colors duration-200">100% безопасность</h4>
                       <p className="text-sm md:text-base text-[#001D8D]/70 leading-relaxed">Ведущие в отрасли меры безопасности для защиты ваших активов</p>
                     </div>
                   </div>
@@ -514,7 +514,7 @@ const UnifiedMainSection = () => {
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-700 bg-[radial-gradient(circle_at_center,rgba(0,29,141,0.08)_0%,transparent_70%)] rounded-3xl"></div>
 
                 <div className="relative z-10">
-                <h3 className="text-2xl md:text-3xl font-bold text-[#001D8D] mb-4 text-center">
+                <h3 className="text-2xl md:text-3xl font-bold text-[#001D8D] mb-4 text-center group-hover:text-blue-600 transition-colors duration-200">
                   Начните сегодня
                 </h3>
                 <p className="text-base md:text-lg text-[#001D8D]/70 mb-8 text-center leading-relaxed">
