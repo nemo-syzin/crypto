@@ -136,11 +136,16 @@ const ServicesSection = () => {
             {services.map((service, index) => (
               <motion.div
                 key={index}
-                initial={{ opacity: 0, y: 15 }}
+                initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="group pb-8 border-b border-[#001D8D]/10 last:border-b-0"
+                transition={{
+                  duration: 0.3,
+                  delay: index * 0.08,
+                  ease: [0.25, 0.1, 0.25, 1]
+                }}
+                viewport={{ once: true, margin: "-30px" }}
+                className="group pb-8 border-b border-[#001D8D]/10 last:border-b-0 will-change-transform"
+                style={{ transform: 'translateZ(0)' }}
               >
                 <div className="flex flex-col sm:flex-row sm:items-start gap-4 sm:gap-6">
                   {/* Icon */}
@@ -207,11 +212,16 @@ const ServicesSection = () => {
           {workflowSteps.map((step, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 15 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.15 }}
-              viewport={{ once: true }}
-              className="p-6 rounded-2xl bg-white/90 backdrop-blur-sm border border-[#001D8D]/10 hover:shadow-lg transition-all duration-300"
+              transition={{
+                duration: 0.4,
+                delay: index * 0.1,
+                ease: [0.25, 0.1, 0.25, 1]
+              }}
+              viewport={{ once: true, margin: "-50px" }}
+              className="p-6 rounded-2xl bg-white/90 backdrop-blur-sm border border-[#001D8D]/10 hover:shadow-lg transition-all duration-300 will-change-transform"
+              style={{ transform: 'translateZ(0)' }}
             >
               <div className="text-5xl font-bold text-[#001D8D] mb-4 font-mono">
                 {step.number}
@@ -243,11 +253,16 @@ const ServicesSection = () => {
           {benefits.map((benefit, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 15 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              viewport={{ once: true }}
-              className="relative group p-8 rounded-3xl bg-gradient-to-br from-white/40 to-white/10 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,29,141,0.05)] transition-all duration-300 ease-out hover:shadow-[0_8px_40px_rgba(0,29,141,0.12)] hover:-translate-y-2 hover:bg-gradient-to-br hover:from-white/60 hover:to-white/20"
+              transition={{
+                duration: 0.4,
+                delay: index * 0.08,
+                ease: [0.25, 0.1, 0.25, 1]
+              }}
+              viewport={{ once: true, margin: "-50px" }}
+              className="relative group p-8 rounded-3xl bg-gradient-to-br from-white/40 to-white/10 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,29,141,0.05)] transition-all duration-300 ease-out hover:shadow-[0_8px_40px_rgba(0,29,141,0.12)] hover:-translate-y-2 hover:bg-gradient-to-br hover:from-white/60 hover:to-white/20 will-change-transform"
+              style={{ transform: 'translateZ(0)' }}
             >
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-700 bg-[radial-gradient(circle_at_center,rgba(0,29,141,0.08)_0%,transparent_70%)] rounded-3xl"></div>
 
@@ -278,11 +293,16 @@ const ServicesSection = () => {
           {regions.map((region, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, x: index % 2 === 0 ? -20 : 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              viewport={{ once: true }}
-              className="rounded-2xl bg-white/90 backdrop-blur-sm border border-[#001D8D]/10 hover:shadow-lg transition-all duration-300 overflow-hidden"
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.3,
+                delay: index * 0.06,
+                ease: [0.25, 0.1, 0.25, 1]
+              }}
+              viewport={{ once: true, margin: "-30px" }}
+              className="rounded-2xl bg-white/90 backdrop-blur-sm border border-[#001D8D]/10 hover:shadow-lg transition-all duration-300 overflow-hidden will-change-transform"
+              style={{ transform: 'translateZ(0)' }}
             >
               <button
                 onClick={() => toggleRegion(index)}
