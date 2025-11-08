@@ -182,7 +182,10 @@ const ServicesSection = () => {
           viewport={{ once: true }}
           className="text-center mb-24"
         >
-          <button className="px-6 py-3 bg-transparent border-2 border-[#001D8D] text-[#001D8D] text-base font-semibold rounded-full transition-all duration-300 hover:bg-[#001D8D]/5 hover:shadow-[0_0_20px_rgba(0,29,141,0.3)]">
+          <button
+            onClick={() => openContactModal('Консультация по финансовым услугам')}
+            className="px-6 py-3 bg-transparent border-2 border-[#001D8D] text-[#001D8D] text-base font-semibold rounded-full transition-all duration-300 hover:bg-[#001D8D]/5 hover:shadow-[0_0_20px_rgba(0,29,141,0.3)]"
+          >
             Получить консультацию
           </button>
         </motion.div>
