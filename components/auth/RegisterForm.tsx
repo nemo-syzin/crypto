@@ -18,7 +18,8 @@ import {
   EyeOff,
   Check,
   AlertCircle,
-  Loader2
+  Loader2,
+  CheckCircle
 } from 'lucide-react';
 
 interface FormData {
