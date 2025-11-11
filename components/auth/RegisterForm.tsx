@@ -125,6 +125,7 @@ export function RegisterForm() {
         email: formData.email,
         password: formData.password,
         options: {
+          emailRedirectTo: `${window.location.origin}/login`,
           data: {
             full_name: formData.fullName,
             accepted_aml_kyc: formData.acceptAmlKyc,
@@ -140,9 +141,15 @@ export function RegisterForm() {
 
       if (data.user) {
         setSuccess(true);
+
+        // Проверяем, подтвержден ли email автоматически
+        const emailConfirmed = data.user.email_confirmed_at !== null;
+
         toast({
           title: "Регистрация успешна!",
-          description: "Проверьте вашу электронную почту для подтверждения аккаунта.",
+          description: emailConfirmed
+            ? "Ваш аккаунт создан и активирован. Вы можете войти."
+            : "Проверьте вашу электронную почту для подтверждения аккаунта.",
         });
 
         // Перенаправляем на страницу входа через 3 секунды
@@ -190,8 +197,7 @@ export function RegisterForm() {
             Регистрация завершена!
           </h2>
           <p className="text-[#001D8D]/70 mb-6 leading-relaxed">
-            Мы отправили письмо с подтверждением на ваш email адрес. 
-            Пожалуйста, проверьте почту и перейдите по ссылке для активации аккаунта.
+            Ваш аккаунт успешно создан. Теперь вы можете войти в систему, используя указанные данные.
           </p>
           <p className="text-sm text-[#001D8D]/60">
             Вы будете автоматически перенаправлены на страницу входа через несколько секунд...
