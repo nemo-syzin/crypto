@@ -19,19 +19,19 @@ const Marquee = dynamic(() => import('react-fast-marquee'), {
 const features = [
   {
     title: "Выгодный курс",
-    description: "Получите лучший курс обмена USDT на рубли на рынке, обновляемый в реальном времени для максимальной выгоды.",
+    description: "Получайте актульные рыночные предложения, обновляемые в реальном времени для максимальной выгоды.",
   },
   {
     title: "Полная безопасность",
-    description: "Сквозное шифрование и защищенная обработка платежей гарантируют безопасность ваших транзакций и личных данных.",
+    description: "Все операции проходят через защищённое соединение, а лишние данные не запрашиваются и не сохраняются.",
   },
   {
-    title: "Быстрые транзакции",
-    description: "Совершайте обмены быстро благодаря нашей оптимизированной системе - большинство транзакций завершается менее чем за 15 минут.",
+    title: "Оперативное оформление сделок",
+    description: "Заявки на покупку и продажу обрабатываются оперативно: мы быстро подтверждаем курс и все детали.",
   },
   {
     title: "Простая верификация",
-    description: "Наш оптимизированный процесс KYC позволяет быстро пройти верификацию и начать торговлю с минимальными усилиями.",
+    description: "Наш оптимизированный процесс KYC позволяет быстро пройти верификацию и начать пользоваться услугами нашего сервиса.",
   }
 ];
 
@@ -53,19 +53,19 @@ const officeSteps = [
     description: "Перед совершением транзакции тщательно сверяем все символы криптокошелька. Это критически важный этап для обеспечения безопасности перевода."
   },
   {
-    title: "Совершение обмена",
+    title: "Основной этап",
     description: "Производим перевод криптовалюты или принимаем её от вас. После получения необходимых подтверждений в сети, передаём наличные или делаем перевод."
   },
   {
     title: "Завершение сделки",
-    description: "Выдаём вам квитанцию или копию заполненного бланка. Сделка считается успешно завершённой после подписания всех документов."
+    description: "Сделка считается успешно завершённой после подписания всех документов."
   }
 ];
 
 const onlineSteps = [
   {
     title: "Оформление заявки",
-    description: "Заполните форму обмена на сайте, указав сумму и направление обмена (USDT ⟷ RUB). Курс фиксируется на 15 минут."
+    description: "Заполните форму на сайте, указав сумму и направление обмена (USDT ⟷ RUB). Курс фиксируется на 15 минут."
   },
   {
     title: "Верификация личности",
@@ -256,10 +256,10 @@ const UnifiedMainSection = () => {
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-4">
-                Как проходит обмен
+                Как проходит покупка и продажа криптовалюты
               </h2>
               <p className="text-base md:text-lg text-[#001D8D]/70 max-w-3xl mx-auto leading-relaxed">
-                Выберите удобный способ обмена и следуйте простым шагам для безопасной и быстрой транзакции
+                Выберите удобный способ и следуйте простым шагам для безопасной и быстрой операции
               </p>
             </div>
 
@@ -375,7 +375,7 @@ const UnifiedMainSection = () => {
               </h2>
               <p className="text-base md:text-lg text-[#001D8D]/70 max-w-2xl mx-auto leading-relaxed">
                 Мы сотрудничаем с ведущими криптовалютными биржами и платформами для обеспечения 
-                безопасных и эффективных обменов
+                безопасности и эффективности
               </p>
             </motion.div>
 
@@ -464,10 +464,10 @@ const UnifiedMainSection = () => {
 
                 <div className="relative z-10">
                 <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-4 group-hover:text-blue-600 transition-colors duration-200">
-                  Готовы начать обмен?
+                  Готовы начать?
                 </h2>
                 <p className="text-base md:text-lg text-[#001D8D]/70 mb-8 leading-relaxed">
-                  Создайте аккаунт уже сегодня и получите самый быстрый и безопасный способ конвертации USDT в рубли.
+                  Создайте аккаунт уже сегодня.
                 </p>
 
                 <div className="space-y-4">
@@ -477,7 +477,7 @@ const UnifiedMainSection = () => {
                     </div>
                     <div>
                       <h4 className="text-base font-semibold text-[#001D8D] mb-1 group-hover:text-blue-600 transition-colors duration-200">Быстрая настройка</h4>
-                      <p className="text-sm md:text-base text-[#001D8D]/70 leading-relaxed">Начните работу за считанные минуты с нашим упрощенным процессом регистрации</p>
+                      <p className="text-sm md:text-base text-[#001D8D]/70 leading-relaxed">Начните работу за считанные минуты с оптимизированным процессом регистрации</p>
                     </div>
                   </div>
 
@@ -487,7 +487,7 @@ const UnifiedMainSection = () => {
                     </div>
                     <div>
                       <h4 className="text-base font-semibold text-[#001D8D] mb-1 group-hover:text-blue-600 transition-colors duration-200">Лучшие курсы</h4>
-                      <p className="text-sm md:text-base text-[#001D8D]/70 leading-relaxed">Всегда получайте самые конкурентоспособные курсы обмена USDT на рубли</p>
+                      <p className="text-sm md:text-base text-[#001D8D]/70 leading-relaxed">Всегда получайте самые конкурентоспособные курсы</p>
                     </div>
                   </div>
 
@@ -497,7 +497,7 @@ const UnifiedMainSection = () => {
                     </div>
                     <div>
                       <h4 className="text-base font-semibold text-[#001D8D] mb-1 group-hover:text-blue-600 transition-colors duration-200">100% безопасность</h4>
-                      <p className="text-sm md:text-base text-[#001D8D]/70 leading-relaxed">Ведущие в отрасли меры безопасности для защиты ваших активов</p>
+                      <p className="text-sm md:text-base text-[#001D8D]/70 leading-relaxed">Ведущие в отрасли меры безопасности</p>
                     </div>
                   </div>
                 </div>
@@ -518,7 +518,7 @@ const UnifiedMainSection = () => {
                   Начните сегодня
                 </h3>
                 <p className="text-base md:text-lg text-[#001D8D]/70 mb-8 text-center leading-relaxed">
-                  Зарегистрируйтесь всего за несколько минут и начните обменивать криптовалюту по лучшим курсам.
+                  Зарегистрируйтесь всего за несколько минут и начните пользоваться услугами нашего сервиса
                 </p>
                 
                 <div className="space-y-4">
