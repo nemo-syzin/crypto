@@ -144,7 +144,7 @@ export default function ProfessionalConverter() {
             transition={{ delay: 0.2, duration: 0.6 }}
             className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-[#0C1E5B] dark:text-white mb-4"
           >
-            Профессиональный обмен криптовалют
+             Сервис покупки и продажи криптовалюты
           </motion.h1>
           <motion.h2
             initial={{ opacity: 0, y: -10 }}
@@ -288,7 +288,7 @@ export default function ProfessionalConverter() {
               size="lg"
               className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white px-8 py-6 text-lg font-semibold rounded-full shadow-lg hover:shadow-[0_0_30px_rgba(37,99,235,0.4)] transition-all duration-300"
             >
-              Оставить заявку на обмен
+              Оставить заявку
             </Button>
           </motion.div>
         </motion.div>
