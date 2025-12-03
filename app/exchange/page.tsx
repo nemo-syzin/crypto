@@ -115,7 +115,7 @@ export default function ExchangePage() {
               className="text-center mb-0 mt-8"
             >
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-[#001D8D]">
-                Прозрачно.<span className="text-[#001D8D]">Честно.</span>Безопасно.
+                Прозрачно. <span className="text-[#001D8D]">Честно. </span>Безопасно.
               </h1>
             </motion.div>
 
