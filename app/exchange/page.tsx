@@ -115,7 +115,7 @@ export default function ExchangePage() {
               className="text-center mb-0 mt-8"
             >
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-[#001D8D]">
-                Профессиональный <span className="text-[#001D8D]">крипто</span> сервис
+                Выгодные, <span className="text-[#001D8D]">честные и</span> прозрачные условия 
               </h1>
             </motion.div>
 
