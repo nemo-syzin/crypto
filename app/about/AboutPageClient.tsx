@@ -28,7 +28,6 @@ import {
   Globe,
   Lightbulb
 } from 'lucide-react';
-import { CrystalVisualization } from '@/components/3d/CrystalVisualization';
 import Image from 'next/image';
 
 export function AboutPageClient() {
@@ -418,17 +417,6 @@ export function AboutPageClient() {
                   />
                 </div>
               </motion.div>
-            </motion.div>
-
-            {/* 3D Crystal Visualization for Strategic Goals */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              viewport={{ once: true }}
-              className="max-w-6xl mx-auto"
-            >
-              <CrystalVisualization />
             </motion.div>
 
             {/* Values Section - Manifesto Strip */}
