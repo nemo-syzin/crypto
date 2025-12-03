@@ -115,7 +115,7 @@ export default function ExchangePage() {
               className="text-center mb-0 mt-8"
             >
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-[#001D8D]">
-                Профессиональный <span className="text-[#001D8D]">обмен</span> криптовалют
+                Профессиональный <span className="text-[#001D8D]">крипто</span> сервис
               </h1>
             </motion.div>
 
@@ -184,17 +184,16 @@ export default function ExchangePage() {
               <div className="order-1 lg:order-2 space-y-6">
                 <div className="inline-flex items-center gap-2 bg-[#001D8D]/10 text-[#001D8D] px-4 py-2 rounded-full text-sm font-medium">
                   <Shield className="h-4 w-4" />
-                  Банковский уровень безопасности
+                  Ведущий в отрасли уровень безопасности
                 </div>
                 
                 <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D]">
-                  Максимальная защита ваших средств
+                  Надежная защита данных
                 </h2>
                 
                 <p className="text-lg text-[#001D8D]/70 leading-relaxed">
-                  Используем передовые технологии шифрования и многоуровневую систему защиты. 
-                  Все транзакции проходят через защищенные каналы с соблюдением международных 
-                  стандартов безопасности.
+                  Мы используем защищённое соединение и современные протоколы шифрования.
+                  Запрашиваем только минимально необходимые данные и не передаём их третьим лицам без необходимости.
                 </p>
                 
                 <div className="space-y-4">
@@ -203,8 +202,8 @@ export default function ExchangePage() {
                       <CheckCircle className="h-5 w-5 text-green-600" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-[#001D8D]">256-битное шифрование</h4>
-                      <p className="text-sm text-[#001D8D]/70">Тот же уровень защиты, что используют банки</p>
+                      <h4 className="font-semibold text-[#001D8D]">Защищённое соединение</h4>
+                      <p className="text-sm text-[#001D8D]/70">Вся передаваемая информация шифруется.</p>
                     </div>
                   </div>
                   
@@ -223,8 +222,8 @@ export default function ExchangePage() {
                       <Award className="h-5 w-5 text-purple-600" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-[#001D8D]">Лицензированная деятельность</h4>
-                      <p className="text-sm text-[#001D8D]/70">Официальная регистрация и лицензии</p>
+                      <h4 className="font-semibold text-[#001D8D]">Прозрачный формат работы</h4>
+                      <p className="text-sm text-[#001D8D]/70">Условия услуг и возможные риски проговариваем заранее, чтобы у вас было чёткое понимание, как проходит сделка.</p>
                     </div>
                   </div>
                 </div>
@@ -242,27 +241,28 @@ export default function ExchangePage() {
               <div className="space-y-6">
                 <div className="inline-flex items-center gap-2 bg-orange-100 text-orange-700 px-4 py-2 rounded-full text-sm font-medium">
                   <Zap className="h-4 w-4" />
-                  Мгновенные операции
+                  Опреативная работа сервиса 
                 </div>
                 
                 <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D]">
-                  Обмен за считанные минуты
+                  Быстрая обработка заявок
                 </h2>
                 
                 <p className="text-lg text-[#001D8D]/70 leading-relaxed">
-                  Автоматизированная система обработки транзакций обеспечивает максимальную скорость. 
-                  Большинство операций завершается менее чем за 15 минут с момента подтверждения.
+                  Вы отправляете запрос на покупку или продажу криптовалюты — мы быстро даём расчёт и варианты проведения сделки.
+                  В большинстве случаев первичный ответ занимает до 5 минут, а базовое согласование условий — до 15 минут после обращения.
+                  Мы ценим вас и ваше время!
                 </p>
                 
                 <div className="grid grid-cols-2 gap-6">
                   <div className="text-center p-4 bg-white/80 rounded-xl border border-[#001D8D]/10">
                     <div className="text-2xl font-bold text-[#001D8D] mb-1">{"< 5 мин"}</div>
-                    <div className="text-sm text-[#001D8D]/70">Верификация</div>
+                    <div className="text-sm text-[#001D8D]/70">Первичная обработка заявки</div>
                   </div>
                   
                   <div className="text-center p-4 bg-white/80 rounded-xl border border-[#001D8D]/10">
                     <div className="text-2xl font-bold text-[#001D8D] mb-1">{"< 15 мин"}</div>
-                    <div className="text-sm text-[#001D8D]/70">Полный обмен</div>
+                    <div className="text-sm text-[#001D8D]/70">Полное согласование условий</div>
                   </div>
                 </div>
               </div>
@@ -299,13 +299,13 @@ export default function ExchangePage() {
               <div className="text-center mb-12">
                 <div className="inline-flex items-center gap-2 bg-[#001D8D]/10 text-[#001D8D] px-6 py-3 text-lg mb-8 font-medium">
                   <BarChart3 className="h-6 w-6" />
-                  Преимущества нашего обмена
+                  Преимущества нашего сервиса
                 </div>
                 <h2 className="text-4xl md:text-5xl font-bold text-[#001D8D] mb-6 tracking-tight">
                   Почему выбирают KenigSwap
                 </h2>
                 <p className="text-xl text-[#001D8D]/70 max-w-4xl mx-auto leading-relaxed">
-                  Мы предоставляем комплексное решение для обмена криптовалют с фокусом на безопасность, 
+                  Мы предоставляем комплексное решение для покупки и продажи криптовалют с фокусом на безопасность, 
                   скорость и прозрачность. Каждое преимущество создано для вашего удобства и выгоды.
                 </p>
               </div>
@@ -325,11 +325,11 @@ export default function ExchangePage() {
               <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 opacity-50" />
               <div className="relative z-10">
                 <h2 className="text-3xl md:text-4xl font-bold mb-6">
-                  Готовы получить лучший курс обмена?
+                  Готовы получить лучший курс?
                 </h2>
                 <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-                  Начните обмен прямо сейчас и убедитесь в преимуществах нашего профессионального сервиса. 
-                  Получите конкурентные курсы и полную безопасность ваших средств.
+                  Начните прямо сейчас и убедитесь в преимуществах нашего профессионального сервиса. 
+                  Получите конкурентные курсы и полную информацию по вашей задаче.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <button
@@ -337,7 +337,7 @@ export default function ExchangePage() {
                     className="bg-white text-[#001D8D] hover:bg-gray-100 px-8 py-4 rounded-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <TrendingUp className="h-5 w-5" />
-                    Начать обмен сейчас
+                    Начать сейчас
                   </button>
                   <Link href="/about">
                     <button className="border-2 border-white/30 text-white hover:bg-white/10 px-8 py-4 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer">
