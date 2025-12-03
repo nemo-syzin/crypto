@@ -154,17 +154,15 @@ export function AboutPageClient() {
               >
                 <div className="inline-flex items-center gap-2 bg-[#001D8D]/10 text-[#001D8D] px-4 py-2 rounded-full text-sm font-medium">
                   <Shield className="h-4 w-4" />
-                  Банковский уровень безопасности
+                  Куда мы движемся
                 </div>
                 
                 <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D]">
-                  Максимальная защита ваших средств
+                  Наши цели 
                 </h2>
                 
                 <p className="text-lg text-[#001D8D]/70 leading-relaxed">
-                  Используем передовые технологии шифрования и многоуровневую систему защиты. 
-                  Все транзакции проходят через защищенные каналы с соблюдением международных 
-                  стандартов безопасности.
+                  Мы смотрим на работу не только через призму текущих сделок. У KenigSwap есть несколько долгосрочных целей, вокруг которых мы строим развитие компании.
                 </p>
                 
                 <div className="space-y-4">
@@ -173,8 +171,8 @@ export function AboutPageClient() {
                       <CheckCircle className="h-5 w-5 text-green-600" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-[#001D8D]">256-битное шифрование</h4>
-                      <p className="text-sm text-[#001D8D]/70">Тот же уровень защиты, что используют банки</p>
+                      <h4 className="font-semibold text-[#001D8D]">Доверительные отношения с клиентами</h4>
+                      <p className="text-sm text-[#001D8D]/70">Создавать и поддерживать долгосрочные, прозрачные и честные отношения с каждым клиентом. Мы открыто говорим о возможностях и ограничениях, чтобы у вас было реалистичное понимание условий и рисков.</p>
                     </div>
                   </div>
                   
@@ -183,8 +181,8 @@ export function AboutPageClient() {
                       <Shield className="h-5 w-5 text-blue-600" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-[#001D8D]">Соответствие AML/KYC</h4>
-                      <p className="text-sm text-[#001D8D]/70">Полное соблюдение международных требований</p>
+                      <h4 className="font-semibold text-[#001D8D]">Постоянное повышение квалификации команды</h4>
+                      <p className="text-sm text-[#001D8D]/70">Непрерывно развивать экспертизу специалистов, следить за изменениями в отрасли и обновлять внутренние регламенты, чтобы оставаться сильными и актуальными на рынке.</p>
                     </div>
                   </div>
                   
@@ -193,8 +191,8 @@ export function AboutPageClient() {
                       <Award className="h-5 w-5 text-purple-600" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-[#001D8D]">Лицензированная деятельность</h4>
-                      <p className="text-sm text-[#001D8D]/70">Официальная регистрация и лицензии</p>
+                      <h4 className="font-semibold text-[#001D8D]">Укрепление позиций и масштабирование</h4>
+                      <p className="text-sm text-[#001D8D]/70">Системно усиливать присутствие бренда и качество услуг, чтобы текущим клиентам было комфортно возвращаться, а новым — проще понимать, чем именно KenigSwap может быть полезен.</p>
                     </div>
                   </div>
                 </div>
