@@ -63,7 +63,7 @@ export default function NewsPage() {
               <div className="mt-8">
                 <Button
                   asChild
-                  className="bg-[#001D8D] hover:opacity-90 text-white rounded-xl px-6"
+                   className="bg-[#001D8D] hover:bg-[#001D8D] hover:text-white text-white rounded-xl px-6 opacity-100 hover:opacity-90"
                 >
                   <Link href={`/news/${featured.slug}`}>
                     Читать новость
