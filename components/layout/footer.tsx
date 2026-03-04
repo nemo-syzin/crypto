@@ -7,6 +7,7 @@ const footerLinks = [
   { href: '/exchange', label: 'Обмен' },
   { href: '/rates', label: 'Курсы' },
   { href: '/about', label: 'О нас' },
+  { href: '/news', label: 'Новости' },
   { href: '/support', label: 'Поддержка' },
 ];
 
@@ -106,6 +107,14 @@ const Footer = () => {
                   className="text-gray-600 hover:text-[#001D8D] transition-colors duration-200"
                 >
                   О нас
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/news"
+                  className="text-gray-600 hover:text-[#001D8D] transition-colors duration-200"
+                >
+                  Новости
                 </Link>
               </li>
             </ul>
