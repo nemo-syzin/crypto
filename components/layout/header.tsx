@@ -72,6 +72,10 @@ const Header = () => {
               О нас
             </Link>
 
+            <Link href="/news" className="text-[#001D8D] hover:opacity-80 transition-colors duration-200">
+              Новости
+            </Link>
+
             <div className="relative">
               <button
                 className="text-[#001D8D] hover:opacity-80 transition-colors duration-200 flex items-center gap-1"
@@ -265,6 +269,15 @@ const Header = () => {
                       className="p-2 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors"
                     >
                       О нас
+                    </Link>
+                  </SheetClose>
+
+                  <SheetClose asChild>
+                    <Link
+                      href="/news"
+                      className="p-2 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors"
+                    >
+                      Новости
                     </Link>
                   </SheetClose>
 
