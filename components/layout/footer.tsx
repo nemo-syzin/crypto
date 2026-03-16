@@ -4,17 +4,17 @@ import Image from 'next/image';
 import { Shield, FileText, Lock } from 'lucide-react';
 
 const footerLinks = [
-  { href: '/exchange', label: 'Обмен' },
-  { href: '/rates', label: 'Курсы' },
-  { href: '/about', label: 'О нас' },
-  { href: '/news', label: 'Новости' },
-  { href: '/support', label: 'Поддержка' },
+  { href: 'https://kenigswap.ru/exchange/', label: 'Обмен' },
+  { href: 'https://kenigswap.ru/rates/', label: 'Курсы' },
+  { href: 'https://kenigswap.ru/about/', label: 'О нас' },
+  { href: 'https://kenigswap.ru/news/', label: 'Новости' },
+  { href: 'https://kenigswap.ru/support/', label: 'Поддержка' },
 ];
 
 const policyLinks = [
-  { href: '/policy/aml-kyc', label: 'AML/CTF и KYC' },
-  { href: '/policy/terms', label: 'Условия использования' },
-  { href: '/policy/privacy', label: 'Политика конфиденциальности' },
+  { href: 'https://kenigswap.ru/policy/aml-kyc/', label: 'AML/CTF и KYC' },
+  { href: 'https://kenigswap.ru/policy/terms/', label: 'Условия использования' },
+  { href: 'https://kenigswap.ru/policy/privacy/', label: 'Политика конфиденциальности' },
 ];
 
 const Footer = () => {
@@ -22,9 +22,8 @@ const Footer = () => {
     <footer className="bg-transparent border-t border-gray-200/50 py-12 mt-24">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Logo and Description */}
           <div className="col-span-1 lg:col-span-1">
-            <Link href="/" className="flex items-center gap-2">
+            <Link href="https://kenigswap.ru/" className="flex items-center gap-2">
               <Image
                 src="/brand/kenigswap-logo.svg"
                 alt="KenigSwap"
@@ -40,7 +39,6 @@ const Footer = () => {
               выгодному курсу и с максимальной безопасностью.
             </p>
 
-            {/* Telegram Links */}
             <div className="mt-6 space-y-3">
               <div>
                 <h4 className="text-sm font-semibold text-gray-700 mb-2">Telegram-каналы:</h4>
@@ -80,7 +78,6 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Quick Links */}
           <div>
             <h3 className="font-bold text-lg mb-4 text-gray-900">Сервисы</h3>
             <ul className="space-y-2">
@@ -97,13 +94,12 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Company Info */}
           <div>
             <h3 className="font-bold text-lg mb-4 text-gray-900">Компания</h3>
             <ul className="space-y-2">
               <li>
                 <Link
-                  href="/about"
+                  href="https://kenigswap.ru/about/"
                   className="text-gray-600 hover:text-[#001D8D] transition-colors duration-200"
                 >
                   О нас
@@ -111,7 +107,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  href="/news"
+                  href="https://kenigswap.ru/news/"
                   className="text-gray-600 hover:text-[#001D8D] transition-colors duration-200"
                 >
                   Новости
@@ -120,7 +116,6 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Legal/Policy */}
           <div>
             <h3 className="font-bold text-lg mb-4 text-gray-900">Документы</h3>
             <ul className="space-y-2">
