@@ -23,16 +23,10 @@ const HeroSection = () => {
               />
             </div>
 
-            <div className="max-w-4xl mx-auto space-y-4">
+            <div className="max-w-3xl mx-auto space-y-4">
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-[#001D8D] leading-tight">
                 Обмен криптовалют в Калининграде
               </h1>
-
-              <p className="text-base sm:text-lg md:text-xl text-[#001D8D]/80 leading-relaxed max-w-3xl mx-auto">
-                KenigSwap — криптообменник в Калининграде для покупки и продажи
-                USDT, BTC, ETH, SOL и другой криптовалюты. Актуальные курсы,
-                сделки за наличные и безопасный сервис.
-              </p>
             </div>
 
             <div>
