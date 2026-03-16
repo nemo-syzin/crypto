@@ -1,95 +1,115 @@
 "use client";
-import React, { useState, useEffect } from 'react';
-import { motion, useAnimation } from 'framer-motion';
-import { useInView } from 'react-intersection-observer';
+
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowRight, Wallet, ChartBar as BarChart, Shield, Clock, DollarSign, Zap, CircleCheck as CheckCircle, Building2, Globe, TrendingUp, Banknote, FileText, Send } from 'lucide-react';
+import {
+  Wallet,
+  Shield,
+  Building2,
+  Globe,
+  TrendingUp,
+  CheckCircle
+} from 'lucide-react';
 import ServicesSection from '@/components/home/services-section';
 import WhyChooseKenigSwapTimeline from '@/components/home/WhyChooseKenigSwapTimeline';
 
-// Dynamic import for Marquee to prevent SSR issues
 const Marquee = dynamic(() => import('react-fast-marquee'), {
   ssr: false,
 });
 
-// Данные для секций
 const features = [
   {
     title: "Выгодный курс",
-    description: "Получайте актульные рыночные предложения, обновляемые в реальном времени для максимальной выгоды.",
+    description:
+      "Получайте актуальные рыночные предложения, которые регулярно обновляются, чтобы вы могли выбрать оптимальный момент для обмена криптовалюты.",
   },
   {
     title: "Полная безопасность",
-    description: "Все операции проходят через защищённое соединение, а лишние данные не запрашиваются и не сохраняются.",
+    description:
+      "Все операции проходят через защищённое соединение, а для проведения сделки мы запрашиваем только действительно необходимые данные.",
   },
   {
     title: "Оперативное оформление сделок",
-    description: "Заявки на покупку и продажу обрабатываются оперативно: мы быстро подтверждаем курс и все детали.",
+    description:
+      "Заявки на покупку и продажу криптовалюты обрабатываются быстро: мы оперативно подтверждаем курс, детали сделки и дальнейшие шаги.",
   },
   {
     title: "Простая верификация",
-    description: "Наш оптимизированный процесс KYC позволяет быстро пройти верификацию и начать пользоваться услугами нашего сервиса.",
+    description:
+      "Оптимизированный процесс проверки помогает быстрее пройти верификацию и воспользоваться услугами нашего сервиса без лишних сложностей.",
   }
 ];
 
 const officeSteps = [
   {
     title: "Визит в офис",
-    description: "Приходите в наш офис в удобное время по предварительной записи. При себе необходимо иметь паспорт для заполнения бланка обмена криптовалют."
+    description:
+      "Приходите в наш офис в удобное время по предварительной записи. При себе необходимо иметь паспорт для заполнения документов по обмену криптовалюты."
   },
   {
     title: "Проверка и заполнение документов",
-    description: "Заполняем бланк обмена криптовалюты, фиксируем сумму и курс. Сверяем паспортные данные и реквизиты криптовалютного кошелька."
+    description:
+      "Фиксируем сумму и курс, сверяем паспортные данные и реквизиты криптовалютного кошелька, чтобы подготовить сделку корректно и безопасно."
   },
   {
     title: "Проверка наличных средств",
-    description: "Тщательно пересчитываем наличные средства, подтверждая точную сумму обмена. Проверяем подлинность купюр."
+    description:
+      "Тщательно пересчитываем наличные средства, подтверждаем точную сумму обмена и проверяем подлинность купюр."
   },
   {
-    title: "Сверка данных криптокошелька",
-    description: "Перед совершением транзакции тщательно сверяем все символы криптокошелька. Это критически важный этап для обеспечения безопасности перевода."
+    title: "Сверка данных кошелька",
+    description:
+      "Перед переводом внимательно сверяем адрес криптокошелька. Это важный этап, который помогает исключить ошибки при отправке средств."
   },
   {
-    title: "Основной этап",
-    description: "Производим перевод криптовалюты или принимаем её от вас. После получения необходимых подтверждений в сети, передаём наличные или делаем перевод."
+    title: "Проведение сделки",
+    description:
+      "Осуществляем перевод криптовалюты или принимаем её от вас. После получения подтверждений в сети передаём наличные или выполняем перевод рублей."
   },
   {
     title: "Завершение сделки",
-    description: "Сделка считается успешно завершённой после подписания всех документов."
+    description:
+      "Сделка завершается после проверки всех данных и подписания необходимых документов."
   }
 ];
 
 const onlineSteps = [
   {
     title: "Оформление заявки",
-    description: "Заполните форму на сайте, указав сумму и направление обмена (USDT ⟷ RUB). Курс фиксируется на 15 минут."
+    description:
+      "Заполните форму на сайте, указав сумму и направление обмена. После этого мы подтверждаем условия и переходим к следующему этапу."
   },
   {
     title: "Верификация личности",
-    description: "Загрузите фото паспорта и селфи с паспортом. Процедура проходит автоматически, в редких случаях может потребоваться ручная проверка."
+    description:
+      "Для соблюдения требований безопасности и процедуры KYC может потребоваться подтверждение личности. Обычно этот этап занимает минимум времени."
   },
   {
     title: "Подтверждение реквизитов",
-    description: "Укажите реквизиты для получения средств (номер карты или криптокошелька). Внимательно проверьте правильность введённых данных."
+    description:
+      "Укажите реквизиты для получения средств: номер карты, банковские данные или адрес криптовалютного кошелька. Перед отправкой важно ещё раз всё проверить."
   },
   {
     title: "Перевод средств",
-    description: "Отправьте USDT на указанный кошелёк или осуществите перевод рублей по предоставленным реквизитам. Сохраните подтверждение транзакции."
+    description:
+      "Вы отправляете криптовалюту или рубли по согласованным реквизитам. После получения средств мы переходим к исполнению сделки."
   },
   {
     title: "Подтверждение получения",
-    description: "После получения средств с вашей стороны, мы осуществляем перевод в течение нескольких минут. Вы получаете уведомление о завершении сделки."
+    description:
+      "После поступления средств перевод с нашей стороны выполняется в кратчайшие сроки. Вы получаете уведомление о завершении операции."
   },
   {
     title: "Завершение обмена",
-    description: "Обмен завершён! Квитанция об операции отправляется на ваш email. История всех обменов доступна в личном кабинете."
+    description:
+      "После выполнения всех этапов сделка считается завершённой. При необходимости мы дополнительно подтверждаем детали операции."
   }
 ];
 
-// Оптимизированный массив партнеров без дублирования
 const partners = [
   {
     name: "Bitcoin",
@@ -97,7 +117,7 @@ const partners = [
     link: null
   },
   {
-    name: "USDC", 
+    name: "USDC",
     logo: "https://res.coinpaper.com/coinpaper/usd_coin_usdc_logo_33584e28ac.svg",
     link: null
   },
@@ -143,106 +163,96 @@ const partners = [
   }
 ];
 
+const stepsContainerVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.05,
+    },
+  },
+};
+
+const stepVariants = {
+  hidden: {
+    opacity: 0,
+    y: 15
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.3,
+      ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number]
+    },
+  },
+};
+
+const formatStepNumber = (index: number): string => {
+  return (index + 1).toString().padStart(2, '0');
+};
+
+const PartnerLogo = ({ partner, index }: { partner: typeof partners[0]; index: number }) => {
+  const logoElement = (
+    <img
+      src={partner.logo}
+      alt={`Логотип ${partner.name}`}
+      className="w-8 h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 xl:w-12 xl:h-12 object-contain"
+      loading={index < 6 ? "eager" : "lazy"}
+      onError={(e) => {
+        const target = e.currentTarget as HTMLImageElement;
+        const container = target.parentElement;
+        if (container) {
+          container.style.display = 'none';
+        }
+      }}
+    />
+  );
+
+  return (
+    <div className="flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200 hover:border-[#001D8D]/30 hover:shadow-lg transition-all duration-300 hover:scale-105 flex-shrink-0 mx-4 w-16 h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 xl:w-28 xl:h-28">
+      {partner.link ? (
+        <a
+          href={partner.link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-center w-full h-full"
+        >
+          {logoElement}
+        </a>
+      ) : (
+        logoElement
+      )}
+    </div>
+  );
+};
+
 const UnifiedMainSection = () => {
   const [activeTab, setActiveTab] = useState('office');
-
-  const containerVariants = {
-    hidden: {},
-    visible: {
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.5,
-      },
-    },
-  };
-
-  // Варианты анимации для шагов - оптимизированные для плавности
-  const stepsContainerVariants = {
-    hidden: {},
-    visible: {
-      transition: {
-        staggerChildren: 0.05, // Минимальная задержка для плавности
-      },
-    },
-  };
-
-  const stepVariants = {
-    hidden: {
-      opacity: 0,
-      y: 15
-    },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.3,
-        ease: [0.25, 0.1, 0.25, 1]
-      },
-    },
-  };
-
-  // Функция для форматирования номера шага в стиле манифеста
-  const formatStepNumber = (index: number): string => {
-    return (index + 1).toString().padStart(2, '0');
-  };
-
-  // ✅ УЛУЧШЕННЫЙ КОМПОНЕНТ ЛОГОТИПА ПАРТНЕРА - адаптивные размеры
-  const PartnerLogo = ({ partner, index }: { partner: typeof partners[0]; index: number }) => {
-    const logoElement = (
-      <img
-        src={partner.logo}
-        alt={`${partner.name} - Криптовалютная биржа`}
-        className="w-8 h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 xl:w-12 xl:h-12 object-contain"
-        loading={index < 6 ? "eager" : "lazy"}
-        onError={(e) => {
-          const target = e.currentTarget as HTMLImageElement;
-          const container = target.parentElement;
-          if (container) {
-            container.style.display = 'none';
-          }
-        }}
-      />
-    );
-
-    return (
-      <div
-        className="flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200 hover:border-[#001D8D]/30 hover:shadow-lg transition-all duration-300 hover:scale-105 flex-shrink-0 mx-4 w-16 h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 xl:w-28 xl:h-28"
-      >
-        {partner.link ? (
-          <a 
-            href={partner.link} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="flex items-center justify-center w-full h-full"
-          >
-            {logoElement}
-          </a>
-        ) : (
-          logoElement
-        )}
-      </div>
-    );
-  };
 
   return (
     <section className="relative py-20 bg-transparent overflow-hidden">
       <div className="container mx-auto px-4 relative z-10">
         <div className="space-y-24">
-          
-          {/* 1. Features Section - Timeline Style */}
+
+          <motion.div
+            initial={false}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
+            className="max-w-4xl mx-auto text-center"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-4">
+              Криптообменник KenigSwap
+            </h2>
+            <p className="text-base md:text-lg text-[#001D8D]/70 leading-relaxed">
+              KenigSwap — сервис обмена криптовалют в Калининграде. Мы помогаем купить и
+              продать USDT, BTC, ETH, SOL и другие цифровые активы, предлагаем
+              актуальные курсы, сделки за наличные и сопровождение на каждом этапе.
+            </p>
+          </motion.div>
+
           <WhyChooseKenigSwapTimeline items={features} />
 
-          {/* 1.5. Services Section */}
           <motion.div
             initial={false}
             whileInView={{ opacity: 1, y: 0 }}
@@ -252,14 +262,14 @@ const UnifiedMainSection = () => {
             <ServicesSection />
           </motion.div>
 
-          {/* 2. Deal Process Section - Без плашки */}
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-4">
-                Как проходит покупка и продажа криптовалюты
+                Как проходит обмен криптовалюты
               </h2>
               <p className="text-base md:text-lg text-[#001D8D]/70 max-w-3xl mx-auto leading-relaxed">
-                Выберите удобный способ и следуйте простым шагам для безопасной и быстрой операции
+                Выберите удобный формат сделки и следуйте простым шагам для безопасной
+                и понятной покупки или продажи криптовалюты.
               </p>
             </div>
 
@@ -291,7 +301,6 @@ const UnifiedMainSection = () => {
                       >
                         <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(circle_at_center,rgba(0,29,141,0.08)_0%,transparent_70%)] rounded-3xl"></div>
                         <div className="flex items-start gap-4">
-                          {/* Номер в стиле манифеста с анимацией */}
                           <motion.div
                             className="flex-shrink-0"
                             whileHover={{ scale: 1.05 }}
@@ -302,11 +311,9 @@ const UnifiedMainSection = () => {
                             </div>
                           </motion.div>
                           <div className="flex-1">
-                            <div className="flex justify-between items-start">
-                              <h3 className="text-lg md:text-xl font-bold text-[#001D8D] mb-2 group-hover:text-blue-600 transition-colors duration-200">
-                                {step.title}
-                              </h3>
-                            </div>
+                            <h3 className="text-lg md:text-xl font-bold text-[#001D8D] mb-2 group-hover:text-blue-600 transition-colors duration-200">
+                              {step.title}
+                            </h3>
                             <p className="text-sm md:text-base text-[#001D8D]/70 leading-relaxed">
                               {step.description}
                             </p>
@@ -332,7 +339,6 @@ const UnifiedMainSection = () => {
                       >
                         <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(circle_at_center,rgba(0,29,141,0.08)_0%,transparent_70%)] rounded-3xl"></div>
                         <div className="flex items-start gap-4">
-                          {/* Номер в стиле манифеста с анимацией */}
                           <motion.div
                             className="flex-shrink-0"
                             whileHover={{ scale: 1.05 }}
@@ -343,11 +349,9 @@ const UnifiedMainSection = () => {
                             </div>
                           </motion.div>
                           <div className="flex-1">
-                            <div className="flex justify-between items-start">
-                              <h3 className="text-lg md:text-xl font-bold text-[#001D8D] mb-2 group-hover:text-blue-600 transition-colors duration-200">
-                                {step.title}
-                              </h3>
-                            </div>
+                            <h3 className="text-lg md:text-xl font-bold text-[#001D8D] mb-2 group-hover:text-blue-600 transition-colors duration-200">
+                              {step.title}
+                            </h3>
                             <p className="text-sm md:text-base text-[#001D8D]/70 leading-relaxed">
                               {step.description}
                             </p>
@@ -361,7 +365,6 @@ const UnifiedMainSection = () => {
             </div>
           </div>
 
-          {/* 3. Partners Section - ✅ ТОЛЬКО ДВЕ СТРОКИ БЕЗ ПРОПУСКОВ */}
           <div>
             <motion.div
               initial={false}
@@ -374,14 +377,12 @@ const UnifiedMainSection = () => {
                 Наши партнёры
               </h2>
               <p className="text-base md:text-lg text-[#001D8D]/70 max-w-2xl mx-auto leading-relaxed">
-                Мы сотрудничаем с ведущими криптовалютными биржами и платформами для обеспечения 
-                безопасности и эффективности
+                Мы сотрудничаем с проверенными платформами и используем надёжную
+                инфраструктуру для безопасного и эффективного обмена криптовалюты.
               </p>
             </motion.div>
 
-            {/* Оптимизированные ленты партнеров */}
             <div className="relative mb-12 overflow-hidden">
-              {/* Первая лента - слева направо */}
               <div className="mb-6">
                 <Marquee
                   gradient={false}
@@ -392,16 +393,15 @@ const UnifiedMainSection = () => {
                   {partners
                     .filter(partner => partner.logo && partner.name)
                     .map((partner, index) => (
-                      <PartnerLogo 
+                      <PartnerLogo
                         key={`${partner.name}-${index}`}
-                        partner={partner} 
-                        index={index} 
+                        partner={partner}
+                        index={index}
                       />
                     ))}
                 </Marquee>
               </div>
 
-              {/* Вторая лента - справа налево */}
               <div>
                 <Marquee
                   gradient={false}
@@ -413,17 +413,16 @@ const UnifiedMainSection = () => {
                   {partners
                     .filter(partner => partner.logo && partner.name)
                     .map((partner, index) => (
-                      <PartnerLogo 
+                      <PartnerLogo
                         key={`reverse-${partner.name}-${index}`}
-                        partner={partner} 
-                        index={index} 
+                        partner={partner}
+                        index={index}
                       />
                     ))}
                 </Marquee>
               </div>
             </div>
 
-            {/* Trust indicators */}
             <motion.div
               initial={false}
               whileInView={{ opacity: 1, y: 0 }}
@@ -434,21 +433,20 @@ const UnifiedMainSection = () => {
               <div className="flex flex-wrap justify-center items-center gap-8 text-sm text-[#001D8D]/60">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  <span>Проверенные партнеры</span>
+                  <span>Проверенные партнёры</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                  <span>Лицензированные биржи</span>
+                  <span>Надёжная инфраструктура</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
-                  <span>Высокие рейтинги безопасности</span>
+                  <span>Высокие стандарты безопасности</span>
                 </div>
               </div>
             </motion.div>
           </div>
 
-          {/* 4. CTA Section - Calculator Style */}
           <div className="max-w-5xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <motion.div
@@ -463,44 +461,58 @@ const UnifiedMainSection = () => {
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-700 bg-[radial-gradient(circle_at_center,rgba(0,29,141,0.08)_0%,transparent_70%)] rounded-3xl"></div>
 
                 <div className="relative z-10">
-                <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-4 group-hover:text-blue-600 transition-colors duration-200">
-                  Готовы начать?
-                </h2>
-                <p className="text-base md:text-lg text-[#001D8D]/70 mb-8 leading-relaxed">
-                  Создайте аккаунт уже сегодня.
-                </p>
+                  <h2 className="text-3xl md:text-4xl font-bold text-[#001D8D] mb-4 group-hover:text-blue-600 transition-colors duration-200">
+                    Готовы обменять криптовалюту?
+                  </h2>
+                  <p className="text-base md:text-lg text-[#001D8D]/70 mb-8 leading-relaxed">
+                    Оставьте заявку на покупку или продажу USDT и другой криптовалюты
+                    и получите понятные условия, актуальный курс и сопровождение на
+                    каждом этапе сделки.
+                  </p>
 
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <div className="mt-1 bg-[#001D8D]/5 p-2 rounded-full">
-                      <Wallet className="h-5 w-5 text-[#001D8D] group-hover:text-blue-600 transition-colors duration-200" />
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-3">
+                      <div className="mt-1 bg-[#001D8D]/5 p-2 rounded-full">
+                        <Wallet className="h-5 w-5 text-[#001D8D] group-hover:text-blue-600 transition-colors duration-200" />
+                      </div>
+                      <div>
+                        <h4 className="text-base font-semibold text-[#001D8D] mb-1 group-hover:text-blue-600 transition-colors duration-200">
+                          Быстрое оформление
+                        </h4>
+                        <p className="text-sm md:text-base text-[#001D8D]/70 leading-relaxed">
+                          Понятный процесс обращения и оперативное согласование условий сделки.
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="text-base font-semibold text-[#001D8D] mb-1 group-hover:text-blue-600 transition-colors duration-200">Быстрая настройка</h4>
-                      <p className="text-sm md:text-base text-[#001D8D]/70 leading-relaxed">Начните работу за считанные минуты с оптимизированным процессом регистрации</p>
+
+                    <div className="flex items-start gap-3">
+                      <div className="mt-1 bg-[#001D8D]/5 p-2 rounded-full">
+                        <TrendingUp className="h-5 w-5 text-[#001D8D] group-hover:text-blue-600 transition-colors duration-200" />
+                      </div>
+                      <div>
+                        <h4 className="text-base font-semibold text-[#001D8D] mb-1 group-hover:text-blue-600 transition-colors duration-200">
+                          Актуальные курсы
+                        </h4>
+                        <p className="text-sm md:text-base text-[#001D8D]/70 leading-relaxed">
+                          Вы получаете прозрачные условия и конкурентоспособные предложения.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <div className="mt-1 bg-[#001D8D]/5 p-2 rounded-full">
+                        <Shield className="h-5 w-5 text-[#001D8D] group-hover:text-blue-600 transition-colors duration-200" />
+                      </div>
+                      <div>
+                        <h4 className="text-base font-semibold text-[#001D8D] mb-1 group-hover:text-blue-600 transition-colors duration-200">
+                          Безопасный формат работы
+                        </h4>
+                        <p className="text-sm md:text-base text-[#001D8D]/70 leading-relaxed">
+                          Мы уделяем особое внимание защите данных, проверке деталей сделки и безопасности перевода.
+                        </p>
+                      </div>
                     </div>
                   </div>
-
-                  <div className="flex items-start gap-3">
-                    <div className="mt-1 bg-[#001D8D]/5 p-2 rounded-full">
-                      <TrendingUp className="h-5 w-5 text-[#001D8D] group-hover:text-blue-600 transition-colors duration-200" />
-                    </div>
-                    <div>
-                      <h4 className="text-base font-semibold text-[#001D8D] mb-1 group-hover:text-blue-600 transition-colors duration-200">Лучшие курсы</h4>
-                      <p className="text-sm md:text-base text-[#001D8D]/70 leading-relaxed">Всегда получайте самые конкурентоспособные курсы</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <div className="mt-1 bg-[#001D8D]/5 p-2 rounded-full">
-                      <Shield className="h-5 w-5 text-[#001D8D] group-hover:text-blue-600 transition-colors duration-200" />
-                    </div>
-                    <div>
-                      <h4 className="text-base font-semibold text-[#001D8D] mb-1 group-hover:text-blue-600 transition-colors duration-200">100% безопасность</h4>
-                      <p className="text-sm md:text-base text-[#001D8D]/70 leading-relaxed">Ведущие в отрасли меры безопасности</p>
-                    </div>
-                  </div>
-                </div>
                 </div>
               </motion.div>
 
@@ -514,33 +526,37 @@ const UnifiedMainSection = () => {
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-700 bg-[radial-gradient(circle_at_center,rgba(0,29,141,0.08)_0%,transparent_70%)] rounded-3xl"></div>
 
                 <div className="relative z-10">
-                <h3 className="text-2xl md:text-3xl font-bold text-[#001D8D] mb-4 text-center group-hover:text-blue-600 transition-colors duration-200">
-                  Начните сегодня
-                </h3>
-                <p className="text-base md:text-lg text-[#001D8D]/70 mb-8 text-center leading-relaxed">
-                  Зарегистрируйтесь всего за несколько минут и начните пользоваться услугами нашего сервиса
-                </p>
-                
-                <div className="space-y-4">
-                  <Link href="https://kenigswap.ru/register/">
-                    <Button 
-                      size="lg" 
-                      className="w-full mb-4 bg-[#001D8D] hover:bg-[#001D8D]/90 text-white font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
-                    >
-                      Создать аккаунт
-                    </Button>
-                  </Link>
-                  
-                  <Link href="https://kenigswap.ru/login/" className="block">
-                    <button className="w-full border-2 border-[#001D8D]/20 text-[#001D8D] hover:bg-[#001D8D]/5 px-6 py-3 rounded-lg font-semibold transition-all duration-300">
-                      Войти
-                    </button>
-                  </Link>
-                </div>
-                
-                <div className="mt-8 text-center text-sm text-[#001D8D]/60">
-                  Уже есть аккаунт? <Link href="https://kenigswap.ru/login/" className="text-[#001D8D] hover:underline">Войти</Link>
-                </div>
+                  <h3 className="text-2xl md:text-3xl font-bold text-[#001D8D] mb-4 text-center group-hover:text-blue-600 transition-colors duration-200">
+                    Перейдите к обмену
+                  </h3>
+                  <p className="text-base md:text-lg text-[#001D8D]/70 mb-8 text-center leading-relaxed">
+                    Откройте страницу обмена, выберите нужное направление и начните сделку
+                    в удобном для вас формате.
+                  </p>
+
+                  <div className="space-y-4">
+                    <Link href="https://kenigswap.ru/exchange/">
+                      <Button
+                        size="lg"
+                        className="w-full mb-4 bg-[#001D8D] hover:bg-[#001D8D]/90 text-white font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                      >
+                        Начать обмен
+                      </Button>
+                    </Link>
+
+                    <Link href="https://kenigswap.ru/rates/" className="block">
+                      <button className="w-full border-2 border-[#001D8D]/20 text-[#001D8D] hover:bg-[#001D8D]/5 px-6 py-3 rounded-lg font-semibold transition-all duration-300">
+                        Посмотреть курсы
+                      </button>
+                    </Link>
+                  </div>
+
+                  <div className="mt-8 text-center text-sm text-[#001D8D]/60">
+                    Нужна помощь?{" "}
+                    <Link href="https://kenigswap.ru/support/" className="text-[#001D8D] hover:underline">
+                      Связаться с поддержкой
+                    </Link>
+                  </div>
                 </div>
               </motion.div>
             </div>
