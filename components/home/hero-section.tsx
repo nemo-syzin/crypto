@@ -9,20 +9,30 @@ import HeroShell from "@/components/ui/HeroShell";
 const HeroSection = () => {
   return (
     <HeroShell>
-      <div className="relative flex items-center justify-center min-h-screen">
-        <h1 className="sr-only">Обмен криптовалют в Калининграде</h1>
-
+      <section className="relative flex items-center justify-center min-h-screen">
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="space-y-8">
-            <div className="flex justify-center mb-8">
+            <div className="flex justify-center mb-6">
               <Image
                 src="/brand/kenigswap-logo.svg"
-                alt="KenigSwap — обмен криптовалют"
+                alt="KenigSwap — криптообменник в Калининграде"
                 width={800}
                 height={200}
                 priority
                 className="w-full max-w-4xl h-auto"
               />
+            </div>
+
+            <div className="max-w-4xl mx-auto space-y-4">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-[#001D8D] leading-tight">
+                Обмен криптовалют в Калининграде
+              </h1>
+
+              <p className="text-base sm:text-lg md:text-xl text-[#001D8D]/80 leading-relaxed max-w-3xl mx-auto">
+                KenigSwap — криптообменник в Калининграде для покупки и продажи
+                USDT, BTC, ETH, SOL и другой криптовалюты. Актуальные курсы,
+                сделки за наличные и безопасный сервис.
+              </p>
             </div>
 
             <div>
@@ -37,7 +47,7 @@ const HeroSection = () => {
             </div>
           </div>
         </div>
-      </div>
+      </section>
     </HeroShell>
   );
 };
