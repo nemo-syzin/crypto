@@ -206,7 +206,7 @@ export function LoginForm() {
           {/* Забыли пароль */}
           <div className="text-right">
             <Link 
-              href="/forgot-password"
+              href="https://kenigswap.ru/forgot-password/"
               className="text-sm text-[#001D8D] hover:underline"
             >
               Забыли пароль?
@@ -234,7 +234,7 @@ export function LoginForm() {
             <p className="text-[#001D8D]/70">
               Нет аккаунта?{' '}
               <Link 
-                href="/register" 
+                href="https://kenigswap.ru/register/" 
                 className="text-[#001D8D] font-semibold hover:underline"
               >
                 Создать аккаунт
