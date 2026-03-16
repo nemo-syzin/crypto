@@ -172,7 +172,7 @@ export default function ExchangeStepForm() {
           {/* Заголовок */}
           <div className="text-center mb-8">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3">
-              Конвертер и калькулятор криптовалют
+              Калькулятор обмена
             </h1>
             {rate && !rateError && (
               <div className="flex items-center justify-center gap-2">
