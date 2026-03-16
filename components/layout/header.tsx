@@ -47,7 +47,7 @@ const Header = () => {
     >
       <div className="container mx-auto px-4 relative">
         <div className="flex items-center justify-between h-20">
-          <Link href="/" className="flex items-center gap-3">
+          <Link href="https://kenigswap.ru/" className="flex items-center gap-3">
             <Image
               src="/brand/kenigswap-logo.svg"
               alt="KenigSwap"
@@ -60,19 +60,19 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-12 absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2">
-            <Link href="/exchange" className="text-[#001D8D] hover:opacity-80 transition-colors duration-200">
+            <Link href="https://kenigswap.ru/exchange/" className="text-[#001D8D] hover:opacity-80 transition-colors duration-200">
               Обмен
             </Link>
 
-            <Link href="/rates" className="text-[#001D8D] hover:opacity-80 transition-colors duration-200">
+            <Link href="https://kenigswap.ru/rates/" className="text-[#001D8D] hover:opacity-80 transition-colors duration-200">
               Курсы
             </Link>
 
-            <Link href="/about" className="text-[#001D8D] hover:opacity-80 transition-colors duration-200">
+            <Link href="https://kenigswap.ru/about/" className="text-[#001D8D] hover:opacity-80 transition-colors duration-200">
               О нас
             </Link>
 
-            <Link href="/news" className="text-[#001D8D] hover:opacity-80 transition-colors duration-200">
+            <Link href="https://kenigswap.ru/news/" className="text-[#001D8D] hover:opacity-80 transition-colors duration-200">
               Новости
             </Link>
 
@@ -95,21 +95,21 @@ const Header = () => {
                   onMouseLeave={() => setPolicyDropdownOpen(false)}
                 >
                   <Link
-                    href="/policy/aml-kyc"
+                    href="https://kenigswap.ru/policy/aml-kyc/"
                     className="block px-4 py-3 text-sm text-[#001D8D] hover:bg-[#001D8D]/5 transition-colors"
                     onClick={() => setPolicyDropdownOpen(false)}
                   >
                     AML/CTF и KYC
                   </Link>
                   <Link
-                    href="/policy/terms"
+                    href="https://kenigswap.ru/policy/terms/"
                     className="block px-4 py-3 text-sm text-[#001D8D] hover:bg-[#001D8D]/5 transition-colors"
                     onClick={() => setPolicyDropdownOpen(false)}
                   >
                     Условия использования
                   </Link>
                   <Link
-                    href="/policy/privacy"
+                    href="https://kenigswap.ru/policy/privacy/"
                     className="block px-4 py-3 text-sm text-[#001D8D] hover:bg-[#001D8D]/5 transition-colors"
                     onClick={() => setPolicyDropdownOpen(false)}
                   >
@@ -119,7 +119,7 @@ const Header = () => {
               )}
             </div>
 
-            <Link href="/support" className="text-[#001D8D] hover:opacity-80 transition-colors duration-200">
+            <Link href="https://kenigswap.ru/support/" className="text-[#001D8D] hover:opacity-80 transition-colors duration-200">
               Поддержка
             </Link>
           </nav>
@@ -171,7 +171,7 @@ const Header = () => {
                     </div>
 
                     <Link
-                      href="/dashboard"
+                      href="https://kenigswap.ru/dashboard/"
                       className="flex items-center gap-2 px-4 py-3 text-sm text-[#001D8D] hover:bg-[#001D8D]/5 transition-colors"
                       onClick={() => setUserDropdownOpen(false)}
                     >
@@ -180,7 +180,7 @@ const Header = () => {
                     </Link>
 
                     <Link
-                      href="/operator-dashboard"
+                      href="https://kenigswap.ru/operator-dashboard/"
                       className="flex items-center gap-2 px-4 py-3 text-sm text-[#001D8D] hover:bg-[#001D8D]/5 transition-colors"
                       onClick={() => setUserDropdownOpen(false)}
                     >
@@ -208,11 +208,11 @@ const Header = () => {
             ) : (
               <>
                 <Button asChild variant="ghost" className="text-[#001D8D] hover:bg-[#001D8D]/10">
-                  <Link href="/login">Вход</Link>
+                  <Link href="https://kenigswap.ru/login/">Вход</Link>
                 </Button>
 
                 <Button asChild className="bg-[#001D8D] hover:opacity-90 text-white font-medium">
-                  <Link href="/register">Регистрация</Link>
+                  <Link href="https://kenigswap.ru/register/">Регистрация</Link>
                 </Button>
               </>
             )}
@@ -247,7 +247,7 @@ const Header = () => {
                 <nav className="flex flex-col gap-4 mt-8">
                   <SheetClose asChild>
                     <Link
-                      href="/exchange"
+                      href="https://kenigswap.ru/exchange/"
                       className="p-2 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors"
                     >
                       Обмен
@@ -256,7 +256,7 @@ const Header = () => {
 
                   <SheetClose asChild>
                     <Link
-                      href="/rates"
+                      href="https://kenigswap.ru/rates/"
                       className="p-2 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors"
                     >
                       Курсы
@@ -265,7 +265,7 @@ const Header = () => {
 
                   <SheetClose asChild>
                     <Link
-                      href="/about"
+                      href="https://kenigswap.ru/about/"
                       className="p-2 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors"
                     >
                       О нас
@@ -274,7 +274,7 @@ const Header = () => {
 
                   <SheetClose asChild>
                     <Link
-                      href="/news"
+                      href="https://kenigswap.ru/news/"
                       className="p-2 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors"
                     >
                       Новости
@@ -286,7 +286,7 @@ const Header = () => {
                     <div className="pl-4 flex flex-col gap-2">
                       <SheetClose asChild>
                         <Link
-                          href="/policy/aml-kyc"
+                          href="https://kenigswap.ru/policy/aml-kyc/"
                           className="p-2 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors text-sm"
                         >
                           AML/CTF и KYC
@@ -295,7 +295,7 @@ const Header = () => {
 
                       <SheetClose asChild>
                         <Link
-                          href="/policy/terms"
+                          href="https://kenigswap.ru/policy/terms/"
                           className="p-2 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors text-sm"
                         >
                           Условия использования
@@ -304,7 +304,7 @@ const Header = () => {
 
                       <SheetClose asChild>
                         <Link
-                          href="/policy/privacy"
+                          href="https://kenigswap.ru/policy/privacy/"
                           className="p-2 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors text-sm"
                         >
                           Политика конфиденциальности
@@ -315,7 +315,7 @@ const Header = () => {
 
                   <SheetClose asChild>
                     <Link
-                      href="/support"
+                      href="https://kenigswap.ru/support/"
                       className="p-2 text-[#001D8D] hover:bg-[#001D8D]/5 rounded-md transition-colors"
                     >
                       Поддержка
@@ -341,7 +341,7 @@ const Header = () => {
 
                     <SheetClose asChild>
                       <Button asChild variant="ghost" className="text-[#001D8D] hover:bg-[#001D8D]/5">
-                        {user ? <Link href="/dashboard">Личный кабинет</Link> : <Link href="/login">Вход</Link>}
+                        {user ? <Link href="https://kenigswap.ru/dashboard/">Личный кабинет</Link> : <Link href="https://kenigswap.ru/login/">Вход</Link>}
                       </Button>
                     </SheetClose>
 
@@ -349,7 +349,7 @@ const Header = () => {
                       <>
                         <SheetClose asChild>
                           <Button asChild variant="ghost" className="text-[#001D8D] hover:bg-[#001D8D]/5">
-                            <Link href="/operator-dashboard">Панель оператора</Link>
+                            <Link href="https://kenigswap.ru/operator-dashboard/">Панель оператора</Link>
                           </Button>
                         </SheetClose>
 
@@ -371,7 +371,7 @@ const Header = () => {
                     ) : (
                       <SheetClose asChild>
                         <Button asChild className="bg-[#001D8D] hover:opacity-90 text-white">
-                          <Link href="/register">Регистрация</Link>
+                          <Link href="https://kenigswap.ru/register/">Регистрация</Link>
                         </Button>
                       </SheetClose>
                     )}
