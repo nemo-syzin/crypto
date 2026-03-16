@@ -326,7 +326,7 @@ export default function ExchangePage() {
                     <TrendingUp className="h-5 w-5" />
                     Начать сейчас
                   </button>
-                  <Link href="/about">
+                  <Link href="https://kenigswap.ru/about/">
                     <button className="border-2 border-white/30 text-white hover:bg-white/10 px-8 py-4 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer">
                       Узнать больше о сервисе
                     </button>
