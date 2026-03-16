@@ -522,7 +522,7 @@ const UnifiedMainSection = () => {
                 </p>
                 
                 <div className="space-y-4">
-                  <Link href="/register">
+                  <Link href="https://kenigswap.ru/register/">
                     <Button 
                       size="lg" 
                       className="w-full mb-4 bg-[#001D8D] hover:bg-[#001D8D]/90 text-white font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
@@ -531,7 +531,7 @@ const UnifiedMainSection = () => {
                     </Button>
                   </Link>
                   
-                  <Link href="/login" className="block">
+                  <Link href="https://kenigswap.ru/login/" className="block">
                     <button className="w-full border-2 border-[#001D8D]/20 text-[#001D8D] hover:bg-[#001D8D]/5 px-6 py-3 rounded-lg font-semibold transition-all duration-300">
                       Войти
                     </button>
@@ -539,7 +539,7 @@ const UnifiedMainSection = () => {
                 </div>
                 
                 <div className="mt-8 text-center text-sm text-[#001D8D]/60">
-                  Уже есть аккаунт? <Link href="/login" className="text-[#001D8D] hover:underline">Войти</Link>
+                  Уже есть аккаунт? <Link href="https://kenigswap.ru/login/" className="text-[#001D8D] hover:underline">Войти</Link>
                 </div>
                 </div>
               </motion.div>
