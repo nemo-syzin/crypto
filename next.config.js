@@ -14,6 +14,7 @@ function getWebpackSafe() {
 
 const nextConfig = {
   reactStrictMode: true,
+  trailingSlash: true,
 
   eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
@@ -38,28 +39,22 @@ const nextConfig = {
   webpack: (config, { isServer }) => {
     const wp = getWebpackSafe();
 
-    // Страховочные guards на всякий
     config.module = config.module || {};
     config.resolve = config.resolve || {};
     config.resolve.alias = config.resolve.alias || {};
     config.optimization = config.optimization || {};
     if (!config.plugins) config.plugins = [];
 
-    // Убираем критичность exprContext (предупреждения realtime-js)
-    // Netlify иногда не заполняет module.* полностью — потому выше сделали guard.
     config.module.exprContextCritical = false;
 
-    // Игнорируем react-fast-marquee на сервере (если плагин доступен)
     if (isServer && wp && wp.IgnorePlugin) {
       config.plugins.push(new wp.IgnorePlugin({ resourceRegExp: /^react-fast-marquee$/ }));
     } else if (isServer && (!wp || !wp.IgnorePlugin)) {
       console.warn('[next.config] IgnorePlugin недоступен; пропускаем игнор react-fast-marquee для server build');
     }
 
-    // Удобный alias на корень
     config.resolve.alias['@'] = path.resolve(__dirname, '.');
 
-    // Фоллбеки для браузерной сборки (во избежание попыток подтянуть node-модули)
     if (!isServer) {
       config.resolve.fallback = {
         ...(config.resolve.fallback || {}),
@@ -69,7 +64,6 @@ const nextConfig = {
       };
     }
 
-    // Лёгкая оптимизация чанков (оставляем максимально безопасную настройку)
     config.optimization.splitChunks = {
       ...(config.optimization.splitChunks || {}),
       chunks: 'all',
