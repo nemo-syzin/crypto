@@ -14,7 +14,12 @@ import { ManifestoStrip } from '@/components/ui/manifesto-strip';
 import ExchangeStepForm from '@/components/ExchangeStepForm';
 import Image from 'next/image';
 import Link from 'next/link';
-
+import type { Metadata } from "next";
+export const metadata: Metadata = {
+  title: "Купить и продать USDT и криптовалюту в Калининграде | KenigSwap",
+  description:
+    "Покупка и продажа USDT, BTC, ETH, SOL и другой криптовалюты в Калининграде. Оставьте заявку на обмен, получите актуальный курс и проведите сделку в удобном формате.",
+};
 export default function ExchangePage() {
   const controls = useAnimation();
   const [ref, inView] = useInView({
