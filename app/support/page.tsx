@@ -2,8 +2,8 @@ import { Metadata } from 'next';
 import { SupportPageClient } from './SupportPageClient';
 
 export const metadata: Metadata = {
-  title: 'Поддержка – KenigSwap',
-  description: 'Служба поддержки KenigSwap. Получите помощь по обмену криптовалют, ответы на вопросы и техническую поддержку 24/7.',
+  title: 'Поддержка клиентов KenigSwap | Обмен криптовалют в Калининграде',
+  description: 'Свяжитесь с поддержкой KenigSwap по вопросам обмена криптовалюты, покупки и продажи USDT, условий сделки, верификации и работы сервиса.',
   keywords: ['поддержка', 'помощь', 'FAQ', 'техническая поддержка', 'обмен криптовалют', 'служба поддержки'],
   openGraph: {
     title: 'Поддержка – KenigSwap',
