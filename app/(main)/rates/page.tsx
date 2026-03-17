@@ -2,8 +2,8 @@ import { Metadata } from 'next';
 import { RatesPageClient } from './RatesPageClient';
 
 export const metadata: Metadata = {
-  title: 'Курсы криптовалют – KenigSwap',
-  description: 'Актуальные курсы криптовалют, рыночные данные и аналитика в реальном времени. Отслеживайте топ криптовалюты, рыночные тренды и индекс страха и жадности.',
+  title: 'Курсы USDT, Bitcoin и криптовалют в Калининграде | KenigSwap',
+  description: 'Актуальные курсы USDT, Bitcoin, ETH, SOL и другой криптовалюты. Следите за рыночными данными и выбирайте удобный момент для обмена в KenigSwap.',
   keywords: ['криптовалюты', 'курсы криптовалют', 'биткоин', 'эфириум', 'рыночные данные', 'индекс страха и жадности', 'актуальные цены'],
   openGraph: {
     title: 'Курсы криптовалют – KenigSwap',
