@@ -7,7 +7,7 @@ import { formatNewsDate, getAllNews, getFeaturedNews } from "@/lib/news";
 export const metadata: Metadata = {
   title: "Новости – KenigSwap",
   description:
-    "Актуальные новости, обновления и важные изменения.",
+    "Актуальные новости из мира криптовалют, важные обновления сервиса KenigSwap и полезные материалы для клиентов и пользователей.",
 };
 
 export default function NewsPage() {
