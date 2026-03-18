@@ -14,9 +14,9 @@ import { MaintenanceWrapper } from "@/components/MaintenanceWrapper";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
 export const metadata: Metadata = {
-  title: "KenigSwap - USDT to RUB Exchange Platform",
+  title: "Обмен криптовалют в Калининграде",
   description:
-    "A modern crypto exchange platform specializing in USDT to RUB exchanges with competitive rates.",
+    "KenigSwap — совренменный сервис обмена криптовалют в Калининграде..",
   metadataBase: new URL(siteUrl),
   icons: {
     icon: '/favicon.svg',
