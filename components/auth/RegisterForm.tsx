@@ -362,7 +362,7 @@ export function RegisterForm() {
               <label className="text-xs text-[#001D8D]/80 leading-tight">
                 Я согласен с{' '}
                 <Link
-                  href="https://kenigswap.ru/policy/aml-kyc/"
+                  href="https://kenigswap.com/policy/aml-kyc/"
                   target="_blank"
                   className="text-[#001D8D] font-medium hover:underline"
                 >
@@ -397,7 +397,7 @@ export function RegisterForm() {
               <label className="text-xs text-[#001D8D]/80 leading-tight">
                 Я прочитал и согласен с{' '}
                 <Link
-                  href="https://kenigswap.ru/policy/terms/"
+                  href="https://kenigswap.com/policy/terms/"
                   target="_blank"
                   className="text-[#001D8D] font-medium hover:underline"
                 >
@@ -431,7 +431,7 @@ export function RegisterForm() {
             <p className="text-[#001D8D]/70">
               Уже есть аккаунт?{' '}
               <Link 
-                href="https://kenigswap.ru/login/" 
+                href="https://kenigswap.com/login/" 
                 className="text-[#001D8D] font-semibold hover:underline"
               >
                 Войти
