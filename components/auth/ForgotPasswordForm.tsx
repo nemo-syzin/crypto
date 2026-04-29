@@ -130,7 +130,7 @@ export function ForgotPasswordForm() {
             >
               Отправить письмо повторно
             </Button>
-            <Link href="https://kenigswap.ru/login/">
+            <Link href="https://kenigswap.com/login/">
               <Button variant="ghost" className="w-full text-[#001D8D]">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Вернуться к входу
@@ -211,7 +211,7 @@ export function ForgotPasswordForm() {
           {/* Ссылка назад */}
           <div className="text-center pt-4">
             <Link 
-              href="https://kenigswap.ru/login/" 
+              href="https://kenigswap.com/login/" 
               className="text-[#001D8D] hover:underline flex items-center justify-center gap-2"
             >
               <ArrowLeft className="h-4 w-4" />
