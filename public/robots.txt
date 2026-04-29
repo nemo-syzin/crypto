@@ -3,4 +3,4 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://kenigswap.ru/sitemap.xml
+Sitemap: https://kenigswap.com/sitemap.xml
