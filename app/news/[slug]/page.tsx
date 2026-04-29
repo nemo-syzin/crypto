@@ -57,7 +57,7 @@ export default function NewsArticlePage({ params }: PageProps) {
             variant="ghost"
             className="text-[#001D8D] hover:bg-[#001D8D]/5 rounded-xl"
           >
-            <Link href="https://kenigswap.ru/news/">
+            <Link href="https://kenigswap.com/news/">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Ко всем новостям
             </Link>
