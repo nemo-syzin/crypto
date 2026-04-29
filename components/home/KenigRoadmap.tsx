@@ -100,7 +100,7 @@ export default function KenigRoadmap() {
           className="mt-14 text-center"
         >
           <Link
-            href="https://kenigswap.ru/contact/"
+            href="https://kenigswap.com/contact/"
             className="group inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full font-semibold text-white bg-gradient-to-r from-[#001D8D] to-[#00AEEF] shadow-lg hover:shadow-xl hover:brightness-110 active:scale-95 transition-all"
             aria-label="Co-create your automation roadmap with IOAuto"
           >
