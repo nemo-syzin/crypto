@@ -215,12 +215,12 @@ export function UpdatePasswordForm() {
             {error || 'Ссылка для сброса пароля недействительна или истекла. Запросите новую ссылку.'}
           </p>
           <div className="space-y-3">
-            <Link href="https://kenigswap.ru/forgot-password/">
+            <Link href="https://kenigswap.com/forgot-password/">
               <Button className="w-full bg-gradient-to-r from-[#001D8D] to-blue-600 text-white">
                 Запросить новую ссылку
               </Button>
             </Link>
-            <Link href="https://kenigswap.ru/login/">
+            <Link href="https://kenigswap.com/login/">
               <Button variant="ghost" className="w-full text-[#001D8D]">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Вернуться к входу
@@ -251,7 +251,7 @@ export function UpdatePasswordForm() {
           <p className="text-sm text-[#001D8D]/60 mb-6">
             Вы будете автоматически перенаправлены на страницу входа через несколько секунд...
           </p>
-          <Link href="https://kenigswap.ru/login/">
+          <Link href="https://kenigswap.com/login/">
             <Button className="w-full bg-gradient-to-r from-[#001D8D] to-blue-600 text-white">
               Войти с новым паролем
             </Button>
@@ -365,7 +365,7 @@ export function UpdatePasswordForm() {
           {/* Ссылка назад */}
           <div className="text-center pt-4">
             <Link 
-              href="https://kenigswap.ru/login/" 
+              href="https://kenigswap.com/login/" 
               className="text-[#001D8D] hover:underline flex items-center justify-center gap-2"
             >
               <ArrowLeft className="h-4 w-4" />
