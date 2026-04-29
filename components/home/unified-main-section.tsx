@@ -535,7 +535,7 @@ const UnifiedMainSection = () => {
                   </p>
 
                   <div className="space-y-4">
-                    <Link href="https://kenigswap.ru/exchange/">
+                    <Link href="https://kenigswap.com/exchange/">
                       <Button
                         size="lg"
                         className="w-full mb-4 bg-[#001D8D] hover:bg-[#001D8D]/90 text-white font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
@@ -544,7 +544,7 @@ const UnifiedMainSection = () => {
                       </Button>
                     </Link>
 
-                    <Link href="https://kenigswap.ru/rates/" className="block">
+                    <Link href="https://kenigswap.com/rates/" className="block">
                       <button className="w-full border-2 border-[#001D8D]/20 text-[#001D8D] hover:bg-[#001D8D]/5 px-6 py-3 rounded-lg font-semibold transition-all duration-300">
                         Посмотреть курсы
                       </button>
@@ -553,7 +553,7 @@ const UnifiedMainSection = () => {
 
                   <div className="mt-8 text-center text-sm text-[#001D8D]/60">
                     Нужна помощь?{" "}
-                    <Link href="https://kenigswap.ru/support/" className="text-[#001D8D] hover:underline">
+                    <Link href="https://kenigswap.com/support/" className="text-[#001D8D] hover:underline">
                       Связаться с поддержкой
                     </Link>
                   </div>
