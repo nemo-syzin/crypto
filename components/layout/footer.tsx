@@ -4,17 +4,17 @@ import Image from 'next/image';
 import { Shield, FileText, Lock } from 'lucide-react';
 
 const footerLinks = [
-  { href: 'https://kenigswap.ru/exchange/', label: 'Обмен' },
-  { href: 'https://kenigswap.ru/rates/', label: 'Курсы' },
-  { href: 'https://kenigswap.ru/about/', label: 'О нас' },
-  { href: 'https://kenigswap.ru/news/', label: 'Новости' },
-  { href: 'https://kenigswap.ru/support/', label: 'Поддержка' },
+  { href: 'https://kenigswap.com/exchange/', label: 'Обмен' },
+  { href: 'https://kenigswap.com/rates/', label: 'Курсы' },
+  { href: 'https://kenigswap.com/about/', label: 'О нас' },
+  { href: 'https://kenigswap.com/news/', label: 'Новости' },
+  { href: 'https://kenigswap.com/support/', label: 'Поддержка' },
 ];
 
 const policyLinks = [
-  { href: 'https://kenigswap.ru/policy/aml-kyc/', label: 'AML/CTF и KYC' },
-  { href: 'https://kenigswap.ru/policy/terms/', label: 'Условия использования' },
-  { href: 'https://kenigswap.ru/policy/privacy/', label: 'Политика конфиденциальности' },
+  { href: 'https://kenigswap.com/policy/aml-kyc/', label: 'AML/CTF и KYC' },
+  { href: 'https://kenigswap.com/policy/terms/', label: 'Условия использования' },
+  { href: 'https://kenigswap.com/policy/privacy/', label: 'Политика конфиденциальности' },
 ];
 
 const Footer = () => {
@@ -23,7 +23,7 @@ const Footer = () => {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div className="col-span-1 lg:col-span-1">
-            <Link href="https://kenigswap.ru/" className="flex items-center gap-2">
+            <Link href="https://kenigswap.com/" className="flex items-center gap-2">
               <Image
                 src="/brand/kenigswap-logo.svg"
                 alt="KenigSwap"
@@ -99,7 +99,7 @@ const Footer = () => {
             <ul className="space-y-2">
               <li>
                 <Link
-                  href="https://kenigswap.ru/about/"
+                  href="https://kenigswap.com/about/"
                   className="text-gray-600 hover:text-[#001D8D] transition-colors duration-200"
                 >
                   О нас
@@ -107,7 +107,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  href="https://kenigswap.ru/news/"
+                  href="https://kenigswap.com/news/"
                   className="text-gray-600 hover:text-[#001D8D] transition-colors duration-200"
                 >
                   Новости
