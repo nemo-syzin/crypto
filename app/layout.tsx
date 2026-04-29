@@ -11,7 +11,7 @@ import Footer from "@/components/layout/footer";
 import { YandexMetrika } from "@/components/analytics/YandexMetrika";
 import { MaintenanceWrapper } from "@/components/MaintenanceWrapper";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://kenigswap.ru";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://kenigswap.com";
 
 export const metadata: Metadata = {
   title: "Обмен криптовалют в Калининграде",
